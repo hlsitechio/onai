@@ -1,3 +1,4 @@
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -97,5 +98,44 @@
 
   body {
     @apply bg-background text-foreground;
+    font-feature-settings: "rlig" 1, "calt" 1;
   }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-poppins;
+  }
+}
+
+/* Custom styling for content editable */
+[contenteditable="true"]:focus {
+  outline: none;
+}
+
+[contenteditable="true"] h1 {
+  @apply text-3xl font-bold mb-4;
+}
+
+[contenteditable="true"] h2 {
+  @apply text-2xl font-bold mb-3;
+}
+
+[contenteditable="true"] h3 {
+  @apply text-xl font-bold mb-2;
+}
+
+[contenteditable="true"] p {
+  @apply mb-4;
+}
+
+[contenteditable="true"] ul {
+  @apply list-disc pl-6 mb-4;
+}
+
+[contenteditable="true"] ol {
+  @apply list-decimal pl-6 mb-4;
+}
+
+/* Smooth scrolling */
+html {
+  scroll-behavior: smooth;
 }
