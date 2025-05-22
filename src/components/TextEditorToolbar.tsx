@@ -47,7 +47,7 @@ const TextEditorToolbar: React.FC<TextEditorToolbarProps> = ({
       <Button 
         variant="ghost" 
         size="sm"
-        onClick={() => execCommand("bold")}
+        onClick={() => execCommand("bold", null)}
         className="hover:bg-white/10 text-white"
       >
         <Bold className="h-4 w-4" />
@@ -56,7 +56,7 @@ const TextEditorToolbar: React.FC<TextEditorToolbarProps> = ({
       <Button 
         variant="ghost" 
         size="sm"
-        onClick={() => execCommand("italic")}
+        onClick={() => execCommand("italic", null)}
         className="hover:bg-white/10 text-white"
       >
         <Italic className="h-4 w-4" />
@@ -65,7 +65,7 @@ const TextEditorToolbar: React.FC<TextEditorToolbarProps> = ({
       <Button 
         variant="ghost" 
         size="sm"
-        onClick={() => execCommand("underline")}
+        onClick={() => execCommand("underline", null)}
         className="hover:bg-white/10 text-white"
       >
         <Underline className="h-4 w-4" />
@@ -76,7 +76,7 @@ const TextEditorToolbar: React.FC<TextEditorToolbarProps> = ({
       <Button 
         variant="ghost" 
         size="sm"
-        onClick={() => execCommand("insertOrderedList")}
+        onClick={() => execCommand("insertOrderedList", null)}
         className="hover:bg-white/10 text-white"
       >
         <ListOrdered className="h-4 w-4" />
@@ -85,7 +85,7 @@ const TextEditorToolbar: React.FC<TextEditorToolbarProps> = ({
       <Button 
         variant="ghost" 
         size="sm"
-        onClick={() => execCommand("insertUnorderedList")}
+        onClick={() => execCommand("insertUnorderedList", null)}
         className="hover:bg-white/10 text-white"
       >
         <List className="h-4 w-4" />
@@ -96,7 +96,7 @@ const TextEditorToolbar: React.FC<TextEditorToolbarProps> = ({
       <Button 
         variant="ghost" 
         size="sm"
-        onClick={() => execCommand("justifyLeft")}
+        onClick={() => execCommand("justifyLeft", null)}
         className="hover:bg-white/10 text-white"
       >
         <AlignLeft className="h-4 w-4" />
@@ -105,7 +105,7 @@ const TextEditorToolbar: React.FC<TextEditorToolbarProps> = ({
       <Button 
         variant="ghost" 
         size="sm"
-        onClick={() => execCommand("justifyCenter")}
+        onClick={() => execCommand("justifyCenter", null)}
         className="hover:bg-white/10 text-white"
       >
         <AlignCenter className="h-4 w-4" />
@@ -114,7 +114,7 @@ const TextEditorToolbar: React.FC<TextEditorToolbarProps> = ({
       <Button 
         variant="ghost" 
         size="sm"
-        onClick={() => execCommand("justifyRight")}
+        onClick={() => execCommand("justifyRight", null)}
         className="hover:bg-white/10 text-white"
       >
         <AlignRight className="h-4 w-4" />
@@ -125,7 +125,7 @@ const TextEditorToolbar: React.FC<TextEditorToolbarProps> = ({
       <Button 
         variant="ghost" 
         size="sm"
-        onClick={() => execCommand("undo")}
+        onClick={() => execCommand("undo", null)}
         className="hover:bg-white/10 text-white"
       >
         <Undo className="h-4 w-4" />
@@ -134,7 +134,7 @@ const TextEditorToolbar: React.FC<TextEditorToolbarProps> = ({
       <Button 
         variant="ghost" 
         size="sm"
-        onClick={() => execCommand("redo")}
+        onClick={() => execCommand("redo", null)}
         className="hover:bg-white/10 text-white"
       >
         <Redo className="h-4 w-4" />
