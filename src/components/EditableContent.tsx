@@ -1,3 +1,4 @@
+
 import React, { useRef, useEffect, useState } from "react";
 import { marked } from "marked";
 
@@ -139,7 +140,6 @@ const EditableContent: React.FC<EditableContentProps> = ({ content, setContent }
         renderer,
         breaks: true, // Add line breaks on single newlines
         gfm: true,    // GitHub Flavored Markdown
-        headerIds: true, // Generate IDs for headings
       });
       
       return { __html: marked.parse(text) };
