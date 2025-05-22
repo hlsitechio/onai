@@ -52,7 +52,7 @@ const Hero = () => {
   };
 
   return (
-    <section className="py-20 px-4 bg-black relative overflow-hidden">
+    <section className="py-32 px-4 bg-black relative overflow-hidden min-h-[90vh] flex items-center">
       {/* Background image with overlay */}
       <div className="absolute inset-0 z-0">
         <img 
@@ -65,11 +65,11 @@ const Hero = () => {
       
       <div className="container mx-auto max-w-6xl relative z-10">
         <div className="flex flex-col items-center text-center">
-          <h1 className="font-poppins font-bold text-4xl md:text-6xl mb-6 text-white">
-            <span className="block h-24 text-noteflow-400">{displayText}<span className="animate-pulse">|</span></span>
+          <h1 className="font-poppins font-bold text-5xl md:text-7xl mb-8 text-white">
+            <span className="block h-28 text-noteflow-400">{displayText}<span className="animate-pulse">|</span></span>
           </h1>
           
-          <p className="text-gray-300 text-lg md:text-xl max-w-3xl mb-8 animate-fade-up glass-card p-6 rounded-lg bg-white/5 backdrop-blur-lg border border-white/10" style={{ animationDelay: "0.1s" }}>
+          <p className="text-gray-300 text-xl md:text-2xl max-w-3xl mb-12 animate-fade-up glass-card p-8 rounded-lg bg-white/5 backdrop-blur-lg border border-white/10" style={{ animationDelay: "0.1s" }}>
             Create beautiful notes with our free, Word-style editor. No account needed. 
             Start typing and your notes save automatically.
           </p>
@@ -80,7 +80,7 @@ const Hero = () => {
             style={{ animationDelay: "0.2s" }}
           >
             Start Taking Notes
-            <ArrowDown className="h-4 w-4" />
+            <ArrowDown className="h-5 w-5" />
           </Button>
         </div>
       </div>
