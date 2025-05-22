@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from "react";
+
+import React, { useState, useEffect, useRef } from "react";
 import { 
   Bold, 
   Italic, 
@@ -23,7 +24,9 @@ const TextEditor = () => {
   const { toast } = useToast();
   const [content, setContent] = useState<string>(localStorage.getItem("noteflow-content") || "");
   const [lastSaved, setLastSaved] = useState<Date | null>(null);
-  const [isSidebarOpen, setIsSidebarOpen] = useState(true); // Changed default to true
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const editorRef = useRef<HTMLDivElement>(null);
+  const [editorHeight, setEditorHeight] = useState<number>(0);
   
   // Control auto-saving
   useEffect(() => {
@@ -36,6 +39,23 @@ const TextEditor = () => {
 
     return () => clearInterval(saveInterval);
   }, [content]);
+  
+  // Update editor height for sidebar matching
+  useEffect(() => {
+    if (editorRef.current) {
+      const updateEditorHeight = () => {
+        const height = editorRef.current?.getBoundingClientRect().height || 0;
+        setEditorHeight(height);
+      };
+      
+      updateEditorHeight();
+      window.addEventListener('resize', updateEditorHeight);
+      
+      return () => {
+        window.removeEventListener('resize', updateEditorHeight);
+      };
+    }
+  }, [editorRef]);
   
   // Execute commands on the editor
   const execCommand = (command: string, value: string | null = null) => {
@@ -74,13 +94,17 @@ const TextEditor = () => {
                 currentContent={content} 
                 onLoadNote={handleLoadNote} 
                 onSave={handleSave}
+                editorHeight={editorHeight}
               />
             </div>
           )}
           
           {/* The editor */}
           <div className="flex-1 flex flex-col">
-            <div className="bg-black/40 backdrop-blur-lg rounded-lg shadow-lg border border-white/10 overflow-hidden">
+            <div 
+              ref={editorRef}
+              className="bg-black/40 backdrop-blur-lg rounded-lg shadow-lg border border-white/10 overflow-hidden"
+            >
               {/* Toolbar */}
               <div className="bg-black/60 border-b border-white/10 p-3 flex flex-wrap gap-2">
                 <Button 
@@ -217,6 +241,7 @@ const TextEditor = () => {
                 onInput={(e) => setContent((e.target as HTMLDivElement).innerHTML)}
                 style={{ 
                   minHeight: '400px', 
+                  height: '450px',
                   maxHeight: '600px', 
                   overflowY: 'auto',
                   lineHeight: '1.6',

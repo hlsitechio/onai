@@ -22,9 +22,10 @@ interface NotesSidebarProps {
   currentContent: string;
   onLoadNote: (content: string) => void;
   onSave: () => void;
+  editorHeight: number;
 }
 
-const NotesSidebar: React.FC<NotesSidebarProps> = ({ currentContent, onLoadNote, onSave }) => {
+const NotesSidebar: React.FC<NotesSidebarProps> = ({ currentContent, onLoadNote, onSave, editorHeight }) => {
   const { toast } = useToast();
   const [notes, setNotes] = useState<Record<string, string>>({});
   const [activeNoteId, setActiveNoteId] = useState<string>('current');
@@ -97,59 +98,66 @@ const NotesSidebar: React.FC<NotesSidebarProps> = ({ currentContent, onLoadNote,
   };
 
   return (
-    <div className="bg-black/40 backdrop-blur-lg rounded-lg border border-white/10 h-full shadow-lg flex flex-col">
-      <div className="p-4 border-b border-white/10">
+    <div 
+      className="bg-black/40 backdrop-blur-lg rounded-lg border border-white/10 shadow-lg flex flex-col"
+      style={{ height: editorHeight ? `${editorHeight}px` : 'auto' }}
+    >
+      <div className="p-3 border-b border-white/10">
         <h3 className="text-sm font-semibold text-white">My Notes</h3>
       </div>
 
-      <div className="p-4 flex-grow overflow-auto">
-        <Button
-          variant="outline"
-          size="sm"
-          className="w-full mb-4 border-white/10 text-white hover:bg-black/30"
-          onClick={onSave}
-        >
-          <Save className="h-4 w-4 mr-2" /> Save Current Note
-        </Button>
+      <div className="flex-1 overflow-auto">
+        <div className="p-3">
+          <Button
+            variant="outline"
+            size="sm"
+            className="w-full mb-4 border-white/10 text-white hover:bg-black/30"
+            onClick={onSave}
+          >
+            <Save className="h-4 w-4 mr-2" /> Save Current Note
+          </Button>
 
-        <h4 className="text-xs uppercase text-slate-400 font-medium mb-2">Saved Notes</h4>
-        <div className="space-y-1 max-h-[300px] overflow-y-auto">
-          {Object.entries(notes).length === 0 ? (
-            <p className="text-xs text-slate-500">No saved notes yet</p>
-          ) : (
-            Object.entries(notes).map(([noteId, content]) => (
-              <div 
-                key={noteId}
-                className={`p-2 rounded-md flex justify-between items-center cursor-pointer ${
-                  activeNoteId === noteId ? 'bg-white/10' : 'hover:bg-white/5'
-                }`}
-                onClick={() => handleLoadNote(noteId)}
-              >
-                <span className="text-sm text-white truncate">{formatNoteId(noteId)}</span>
-                <div className="flex gap-1">
-                  <button 
-                    onClick={(e) => handleOpenShare(noteId)}
-                    className="p-1 hover:bg-white/10 rounded"
-                  >
-                    <ArrowRight className="h-4 w-4 text-slate-400" />
-                  </button>
-                  <button 
-                    onClick={(e) => handleDeleteNote(noteId, e)}
-                    className="p-1 hover:bg-white/10 rounded"
-                  >
-                    <Trash2 className="h-4 w-4 text-slate-400" />
-                  </button>
+          <h4 className="text-xs uppercase text-slate-400 font-medium mb-2">Saved Notes</h4>
+          <div className="space-y-1 overflow-y-auto">
+            {Object.entries(notes).length === 0 ? (
+              <p className="text-xs text-slate-500">No saved notes yet</p>
+            ) : (
+              Object.entries(notes).map(([noteId, content]) => (
+                <div 
+                  key={noteId}
+                  className={`p-2 rounded-md flex justify-between items-center cursor-pointer ${
+                    activeNoteId === noteId ? 'bg-white/10' : 'hover:bg-white/5'
+                  }`}
+                  onClick={() => handleLoadNote(noteId)}
+                >
+                  <span className="text-sm text-white truncate">{formatNoteId(noteId)}</span>
+                  <div className="flex gap-1">
+                    <button 
+                      onClick={(e) => handleOpenShare(noteId)}
+                      className="p-1 hover:bg-white/10 rounded"
+                    >
+                      <ArrowRight className="h-4 w-4 text-slate-400" />
+                    </button>
+                    <button 
+                      onClick={(e) => handleDeleteNote(noteId, e)}
+                      className="p-1 hover:bg-white/10 rounded"
+                    >
+                      <Trash2 className="h-4 w-4 text-slate-400" />
+                    </button>
+                  </div>
                 </div>
-              </div>
-            ))
-          )}
+              ))
+            )}
+          </div>
         </div>
         
         {/* Ad Banner in Sidebar */}
-        <AdBanner size="small" position="sidebar" className="mt-4" />
+        <div className="p-3">
+          <AdBanner size="small" position="sidebar" />
+        </div>
       </div>
 
-      <div className="p-4 border-t border-white/10">
+      <div className="p-3 border-t border-white/10">
         <Button 
           variant="ghost" 
           size="sm" 
