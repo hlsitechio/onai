@@ -13,6 +13,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { analyzeNote, generateIdeas, improveWriting, translateNote } from "@/utils/aiUtils";
 import { Sparkles, Loader2 } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 
 interface AIDialogProps {
   isOpen: boolean;
@@ -29,6 +31,7 @@ const AIDialog: React.FC<AIDialogProps> = ({ isOpen, onOpenChange, content, onAp
   const [result, setResult] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const { toast } = useToast();
 
   const handleActionChange = (value: AIAction) => {
     setSelectedAction(value);
@@ -36,9 +39,25 @@ const AIDialog: React.FC<AIDialogProps> = ({ isOpen, onOpenChange, content, onAp
     setError(null);
   };
 
+  const checkAuthentication = async (): Promise<boolean> => {
+    const { data, error } = await supabase.auth.getSession();
+    
+    if (error || !data.session) {
+      setError("You must be logged in to use the AI features. Please log in and try again.");
+      return false;
+    }
+    
+    return true;
+  };
+
   const processAIAction = async () => {
     if (!content.trim()) {
       setError("Your note is empty. Please add some content first.");
+      return;
+    }
+
+    const isAuthenticated = await checkAuthentication();
+    if (!isAuthenticated) {
       return;
     }
 
@@ -64,8 +83,17 @@ const AIDialog: React.FC<AIDialogProps> = ({ isOpen, onOpenChange, content, onAp
       }
       
       setResult(response);
+      toast({
+        title: "AI processing complete",
+        description: "Your note has been successfully processed.",
+      });
     } catch (err) {
       setError(err instanceof Error ? err.message : "An error occurred while processing your request");
+      toast({
+        title: "Error",
+        description: err instanceof Error ? err.message : "An error processing your request",
+        variant: "destructive",
+      });
     } finally {
       setIsLoading(false);
     }
@@ -75,6 +103,10 @@ const AIDialog: React.FC<AIDialogProps> = ({ isOpen, onOpenChange, content, onAp
     if (result && (selectedAction === "improve" || selectedAction === "translate")) {
       onApplyChanges(result);
       onOpenChange(false);
+      toast({
+        title: "Changes applied",
+        description: "The AI-generated content has been applied to your note.",
+      });
     }
   };
 
@@ -87,7 +119,7 @@ const AIDialog: React.FC<AIDialogProps> = ({ isOpen, onOpenChange, content, onAp
             Gemini 2.5 Flash AI Assistant
           </DialogTitle>
           <DialogDescription className="text-slate-300">
-            Let AI help you with your notes using Gemini 2.5 Flash
+            Let AI help you with your notes using Gemini 2.5 Flash (powered by Supabase)
           </DialogDescription>
         </DialogHeader>
 

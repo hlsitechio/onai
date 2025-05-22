@@ -1,75 +1,49 @@
 
-// Utility functions for Gemini AI API
+// Utility functions for Gemini AI API via Supabase Edge Function
+import { supabase } from "@/integrations/supabase/client";
 
-// Configuration for Gemini API
-const GEMINI_API_KEY = 'YOUR_GEMINI_API_KEY'; // Will be replaced with proper API key management
-const GEMINI_MODEL = 'models/gemini-2.5-flash-preview-05-20';
-const GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta';
-
-// Types for Gemini API
-interface GeminiResponse {
-  candidates: {
-    content: {
-      parts: {
-        text: string;
-      }[];
-    };
-  }[];
-  promptFeedback?: any;
+// Types for AI requests
+interface AIRequest {
+  prompt: string;
+  requestType: string;
+  noteContent: string;
 }
 
-interface GeminiRequest {
-  contents: {
-    parts: {
-      text: string;
-    }[];
-  }[];
+interface AIResponse {
+  result?: string;
+  error?: string;
 }
 
-// Function to call Gemini API
-export async function callGeminiAI(prompt: string): Promise<string> {
+// Main function to call Gemini AI via Supabase Edge Function
+export async function callGeminiAI(prompt: string, noteContent: string, requestType: string): Promise<string> {
   try {
-    // Prepare request body
-    const requestBody: GeminiRequest = {
-      contents: [
-        {
-          parts: [
-            {
-              text: prompt
-            }
-          ]
-        }
-      ]
+    // Prepare request payload
+    const requestBody: AIRequest = {
+      prompt,
+      requestType,
+      noteContent
     };
 
-    // Make API call
-    const response = await fetch(
-      `${GEMINI_API_URL}/${GEMINI_MODEL}:generateContent?key=${GEMINI_API_KEY}`,
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(requestBody)
-      }
-    );
+    // Call the Supabase Edge Function
+    const { data, error } = await supabase.functions.invoke('gemini-ai', {
+      body: JSON.stringify(requestBody),
+    });
 
-    if (!response.ok) {
-      const errorData = await response.text();
-      throw new Error(`Gemini API error: ${response.status} - ${errorData}`);
+    if (error) {
+      throw new Error(`Edge function error: ${error.message}`);
     }
 
-    const data = await response.json() as GeminiResponse;
+    const response = data as AIResponse;
     
-    // Extract text from response
-    if (data.candidates && data.candidates.length > 0) {
-      const candidate = data.candidates[0];
-      if (candidate.content && candidate.content.parts && candidate.content.parts.length > 0) {
-        return candidate.content.parts[0].text;
-      }
+    if (response.error) {
+      throw new Error(`AI processing error: ${response.error}`);
     }
     
-    throw new Error('No valid response from Gemini API');
+    if (!response.result) {
+      throw new Error('No valid response received');
+    }
+    
+    return response.result;
   } catch (error) {
     console.error('Error calling Gemini AI:', error);
     throw error;
@@ -95,7 +69,7 @@ export const analyzeNote = async (content: string): Promise<string> => {
   - [Suggestion 1]
   - [Suggestion 2]`;
   
-  return callGeminiAI(prompt);
+  return callGeminiAI(prompt, content, 'analyze');
 };
 
 export const generateIdeas = async (content: string): Promise<string> => {
@@ -105,7 +79,7 @@ export const generateIdeas = async (content: string): Promise<string> => {
   
   Provide 5 interesting ideas or thoughts that relate to this content.`;
   
-  return callGeminiAI(prompt);
+  return callGeminiAI(prompt, content, 'generate_ideas');
 };
 
 export const improveWriting = async (content: string): Promise<string> => {
@@ -115,7 +89,7 @@ export const improveWriting = async (content: string): Promise<string> => {
   
   Focus on clarity, conciseness, and professional tone. Return only the improved text.`;
   
-  return callGeminiAI(prompt);
+  return callGeminiAI(prompt, content, 'improve_writing');
 };
 
 export const translateNote = async (content: string, targetLanguage: string): Promise<string> => {
@@ -125,6 +99,5 @@ export const translateNote = async (content: string, targetLanguage: string): Pr
   
   Return only the translated text.`;
   
-  return callGeminiAI(prompt);
+  return callGeminiAI(prompt, content, 'translate');
 };
-

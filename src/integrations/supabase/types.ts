@@ -9,6 +9,36 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      ai_interactions: {
+        Row: {
+          created_at: string | null
+          id: string
+          note_content: string
+          request_type: string
+          response: string | null
+          updated_at: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          note_content: string
+          request_type: string
+          response?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          note_content?: string
+          request_type?: string
+          response?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       data: {
         Row: {
           created_at: string
