@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from "react";
 import { 
   Bold, 
@@ -250,8 +249,8 @@ const TextEditor = () => {
               />
             </div>
             
-            {/* Ad Banner below editor */}
-            <AdBanner size="medium" position="content" className="mt-4" />
+            {/* Ad Banner below editor with specific ad slot */}
+            <AdBanner size="medium" position="content" className="mt-4" adSlotId="3456789012" />
             
             <div className="mt-4 text-center text-sm text-slate-400">
               Your notes are saved in Chrome Storage and locally in your browser.

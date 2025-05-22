@@ -17,8 +17,8 @@ const Features = () => {
       <div className="container mx-auto max-w-6xl">
         <h2 className="text-3xl md:text-4xl font-poppins font-bold text-center mb-12 text-gray-200">Why Choose NoteFlow?</h2>
         
-        {/* Premium Ad Banner */}
-        <AdBanner size="large" className="my-8 max-w-4xl mx-auto" />
+        {/* Premium Ad Banner with a specific ad slot */}
+        <AdBanner size="large" className="my-8 max-w-4xl mx-auto" adSlotId="2345678901" />
         
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {features.map((feature, index) => (

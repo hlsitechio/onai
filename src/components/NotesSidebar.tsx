@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { 
   Drawer,
@@ -151,9 +150,9 @@ const NotesSidebar: React.FC<NotesSidebarProps> = ({ currentContent, onLoadNote,
           </div>
         </div>
         
-        {/* Ad Banner in Sidebar */}
+        {/* Ad Banner in Sidebar with specific ad slot */}
         <div className="p-3">
-          <AdBanner size="small" position="sidebar" />
+          <AdBanner size="small" position="sidebar" adSlotId="4567890123" />
         </div>
       </div>
 

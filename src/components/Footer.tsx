@@ -21,9 +21,9 @@ const Footer = () => {
           </div>
         </div>
         
-        {/* Small footer ad */}
+        {/* Footer ad with a specific ad slot */}
         <div className="mt-8">
-          <AdBanner size="small" position="footer" />
+          <AdBanner size="small" position="footer" adSlotId="1234567890" />
         </div>
       </div>
     </footer>
