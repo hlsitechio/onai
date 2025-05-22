@@ -58,8 +58,11 @@ const EditableContent: React.FC<EditableContentProps> = ({ content, setContent }
         maxHeight: '600px', 
         overflowY: 'auto',
         lineHeight: '1.6',
-        fontSize: '16px'
+        fontSize: '16px',
+        direction: 'ltr', // Explicitly set left-to-right text direction
+        textAlign: 'left' // Ensure text alignment is left
       }}
+      dir="ltr" // HTML5 direction attribute to force left-to-right
     />
   );
 };
