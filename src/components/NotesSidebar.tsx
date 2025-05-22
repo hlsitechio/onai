@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { 
   Drawer,
@@ -63,11 +64,27 @@ const NotesSidebar: React.FC<NotesSidebarProps> = ({ currentContent, onLoadNote,
   const formatNoteId = (id: string): string => {
     // Format the note ID for display - remove prefixes and format date
     if (id === 'current') return 'Current Note';
+    
     try {
-      const date = new Date(Number(id));
+      // Convert the ID to a number and create a Date object
+      const timestamp = Number(id);
+      
+      // Check if the timestamp is valid
+      if (isNaN(timestamp)) {
+        return id; // If not a valid number, return the original ID
+      }
+      
+      const date = new Date(timestamp);
+      
+      // Check if the date is valid before formatting
+      if (date.toString() === 'Invalid Date') {
+        return 'Note ' + id.slice(-4); // Use last 4 chars if invalid date
+      }
+      
       return date.toLocaleString();
     } catch (e) {
-      return id;
+      // If there's any error, fall back to showing a generic name
+      return 'Note ' + id.slice(-4);
     }
   };
 
@@ -98,7 +115,7 @@ const NotesSidebar: React.FC<NotesSidebarProps> = ({ currentContent, onLoadNote,
 
   return (
     <div 
-      className="bg-black/40 backdrop-blur-lg rounded-lg border border-white/10 shadow-lg flex flex-col"
+      className="bg-black/40 backdrop-blur-lg rounded-lg border border-white/10 shadow-lg flex flex-col text-white"
       style={{ height: editorHeight ? `${editorHeight}px` : 'auto' }}
     >
       <div className="p-3 border-b border-white/10">

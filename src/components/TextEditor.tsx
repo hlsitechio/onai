@@ -83,30 +83,40 @@ const TextEditor = () => {
     localStorage.setItem("noteflow-content", noteContent);
   };
   
-  // Setup key handling for editor
+  // Setup proper content editing with key handling
   useEffect(() => {
     if (!editorRef.current) return;
     
+    const handleInput = () => {
+      if (editorRef.current) {
+        setContent(editorRef.current.innerHTML);
+      }
+    };
+    
     const handleKeyDown = (e: KeyboardEvent) => {
-      // Make sure delete and backspace work properly
+      // Handle backspace and delete keys properly
       if (e.key === 'Delete' || e.key === 'Backspace') {
-        // Let the default behavior work, no need to prevent it
-        // Just make sure content is updated properly after the action
-        setTimeout(() => {
+        // Let the browser handle the default action
+        // Then sync the content state after a small delay
+        requestAnimationFrame(() => {
           if (editorRef.current) {
             setContent(editorRef.current.innerHTML);
           }
-        }, 0);
+        });
       }
     };
     
     const editorElement = editorRef.current;
+    
+    // Use both input event (for general typing) and specific key handlers
+    editorElement.addEventListener('input', handleInput);
     editorElement.addEventListener('keydown', handleKeyDown);
     
     return () => {
+      editorElement.removeEventListener('input', handleInput);
       editorElement.removeEventListener('keydown', handleKeyDown);
     };
-  }, [editorRef.current]);
+  }, []);
   
   return (
     <section id="editor-section" className="py-12 px-4 relative">
