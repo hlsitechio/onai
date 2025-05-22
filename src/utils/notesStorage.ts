@@ -27,7 +27,13 @@ export const saveNote = async (noteId: string, content: string) => {
     }
   } catch (error) {
     console.error("Error encrypting or saving note:", error);
-    return false;
+    // Last resort fallback - save unencrypted content
+    try {
+      localStorage.setItem(`noteflow-${noteId}-plain`, content);
+      return true;
+    } catch (e) {
+      return false;
+    }
   }
 };
 
@@ -45,7 +51,7 @@ export const getAllNotes = async (): Promise<Record<string, string>> => {
         console.error("Error getting notes from Chrome storage:", error);
         // Fallback to localStorage
         Object.keys(localStorage).forEach(key => {
-          if (key.startsWith('noteflow-')) {
+          if (key.startsWith('noteflow-') && !key.endsWith('-plain')) {
             const noteId = key.replace('noteflow-', '');
             const content = localStorage.getItem(key) || '';
             encryptedNotes[noteId] = content;
@@ -55,7 +61,7 @@ export const getAllNotes = async (): Promise<Record<string, string>> => {
     } else {
       // Fallback to localStorage
       Object.keys(localStorage).forEach(key => {
-        if (key.startsWith('noteflow-')) {
+        if (key.startsWith('noteflow-') && !key.endsWith('-plain')) {
           const noteId = key.replace('noteflow-', '');
           const content = localStorage.getItem(key) || '';
           encryptedNotes[noteId] = content;
@@ -66,12 +72,25 @@ export const getAllNotes = async (): Promise<Record<string, string>> => {
     // Decrypt all notes
     const notes: Record<string, string> = {};
     for (const [noteId, encryptedContent] of Object.entries(encryptedNotes)) {
-      notes[noteId] = await decryptContent(encryptedContent);
+      try {
+        notes[noteId] = await decryptContent(encryptedContent);
+      } catch (e) {
+        console.error(`Error decrypting note ${noteId}:`, e);
+        
+        // Try to get plaintext version as fallback
+        const plainKey = `noteflow-${noteId}-plain`;
+        const plainContent = localStorage.getItem(plainKey);
+        if (plainContent) {
+          notes[noteId] = plainContent;
+        } else {
+          notes[noteId] = "Error: Could not decrypt note";
+        }
+      }
     }
     
     return notes;
   } catch (error) {
-    console.error("Error decrypting notes:", error);
+    console.error("Error processing notes:", error);
     return {};
   }
 };
@@ -83,14 +102,21 @@ export const deleteNote = async (noteId: string) => {
   if (typeof chrome !== 'undefined' && chrome.storage) {
     try {
       await chrome.storage.sync.remove(noteId);
+      // Also remove any local fallback
+      localStorage.removeItem(`noteflow-${noteId}`);
+      localStorage.removeItem(`noteflow-${noteId}-plain`);
       return true;
     } catch (error) {
       console.error("Error deleting note from Chrome storage:", error);
-      return false;
+      // Fallback to localStorage deletion
+      localStorage.removeItem(`noteflow-${noteId}`);
+      localStorage.removeItem(`noteflow-${noteId}-plain`);
+      return true;
     }
   } else {
     // Fallback to localStorage
     localStorage.removeItem(`noteflow-${noteId}`);
+    localStorage.removeItem(`noteflow-${noteId}-plain`);
     return true;
   }
 };
@@ -120,7 +146,7 @@ export const shareNote = async (content: string, service: 'onedrive' | 'googledr
       // Use Web Share API if available
       if (navigator.share) {
         await navigator.share({
-          title: 'My Onlinenote.ai Note',
+          title: 'My NoteFlow Note',
           text: content,
         });
         return true;
@@ -131,7 +157,7 @@ export const shareNote = async (content: string, service: 'onedrive' | 'googledr
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = 'onlinenote-note.txt';
+      a.download = 'noteflow-note.txt';
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);

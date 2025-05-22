@@ -14,7 +14,7 @@ const Footer = () => {
         <div className="flex flex-col md:flex-row justify-between items-center mb-6">
           <div className="mb-4 md:mb-0">
             <p className="text-gray-500 text-sm">
-              © {currentYear} Onlinenote.ai. All rights reserved.
+              © {currentYear} NoteFlow. All rights reserved.
             </p>
           </div>
           
@@ -36,7 +36,7 @@ const Footer = () => {
           onOpenChange={setPrivacyDialogOpen} 
         />
         
-        {/* Advertisement banner */}
+        {/* Advertisement banner - with test mode */}
         <div className="mt-4">
           <AdBanner 
             size="large" 

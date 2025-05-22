@@ -5,13 +5,13 @@
 
 // Generate a random encryption key if one doesn't exist
 export const getOrCreateEncryptionKey = (): string => {
-  let key = localStorage.getItem('onlinenote-encryption-key');
+  let key = localStorage.getItem('noteflow-encryption-key');
   if (!key) {
     // Generate a random 256-bit key (32 bytes, encoded as base64)
     const randomBytes = new Uint8Array(32);
     window.crypto.getRandomValues(randomBytes);
     key = btoa(String.fromCharCode.apply(null, [...randomBytes]));
-    localStorage.setItem('onlinenote-encryption-key', key);
+    localStorage.setItem('noteflow-encryption-key', key);
   }
   return key;
 };
@@ -67,6 +67,13 @@ export const decryptContent = async (encryptedContent: string): Promise<string> 
       return encryptedContent;
     }
     
+    // Check if content is base64 encoded before trying to decode
+    const isBase64 = /^[A-Za-z0-9+/=]+$/.test(encryptedContent);
+    if (!isBase64) {
+      // Return unencoded content if it's not valid base64
+      return encryptedContent;
+    }
+    
     const key = getOrCreateEncryptionKey();
     const encodedKey = Uint8Array.from(atob(key), c => c.charCodeAt(0));
     
@@ -79,26 +86,31 @@ export const decryptContent = async (encryptedContent: string): Promise<string> 
       ['decrypt']
     );
     
-    // Decode the base64 content
-    const encryptedData = Uint8Array.from(atob(encryptedContent), c => c.charCodeAt(0));
-    
-    // Extract the IV (first 12 bytes) and encrypted content
-    const iv = encryptedData.slice(0, 12);
-    const actualContent = encryptedData.slice(12);
-    
-    // Decrypt the content
-    const decryptedContent = await window.crypto.subtle.decrypt(
-      {
-        name: 'AES-GCM',
-        iv
-      },
-      cryptoKey,
-      actualContent
-    );
-    
-    return new TextDecoder().decode(decryptedContent);
+    try {
+      // Decode the base64 content
+      const encryptedData = Uint8Array.from(atob(encryptedContent), c => c.charCodeAt(0));
+      
+      // Extract the IV (first 12 bytes) and encrypted content
+      const iv = encryptedData.slice(0, 12);
+      const actualContent = encryptedData.slice(12);
+      
+      // Decrypt the content
+      const decryptedContent = await window.crypto.subtle.decrypt(
+        {
+          name: 'AES-GCM',
+          iv
+        },
+        cryptoKey,
+        actualContent
+      );
+      
+      return new TextDecoder().decode(decryptedContent);
+    } catch (decodeError) {
+      console.error('Base64 decoding or decryption error:', decodeError);
+      return encryptedContent; // Return original content if decryption fails
+    }
   } catch (error) {
-    console.error('Decryption error:', error);
+    console.error('Decryption process error:', error);
     return encryptedContent; // Return encrypted content as fallback
   }
 };

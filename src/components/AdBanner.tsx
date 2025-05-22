@@ -25,6 +25,7 @@ const AdBanner: React.FC<AdBannerProps> = ({
   const adRef = useRef<HTMLModElement>(null);
   const [adLoaded, setAdLoaded] = useState(false);
   const [adError, setAdError] = useState(false);
+  const [adInitialized, setAdInitialized] = useState(false);
   
   // Determine dimensions based on size
   let dimensions = 'h-16 w-full';
@@ -41,13 +42,14 @@ const AdBanner: React.FC<AdBannerProps> = ({
     adFormat = 'vertical';
   }
 
-  // Attempt to load Google AdSense ad
+  // Attempt to load Google AdSense ad (only once)
   useEffect(() => {
-    // Only proceed if we're in the browser and adsbygoogle is available
-    if (typeof window !== 'undefined' && adRef.current) {
+    // Only proceed if we're in the browser, adsbygoogle is available, and we haven't initialized yet
+    if (typeof window !== 'undefined' && adRef.current && !adInitialized) {
       // Reset states
       setAdLoaded(false);
       setAdError(false);
+      setAdInitialized(true);
       
       try {
         // Create timeout to handle ad not loading
@@ -59,7 +61,7 @@ const AdBanner: React.FC<AdBannerProps> = ({
         
         // Check if adsbygoogle is defined
         if (window.adsbygoogle) {
-          // Push the ad to adsbygoogle
+          // Push the ad to adsbygoogle - only push if not already initialized
           (window.adsbygoogle = window.adsbygoogle || []).push({});
           setAdLoaded(true);
           clearTimeout(timeout);
@@ -71,21 +73,22 @@ const AdBanner: React.FC<AdBannerProps> = ({
         setAdError(true);
       }
     }
-  }, [adRef, adLoaded]);
+  }, [adRef]); // Only depend on adRef, not adLoaded
 
   return (
     <div 
       className={`${dimensions} ${className} bg-black/40 backdrop-blur-lg rounded-lg border border-white/10 flex items-center justify-center my-4 overflow-hidden group hover:border-noteflow-400/50 transition-all`}
-      style={{ display: 'block' }}
+      style={{ display: 'block', minWidth: '250px' }}
     >
       {!adError ? (
         <ins
           className="adsbygoogle"
-          style={{ display: 'block', width: '100%', height: '100%' }}
+          style={{ display: 'block', width: '100%', height: '100%', minWidth: '250px' }}
           data-ad-client="ca-pub-4035756937802336"
           data-ad-slot={adSlotId || 'auto'}
           data-ad-format={adFormat}
           data-full-width-responsive="true"
+          data-adtest="on" // Use test mode to avoid real ads during development
           ref={adRef}
         ></ins>
       ) : (
