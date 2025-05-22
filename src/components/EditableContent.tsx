@@ -34,12 +34,78 @@ const EditableContent: React.FC<EditableContentProps> = ({ content, setContent }
         e.preventDefault();
         document.execCommand('insertText', false, '    ');
       }
+      
+      // Markdown shortcuts
+      if (e.ctrlKey || e.metaKey) {
+        switch (e.key) {
+          case 'b': // Bold
+            e.preventDefault();
+            wrapSelectedText('**', '**');
+            break;
+          case 'i': // Italic
+            e.preventDefault();
+            wrapSelectedText('_', '_');
+            break;
+          case 'h': // Heading
+            e.preventDefault();
+            prefixLine('# ');
+            break;
+        }
+      }
     };
     
     const handlePaste = (e: ClipboardEvent) => {
       e.preventDefault();
       const text = e.clipboardData?.getData('text/plain') || '';
       document.execCommand('insertText', false, text);
+    };
+    
+    // Function to wrap selected text with markdown formatting
+    const wrapSelectedText = (prefix: string, suffix: string) => {
+      const selection = window.getSelection();
+      if (!selection || selection.rangeCount === 0) return;
+      
+      const range = selection.getRangeAt(0);
+      const selectedText = range.toString();
+      
+      if (selectedText) {
+        document.execCommand('insertText', false, `${prefix}${selectedText}${suffix}`);
+      }
+    };
+    
+    // Function to prefix the current line
+    const prefixLine = (prefix: string) => {
+      const selection = window.getSelection();
+      if (!selection || selection.rangeCount === 0) return;
+      
+      const range = selection.getRangeAt(0);
+      const node = range.startContainer;
+      
+      if (node.nodeType === Node.TEXT_NODE) {
+        const textContent = node.textContent || '';
+        const startOffset = 0;
+        const beforeCursor = textContent.substring(0, startOffset);
+        const afterCursor = textContent.substring(startOffset);
+        
+        // Find the start of the line
+        const lastNewline = beforeCursor.lastIndexOf('\n');
+        const lineStart = lastNewline === -1 ? 0 : lastNewline + 1;
+        const linePrefix = beforeCursor.substring(0, lineStart);
+        const lineContent = beforeCursor.substring(lineStart);
+        
+        // Check if already prefixed
+        if (!lineContent.startsWith(prefix)) {
+          node.textContent = linePrefix + prefix + lineContent + afterCursor;
+          
+          // Set cursor after the prefix
+          const newPosition = lineStart + prefix.length + lineContent.length;
+          const newRange = document.createRange();
+          newRange.setStart(node, newPosition);
+          newRange.setEnd(node, newPosition);
+          selection.removeAllRanges();
+          selection.addRange(newRange);
+        }
+      }
     };
     
     const editorElement = editorRef.current;
@@ -62,8 +128,23 @@ const EditableContent: React.FC<EditableContentProps> = ({ content, setContent }
 
   const renderMarkdown = (text: string) => {
     try {
+      const renderer = new marked.Renderer();
+      
+      // Configure the renderer for better markdown support
+      renderer.link = (href, title, text) => {
+        return `<a href="${href}" title="${title || ''}" target="_blank" rel="noopener noreferrer" class="text-noteflow-400 hover:underline">${text}</a>`;
+      };
+      
+      marked.setOptions({
+        renderer,
+        breaks: true, // Add line breaks on single newlines
+        gfm: true,    // GitHub Flavored Markdown
+        smartypants: true // Use smart typography
+      });
+      
       return { __html: marked.parse(text) };
     } catch (error) {
+      console.error('Error parsing markdown:', error);
       return { __html: text };
     }
   };
@@ -80,7 +161,9 @@ const EditableContent: React.FC<EditableContentProps> = ({ content, setContent }
             lineHeight: '1.6',
             fontSize: '16px',
             direction: 'ltr',
-            textAlign: 'left'
+            textAlign: 'left',
+            whiteSpace: 'pre-wrap', // Preserve line breaks
+            wordBreak: 'break-word' // Prevent overflow
           }}
           dir="ltr"
           spellCheck="true"

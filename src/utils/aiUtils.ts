@@ -101,3 +101,16 @@ export const translateNote = async (content: string, targetLanguage: string): Pr
   
   return callGeminiAI(prompt, content, 'translate');
 };
+
+export const summarizeText = async (content: string): Promise<string> => {
+  const prompt = `Summarize the following text into a concise, well-structured summary:
+  
+  ${content}
+  
+  Format your response with:
+  - A brief overall summary paragraph (2-3 sentences)
+  - Bullet points for key ideas (3-5 points)
+  - A conclusion sentence`;
+  
+  return callGeminiAI(prompt, content, 'summarize');
+};

@@ -14,6 +14,25 @@ export function useNoteContent() {
     const savedContent = localStorage.getItem("noteflow-content");
     if (savedContent) {
       setContent(savedContent);
+    } else {
+      // Set a default welcome message with markdown examples
+      setContent(`# Welcome to NoteFlow
+
+This is a markdown-enabled editor. Try out some formatting:
+
+## Formatting Examples
+- **Bold text** using \`**bold**\`
+- _Italic text_ using \`_italic_\`
+- Create headings with \`# Heading 1\` or \`## Heading 2\`
+- Make lists:
+  1. Numbered lists
+  2. Just use \`1. \` at the start
+- Use \`- \` for bullet points
+- > Add quotes with \`> \` at the start
+
+Click the "Preview" button in the bottom right to see your formatted note.
+
+Use the AI button in the toolbar to analyze, improve, or summarize your notes.`);
     }
   }, []);
   

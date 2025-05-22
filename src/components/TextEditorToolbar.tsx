@@ -13,8 +13,10 @@ import {
   Redo,
   Save,
   Sparkles,
-  FileText,
-  FileCode,
+  Heading,
+  Code,
+  TextQuote,
+  Link,
   Menu
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -39,6 +41,21 @@ const TextEditorToolbar: React.FC<TextEditorToolbarProps> = ({
   isSidebarOpen,
   lastSaved
 }) => {
+  // Markdown-specific handlers
+  const insertMarkdown = (prefix: string, suffix: string = "") => {
+    const selection = window.getSelection();
+    if (selection && selection.rangeCount > 0) {
+      const range = selection.getRangeAt(0);
+      const selectedText = range.toString();
+      
+      // Insert markdown formatting
+      document.execCommand('insertText', false, `${prefix}${selectedText}${suffix}`);
+    } else {
+      // If no selection, just insert the markdown syntax
+      document.execCommand('insertText', false, `${prefix}${suffix}`);
+    }
+  };
+
   return (
     <TooltipProvider>
       <div className="bg-black/60 border-b border-white/10 p-3 flex flex-wrap gap-2 items-center">
@@ -61,19 +78,20 @@ const TextEditorToolbar: React.FC<TextEditorToolbarProps> = ({
         
         <Separator orientation="vertical" className="h-8 bg-white/20" />
         
+        {/* Text formatting */}
         <Tooltip>
           <TooltipTrigger asChild>
             <Button 
               variant="ghost" 
               size="sm"
-              onClick={() => execCommand("bold", null)}
+              onClick={() => insertMarkdown('**', '**')}
               className="hover:bg-white/10 text-white"
             >
               <Bold className="h-4 w-4" />
             </Button>
           </TooltipTrigger>
           <TooltipContent>
-            <p>Bold (Ctrl+B)</p>
+            <p>Bold (Ctrl+B) or **text**</p>
           </TooltipContent>
         </Tooltip>
         
@@ -82,14 +100,14 @@ const TextEditorToolbar: React.FC<TextEditorToolbarProps> = ({
             <Button 
               variant="ghost" 
               size="sm"
-              onClick={() => execCommand("italic", null)}
+              onClick={() => insertMarkdown('_', '_')}
               className="hover:bg-white/10 text-white"
             >
               <Italic className="h-4 w-4" />
             </Button>
           </TooltipTrigger>
           <TooltipContent>
-            <p>Italic (Ctrl+I)</p>
+            <p>Italic (Ctrl+I) or _text_</p>
           </TooltipContent>
         </Tooltip>
         
@@ -111,19 +129,20 @@ const TextEditorToolbar: React.FC<TextEditorToolbarProps> = ({
         
         <Separator orientation="vertical" className="h-8 bg-white/20" />
         
+        {/* Markdown specific formatting */}
         <Tooltip>
           <TooltipTrigger asChild>
             <Button 
               variant="ghost" 
               size="sm"
-              onClick={() => execCommand("insertOrderedList", null)}
+              onClick={() => insertMarkdown('# ')}
               className="hover:bg-white/10 text-white"
             >
-              <ListOrdered className="h-4 w-4" />
+              <Heading className="h-4 w-4" />
             </Button>
           </TooltipTrigger>
           <TooltipContent>
-            <p>Numbered list</p>
+            <p>Heading (# Text)</p>
           </TooltipContent>
         </Tooltip>
         
@@ -132,14 +151,80 @@ const TextEditorToolbar: React.FC<TextEditorToolbarProps> = ({
             <Button 
               variant="ghost" 
               size="sm"
-              onClick={() => execCommand("insertUnorderedList", null)}
+              onClick={() => insertMarkdown('> ')}
+              className="hover:bg-white/10 text-white"
+            >
+              <TextQuote className="h-4 w-4" />
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent>
+            <p>Quote (> Text)</p>
+          </TooltipContent>
+        </Tooltip>
+        
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button 
+              variant="ghost" 
+              size="sm"
+              onClick={() => insertMarkdown('`', '`')}
+              className="hover:bg-white/10 text-white"
+            >
+              <Code className="h-4 w-4" />
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent>
+            <p>Code (`code`)</p>
+          </TooltipContent>
+        </Tooltip>
+        
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button 
+              variant="ghost" 
+              size="sm"
+              onClick={() => insertMarkdown('[', '](url)')}
+              className="hover:bg-white/10 text-white"
+            >
+              <Link className="h-4 w-4" />
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent>
+            <p>Link [text](url)</p>
+          </TooltipContent>
+        </Tooltip>
+        
+        <Separator orientation="vertical" className="h-8 bg-white/20" />
+        
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button 
+              variant="ghost" 
+              size="sm"
+              onClick={() => insertMarkdown('1. ')}
+              className="hover:bg-white/10 text-white"
+            >
+              <ListOrdered className="h-4 w-4" />
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent>
+            <p>Numbered list (1. Item)</p>
+          </TooltipContent>
+        </Tooltip>
+        
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button 
+              variant="ghost" 
+              size="sm"
+              onClick={() => insertMarkdown('- ')}
               className="hover:bg-white/10 text-white"
             >
               <List className="h-4 w-4" />
             </Button>
           </TooltipTrigger>
           <TooltipContent>
-            <p>Bullet list</p>
+            <p>Bullet list (- Item)</p>
           </TooltipContent>
         </Tooltip>
         

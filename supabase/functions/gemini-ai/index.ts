@@ -33,11 +33,18 @@ serve(async (req) => {
             }
           ]
         }
-      ]
+      ],
+      // Add specific configurations based on request type
+      generationConfig: {
+        temperature: getTemperatureForRequestType(requestType),
+        topP: 0.95,
+        topK: 40,
+        maxOutputTokens: 1024,
+      }
     };
 
     // Call Gemini API
-    console.log(`Calling Gemini API with prompt: ${prompt.substring(0, 50)}...`);
+    console.log(`Calling Gemini API with ${requestType} prompt: ${prompt.substring(0, 50)}...`);
     const response = await fetch(
       `${GEMINI_API_URL}/${GEMINI_MODEL}:generateContent?key=${GEMINI_API_KEY}`,
       {
@@ -69,8 +76,6 @@ serve(async (req) => {
       throw new Error('No valid response from Gemini API');
     }
 
-    // No longer logging interactions to the database since we're not requiring auth
-
     // Return successful response
     return new Response(
       JSON.stringify({ result }),
@@ -85,3 +90,21 @@ serve(async (req) => {
     );
   }
 });
+
+// Helper function to get the appropriate temperature for each request type
+function getTemperatureForRequestType(requestType: string): number {
+  switch (requestType) {
+    case 'analyze':
+      return 0.2; // More factual and concise
+    case 'summarize':
+      return 0.1; // Very factual and concise for summarization
+    case 'improve_writing':
+      return 0.4; // Some creativity for better writing
+    case 'translate':
+      return 0.1; // More literal for translation
+    case 'generate_ideas':
+      return 0.7; // More creative for idea generation
+    default:
+      return 0.4; // Default temperature
+  }
+}

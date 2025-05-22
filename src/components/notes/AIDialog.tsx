@@ -22,7 +22,7 @@ interface AIDialogProps {
   onApplyChanges: (newContent: string) => void;
 }
 
-type AIAction = "analyze" | "ideas" | "improve" | "translate";
+type AIAction = "analyze" | "ideas" | "improve" | "translate" | "summarize";
 
 const AIDialog: React.FC<AIDialogProps> = ({ isOpen, onOpenChange, content, onApplyChanges }) => {
   const [selectedAction, setSelectedAction] = useState<AIAction>("analyze");
@@ -63,6 +63,9 @@ const AIDialog: React.FC<AIDialogProps> = ({ isOpen, onOpenChange, content, onAp
         case "translate":
           response = await translateNote(content, targetLanguage);
           break;
+        case "summarize":
+          response = await summarizeText(content);
+          break;
       }
       
       setResult(response);
@@ -82,8 +85,24 @@ const AIDialog: React.FC<AIDialogProps> = ({ isOpen, onOpenChange, content, onAp
     }
   };
 
+  const summarizeText = async (text: string): Promise<string> => {
+    const prompt = `Summarize the following text into a concise, well-structured summary with bullet points for key ideas:
+    
+    ${text}
+    
+    Format your response with a brief overall summary paragraph followed by key points.`;
+    
+    return callGeminiAI(prompt, text, 'summarize');
+  };
+
+  const callGeminiAI = async (prompt: string, noteContent: string, requestType: string): Promise<string> => {
+    // Reuse the existing callGeminiAI function from aiUtils
+    const { callGeminiAI } = await import('@/utils/aiUtils');
+    return callGeminiAI(prompt, noteContent, requestType);
+  };
+
   const handleApplyChanges = () => {
-    if (result && (selectedAction === "improve" || selectedAction === "translate")) {
+    if (result && ["improve", "translate", "summarize"].includes(selectedAction)) {
       onApplyChanges(result);
       onOpenChange(false);
       toast({
@@ -121,6 +140,7 @@ const AIDialog: React.FC<AIDialogProps> = ({ isOpen, onOpenChange, content, onAp
                 <SelectItem value="ideas">Generate Ideas</SelectItem>
                 <SelectItem value="improve">Improve Writing</SelectItem>
                 <SelectItem value="translate">Translate</SelectItem>
+                <SelectItem value="summarize">Summarize Text</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -147,9 +167,9 @@ const AIDialog: React.FC<AIDialogProps> = ({ isOpen, onOpenChange, content, onAp
                   <SelectItem value="Russian">Russian</SelectItem>
                   <SelectItem value="Arabic">Arabic</SelectItem>
                 </SelectContent>
-              </Select>
-            </div>
-          )}
+              </SelectContent>
+            </Select>
+          </div>
 
           <div className="mt-2">
             <Button 
@@ -183,7 +203,7 @@ const AIDialog: React.FC<AIDialogProps> = ({ isOpen, onOpenChange, content, onAp
               <h4 className="font-medium text-white mb-2">Result:</h4>
               <Textarea 
                 value={result} 
-                readOnly={!["improve", "translate"].includes(selectedAction)}
+                readOnly={!["improve", "translate", "summarize"].includes(selectedAction)}
                 onChange={(e) => setResult(e.target.value)} 
                 className="h-48 resize-none bg-black/30 border-white/10 text-white"
               />
@@ -200,7 +220,7 @@ const AIDialog: React.FC<AIDialogProps> = ({ isOpen, onOpenChange, content, onAp
             Cancel
           </Button>
           
-          {(selectedAction === "improve" || selectedAction === "translate") && result && (
+          {(["improve", "translate", "summarize"].includes(selectedAction)) && result && (
             <Button 
               onClick={handleApplyChanges}
               className="bg-noteflow-500 hover:bg-noteflow-600 text-white"
