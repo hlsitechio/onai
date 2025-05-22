@@ -1,72 +1,120 @@
 
 // Helper functions to work with Chrome Storage
 import { encryptContent, decryptContent } from './encryptionUtils';
+import { useToast } from "@/hooks/use-toast";
+
+// Types
+export type StorageProviderType = 'chrome' | 'local';
+export interface StorageOperationResult {
+  success: boolean;
+  error?: string;
+}
+
+// Constants
+const STORAGE_PREFIX = 'noteflow-';
+const PLAIN_SUFFIX = '-plain';
 
 /**
- * Save a note to Chrome storage with encryption
+ * Detect which storage provider to use
  */
-export const saveNote = async (noteId: string, content: string) => {
+const getStorageProvider = (): StorageProviderType => {
+  if (typeof chrome !== 'undefined' && chrome.storage) {
+    return 'chrome';
+  }
+  return 'local';
+};
+
+/**
+ * Save content using Chrome storage API
+ */
+const saveToChrome = async (key: string, value: string): Promise<StorageOperationResult> => {
+  try {
+    await chrome.storage.sync.set({ [key]: value });
+    return { success: true };
+  } catch (error) {
+    console.error("Error saving to Chrome storage:", error);
+    return { 
+      success: false, 
+      error: error instanceof Error ? error.message : 'Unknown error saving to Chrome storage' 
+    };
+  }
+};
+
+/**
+ * Save content to localStorage
+ */
+const saveToLocal = (key: string, value: string): StorageOperationResult => {
+  try {
+    localStorage.setItem(`${STORAGE_PREFIX}${key}`, value);
+    return { success: true };
+  } catch (error) {
+    console.error("Error saving to localStorage:", error);
+    return { 
+      success: false, 
+      error: error instanceof Error ? error.message : 'Unknown error saving to localStorage' 
+    };
+  }
+};
+
+/**
+ * Save a note to storage with encryption
+ */
+export const saveNote = async (noteId: string, content: string): Promise<StorageOperationResult> => {
   try {
     // Encrypt the content before saving
     const encryptedContent = await encryptContent(content);
+    const provider = getStorageProvider();
     
-    if (typeof chrome !== 'undefined' && chrome.storage) {
-      try {
-        await chrome.storage.sync.set({ [noteId]: encryptedContent });
-        return true;
-      } catch (error) {
-        console.error("Error saving to Chrome storage:", error);
+    // Save to appropriate storage
+    if (provider === 'chrome') {
+      const result = await saveToChrome(noteId, encryptedContent);
+      if (!result.success) {
         // Fallback to localStorage if Chrome API fails
-        localStorage.setItem(`noteflow-${noteId}`, encryptedContent);
-        return true;
+        return saveToLocal(noteId, encryptedContent);
       }
+      return result;
     } else {
-      // Fallback to localStorage if Chrome API is not available
-      localStorage.setItem(`noteflow-${noteId}`, encryptedContent);
-      return true;
+      // Use localStorage
+      return saveToLocal(noteId, encryptedContent);
     }
   } catch (error) {
     console.error("Error encrypting or saving note:", error);
+    
     // Last resort fallback - save unencrypted content
     try {
-      localStorage.setItem(`noteflow-${noteId}-plain`, content);
-      return true;
+      localStorage.setItem(`${STORAGE_PREFIX}${noteId}${PLAIN_SUFFIX}`, content);
+      return { 
+        success: true, 
+        error: 'Saved unencrypted as fallback due to encryption error' 
+      };
     } catch (e) {
-      return false;
+      return { 
+        success: false, 
+        error: 'Failed to save note even in fallback mode' 
+      };
     }
   }
 };
 
 /**
- * Get all saved notes from Chrome storage
+ * Get all saved notes from storage
  */
 export const getAllNotes = async (): Promise<Record<string, string>> => {
   try {
     let encryptedNotes: Record<string, string> = {};
+    const provider = getStorageProvider();
     
-    if (typeof chrome !== 'undefined' && chrome.storage) {
+    if (provider === 'chrome') {
       try {
         encryptedNotes = await chrome.storage.sync.get(null) as Record<string, string>;
       } catch (error) {
         console.error("Error getting notes from Chrome storage:", error);
         // Fallback to localStorage
-        Object.keys(localStorage).forEach(key => {
-          if (key.startsWith('noteflow-') && !key.endsWith('-plain')) {
-            const noteId = key.replace('noteflow-', '');
-            const content = localStorage.getItem(key) || '';
-            encryptedNotes[noteId] = content;
-          }
-        });
+        encryptedNotes = getNotesFromLocalStorage();
       }
     } else {
       // Fallback to localStorage
-      Object.keys(localStorage).forEach(key => {
-        if (key.startsWith('noteflow-') && !key.endsWith('-plain')) {
-          const noteId = key.replace('noteflow-', '');
-          const content = localStorage.getItem(key) || '';
-          encryptedNotes[noteId] = content;
-        }
-      });
+      encryptedNotes = getNotesFromLocalStorage();
     }
     
     // Decrypt all notes
@@ -78,7 +126,7 @@ export const getAllNotes = async (): Promise<Record<string, string>> => {
         console.error(`Error decrypting note ${noteId}:`, e);
         
         // Try to get plaintext version as fallback
-        const plainKey = `noteflow-${noteId}-plain`;
+        const plainKey = `${STORAGE_PREFIX}${noteId}${PLAIN_SUFFIX}`;
         const plainContent = localStorage.getItem(plainKey);
         if (plainContent) {
           notes[noteId] = plainContent;
@@ -96,51 +144,77 @@ export const getAllNotes = async (): Promise<Record<string, string>> => {
 };
 
 /**
- * Delete a note from Chrome storage
+ * Helper to get notes from localStorage
  */
-export const deleteNote = async (noteId: string) => {
-  if (typeof chrome !== 'undefined' && chrome.storage) {
-    try {
-      await chrome.storage.sync.remove(noteId);
-      // Also remove any local fallback
-      localStorage.removeItem(`noteflow-${noteId}`);
-      localStorage.removeItem(`noteflow-${noteId}-plain`);
-      return true;
-    } catch (error) {
-      console.error("Error deleting note from Chrome storage:", error);
-      // Fallback to localStorage deletion
-      localStorage.removeItem(`noteflow-${noteId}`);
-      localStorage.removeItem(`noteflow-${noteId}-plain`);
-      return true;
+const getNotesFromLocalStorage = (): Record<string, string> => {
+  const notes: Record<string, string> = {};
+  
+  Object.keys(localStorage).forEach(key => {
+    if (key.startsWith(STORAGE_PREFIX) && !key.endsWith(PLAIN_SUFFIX)) {
+      const noteId = key.replace(STORAGE_PREFIX, '');
+      const content = localStorage.getItem(key) || '';
+      notes[noteId] = content;
     }
-  } else {
-    // Fallback to localStorage
-    localStorage.removeItem(`noteflow-${noteId}`);
-    localStorage.removeItem(`noteflow-${noteId}-plain`);
-    return true;
+  });
+  
+  return notes;
+};
+
+/**
+ * Delete a note from storage
+ */
+export const deleteNote = async (noteId: string): Promise<StorageOperationResult> => {
+  const provider = getStorageProvider();
+  
+  try {
+    if (provider === 'chrome') {
+      try {
+        await chrome.storage.sync.remove(noteId);
+        // Also remove any local fallbacks
+        removeLocalFallbacks(noteId);
+        return { success: true };
+      } catch (error) {
+        console.error("Error deleting note from Chrome storage:", error);
+        // Fallback to localStorage deletion
+        removeLocalFallbacks(noteId);
+        return { success: true };
+      }
+    } else {
+      // Use localStorage
+      removeLocalFallbacks(noteId);
+      return { success: true };
+    }
+  } catch (error) {
+    return { 
+      success: false, 
+      error: error instanceof Error ? error.message : 'Unknown error deleting note' 
+    };
   }
+};
+
+/**
+ * Helper to remove local fallbacks
+ */
+const removeLocalFallbacks = (noteId: string): void => {
+  localStorage.removeItem(`${STORAGE_PREFIX}${noteId}`);
+  localStorage.removeItem(`${STORAGE_PREFIX}${noteId}${PLAIN_SUFFIX}`);
 };
 
 /**
  * Share note to an external service
  */
-export const shareNote = async (content: string, service: 'onedrive' | 'googledrive' | 'device') => {
+export const shareNote = async (
+  content: string, 
+  service: 'onedrive' | 'googledrive' | 'device'
+): Promise<StorageOperationResult> => {
   try {
     if (service === 'onedrive') {
       // Normally we would use OneDrive SDK or API here
-      if (typeof chrome !== 'undefined' && chrome.tabs) {
-        chrome.tabs.create({ url: 'https://onedrive.live.com/' });
-        return true;
-      }
-      window.open('https://onedrive.live.com/', '_blank');
+      openExternalUrl('https://onedrive.live.com/');
     } 
     else if (service === 'googledrive') {
       // Normally we would use Google Drive API here
-      if (typeof chrome !== 'undefined' && chrome.tabs) {
-        chrome.tabs.create({ url: 'https://drive.google.com/' });
-        return true;
-      }
-      window.open('https://drive.google.com/', '_blank');
+      openExternalUrl('https://drive.google.com/');
     }
     else if (service === 'device') {
       // Use Web Share API if available
@@ -149,23 +223,44 @@ export const shareNote = async (content: string, service: 'onedrive' | 'googledr
           title: 'My NoteFlow Note',
           text: content,
         });
-        return true;
+        return { success: true };
       }
       
       // Create download link as fallback
-      const blob = new Blob([content], { type: 'text/plain' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = 'noteflow-note.txt';
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
+      downloadAsFile(content);
     }
-    return true;
+    return { success: true };
   } catch (error) {
     console.error("Error sharing note:", error);
-    return false;
+    return { 
+      success: false, 
+      error: error instanceof Error ? error.message : 'Unknown error sharing note' 
+    };
   }
+};
+
+/**
+ * Helper to open external URL
+ */
+const openExternalUrl = (url: string): void => {
+  if (typeof chrome !== 'undefined' && chrome.tabs) {
+    chrome.tabs.create({ url });
+  } else {
+    window.open(url, '_blank');
+  }
+};
+
+/**
+ * Helper to download content as a file
+ */
+const downloadAsFile = (content: string): void => {
+  const blob = new Blob([content], { type: 'text/plain' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'noteflow-note.txt';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
 };
