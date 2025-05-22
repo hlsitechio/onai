@@ -11,6 +11,18 @@ export function useNoteContent() {
   const [currentNoteId, setCurrentNoteId] = useState<string | null>(null);
   const [shareUrl, setShareUrl] = useState<string | null>(null);
 
+  // Clear any existing demo welcome text from localStorage on first load
+  useEffect(() => {
+    // Check if this is the first load by looking for a special flag
+    const isFirstRun = !localStorage.getItem("onlinenote-initialized");
+    if (isFirstRun) {
+      // Clear any existing welcome text or demo content
+      localStorage.removeItem("onlinenote-content");
+      // Set the initialization flag to prevent clearing again
+      localStorage.setItem("onlinenote-initialized", "true");
+    }
+  }, []);
+
   // Load content from storage with improved prioritization
   useEffect(() => {
     const loadSavedNotes = async () => {
@@ -40,31 +52,13 @@ export function useNoteContent() {
           // If no saved notes but we have content in localStorage, use that
           setContent(currentContent);
         } else {
-          // Set a default welcome message with markdown examples
-          setContent(`# Welcome to Online Note AI
-
-This is a markdown-enabled editor. Try out some formatting:
-
-## Formatting Examples
-- **Bold text** using \`**bold**\`
-- _Italic text_ using \`_italic_\`
-- Create headings with \`# Heading 1\` or \`## Heading 2\`
-- Make lists:
-  1. Numbered lists
-  2. Just use \`1. \` at the start
-- Use \`- \` for bullet points
-- > Add quotes with \`> \` at the start
-
-Click the "Preview" button in the bottom right to see your formatted note.
-
-Use the AI button in the toolbar to analyze, improve, or summarize your notes.`);
+          // Start with an empty editor
+          setContent("");
         }
       } catch (error) {
         console.error("Error loading saved notes:", error);
-        // Fallback to welcome message
-        setContent(`# Welcome to Online Note AI
-
-This is a markdown-enabled editor. Try out some formatting examples.`);
+        // Start with an empty editor even on errors
+        setContent("");
       }
     };
     

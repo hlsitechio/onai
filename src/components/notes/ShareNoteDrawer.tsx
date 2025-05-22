@@ -17,7 +17,7 @@ interface ShareNoteDrawerProps {
   isOpen: boolean;
   onOpenChange: (open: boolean) => void;
   onShareNote: (service: 'onedrive' | 'googledrive' | 'device' | 'link') => Promise<string | null>;
-  shareUrl: string | null;
+  shareUrl?: string | null;
 }
 
 const ShareNoteDrawer: React.FC<ShareNoteDrawerProps> = ({

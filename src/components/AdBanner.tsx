@@ -12,7 +12,7 @@ interface AdBannerProps {
 
 declare global {
   interface Window {
-    adsbygoogle: any[];
+    adsbygoogle: Array<Record<string, unknown>>;
   }
 }
 
@@ -29,27 +29,32 @@ const AdBanner: React.FC<AdBannerProps> = ({
   const [adInitialized, setAdInitialized] = useState(false);
   const [adTimedOut, setAdTimedOut] = useState(false);
   
-  // Determine dimensions based on size
+  // Determine dimensions based on size - optimized for better AdSense performance
   let dimensions = 'h-16 w-full';
   let adFormat = format || 'auto'; // Use provided format or default based on size
   
   if (!format) {
     if (size === 'small') {
-      dimensions = 'h-16 w-full';
+      // 728x90 leaderboard or smaller
+      dimensions = 'h-[90px] max-w-[728px] w-full';
       adFormat = 'horizontal';
     } else if (size === 'medium') {
-      dimensions = 'h-24 w-full';
+      // 300x250 rectangle - most effective ad size
+      dimensions = 'h-[250px] max-w-[300px] w-full';
       adFormat = 'rectangle';
     } else if (size === 'large') {
-      dimensions = 'h-40 w-full';
-      adFormat = 'vertical';
+      // 336x280 large rectangle - also very effective
+      dimensions = 'h-[280px] max-w-[336px] w-full';
+      adFormat = 'rectangle';
     }
   } else {
     // Special formats have their own dimensions
     if (format === 'in-article') {
-      dimensions = 'min-h-[250px] w-full';
+      // In-article format (recommended height 250px)
+      dimensions = 'min-h-[250px] max-w-[468px] w-full';
     } else if (format === 'autorelaxed') {
-      dimensions = 'min-h-[600px] w-full';
+      // Auto relaxed format - more compact
+      dimensions = 'min-h-[300px] max-w-[336px] w-full';
     }
   }
 
@@ -98,11 +103,14 @@ const AdBanner: React.FC<AdBannerProps> = ({
 
   return (
     <div 
-      className={`${dimensions} ${className} bg-black/40 backdrop-blur-lg rounded-lg border border-white/10 flex items-center justify-center my-4 overflow-hidden group hover:border-noteflow-400/50 transition-all`}
+      className={`${dimensions} ${className} glass-panel-dark rounded-xl flex items-center justify-center my-4 overflow-hidden group transition-all relative`}
       style={{ display: 'block', minWidth: '250px' }}
     >
+      {/* Background gradient effects */}
+      <div className="absolute inset-0 bg-gradient-to-br from-purple-900/5 via-transparent to-blue-900/5 opacity-40"></div>
+      
       {!adError && !adTimedOut ? (
-        <div ref={adRef} className="w-full h-full relative">
+        <div ref={adRef} className="w-full h-full relative z-10">
           <ins
             className="adsbygoogle"
             style={{ display: 'block', width: '100%', height: '100%', minWidth: '250px', textAlign: format === 'in-article' ? 'center' : 'initial' }}
@@ -115,28 +123,43 @@ const AdBanner: React.FC<AdBannerProps> = ({
           ></ins>
         </div>
       ) : (
-        // Fallback placeholder when ads fail to load
-        <div className="text-center p-2">
-          <div className="flex items-center justify-center mb-2">
+        // Enhanced fallback content when ads fail to load
+        <div className="text-center p-4 w-full relative z-10 bg-gradient-to-br from-black/30 to-gray-900/30 backdrop-blur-sm rounded-lg border border-white/5 shadow-inner mx-2">
+          <div className="flex items-center justify-center mb-3">
             {adTimedOut ? (
-              <AlertCircle className="h-5 w-5 text-amber-400 mr-1" />
+              <AlertCircle className="h-6 w-6 text-amber-400 mr-2" />
             ) : (
-              <DollarSign className="h-5 w-5 text-noteflow-400 mr-1" />
+              <DollarSign className="h-6 w-6 text-purple-400 mr-2" />
             )}
-            <span className="text-sm font-medium text-white">
-              {adTimedOut ? 'Ad not showing' : 'Sponsored'}
+            <span className="text-base font-medium text-white">
+              {adTimedOut ? 'Ad Content Unavailable' : 'Sponsored Content'}
             </span>
           </div>
           
           {adTimedOut ? (
             <>
-              <p className="text-xs text-slate-300">Ads may be blocked or account is pending approval</p>
-              <p className="text-xs text-noteflow-400 mt-1">Please check AdSense account status</p>
+              <div className="flex items-center justify-center space-x-4 mb-2">
+                <div className="h-12 w-12 rounded-full bg-gradient-to-br from-amber-700/20 to-amber-500/20 border border-amber-500/30 animate-pulse"></div>
+                <div className="flex-1 space-y-2">
+                  <div className="h-2 bg-amber-700/20 rounded w-3/4"></div>
+                  <div className="h-2 bg-amber-700/20 rounded w-1/2"></div>
+                </div>
+              </div>
+              <p className="text-sm text-gray-300 mt-2">Ad content could not be loaded</p>
+              <p className="text-xs text-amber-400/80 mt-1">Please check your ad blocker settings or try again later</p>
             </>
           ) : (
             <>
-              <p className="text-xs text-slate-300">Your ad could be here</p>
-              <p className="text-xs text-noteflow-400 mt-1 opacity-0 group-hover:opacity-100 transition-opacity">Contact us for advertising</p>
+              <div className="grid grid-cols-2 gap-3 mb-2">
+                <div className="h-16 bg-gradient-to-br from-purple-800/10 to-blue-800/10 rounded-lg border border-white/5 flex items-center justify-center p-2">
+                  <div className="w-full h-2 bg-white/10 rounded-full"></div>
+                </div>
+                <div className="h-16 bg-gradient-to-br from-blue-800/10 to-purple-800/10 rounded-lg border border-white/5 flex items-center justify-center p-2">
+                  <div className="w-full h-2 bg-white/10 rounded-full"></div>
+                </div>
+              </div>
+              <p className="text-sm text-gray-300">Relevant content from our partners</p>
+              <p className="text-xs text-blue-400/80 mt-1 opacity-70 group-hover:opacity-100 transition-opacity">Interested in advertising here? Contact us</p>
             </>
           )}
         </div>

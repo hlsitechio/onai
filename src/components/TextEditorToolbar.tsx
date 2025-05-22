@@ -58,23 +58,25 @@ const TextEditorToolbar: React.FC<TextEditorToolbarProps> = ({
 
   return (
     <TooltipProvider>
-      <div className="bg-black/60 border-b border-white/10 p-3 flex flex-wrap gap-2 items-center">
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <Button 
-              variant="ghost" 
-              size="sm"
-              onClick={toggleSidebar}
-              className="hover:bg-white/10 text-white"
-            >
-              <Menu className="h-4 w-4 mr-1" />
-              {isSidebarOpen ? "Hide Notes" : "Show Notes"}
-            </Button>
-          </TooltipTrigger>
-          <TooltipContent>
-            <p>Toggle notes sidebar</p>
-          </TooltipContent>
-        </Tooltip>
+      <div className="border-b border-white/5 bg-gradient-to-r from-gray-900/90 to-gray-800/90 backdrop-blur-md py-2.5 px-4 flex items-center justify-between flex-wrap gap-y-2 shadow-inner">
+        <div className="flex items-center space-x-1.5 overflow-x-auto pb-1">
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                onClick={toggleSidebar}
+                className="text-gray-300 hover:text-white hover:bg-gray-800/80 rounded-md border border-white/5"
+              >
+                <Menu className="h-4 w-4" />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>Toggle notes sidebar</p>
+            </TooltipContent>
+          </Tooltip>
+          <span className="text-gray-400">{isSidebarOpen ? "Hide Notes" : "Show Notes"}</span>
+        </div>
         
         <Separator orientation="vertical" className="h-8 bg-white/20" />
         
@@ -83,9 +85,9 @@ const TextEditorToolbar: React.FC<TextEditorToolbarProps> = ({
           <TooltipTrigger asChild>
             <Button 
               variant="ghost" 
-              size="sm"
+              size="icon"
               onClick={() => insertMarkdown('**', '**')}
-              className="hover:bg-white/10 text-white"
+              className="text-gray-300 hover:text-white hover:bg-indigo-600/30 transition-all duration-200 rounded-md border border-white/5"
             >
               <Bold className="h-4 w-4" />
             </Button>
@@ -99,9 +101,9 @@ const TextEditorToolbar: React.FC<TextEditorToolbarProps> = ({
           <TooltipTrigger asChild>
             <Button 
               variant="ghost" 
-              size="sm"
+              size="icon"
               onClick={() => insertMarkdown('_', '_')}
-              className="hover:bg-white/10 text-white"
+              className="text-gray-300 hover:text-white hover:bg-indigo-600/30 transition-all duration-200 rounded-md border border-white/5"
             >
               <Italic className="h-4 w-4" />
             </Button>
@@ -115,9 +117,9 @@ const TextEditorToolbar: React.FC<TextEditorToolbarProps> = ({
           <TooltipTrigger asChild>
             <Button 
               variant="ghost" 
-              size="sm"
+              size="icon"
               onClick={() => execCommand("underline", null)}
-              className="hover:bg-white/10 text-white"
+              className="text-gray-300 hover:text-white hover:bg-indigo-600/30 transition-all duration-200 rounded-md border border-white/5"
             >
               <Underline className="h-4 w-4" />
             </Button>
@@ -134,9 +136,9 @@ const TextEditorToolbar: React.FC<TextEditorToolbarProps> = ({
           <TooltipTrigger asChild>
             <Button 
               variant="ghost" 
-              size="sm"
+              size="icon"
               onClick={() => insertMarkdown('# ')}
-              className="hover:bg-white/10 text-white"
+              className="text-gray-300 hover:text-white hover:bg-indigo-600/30 transition-all duration-200 rounded-md border border-white/5"
             >
               <Heading className="h-4 w-4" />
             </Button>
@@ -150,15 +152,15 @@ const TextEditorToolbar: React.FC<TextEditorToolbarProps> = ({
           <TooltipTrigger asChild>
             <Button 
               variant="ghost" 
-              size="sm"
+              size="icon"
               onClick={() => insertMarkdown('> ')}
-              className="hover:bg-white/10 text-white"
+              className="text-gray-300 hover:text-white hover:bg-indigo-600/30 transition-all duration-200 rounded-md border border-white/5"
             >
               <TextQuote className="h-4 w-4" />
             </Button>
           </TooltipTrigger>
           <TooltipContent>
-            <p>Quote ({">"} Text)</p>
+            <p>Quote ({'>'} Text)</p>
           </TooltipContent>
         </Tooltip>
         
@@ -166,9 +168,9 @@ const TextEditorToolbar: React.FC<TextEditorToolbarProps> = ({
           <TooltipTrigger asChild>
             <Button 
               variant="ghost" 
-              size="sm"
+              size="icon"
               onClick={() => insertMarkdown('`', '`')}
-              className="hover:bg-white/10 text-white"
+              className="text-gray-300 hover:text-white hover:bg-indigo-600/30 transition-all duration-200 rounded-md border border-white/5"
             >
               <Code className="h-4 w-4" />
             </Button>
@@ -182,9 +184,9 @@ const TextEditorToolbar: React.FC<TextEditorToolbarProps> = ({
           <TooltipTrigger asChild>
             <Button 
               variant="ghost" 
-              size="sm"
+              size="icon"
               onClick={() => insertMarkdown('[', '](url)')}
-              className="hover:bg-white/10 text-white"
+              className="text-gray-300 hover:text-white hover:bg-indigo-600/30 transition-all duration-200 rounded-md border border-white/5"
             >
               <Link className="h-4 w-4" />
             </Button>
@@ -200,15 +202,15 @@ const TextEditorToolbar: React.FC<TextEditorToolbarProps> = ({
           <TooltipTrigger asChild>
             <Button 
               variant="ghost" 
-              size="sm"
+              size="icon"
               onClick={() => insertMarkdown('1. ')}
-              className="hover:bg-white/10 text-white"
+              className="text-gray-300 hover:text-white hover:bg-indigo-600/30 transition-all duration-200 rounded-md border border-white/5"
             >
               <ListOrdered className="h-4 w-4" />
             </Button>
           </TooltipTrigger>
           <TooltipContent>
-            <p>Numbered list (1. Item)</p>
+            <p>Numbered List (1. item)</p>
           </TooltipContent>
         </Tooltip>
         
@@ -216,15 +218,15 @@ const TextEditorToolbar: React.FC<TextEditorToolbarProps> = ({
           <TooltipTrigger asChild>
             <Button 
               variant="ghost" 
-              size="sm"
+              size="icon"
               onClick={() => insertMarkdown('- ')}
-              className="hover:bg-white/10 text-white"
+              className="text-gray-300 hover:text-white hover:bg-indigo-600/30 transition-all duration-200 rounded-md border border-white/5"
             >
               <List className="h-4 w-4" />
             </Button>
           </TooltipTrigger>
           <TooltipContent>
-            <p>Bullet list (- Item)</p>
+            <p>Bullet List (- item)</p>
           </TooltipContent>
         </Tooltip>
         
@@ -234,15 +236,15 @@ const TextEditorToolbar: React.FC<TextEditorToolbarProps> = ({
           <TooltipTrigger asChild>
             <Button 
               variant="ghost" 
-              size="sm"
+              size="icon"
               onClick={() => execCommand("justifyLeft", null)}
-              className="hover:bg-white/10 text-white"
+              className="text-gray-300 hover:text-white hover:bg-indigo-600/30 transition-all duration-200 rounded-md border border-white/5"
             >
               <AlignLeft className="h-4 w-4" />
             </Button>
           </TooltipTrigger>
           <TooltipContent>
-            <p>Align left</p>
+            <p>Align Left</p>
           </TooltipContent>
         </Tooltip>
         
@@ -250,15 +252,15 @@ const TextEditorToolbar: React.FC<TextEditorToolbarProps> = ({
           <TooltipTrigger asChild>
             <Button 
               variant="ghost" 
-              size="sm"
+              size="icon"
               onClick={() => execCommand("justifyCenter", null)}
-              className="hover:bg-white/10 text-white"
+              className="text-gray-300 hover:text-white hover:bg-indigo-600/30 transition-all duration-200 rounded-md border border-white/5"
             >
               <AlignCenter className="h-4 w-4" />
             </Button>
           </TooltipTrigger>
           <TooltipContent>
-            <p>Align center</p>
+            <p>Align Center</p>
           </TooltipContent>
         </Tooltip>
         
@@ -266,15 +268,15 @@ const TextEditorToolbar: React.FC<TextEditorToolbarProps> = ({
           <TooltipTrigger asChild>
             <Button 
               variant="ghost" 
-              size="sm"
+              size="icon"
               onClick={() => execCommand("justifyRight", null)}
-              className="hover:bg-white/10 text-white"
+              className="text-gray-300 hover:text-white hover:bg-indigo-600/30 transition-all duration-200 rounded-md border border-white/5"
             >
               <AlignRight className="h-4 w-4" />
             </Button>
           </TooltipTrigger>
           <TooltipContent>
-            <p>Align right</p>
+            <p>Align Right</p>
           </TooltipContent>
         </Tooltip>
         
@@ -284,9 +286,9 @@ const TextEditorToolbar: React.FC<TextEditorToolbarProps> = ({
           <TooltipTrigger asChild>
             <Button 
               variant="ghost" 
-              size="sm"
+              size="icon"
               onClick={() => execCommand("undo", null)}
-              className="hover:bg-white/10 text-white"
+              className="text-gray-300 hover:text-white hover:bg-indigo-600/30 transition-all duration-200 rounded-md border border-white/5"
             >
               <Undo className="h-4 w-4" />
             </Button>
@@ -300,9 +302,9 @@ const TextEditorToolbar: React.FC<TextEditorToolbarProps> = ({
           <TooltipTrigger asChild>
             <Button 
               variant="ghost" 
-              size="sm"
+              size="icon"
               onClick={() => execCommand("redo", null)}
-              className="hover:bg-white/10 text-white"
+              className="text-gray-300 hover:text-white hover:bg-indigo-600/30 transition-all duration-200 rounded-md border border-white/5"
             >
               <Redo className="h-4 w-4" />
             </Button>
@@ -318,42 +320,40 @@ const TextEditorToolbar: React.FC<TextEditorToolbarProps> = ({
           <TooltipTrigger asChild>
             <Button
               variant="ghost"
-              size="sm"
+              size="icon"
               onClick={toggleAI}
-              className="hover:bg-white/10 text-white"
+              className="text-purple-300 hover:text-white hover:bg-purple-700/40 transition-all duration-200 rounded-md border border-purple-500/20"
             >
-              <Sparkles className="h-4 w-4 text-noteflow-400 mr-1" />
-              AI
+              <Sparkles className="h-4 w-4" />
             </Button>
           </TooltipTrigger>
           <TooltipContent>
-            <p>Get AI assistance</p>
+            <p>AI Assistance</p>
           </TooltipContent>
         </Tooltip>
         
-        <div className="ml-auto flex items-center gap-2">
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={handleSave}
+              className="text-blue-300 hover:text-white hover:bg-blue-700/40 transition-all duration-200 rounded-md border border-blue-500/20"
+            >
+              <Save className="h-4 w-4" />
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent>
+            <p>Save Note (Ctrl+S)</p>
+          </TooltipContent>
+        </Tooltip>
+        
+        <div className="text-xs ml-auto flex items-center">
           {lastSaved && (
-            <span className="text-xs text-slate-300">
-              Last saved: {lastSaved.toLocaleTimeString()}
+            <span className="text-gray-400 bg-black/30 py-1 px-2.5 rounded-full border border-white/5 shadow-inner">
+              <span className="text-blue-400 mr-1">●</span> Saved at {lastSaved.toLocaleTimeString()}
             </span>
           )}
-          
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button 
-                variant="outline" 
-                size="sm"
-                onClick={handleSave}
-                className="border-noteflow-500 text-noteflow-400 hover:bg-noteflow-900/30"
-              >
-                <Save className="h-4 w-4 mr-1" />
-                Save
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent>
-              <p>Save note (Ctrl+S)</p>
-            </TooltipContent>
-          </Tooltip>
         </div>
       </div>
     </TooltipProvider>

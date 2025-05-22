@@ -1,5 +1,5 @@
 
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, useCallback } from "react";
 import { useToast } from "@/hooks/use-toast";
 import NotesSidebar from "./NotesSidebar";
 import AdBanner from "./AdBanner";
@@ -51,13 +51,10 @@ const TextEditor = () => {
     }
   }, [editorRef, content]);
   
-  const toggleSidebar = () => {
-    setIsSidebarOpen(!isSidebarOpen);
-  };
-  
-  const handleKeyboardShortcut = (e: KeyboardEvent) => {
-    // Save with Ctrl+S or Cmd+S
-    if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+  // Define all hooks first, before any regular functions
+  const handleKeyboardShortcut = useCallback((e: KeyboardEvent) => {
+    // Ctrl+S for save
+    if (e.ctrlKey && e.key === 's') {
       e.preventDefault();
       handleSave();
       toast({
@@ -65,20 +62,26 @@ const TextEditor = () => {
         description: "Your note has been saved successfully",
       });
     }
-  };
+  }, [handleSave, toast]);
   
+  // Register the keyboard shortcut effect
   useEffect(() => {
     window.addEventListener('keydown', handleKeyboardShortcut);
     return () => window.removeEventListener('keydown', handleKeyboardShortcut);
-  }, [handleSave]);
+  }, [handleKeyboardShortcut]); // Only depend on the callback itself, which already has dependencies
+  
+  // Define regular functions after all hooks
+  const toggleSidebar = () => {
+    setIsSidebarOpen(!isSidebarOpen);
+  };
   
   return (
     <section id="editor-section" className="py-12 px-4 relative">
       <div className="container mx-auto max-w-5xl">
-        <div className="flex gap-4">
-          {/* The sidebar */}
+        <div className="flex gap-6">
+          {/* The sidebar with enhanced styling */}
           {isSidebarOpen && (
-            <div className="w-64 shrink-0">
+            <div className="w-72 shrink-0">
               <NotesSidebar 
                 currentContent={content} 
                 onLoadNote={handleLoadNote} 
@@ -88,11 +91,11 @@ const TextEditor = () => {
             </div>
           )}
           
-          {/* The editor */}
+          {/* The editor with enhanced glassmorphism */}
           <div className="flex-1 flex flex-col">
             <div 
               ref={editorRef}
-              className="bg-black/40 backdrop-blur-lg rounded-lg shadow-lg border border-white/10 overflow-hidden flex flex-col"
+              className="glass-panel-dark rounded-xl overflow-hidden flex flex-col shadow-[0_8px_30px_rgb(0,0,0,0.4)] border border-white/5"
             >
               {/* Toolbar */}
               <TextEditorToolbar 
@@ -104,8 +107,8 @@ const TextEditor = () => {
                 lastSaved={lastSaved}
               />
               
-              {/* Editor area */}
-              <div className="flex-1 h-[450px] overflow-hidden">
+              {/* Editor area with improved dimensions */}
+              <div className="flex-1 h-[500px] overflow-hidden">
                 <EditableContent content={content} setContent={setContent} />
               </div>
             </div>
@@ -118,12 +121,8 @@ const TextEditor = () => {
               onApplyChanges={setContent}
             />
             
-            {/* Ad Banner below editor with specific ad slot */}
-            <AdBanner size="medium" position="content" className="mt-4" adSlotId="3456789012" />
-            
-            <div className="mt-4 text-center text-sm text-slate-400">
-              Your notes are saved in Chrome Storage and locally in your browser.
-            </div>
+            {/* Additional space at the bottom */}
+            <div className="h-6"></div>
           </div>
         </div>
       </div>

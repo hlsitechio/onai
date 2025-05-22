@@ -1,6 +1,5 @@
 
 import React, { useState } from "react";
-import AdBanner from "./AdBanner";
 import { Separator } from "./ui/separator";
 import PrivacyNotice from "./PrivacyNotice";
 
@@ -11,7 +10,10 @@ const Footer = () => {
   return (
     <footer className="py-8 bg-black/80 backdrop-blur-lg border-t border-white/10">
       <div className="container mx-auto px-4">
-        <div className="flex flex-col md:flex-row justify-between items-center mb-6">
+        {/* Space above the copyright section */}
+        <div className="h-8"></div>
+        
+        <div className="mt-6 flex flex-col md:flex-row justify-between items-center">
           <div className="mb-4 md:mb-0">
             <p className="text-gray-500 text-sm">
               © {currentYear} Online Note AI. All rights reserved.
@@ -38,16 +40,6 @@ const Footer = () => {
           open={privacyDialogOpen} 
           onOpenChange={setPrivacyDialogOpen} 
         />
-        
-        {/* Advertisement banner - with test mode */}
-        <div className="mt-4">
-          <AdBanner 
-            size="large" 
-            position="footer" 
-            adSlotId="1234567890" 
-            className="min-h-[80px] border border-white/5 rounded-lg overflow-hidden"
-          />
-        </div>
       </div>
     </footer>
   );
