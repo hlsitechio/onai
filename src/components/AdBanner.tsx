@@ -21,7 +21,8 @@ const AdBanner: React.FC<AdBannerProps> = ({
   className = '',
   adSlotId = '', 
 }) => {
-  const adRef = useRef<HTMLDivElement>(null);
+  // Change the ref type to HTMLInsElement instead of HTMLDivElement
+  const adRef = useRef<HTMLElement>(null);
   const [adLoaded, setAdLoaded] = useState(false);
   const [adError, setAdError] = useState(false);
   
@@ -80,13 +81,13 @@ const AdBanner: React.FC<AdBannerProps> = ({
     >
       {!adError ? (
         <ins
-          ref={adRef}
           className="adsbygoogle"
           style={{ display: 'block', width: '100%', height: '100%' }}
           data-ad-client="ca-pub-4035756937802336"
           data-ad-slot={adSlotId || 'auto'}
           data-ad-format={adFormat}
           data-full-width-responsive="true"
+          ref={adRef as React.LegacyRef<HTMLElement>}
         ></ins>
       ) : (
         // Fallback placeholder when ads fail to load
