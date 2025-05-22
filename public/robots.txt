@@ -1,5 +1,5 @@
 
-# robots.txt for Onlinenote.ai
+# robots.txt for NoteFlow
 User-agent: *
 Allow: /
 
@@ -29,5 +29,21 @@ Allow: /
 User-agent: facebookexternalhit
 Allow: /
 
-# Sitemap location (create this file later)
-Sitemap: https://onlinenote.ai/sitemap.xml
+# Disallow certain file types
+User-agent: *
+Disallow: /*.json$
+Disallow: /*.xml$
+Disallow: /*.js$
+Disallow: /*.css$
+Disallow: /api/
+
+# Allow AdSense crawlers specifically
+User-agent: Mediapartners-Google
+Allow: /
+
+# Sitemap location
+Sitemap: https://noteflow.app/sitemap.xml
+
+# Crawl delay directive for general crawlers (optional)
+User-agent: *
+Crawl-delay: 1
