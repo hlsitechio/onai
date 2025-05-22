@@ -19,12 +19,17 @@ const NotesList: React.FC<NotesListProps> = ({
   onOpenShare,
   formatNoteId
 }) => {
+  // Filter out any system notes (like encryption-key) that may have slipped through
+  const userNotes = Object.entries(notes).filter(([noteId]) => 
+    !noteId.includes('encryption-key')
+  );
+
   return (
     <div className="space-y-1 overflow-y-auto">
-      {Object.entries(notes).length === 0 ? (
+      {userNotes.length === 0 ? (
         <p className="text-xs text-slate-500">No saved notes yet</p>
       ) : (
-        Object.entries(notes).map(([noteId, content]) => (
+        userNotes.map(([noteId, content]) => (
           <NoteItem 
             key={noteId}
             noteId={noteId}

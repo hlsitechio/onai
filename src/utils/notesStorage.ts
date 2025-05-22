@@ -1,7 +1,6 @@
 
 // Helper functions to work with Chrome Storage
 import { encryptContent, decryptContent } from './encryptionUtils';
-import { useToast } from "@/hooks/use-toast";
 
 // Types
 export type StorageProviderType = 'chrome' | 'local';
@@ -13,6 +12,7 @@ export interface StorageOperationResult {
 // Constants
 const STORAGE_PREFIX = 'noteflow-';
 const PLAIN_SUFFIX = '-plain';
+const SYSTEM_KEYS = ['noteflow-encryption-key']; // List of system keys to be filtered out
 
 /**
  * Detect which storage provider to use
@@ -120,6 +120,11 @@ export const getAllNotes = async (): Promise<Record<string, string>> => {
     // Decrypt all notes
     const notes: Record<string, string> = {};
     for (const [noteId, encryptedContent] of Object.entries(encryptedNotes)) {
+      // Skip system keys like the encryption key
+      if (SYSTEM_KEYS.includes(noteId)) {
+        continue;
+      }
+
       try {
         notes[noteId] = await decryptContent(encryptedContent);
       } catch (e) {
@@ -150,6 +155,11 @@ const getNotesFromLocalStorage = (): Record<string, string> => {
   const notes: Record<string, string> = {};
   
   Object.keys(localStorage).forEach(key => {
+    // Filter out system keys
+    if (SYSTEM_KEYS.includes(key)) {
+      return;
+    }
+    
     if (key.startsWith(STORAGE_PREFIX) && !key.endsWith(PLAIN_SUFFIX)) {
       const noteId = key.replace(STORAGE_PREFIX, '');
       const content = localStorage.getItem(key) || '';

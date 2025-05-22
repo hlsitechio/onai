@@ -3,15 +3,18 @@
  * Utilities for client-side encryption of notes
  */
 
+// Constants
+const ENCRYPTION_KEY = 'noteflow-encryption-key';
+
 // Generate a random encryption key if one doesn't exist
 export const getOrCreateEncryptionKey = (): string => {
-  let key = localStorage.getItem('noteflow-encryption-key');
+  let key = localStorage.getItem(ENCRYPTION_KEY);
   if (!key) {
     // Generate a random 256-bit key (32 bytes, encoded as base64)
     const randomBytes = new Uint8Array(32);
     window.crypto.getRandomValues(randomBytes);
     key = btoa(String.fromCharCode.apply(null, [...randomBytes]));
-    localStorage.setItem('noteflow-encryption-key', key);
+    localStorage.setItem(ENCRYPTION_KEY, key);
   }
   return key;
 };
