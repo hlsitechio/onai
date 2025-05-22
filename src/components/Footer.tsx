@@ -1,10 +1,12 @@
 
-import React from "react";
+import React, { useState } from "react";
 import AdBanner from "./AdBanner";
 import { Separator } from "./ui/separator";
+import PrivacyNotice from "./PrivacyNotice";
 
 const Footer = () => {
   const currentYear = new Date().getFullYear();
+  const [privacyDialogOpen, setPrivacyDialogOpen] = useState(false);
   
   return (
     <footer className="py-8 bg-black/80 backdrop-blur-lg border-t border-white/10">
@@ -17,11 +19,22 @@ const Footer = () => {
           </div>
           
           <div className="flex space-x-6">
-            <a href="#" className="text-gray-500 hover:text-noteflow-400 text-sm transition-colors">Privacy Policy</a>
+            <button 
+              onClick={() => setPrivacyDialogOpen(true)}
+              className="text-gray-500 hover:text-noteflow-400 text-sm transition-colors"
+            >
+              Privacy Policy
+            </button>
             <a href="#" className="text-gray-500 hover:text-noteflow-400 text-sm transition-colors">Terms of Service</a>
             <a href="#" className="text-gray-500 hover:text-noteflow-400 text-sm transition-colors">Contact</a>
           </div>
         </div>
+        
+        {/* Privacy Policy Dialog */}
+        <PrivacyNotice 
+          open={privacyDialogOpen} 
+          onOpenChange={setPrivacyDialogOpen} 
+        />
         
         {/* Advertisement banner */}
         <div className="mt-4">
