@@ -8,10 +8,6 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-// Supabase project URL and anon key from env vars
-const supabaseUrl = Deno.env.get('SUPABASE_URL') || '';
-const supabaseAnonKey = Deno.env.get('SUPABASE_ANON_KEY') || '';
-
 // Gemini API configuration
 const GEMINI_MODEL = 'models/gemini-2.5-flash-preview-05-20';
 const GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta';
@@ -24,29 +20,6 @@ serve(async (req) => {
   }
 
   try {
-    // Verify authentication
-    const token = req.headers.get('Authorization')?.replace('Bearer ', '');
-    if (!token) {
-      return new Response(
-        JSON.stringify({ error: 'No authorization token provided' }),
-        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
-    }
-
-    // Create authenticated Supabase client
-    const supabase = createClient(supabaseUrl, supabaseAnonKey, {
-      global: { headers: { Authorization: `Bearer ${token}` } },
-    });
-
-    // Get user ID from token
-    const { data: { user }, error: userError } = await supabase.auth.getUser(token);
-    if (userError || !user) {
-      return new Response(
-        JSON.stringify({ error: 'Invalid token or user not found' }),
-        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
-    }
-
     // Parse request body
     const { prompt, requestType, noteContent } = await req.json();
 
@@ -96,17 +69,7 @@ serve(async (req) => {
       throw new Error('No valid response from Gemini API');
     }
 
-    // Log the interaction in the database
-    const { error: insertError } = await supabase.from('ai_interactions').insert({
-      user_id: user.id,
-      note_content: noteContent,
-      request_type: requestType,
-      response: result
-    });
-
-    if (insertError) {
-      console.error('Error logging AI interaction:', insertError);
-    }
+    // No longer logging interactions to the database since we're not requiring auth
 
     // Return successful response
     return new Response(

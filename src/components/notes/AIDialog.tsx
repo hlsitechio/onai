@@ -14,7 +14,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { analyzeNote, generateIdeas, improveWriting, translateNote } from "@/utils/aiUtils";
 import { Sparkles, Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { supabase } from "@/integrations/supabase/client";
 
 interface AIDialogProps {
   isOpen: boolean;
@@ -39,25 +38,9 @@ const AIDialog: React.FC<AIDialogProps> = ({ isOpen, onOpenChange, content, onAp
     setError(null);
   };
 
-  const checkAuthentication = async (): Promise<boolean> => {
-    const { data, error } = await supabase.auth.getSession();
-    
-    if (error || !data.session) {
-      setError("You must be logged in to use the AI features. Please log in and try again.");
-      return false;
-    }
-    
-    return true;
-  };
-
   const processAIAction = async () => {
     if (!content.trim()) {
       setError("Your note is empty. Please add some content first.");
-      return;
-    }
-
-    const isAuthenticated = await checkAuthentication();
-    if (!isAuthenticated) {
       return;
     }
 
