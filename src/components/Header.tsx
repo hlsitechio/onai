@@ -5,7 +5,7 @@ const Header = () => {
       <div className="container mx-auto max-w-7xl">
         <div className="flex justify-between items-center">
           <div className="flex items-center">
-            <span className="text-2xl font-poppins font-semibold text-noteflow-400">Note<span className="text-gray-300">Flow</span></span>
+            <span className="text-2xl font-poppins font-semibold text-noteflow-400">Online<span className="text-gray-300">note.ai</span></span>
           </div>
           
           <div className="hidden md:flex items-center space-x-8">

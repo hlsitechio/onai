@@ -12,7 +12,7 @@ const Footer = () => {
         <div className="flex flex-col md:flex-row justify-between items-center mb-6">
           <div className="mb-4 md:mb-0">
             <p className="text-gray-500 text-sm">
-              © {currentYear} NoteFlow. All rights reserved.
+              © {currentYear} Onlinenote.ai. All rights reserved.
             </p>
           </div>
           
