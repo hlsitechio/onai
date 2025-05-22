@@ -10,24 +10,12 @@ import {
 } from "@/components/ui/drawer";
 import { Button } from "@/components/ui/button";
 import { 
-  SidebarProvider, 
-  Sidebar, 
-  SidebarContent, 
-  SidebarHeader,
-  SidebarFooter,
-  SidebarMenu,
-  SidebarMenuItem,
-  SidebarMenuButton,
-  SidebarGroup,
-  SidebarGroupLabel,
-  SidebarGroupContent,
-} from "@/components/ui/sidebar";
-import { getAllNotes, deleteNote, shareNote } from "@/utils/notesStorage";
-import { useToast } from "@/hooks/use-toast";
-import { 
   Save, 
   ArrowRight,
+  Trash2
 } from "lucide-react";
+import { getAllNotes, deleteNote, shareNote } from "@/utils/notesStorage";
+import { useToast } from "@/hooks/use-toast";
 
 interface NotesSidebarProps {
   currentContent: string;
@@ -39,8 +27,8 @@ const NotesSidebar: React.FC<NotesSidebarProps> = ({ currentContent, onLoadNote,
   const { toast } = useToast();
   const [notes, setNotes] = useState<Record<string, string>>({});
   const [activeNoteId, setActiveNoteId] = useState<string>('current');
-  const [selectedNoteId, setSelectedNoteId] = useState<string | null>(null);
   const [isShareOpen, setIsShareOpen] = useState(false);
+  const [selectedNoteId, setSelectedNoteId] = useState<string | null>(null);
 
   useEffect(() => {
     // Load notes on component mount
@@ -61,7 +49,8 @@ const NotesSidebar: React.FC<NotesSidebarProps> = ({ currentContent, onLoadNote,
     });
   };
 
-  const handleDeleteNote = async (noteId: string) => {
+  const handleDeleteNote = async (noteId: string, e: React.MouseEvent) => {
+    e.stopPropagation(); // Prevent triggering the note loading
     await deleteNote(noteId);
     loadNotes();
     toast({
@@ -79,6 +68,11 @@ const NotesSidebar: React.FC<NotesSidebarProps> = ({ currentContent, onLoadNote,
     } catch (e) {
       return id;
     }
+  };
+
+  const handleOpenShare = (noteId: string | null) => {
+    setSelectedNoteId(noteId);
+    setIsShareOpen(true);
   };
 
   const handleShareNote = async (service: 'onedrive' | 'googledrive' | 'device') => {
@@ -102,116 +96,103 @@ const NotesSidebar: React.FC<NotesSidebarProps> = ({ currentContent, onLoadNote,
   };
 
   return (
-    <div className="h-full">
-      <SidebarProvider defaultOpen={false}>
-        <div className="flex h-full min-h-[400px]">
-          <Sidebar variant="floating" className="border-r border-white/10 bg-black/80">
-            <SidebarHeader>
-              <div className="flex items-center justify-between px-4 py-2">
-                <h3 className="text-sm font-semibold text-white">My Notes</h3>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="h-7 text-noteflow-400 hover:bg-black/30 hover:text-noteflow-300"
-                  onClick={onSave}
-                >
-                  <Save className="h-4 w-4 mr-1" />
-                  Save
-                </Button>
-              </div>
-            </SidebarHeader>
-            
-            <SidebarContent>
-              <SidebarGroup>
-                <SidebarGroupLabel>Saved Notes</SidebarGroupLabel>
-                <SidebarGroupContent>
-                  <SidebarMenu>
-                    <SidebarMenuItem>
-                      <SidebarMenuButton 
-                        isActive={activeNoteId === 'current'} 
-                        onClick={() => handleLoadNote('current')}
-                      >
-                        <span>Current Note</span>
-                      </SidebarMenuButton>
-                    </SidebarMenuItem>
-                    
-                    {Object.keys(notes).map((noteId) => (
-                      <SidebarMenuItem key={noteId}>
-                        <SidebarMenuButton 
-                          isActive={activeNoteId === noteId}
-                          onClick={() => handleLoadNote(noteId)}
-                        >
-                          <span>{formatNoteId(noteId)}</span>
-                        </SidebarMenuButton>
-                      </SidebarMenuItem>
-                    ))}
-                  </SidebarMenu>
-                </SidebarGroupContent>
-              </SidebarGroup>
+    <div className="bg-black/40 backdrop-blur-lg rounded-lg border border-white/10 h-full shadow-lg">
+      <div className="p-4 border-b border-white/10">
+        <h3 className="text-sm font-semibold text-white">My Notes</h3>
+      </div>
 
-              <SidebarGroup>
-                <SidebarGroupLabel>Share Options</SidebarGroupLabel>
-                <SidebarGroupContent>
-                  <Drawer open={isShareOpen} onOpenChange={setIsShareOpen}>
-                    <DrawerTrigger asChild>
-                      <Button 
-                        variant="outline" 
-                        size="sm" 
-                        className="w-full text-left justify-start bg-black/30 border-white/10 hover:bg-black/40"
-                      >
-                        <ArrowRight className="h-4 w-4 mr-2" />
-                        Share Note
-                      </Button>
-                    </DrawerTrigger>
-                    <DrawerContent className="bg-black/80 backdrop-blur-md border border-white/10 text-white">
-                      <DrawerHeader>
-                        <DrawerTitle>Share Note</DrawerTitle>
-                      </DrawerHeader>
-                      <div className="p-4 space-y-3">
-                        <Button 
-                          variant="outline" 
-                          className="w-full justify-start bg-black/30 border-white/10 hover:bg-black/40"
-                          onClick={() => handleShareNote('onedrive')}
-                        >
-                          Save to OneDrive
-                        </Button>
-                        <Button 
-                          variant="outline" 
-                          className="w-full justify-start bg-black/30 border-white/10 hover:bg-black/40"
-                          onClick={() => handleShareNote('googledrive')}
-                        >
-                          Save to Google Drive
-                        </Button>
-                        <Button 
-                          variant="outline" 
-                          className="w-full justify-start bg-black/30 border-white/10 hover:bg-black/40"
-                          onClick={() => handleShareNote('device')}
-                        >
-                          Download to Device
-                        </Button>
-                      </div>
-                      <DrawerFooter className="border-t border-white/10 pt-2">
-                        <span className="text-xs text-gray-400">
-                          Note sharing requires browser permissions
-                        </span>
-                      </DrawerFooter>
-                    </DrawerContent>
-                  </Drawer>
-                </SidebarGroupContent>
-              </SidebarGroup>
-            </SidebarContent>
-            
-            <SidebarFooter>
-              <div className="px-4 py-2 text-xs text-gray-400">
-                Notes are saved in Chrome Storage
+      <div className="p-4">
+        <Button
+          variant="outline"
+          size="sm"
+          className="w-full mb-4 border-white/10 text-white hover:bg-black/30"
+          onClick={onSave}
+        >
+          <Save className="h-4 w-4 mr-2" /> Save Current Note
+        </Button>
+
+        <h4 className="text-xs uppercase text-slate-400 font-medium mb-2">Saved Notes</h4>
+        <div className="space-y-1 max-h-[300px] overflow-y-auto">
+          {Object.entries(notes).length === 0 ? (
+            <p className="text-xs text-slate-500">No saved notes yet</p>
+          ) : (
+            Object.entries(notes).map(([noteId, content]) => (
+              <div 
+                key={noteId}
+                className={`p-2 rounded-md flex justify-between items-center cursor-pointer ${
+                  activeNoteId === noteId ? 'bg-white/10' : 'hover:bg-white/5'
+                }`}
+                onClick={() => handleLoadNote(noteId)}
+              >
+                <span className="text-sm text-white truncate">{formatNoteId(noteId)}</span>
+                <div className="flex gap-1">
+                  <button 
+                    onClick={(e) => handleOpenShare(noteId)}
+                    className="p-1 hover:bg-white/10 rounded"
+                  >
+                    <ArrowRight className="h-4 w-4 text-slate-400" />
+                  </button>
+                  <button 
+                    onClick={(e) => handleDeleteNote(noteId, e)}
+                    className="p-1 hover:bg-white/10 rounded"
+                  >
+                    <Trash2 className="h-4 w-4 text-slate-400" />
+                  </button>
+                </div>
               </div>
-            </SidebarFooter>
-          </Sidebar>
-          
-          {/* This will be the content next to the sidebar */}
-          <div className="flex-1"></div>
+            ))
+          )}
         </div>
-      </SidebarProvider>
+      </div>
+
+      <div className="p-4 border-t border-white/10 mt-4">
+        <Button 
+          variant="ghost" 
+          size="sm" 
+          className="w-full text-left justify-start text-white hover:bg-white/10"
+          onClick={() => handleOpenShare(null)}
+        >
+          <ArrowRight className="h-4 w-4 mr-2" />
+          Share Current Note
+        </Button>
+      </div>
+
+      {/* Share Drawer */}
+      <Drawer open={isShareOpen} onOpenChange={setIsShareOpen}>
+        <DrawerContent className="bg-black/80 backdrop-blur-md border border-white/10 text-white">
+          <DrawerHeader>
+            <DrawerTitle>Share Note</DrawerTitle>
+          </DrawerHeader>
+          <div className="p-4 space-y-3">
+            <Button 
+              variant="outline" 
+              className="w-full justify-start bg-black/30 border-white/10 hover:bg-black/40"
+              onClick={() => handleShareNote('onedrive')}
+            >
+              Save to OneDrive
+            </Button>
+            <Button 
+              variant="outline" 
+              className="w-full justify-start bg-black/30 border-white/10 hover:bg-black/40"
+              onClick={() => handleShareNote('googledrive')}
+            >
+              Save to Google Drive
+            </Button>
+            <Button 
+              variant="outline" 
+              className="w-full justify-start bg-black/30 border-white/10 hover:bg-black/40"
+              onClick={() => handleShareNote('device')}
+            >
+              Download to Device
+            </Button>
+          </div>
+          <DrawerFooter className="border-t border-white/10 pt-2">
+            <span className="text-xs text-gray-400">
+              Note sharing requires browser permissions
+            </span>
+          </DrawerFooter>
+        </DrawerContent>
+      </Drawer>
     </div>
   );
 };

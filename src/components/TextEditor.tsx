@@ -66,15 +66,17 @@ const TextEditor = () => {
   return (
     <section id="editor-section" className="py-12 px-4 relative">
       <div className="container mx-auto max-w-5xl">
-        <div className="flex">
+        <div className="flex gap-4">
           {/* The sidebar */}
-          <div className={`transition-all duration-300 ${isSidebarOpen ? 'w-64' : 'w-0'} overflow-hidden`}>
-            <NotesSidebar 
-              currentContent={content} 
-              onLoadNote={handleLoadNote} 
-              onSave={handleSave}
-            />
-          </div>
+          {isSidebarOpen && (
+            <div className="w-64 shrink-0">
+              <NotesSidebar 
+                currentContent={content} 
+                onLoadNote={handleLoadNote} 
+                onSave={handleSave}
+              />
+            </div>
+          )}
           
           {/* The editor */}
           <div className="flex-1">
