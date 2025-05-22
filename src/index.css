@@ -135,7 +135,81 @@
   @apply list-decimal pl-6 mb-4;
 }
 
+/* Markdown preview styles */
+.markdown-preview h1 {
+  @apply text-3xl font-bold mb-4;
+}
+
+.markdown-preview h2 {
+  @apply text-2xl font-bold mb-3;
+}
+
+.markdown-preview h3 {
+  @apply text-xl font-bold mb-2;
+}
+
+.markdown-preview p {
+  @apply mb-4;
+}
+
+.markdown-preview ul {
+  @apply list-disc pl-6 mb-4;
+}
+
+.markdown-preview ol {
+  @apply list-decimal pl-6 mb-4;
+}
+
+.markdown-preview a {
+  @apply text-noteflow-400 hover:underline;
+}
+
+.markdown-preview blockquote {
+  @apply border-l-4 border-noteflow-600 pl-4 italic my-4;
+}
+
+.markdown-preview code {
+  @apply bg-black/30 px-1 py-0.5 rounded font-mono text-sm;
+}
+
+.markdown-preview pre {
+  @apply bg-black/30 p-4 rounded font-mono text-sm my-4 overflow-x-auto;
+}
+
+.markdown-preview hr {
+  @apply my-4 border-t border-white/20;
+}
+
+.markdown-preview table {
+  @apply w-full border-collapse my-4;
+}
+
+.markdown-preview th, 
+.markdown-preview td {
+  @apply border border-white/20 px-3 py-2;
+}
+
+.markdown-preview th {
+  @apply bg-black/30;
+}
+
 /* Smooth scrolling */
 html {
   scroll-behavior: smooth;
+}
+
+/* Improved editor experience */
+[contenteditable="true"] {
+  caret-color: #38bdf8; /* Noteflow blue cursor */
+  transition: background-color 0.2s;
+}
+
+[contenteditable="true"]:focus {
+  background-color: rgba(0, 0, 0, 0.3);
+}
+
+/* Selection styling */
+::selection {
+  background-color: rgba(56, 189, 248, 0.3); /* Noteflow blue with transparency */
+  color: white;
 }

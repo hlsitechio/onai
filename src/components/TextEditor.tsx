@@ -36,15 +36,41 @@ const TextEditor = () => {
       updateEditorHeight();
       window.addEventListener('resize', updateEditorHeight);
       
+      // Update height on content changes too
+      const observer = new MutationObserver(updateEditorHeight);
+      observer.observe(editorRef.current, { 
+        childList: true, 
+        subtree: true,
+        characterData: true
+      });
+      
       return () => {
         window.removeEventListener('resize', updateEditorHeight);
+        observer.disconnect();
       };
     }
-  }, [editorRef]);
+  }, [editorRef, content]);
   
   const toggleSidebar = () => {
     setIsSidebarOpen(!isSidebarOpen);
   };
+  
+  const handleKeyboardShortcut = (e: KeyboardEvent) => {
+    // Save with Ctrl+S or Cmd+S
+    if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+      e.preventDefault();
+      handleSave();
+      toast({
+        title: "Note saved",
+        description: "Your note has been saved successfully",
+      });
+    }
+  };
+  
+  useEffect(() => {
+    window.addEventListener('keydown', handleKeyboardShortcut);
+    return () => window.removeEventListener('keydown', handleKeyboardShortcut);
+  }, [handleSave]);
   
   return (
     <section id="editor-section" className="py-12 px-4 relative">
@@ -66,7 +92,7 @@ const TextEditor = () => {
           <div className="flex-1 flex flex-col">
             <div 
               ref={editorRef}
-              className="bg-black/40 backdrop-blur-lg rounded-lg shadow-lg border border-white/10 overflow-hidden"
+              className="bg-black/40 backdrop-blur-lg rounded-lg shadow-lg border border-white/10 overflow-hidden flex flex-col"
             >
               {/* Toolbar */}
               <TextEditorToolbar 
@@ -79,7 +105,9 @@ const TextEditor = () => {
               />
               
               {/* Editor area */}
-              <EditableContent content={content} setContent={setContent} />
+              <div className="flex-1 h-[450px] overflow-hidden">
+                <EditableContent content={content} setContent={setContent} />
+              </div>
             </div>
             
             {/* AI Dialog */}

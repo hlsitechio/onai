@@ -13,17 +13,24 @@ const Index = () => {
       <Header />
       <Hero />
       
-      {/* In-article ad format before the editor */}
-      <div className="container mx-auto px-4 my-4">
-        <AdBanner 
-          size="medium" 
-          format="in-article" 
-          adSlotId="6157600223" 
-          className="my-6"
-        />
+      {/* Main editor section with improved visibility */}
+      <div className="container mx-auto px-4 my-8 relative z-10">
+        <div className="max-w-6xl mx-auto">
+          <h2 className="text-2xl md:text-3xl font-bold text-white mb-6 text-center">
+            Your Notes, <span className="text-noteflow-400">Enhanced</span>
+          </h2>
+          
+          {/* In-article ad format before the editor */}
+          <AdBanner 
+            size="medium" 
+            format="in-article" 
+            adSlotId="6157600223" 
+            className="my-6"
+          />
+          
+          <TextEditor />
+        </div>
       </div>
-      
-      <TextEditor />
       
       {/* Autorelaxed ad format after the editor */}
       <div className="container mx-auto px-4 my-4">
