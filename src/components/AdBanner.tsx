@@ -6,7 +6,7 @@ interface AdBannerProps {
   size: 'small' | 'medium' | 'large';
   position?: 'sidebar' | 'content' | 'footer';
   className?: string;
-  adSlotId?: string; // Optional ad slot ID for different ad units
+  adSlotId?: string; // Ad slot ID for different ad units
 }
 
 declare global {
@@ -19,9 +19,8 @@ const AdBanner: React.FC<AdBannerProps> = ({
   size, 
   position = 'content', 
   className = '',
-  adSlotId = '', 
+  adSlotId = '3590071232', // Default to main ad slot
 }) => {
-  // Use HTMLModElement which is the correct type for <ins> elements
   const adRef = useRef<HTMLModElement>(null);
   const [adLoaded, setAdLoaded] = useState(false);
   const [adError, setAdError] = useState(false);
@@ -42,26 +41,21 @@ const AdBanner: React.FC<AdBannerProps> = ({
     adFormat = 'vertical';
   }
 
-  // Attempt to load Google AdSense ad (only once)
+  // Load Google AdSense ad
   useEffect(() => {
-    // Only proceed if we're in the browser, adsbygoogle is available, and we haven't initialized yet
     if (typeof window !== 'undefined' && adRef.current && !adInitialized) {
-      // Reset states
+      setAdInitialized(true);
       setAdLoaded(false);
       setAdError(false);
-      setAdInitialized(true);
       
       try {
-        // Create timeout to handle ad not loading
         const timeout = setTimeout(() => {
           if (!adLoaded) {
             setAdError(true);
           }
-        }, 3000); // 3 seconds timeout
+        }, 3000);
         
-        // Check if adsbygoogle is defined
         if (window.adsbygoogle) {
-          // Push the ad to adsbygoogle - only push if not already initialized
           (window.adsbygoogle = window.adsbygoogle || []).push({});
           setAdLoaded(true);
           clearTimeout(timeout);
@@ -73,7 +67,7 @@ const AdBanner: React.FC<AdBannerProps> = ({
         setAdError(true);
       }
     }
-  }, [adRef]); // Only depend on adRef, not adLoaded
+  }, [adRef]);
 
   return (
     <div 
@@ -85,10 +79,9 @@ const AdBanner: React.FC<AdBannerProps> = ({
           className="adsbygoogle"
           style={{ display: 'block', width: '100%', height: '100%', minWidth: '250px' }}
           data-ad-client="ca-pub-4035756937802336"
-          data-ad-slot={adSlotId || 'auto'}
+          data-ad-slot={adSlotId}
           data-ad-format={adFormat}
           data-full-width-responsive="true"
-          data-adtest="on" // Use test mode to avoid real ads during development
           ref={adRef}
         ></ins>
       ) : (
