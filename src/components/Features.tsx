@@ -12,18 +12,18 @@ const Features = () => {
   ];
   
   return (
-    <section className="py-16 px-4 bg-white">
+    <section className="py-16 px-4 bg-black/95">
       <div className="container mx-auto max-w-6xl">
-        <h2 className="text-3xl md:text-4xl font-poppins font-bold text-center mb-12">Why Choose NoteFlow?</h2>
+        <h2 className="text-3xl md:text-4xl font-poppins font-bold text-center mb-12 text-gray-200">Why Choose NoteFlow?</h2>
         
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {features.map((feature, index) => (
-            <div key={index} className="bg-slate-50 p-6 rounded-lg border border-slate-100 hover:shadow-md transition-shadow">
+            <div key={index} className="bg-black/40 backdrop-blur-lg p-6 rounded-lg border border-white/10 hover:border-noteflow-400/50 transition-all hover:shadow-[0_0_15px_rgba(14,165,233,0.15)]">
               <div className="flex items-start gap-3 mb-3">
-                <CheckCircle className="text-noteflow-500 h-6 w-6 mt-1 flex-shrink-0" />
-                <h3 className="text-xl font-medium">{feature.title}</h3>
+                <CheckCircle className="text-noteflow-400 h-6 w-6 mt-1 flex-shrink-0" />
+                <h3 className="text-xl font-medium text-white">{feature.title}</h3>
               </div>
-              <p className="text-slate-600 ml-9">{feature.description}</p>
+              <p className="text-gray-400 ml-9">{feature.description}</p>
             </div>
           ))}
         </div>
