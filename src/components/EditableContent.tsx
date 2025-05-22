@@ -130,9 +130,10 @@ const EditableContent: React.FC<EditableContentProps> = ({ content, setContent }
     try {
       const renderer = new marked.Renderer();
       
-      // Use the correct type signature for link renderer
+      // Fix the link renderer function to match the expected interface
       renderer.link = function(href, title, text) {
-        return `<a href="${href}" title="${title || ''}" target="_blank" rel="noopener noreferrer" class="text-noteflow-400 hover:underline">${text}</a>`;
+        const titleAttr = title ? ` title="${title}"` : '';
+        return `<a href="${href}"${titleAttr} target="_blank" rel="noopener noreferrer" class="text-blue-400 hover:underline">${text}</a>`;
       };
       
       // Use only supported options
@@ -181,7 +182,7 @@ const EditableContent: React.FC<EditableContentProps> = ({ content, setContent }
       
       <button 
         onClick={toggleEditMode}
-        className="absolute bottom-4 right-4 bg-noteflow-600/80 hover:bg-noteflow-600 text-white text-xs px-3 py-1.5 rounded-full transition-colors"
+        className="absolute bottom-4 right-4 bg-indigo-600/80 hover:bg-indigo-600 text-white text-xs px-3 py-1.5 rounded-full transition-colors"
       >
         {isEditing ? "Preview" : "Edit"}
       </button>
