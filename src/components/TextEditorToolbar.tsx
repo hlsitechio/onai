@@ -11,7 +11,8 @@ import {
   AlignRight,
   Undo,
   Redo,
-  Save
+  Save,
+  Sparkles
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
@@ -20,6 +21,7 @@ interface TextEditorToolbarProps {
   execCommand: (command: string, value: string | null) => void;
   handleSave: () => void;
   toggleSidebar: () => void;
+  toggleAI: () => void;
   isSidebarOpen: boolean;
   lastSaved: Date | null;
 }
@@ -28,6 +30,7 @@ const TextEditorToolbar: React.FC<TextEditorToolbarProps> = ({
   execCommand,
   handleSave,
   toggleSidebar,
+  toggleAI,
   isSidebarOpen,
   lastSaved
 }) => {
@@ -138,6 +141,18 @@ const TextEditorToolbar: React.FC<TextEditorToolbarProps> = ({
         className="hover:bg-white/10 text-white"
       >
         <Redo className="h-4 w-4" />
+      </Button>
+      
+      <Separator orientation="vertical" className="h-8 bg-white/20" />
+      
+      <Button
+        variant="ghost"
+        size="sm"
+        onClick={toggleAI}
+        className="hover:bg-white/10 text-white"
+      >
+        <Sparkles className="h-4 w-4 text-noteflow-400" />
+        <span className="ml-1">AI</span>
       </Button>
       
       <div className="ml-auto flex items-center gap-2">

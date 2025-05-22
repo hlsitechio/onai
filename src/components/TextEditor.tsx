@@ -5,6 +5,7 @@ import NotesSidebar from "./NotesSidebar";
 import AdBanner from "./AdBanner";
 import TextEditorToolbar from "./TextEditorToolbar";
 import EditableContent from "./EditableContent";
+import AIDialog from "./notes/AIDialog";
 import { useNoteContent } from "@/hooks/useNoteContent";
 
 const TextEditor = () => {
@@ -12,7 +13,17 @@ const TextEditor = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const editorRef = useRef<HTMLDivElement>(null);
   const [editorHeight, setEditorHeight] = useState<number>(0);
-  const { content, setContent, lastSaved, execCommand, handleSave, handleLoadNote } = useNoteContent();
+  const { 
+    content, 
+    setContent, 
+    lastSaved, 
+    execCommand, 
+    handleSave, 
+    handleLoadNote,
+    isAIDialogOpen,
+    toggleAIDialog,
+    setIsAIDialogOpen
+  } = useNoteContent();
   
   // Update editor height for sidebar matching
   useEffect(() => {
@@ -62,6 +73,7 @@ const TextEditor = () => {
                 execCommand={execCommand}
                 handleSave={handleSave}
                 toggleSidebar={toggleSidebar}
+                toggleAI={toggleAIDialog}
                 isSidebarOpen={isSidebarOpen}
                 lastSaved={lastSaved}
               />
@@ -69,6 +81,14 @@ const TextEditor = () => {
               {/* Editor area */}
               <EditableContent content={content} setContent={setContent} />
             </div>
+            
+            {/* AI Dialog */}
+            <AIDialog 
+              isOpen={isAIDialogOpen}
+              onOpenChange={setIsAIDialogOpen}
+              content={content}
+              onApplyChanges={setContent}
+            />
             
             {/* Ad Banner below editor with specific ad slot */}
             <AdBanner size="medium" position="content" className="mt-4" adSlotId="3456789012" />

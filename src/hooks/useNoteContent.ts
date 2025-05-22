@@ -7,6 +7,7 @@ export function useNoteContent() {
   const { toast } = useToast();
   const [content, setContent] = useState<string>(localStorage.getItem("noteflow-content") || "");
   const [lastSaved, setLastSaved] = useState<Date | null>(null);
+  const [isAIDialogOpen, setIsAIDialogOpen] = useState(false);
   
   // Control auto-saving
   useEffect(() => {
@@ -46,12 +47,20 @@ export function useNoteContent() {
     localStorage.setItem("noteflow-content", noteContent);
   };
 
+  // Toggle AI dialog
+  const toggleAIDialog = () => {
+    setIsAIDialogOpen(!isAIDialogOpen);
+  };
+
   return {
     content,
     setContent,
     lastSaved,
     execCommand,
     handleSave,
-    handleLoadNote
+    handleLoadNote,
+    isAIDialogOpen,
+    toggleAIDialog,
+    setIsAIDialogOpen
   };
 }
