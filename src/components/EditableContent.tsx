@@ -1,4 +1,3 @@
-
 import React, { useRef, useEffect, useState } from "react";
 import { marked } from "marked";
 
@@ -135,12 +134,11 @@ const EditableContent: React.FC<EditableContentProps> = ({ content, setContent }
         return `<a href="${href}" title="${title || ''}" target="_blank" rel="noopener noreferrer" class="text-noteflow-400 hover:underline">${text}</a>`;
       };
       
-      // Fix: Use the correct option names according to MarkedOptions type
+      // Fix: Use only supported options according to MarkedOptions type
       marked.setOptions({
         renderer,
         breaks: true, // Add line breaks on single newlines
         gfm: true,    // GitHub Flavored Markdown
-        mangle: false, // Don't mangle email addresses
         headerIds: true, // Generate IDs for headings
       });
       
