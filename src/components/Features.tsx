@@ -28,8 +28,13 @@ const Features = () => {
       <div className="container mx-auto max-w-6xl">
         <h2 className="text-3xl md:text-4xl font-poppins font-bold text-center mb-12 text-gray-200">Why Choose Oneline Note AI?</h2>
         
-        {/* Premium Ad Banner with a specific ad slot */}
-        <AdBanner size="large" className="my-8 max-w-4xl mx-auto" adSlotId="2345678901" />
+        {/* In-article ad format above features */}
+        <AdBanner 
+          size="medium" 
+          format="in-article" 
+          className="my-8 max-w-4xl mx-auto" 
+          adSlotId="6157600223" 
+        />
         
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {features.map((feature, index) => (
@@ -42,6 +47,14 @@ const Features = () => {
             </div>
           ))}
         </div>
+        
+        {/* Autorelaxed ad format before pricing section */}
+        <AdBanner 
+          size="large" 
+          format="autorelaxed" 
+          className="my-12 max-w-4xl mx-auto" 
+          adSlotId="9905273540" 
+        />
         
         {/* Pricing section anchor */}
         <div id="pricing" className="mt-20">

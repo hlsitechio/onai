@@ -7,6 +7,7 @@ interface AdBannerProps {
   position?: 'sidebar' | 'content' | 'footer';
   className?: string;
   adSlotId?: string; // Ad slot ID for different ad units
+  format?: 'auto' | 'horizontal' | 'rectangle' | 'vertical' | 'in-article' | 'autorelaxed'; // Added new formats
 }
 
 declare global {
@@ -20,6 +21,7 @@ const AdBanner: React.FC<AdBannerProps> = ({
   position = 'content', 
   className = '',
   adSlotId = '3590071232', // Default to main ad slot
+  format, // Allow format override
 }) => {
   const adRef = useRef<HTMLDivElement>(null);
   const [adLoaded, setAdLoaded] = useState(false);
@@ -29,17 +31,26 @@ const AdBanner: React.FC<AdBannerProps> = ({
   
   // Determine dimensions based on size
   let dimensions = 'h-16 w-full';
-  let adFormat = 'auto';
+  let adFormat = format || 'auto'; // Use provided format or default based on size
   
-  if (size === 'small') {
-    dimensions = 'h-16 w-full';
-    adFormat = 'horizontal';
-  } else if (size === 'medium') {
-    dimensions = 'h-24 w-full';
-    adFormat = 'rectangle';
-  } else if (size === 'large') {
-    dimensions = 'h-40 w-full';
-    adFormat = 'vertical';
+  if (!format) {
+    if (size === 'small') {
+      dimensions = 'h-16 w-full';
+      adFormat = 'horizontal';
+    } else if (size === 'medium') {
+      dimensions = 'h-24 w-full';
+      adFormat = 'rectangle';
+    } else if (size === 'large') {
+      dimensions = 'h-40 w-full';
+      adFormat = 'vertical';
+    }
+  } else {
+    // Special formats have their own dimensions
+    if (format === 'in-article') {
+      dimensions = 'min-h-[250px] w-full';
+    } else if (format === 'autorelaxed') {
+      dimensions = 'min-h-[600px] w-full';
+    }
   }
 
   // Check if ad blocker might be active
@@ -62,7 +73,7 @@ const AdBanner: React.FC<AdBannerProps> = ({
       
       try {
         // Add debug information to help troubleshoot
-        console.log('AdSense: Attempting to load ad with slot ID:', adSlotId);
+        console.log('AdSense: Attempting to load ad with slot ID:', adSlotId, 'format:', adFormat);
         
         // Make sure adsbygoogle is defined before pushing
         if (window.adsbygoogle) {
@@ -83,7 +94,7 @@ const AdBanner: React.FC<AdBannerProps> = ({
         setAdError(true);
       }
     }
-  }, [adRef, adSlotId, adInitialized]);
+  }, [adRef, adSlotId, adFormat, adInitialized]);
 
   return (
     <div 
@@ -94,10 +105,12 @@ const AdBanner: React.FC<AdBannerProps> = ({
         <div ref={adRef} className="w-full h-full relative">
           <ins
             className="adsbygoogle"
-            style={{ display: 'block', width: '100%', height: '100%', minWidth: '250px' }}
+            style={{ display: 'block', width: '100%', height: '100%', minWidth: '250px', textAlign: format === 'in-article' ? 'center' : 'initial' }}
             data-ad-client="ca-pub-4035756937802336"
             data-ad-slot={adSlotId}
             data-ad-format={adFormat}
+            {...(format === 'in-article' && { 'data-ad-layout': 'in-article' })}
+            {...(format === 'autorelaxed' && { 'data-ad-format': 'autorelaxed' })}
             data-full-width-responsive="true"
           ></ins>
         </div>
