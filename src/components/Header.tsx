@@ -12,22 +12,6 @@ const Header = () => {
           <h1 className="text-xl font-bold text-white">NoteFlow</h1>
         </div>
         
-        <div className="hidden md:flex items-center space-x-6">
-          <nav>
-            <ul className="flex space-x-6">
-              <li><a href="#features" className="text-white/80 hover:text-white transition-colors">Features</a></li>
-              <li><a href="#" className="text-white/80 hover:text-white transition-colors">Pricing</a></li>
-              <li><a href="#" className="text-white/80 hover:text-white transition-colors">Contact</a></li>
-            </ul>
-          </nav>
-          <a 
-            href="#" 
-            className="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition-colors"
-          >
-            Get Started
-          </a>
-        </div>
-        
         {/* Mobile menu button */}
         <div className="md:hidden">
           <button 
@@ -42,19 +26,14 @@ const Header = () => {
       {/* Mobile menu */}
       {mobileMenuOpen && (
         <div className="absolute top-full left-0 w-full bg-gray-900/95 backdrop-blur-sm py-4 md:hidden">
-          <nav className="container mx-auto px-4">
-            <ul className="space-y-4">
-              <li><a href="#features" className="block text-white/80 hover:text-white transition-colors">Features</a></li>
-              <li><a href="#" className="block text-white/80 hover:text-white transition-colors">Pricing</a></li>
-              <li><a href="#" className="block text-white/80 hover:text-white transition-colors">Contact</a></li>
-            </ul>
+          <div className="container mx-auto px-4">
             <a 
               href="#" 
               className="block mt-4 px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition-colors text-center"
             >
               Get Started
             </a>
-          </nav>
+          </div>
         </div>
       )}
     </header>
