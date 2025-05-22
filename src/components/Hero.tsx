@@ -57,7 +57,7 @@ const Hero = () => {
       <div className="absolute inset-0 z-0">
         <img 
           src="/lovable-uploads/2f5a493f-874d-4e1c-ab7d-50348b0f2c40.png" 
-          alt="ONAI background" 
+          alt="Online Note AI background" 
           className="w-full h-full object-cover opacity-40"
         />
         <div className="absolute inset-0 bg-black/60 backdrop-blur-sm"></div>

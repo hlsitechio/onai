@@ -1,8 +1,10 @@
-# Welcome to your Lovable project
+
+# Welcome to Online Note AI
 
 ## Project info
 
 **URL**: https://lovable.dev/projects/537bfa69-8d92-4d14-93ac-53fede0eeabf
+**Website**: https://onlinenote.ai
 
 ## How can I edit this code?
 

@@ -20,9 +20,9 @@ const NotFound = () => {
       <div className="flex-1 flex flex-col items-center justify-center p-6">
         <div className="text-center max-w-lg bg-black/40 backdrop-blur-lg rounded-lg border border-white/10 p-8 shadow-lg">
           <h1 className="text-6xl font-bold text-noteflow-400 mb-4">404</h1>
-          <p className="text-xl text-white mb-6">Oops! Cette page n'existe pas</p>
+          <p className="text-xl text-white mb-6">Oops! This page doesn't exist</p>
           <a href="/" className="inline-block bg-noteflow-500 text-white px-6 py-3 rounded-lg hover:bg-noteflow-600 transition-colors">
-            Retourner à l'accueil
+            Return to Home
           </a>
           
           {/* Ad banner placement in 404 page */}

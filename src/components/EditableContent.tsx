@@ -130,12 +130,12 @@ const EditableContent: React.FC<EditableContentProps> = ({ content, setContent }
     try {
       const renderer = new marked.Renderer();
       
-      // Fix: Update the link renderer to use the correct type signature
-      renderer.link = ({ href, title, text }) => {
+      // Use the correct type signature for link renderer
+      renderer.link = function(href, title, text) {
         return `<a href="${href}" title="${title || ''}" target="_blank" rel="noopener noreferrer" class="text-noteflow-400 hover:underline">${text}</a>`;
       };
       
-      // Fix: Use only supported options according to MarkedOptions type
+      // Use only supported options
       marked.setOptions({
         renderer,
         breaks: true, // Add line breaks on single newlines

@@ -11,12 +11,12 @@ export function useNoteContent() {
   
   // Load content from localStorage on initial render
   useEffect(() => {
-    const savedContent = localStorage.getItem("noteflow-content");
+    const savedContent = localStorage.getItem("onlinenote-content");
     if (savedContent) {
       setContent(savedContent);
     } else {
       // Set a default welcome message with markdown examples
-      setContent(`# Welcome to NoteFlow
+      setContent(`# Welcome to Online Note AI
 
 This is a markdown-enabled editor. Try out some formatting:
 
@@ -41,7 +41,7 @@ Use the AI button in the toolbar to analyze, improve, or summarize your notes.`)
     if (!content) return;
     
     const saveInterval = setInterval(() => {
-      localStorage.setItem("noteflow-content", content);
+      localStorage.setItem("onlinenote-content", content);
       setLastSaved(new Date());
     }, 5000); // Auto-save every 5 seconds
 
@@ -72,7 +72,7 @@ Use the AI button in the toolbar to analyze, improve, or summarize your notes.`)
   // Handle manual save with better error handling
   const handleSave = useCallback(async () => {
     try {
-      localStorage.setItem("noteflow-content", content);
+      localStorage.setItem("onlinenote-content", content);
       
       // Save to Chrome Storage with timestamp as ID
       const noteId = Date.now().toString();
@@ -110,7 +110,7 @@ Use the AI button in the toolbar to analyze, improve, or summarize your notes.`)
     }
     
     setContent(noteContent);
-    localStorage.setItem("noteflow-content", noteContent);
+    localStorage.setItem("onlinenote-content", noteContent);
     toast({
       title: "Note loaded",
       description: "The note has been loaded into the editor.",

@@ -1,5 +1,5 @@
 
-# robots.txt for NoteFlow
+# robots.txt for Online Note AI
 User-agent: *
 Allow: /
 
@@ -42,7 +42,7 @@ User-agent: Mediapartners-Google
 Allow: /
 
 # Sitemap location
-Sitemap: https://noteflow.app/sitemap.xml
+Sitemap: https://onlinenote.ai/sitemap.xml
 
 # Crawl delay directive for general crawlers (optional)
 User-agent: *

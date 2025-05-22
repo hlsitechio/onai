@@ -14,7 +14,10 @@ const Footer = () => {
         <div className="flex flex-col md:flex-row justify-between items-center mb-6">
           <div className="mb-4 md:mb-0">
             <p className="text-gray-500 text-sm">
-              © {currentYear} NoteFlow. All rights reserved.
+              © {currentYear} Online Note AI. All rights reserved.
+            </p>
+            <p className="text-gray-600 text-xs mt-1">
+              <a href="https://onlinenote.ai" className="hover:text-noteflow-400 transition-colors">onlinenote.ai</a>
             </p>
           </div>
           

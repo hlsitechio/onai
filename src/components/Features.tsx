@@ -26,7 +26,7 @@ const Features = () => {
   return (
     <section id="features" className="py-16 px-4 bg-black/95">
       <div className="container mx-auto max-w-6xl">
-        <h2 className="text-3xl md:text-4xl font-poppins font-bold text-center mb-12 text-gray-200">Why Choose Oneline Note AI?</h2>
+        <h2 className="text-3xl md:text-4xl font-poppins font-bold text-center mb-12 text-gray-200">Why Choose Online Note AI?</h2>
         
         {/* In-article ad format above features */}
         <AdBanner 

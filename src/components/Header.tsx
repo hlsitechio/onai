@@ -9,7 +9,7 @@ const Header = () => {
     <header className="relative z-10 w-full">
       <div className="container mx-auto px-4 py-4 flex items-center justify-between">
         <div className="flex items-center">
-          <h1 className="text-xl font-bold text-white">NoteFlow</h1>
+          <h1 className="text-xl font-bold text-white">Online Note AI</h1>
         </div>
         
         {/* Mobile menu button */}
@@ -28,8 +28,9 @@ const Header = () => {
         <div className="absolute top-full left-0 w-full bg-gray-900/95 backdrop-blur-sm py-4 md:hidden">
           <div className="container mx-auto px-4">
             <a 
-              href="#" 
+              href="#editor-section" 
               className="block mt-4 px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition-colors text-center"
+              onClick={() => setMobileMenuOpen(false)}
             >
               Get Started
             </a>
