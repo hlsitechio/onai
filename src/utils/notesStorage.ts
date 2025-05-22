@@ -211,34 +211,66 @@ const removeLocalFallbacks = (noteId: string): void => {
 };
 
 /**
- * Share note to an external service
+ * Share note to an external service or generate a shareable link
  */
 export const shareNote = async (
   content: string, 
-  service: 'onedrive' | 'googledrive' | 'device'
-): Promise<StorageOperationResult> => {
+  service: 'onedrive' | 'googledrive' | 'device' | 'link'
+): Promise<StorageOperationResult & { shareUrl?: string }> => {
   try {
-    if (service === 'onedrive') {
-      // Normally we would use OneDrive SDK or API here
-      openExternalUrl('https://onedrive.live.com/');
-    } 
-    else if (service === 'googledrive') {
-      // Normally we would use Google Drive API here
-      openExternalUrl('https://drive.google.com/');
-    }
-    else if (service === 'device') {
+    // Generate a simple hash for the content to use as an identifier
+    const generateSimpleHash = (text: string) => {
+      let hash = 0;
+      for (let i = 0; i < text.length; i++) {
+        const char = text.charCodeAt(i);
+        hash = ((hash << 5) - hash) + char;
+        hash = hash & hash; // Convert to 32bit integer
+      }
+      // Convert to positive hex string and add timestamp for uniqueness
+      return Math.abs(hash).toString(16) + Date.now().toString(16);
+    };
+
+    // Handle direct share options
+    if (service === 'device') {
       // Use Web Share API if available
       if (navigator.share) {
         await navigator.share({
-          title: 'My NoteFlow Note',
+          title: 'My OneAI Note',
           text: content,
         });
         return { success: true };
       }
       
-      // Create download link as fallback
-      downloadAsFile(content);
+      // If Web Share API not available, create a shareable link instead
+      service = 'link';
     }
+    
+    if (service === 'link') {
+      // Generate a unique hash for this content
+      const contentHash = generateSimpleHash(content);
+      
+      // Store the content in localStorage with the hash as a key
+      // This allows retrieval of shared notes via URL params
+      localStorage.setItem(`share-${contentHash}`, content);
+      
+      // Create a shareable URL with the hash as a parameter
+      const shareUrl = `${window.location.origin}${window.location.pathname}?note=${contentHash}`;
+      
+      // Return success with the share URL
+      return { 
+        success: true,
+        shareUrl
+      };
+    }
+
+    // Fallback for other services (not currently implemented)
+    if (service === 'onedrive' || service === 'googledrive') {
+      return { 
+        success: false, 
+        error: 'External sharing services are not currently supported'
+      };
+    }
+    
     return { success: true };
   } catch (error) {
     console.error("Error sharing note:", error);

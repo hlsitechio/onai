@@ -1,6 +1,6 @@
 
 import { useState, useEffect, useCallback } from "react";
-import { saveNote } from "@/utils/notesStorage";
+import { saveNote, getAllNotes, shareNote } from "@/utils/notesStorage";
 import { useToast } from "@/hooks/use-toast";
 
 export function useNoteContent() {
@@ -8,15 +8,40 @@ export function useNoteContent() {
   const [content, setContent] = useState<string>("");
   const [lastSaved, setLastSaved] = useState<Date | null>(null);
   const [isAIDialogOpen, setIsAIDialogOpen] = useState(false);
-  
-  // Load content from localStorage on initial render
+  const [currentNoteId, setCurrentNoteId] = useState<string | null>(null);
+  const [shareUrl, setShareUrl] = useState<string | null>(null);
+
+  // Load content from storage with improved prioritization
   useEffect(() => {
-    const savedContent = localStorage.getItem("onlinenote-content");
-    if (savedContent) {
-      setContent(savedContent);
-    } else {
-      // Set a default welcome message with markdown examples
-      setContent(`# Welcome to Online Note AI
+    const loadSavedNotes = async () => {
+      try {
+        // First check if there's a last edited note ID in localStorage
+        const lastEditedId = localStorage.getItem("onlinenote-last-edited-id");
+        const currentContent = localStorage.getItem("onlinenote-content");
+        
+        // Get all saved notes
+        const allNotes = await getAllNotes();
+        const noteIds = Object.keys(allNotes);
+        
+        if (noteIds.length > 0) {
+          // If we have saved notes, prioritize the last edited one
+          if (lastEditedId && allNotes[lastEditedId]) {
+            setContent(allNotes[lastEditedId]);
+            setCurrentNoteId(lastEditedId);
+          } else {
+            // Otherwise use the most recent note (last in the array)
+            const mostRecentId = noteIds[noteIds.length - 1];
+            setContent(allNotes[mostRecentId]);
+            setCurrentNoteId(mostRecentId);
+            // Update the last edited ID
+            localStorage.setItem("onlinenote-last-edited-id", mostRecentId);
+          }
+        } else if (currentContent) {
+          // If no saved notes but we have content in localStorage, use that
+          setContent(currentContent);
+        } else {
+          // Set a default welcome message with markdown examples
+          setContent(`# Welcome to Online Note AI
 
 This is a markdown-enabled editor. Try out some formatting:
 
@@ -33,7 +58,17 @@ This is a markdown-enabled editor. Try out some formatting:
 Click the "Preview" button in the bottom right to see your formatted note.
 
 Use the AI button in the toolbar to analyze, improve, or summarize your notes.`);
-    }
+        }
+      } catch (error) {
+        console.error("Error loading saved notes:", error);
+        // Fallback to welcome message
+        setContent(`# Welcome to Online Note AI
+
+This is a markdown-enabled editor. Try out some formatting examples.`);
+      }
+    };
+    
+    loadSavedNotes();
   }, []);
   
   // Control auto-saving
@@ -122,16 +157,24 @@ Use the AI button in the toolbar to analyze, improve, or summarize your notes.`)
     }
   }, [setContent]);
   
-  // Handle manual save with better error handling
+  // Handle manual save with better error handling and persistence
   const handleSave = useCallback(async () => {
     try {
+      // Save to localStorage for immediate persistence
       localStorage.setItem("onlinenote-content", content);
       
-      // Save to Chrome Storage with timestamp as ID
-      const noteId = Date.now().toString();
+      // Generate a new note ID or use the current one
+      const noteId = currentNoteId || Date.now().toString();
+      
+      // Save the note with the ID
       const result = await saveNote(noteId, content);
       
+      // Update the current note ID and last saved timestamp
+      setCurrentNoteId(noteId);
       setLastSaved(new Date());
+      
+      // Store the last edited ID for future loads
+      localStorage.setItem("onlinenote-last-edited-id", noteId);
       
       if (!result.success && result.error) {
         throw new Error(result.error);
@@ -149,7 +192,37 @@ Use the AI button in the toolbar to analyze, improve, or summarize your notes.`)
         variant: "destructive",
       });
     }
-  }, [content, toast]);
+  }, [content, toast, currentNoteId]);
+
+  // Handle sharing a note with a simple hash-based system
+  const handleShareNote = useCallback(async () => {
+    try {
+      // Make sure the note is saved first
+      await handleSave();
+      
+      // Create a unique shareable hash for this note
+      const result = await shareNote(content, 'device');
+      
+      if (result.success && result.shareUrl) {
+        setShareUrl(result.shareUrl);
+        toast({
+          title: "Note shared",
+          description: "Share link has been created. You can now copy and share it.",
+        });
+        return result.shareUrl;
+      } else if (result.error) {
+        throw new Error(result.error);
+      }
+    } catch (error) {
+      console.error("Error sharing note:", error);
+      toast({
+        title: "Share failed",
+        description: "There was an error creating a share link. Please try again.",
+        variant: "destructive",
+      });
+      return null;
+    }
+  }, [content, handleSave, toast]);
 
   // Handle loading a note with validation
   const handleLoadNote = useCallback((noteContent: string) => {
@@ -181,9 +254,12 @@ Use the AI button in the toolbar to analyze, improve, or summarize your notes.`)
     lastSaved,
     execCommand,
     handleSave,
+    handleShareNote,
+    shareUrl,
     handleLoadNote,
     isAIDialogOpen,
     toggleAIDialog,
-    setIsAIDialogOpen
+    setIsAIDialogOpen,
+    currentNoteId
   };
 }
