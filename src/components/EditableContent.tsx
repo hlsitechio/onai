@@ -130,16 +130,18 @@ const EditableContent: React.FC<EditableContentProps> = ({ content, setContent }
     try {
       const renderer = new marked.Renderer();
       
-      // Configure the renderer for better markdown support
-      renderer.link = (href, title, text) => {
+      // Fix: Update the link renderer to use the correct type signature
+      renderer.link = ({ href, title, text }) => {
         return `<a href="${href}" title="${title || ''}" target="_blank" rel="noopener noreferrer" class="text-noteflow-400 hover:underline">${text}</a>`;
       };
       
+      // Fix: Use the correct option names according to MarkedOptions type
       marked.setOptions({
         renderer,
         breaks: true, // Add line breaks on single newlines
         gfm: true,    // GitHub Flavored Markdown
-        smartypants: true // Use smart typography
+        mangle: false, // Don't mangle email addresses
+        headerIds: true, // Generate IDs for headings
       });
       
       return { __html: marked.parse(text) };
