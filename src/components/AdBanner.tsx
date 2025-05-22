@@ -71,9 +71,8 @@ const AdBanner: React.FC<AdBannerProps> = ({
         setAdError(true);
       }
     }
-  }, [adRef]);
+  }, [adRef, adLoaded]);
 
-  // Render AdSense ad or placeholder
   return (
     <div 
       className={`${dimensions} ${className} bg-black/40 backdrop-blur-lg rounded-lg border border-white/10 flex items-center justify-center my-4 overflow-hidden group hover:border-noteflow-400/50 transition-all`}
