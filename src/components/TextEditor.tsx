@@ -6,11 +6,13 @@ import AdBanner from "./AdBanner";
 import TextEditorToolbar from "./TextEditorToolbar";
 import EditableContent from "./EditableContent";
 import AIDialog from "./notes/AIDialog";
+import AISidebar from "./notes/AISidebar";
 import { useNoteContent } from "@/hooks/useNoteContent";
 
 const TextEditor = () => {
   const { toast } = useToast();
-  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const [isLeftSidebarOpen, setIsLeftSidebarOpen] = useState(true);
+  const [isAISidebarOpen, setIsAISidebarOpen] = useState(true);
   const editorRef = useRef<HTMLDivElement>(null);
   const [editorHeight, setEditorHeight] = useState<number>(0);
   const { 
@@ -71,17 +73,21 @@ const TextEditor = () => {
   }, [handleKeyboardShortcut]); // Only depend on the callback itself, which already has dependencies
   
   // Define regular functions after all hooks
-  const toggleSidebar = () => {
-    setIsSidebarOpen(!isSidebarOpen);
+  const toggleLeftSidebar = () => {
+    setIsLeftSidebarOpen(!isLeftSidebarOpen);
+  };
+  
+  const toggleAISidebar = () => {
+    setIsAISidebarOpen(!isAISidebarOpen);
   };
   
   return (
     <section id="editor-section" className="py-12 px-4 relative">
-      <div className="container mx-auto max-w-5xl">
-        <div className="flex gap-6">
-          {/* The sidebar with enhanced styling */}
-          {isSidebarOpen && (
-            <div className="w-72 shrink-0">
+      <div className="container mx-auto max-w-7xl">
+        <div className="flex flex-col md:flex-row gap-6">
+          {/* Left sidebar with notes list */}
+          {isLeftSidebarOpen && (
+            <div className="w-full md:w-72 shrink-0 mb-4 md:mb-0">
               <NotesSidebar 
                 currentContent={content} 
                 onLoadNote={handleLoadNote} 
@@ -101,19 +107,20 @@ const TextEditor = () => {
               <TextEditorToolbar 
                 execCommand={execCommand}
                 handleSave={handleSave}
-                toggleSidebar={toggleSidebar}
-                toggleAI={toggleAIDialog}
-                isSidebarOpen={isSidebarOpen}
+                toggleSidebar={toggleLeftSidebar}
+                toggleAI={toggleAISidebar}
+                isSidebarOpen={isLeftSidebarOpen}
+                isAISidebarOpen={isAISidebarOpen}
                 lastSaved={lastSaved}
               />
               
-              {/* Editor area with improved dimensions */}
-              <div className="flex-1 h-[500px] overflow-hidden">
+              {/* Editor area with responsive dimensions */}
+              <div className="flex-1 h-[300px] sm:h-[400px] md:h-[500px] overflow-hidden">
                 <EditableContent content={content} setContent={setContent} />
               </div>
             </div>
             
-            {/* AI Dialog */}
+            {/* AI Dialog - kept for compatibility but can be hidden by default */}
             <AIDialog 
               isOpen={isAIDialogOpen}
               onOpenChange={setIsAIDialogOpen}
@@ -124,6 +131,17 @@ const TextEditor = () => {
             {/* Additional space at the bottom */}
             <div className="h-6"></div>
           </div>
+          
+          {/* Right sidebar with AI capabilities */}
+          {isAISidebarOpen && (
+            <div className="w-full md:w-80 lg:w-96 shrink-0 mb-4 md:mb-0">
+              <AISidebar
+                content={content}
+                onApplyChanges={setContent}
+                editorHeight={editorHeight}
+              />
+            </div>
+          )}
         </div>
       </div>
     </section>

@@ -7,6 +7,7 @@ export type StorageProviderType = 'chrome' | 'local';
 export interface StorageOperationResult {
   success: boolean;
   error?: string;
+  newNoteId?: string; // For rename operations
 }
 
 // Constants
@@ -211,6 +212,54 @@ const removeLocalFallbacks = (noteId: string): void => {
 };
 
 /**
+ * Rename a note in storage
+ * @param oldNoteId - The current ID of the note
+ * @param newNoteId - The new ID to assign to the note
+ * @returns A promise that resolves to the result of the operation
+ */
+export const renameNote = async (oldNoteId: string, newNoteId: string): Promise<StorageOperationResult> => {
+  try {
+    // Get all notes
+    const allNotes = await getAllNotes();
+    
+    // Check if the old note exists
+    if (!allNotes[oldNoteId]) {
+      return { success: false, error: 'Note not found' };
+    }
+    
+    // Check if the new note ID already exists
+    if (allNotes[newNoteId]) {
+      return { success: false, error: 'A note with this name already exists' };
+    }
+    
+    // Get the content of the old note
+    const content = allNotes[oldNoteId];
+    
+    // Save the content to the new note ID
+    const saveResult = await saveNote(newNoteId, content);
+    
+    if (!saveResult.success) {
+      return saveResult;
+    }
+    
+    // Delete the old note
+    const deleteResult = await deleteNote(oldNoteId);
+    
+    if (!deleteResult.success) {
+      return deleteResult;
+    }
+    
+    return { success: true, newNoteId };
+  } catch (error) {
+    console.error("Error renaming note:", error);
+    return { 
+      success: false, 
+      error: error instanceof Error ? error.message : 'Unknown error renaming note' 
+    };
+  }
+};
+
+/**
  * Share note to an external service or generate a shareable link
  */
 export const shareNote = async (
@@ -234,15 +283,49 @@ export const shareNote = async (
     if (service === 'device') {
       // Use Web Share API if available
       if (navigator.share) {
-        await navigator.share({
-          title: 'My OneAI Note',
-          text: content,
-        });
-        return { success: true };
+        try {
+          // Try sharing as a file first (better for note apps)
+          const fileName = 'oneai-note.txt';
+          const file = new File([content], fileName, { type: 'text/plain' });
+          
+          await navigator.share({
+            title: 'OneAI Note',
+            text: content.substring(0, 100) + (content.length > 100 ? '...' : ''), // Preview text
+            files: [file]
+          });
+          return { success: true };
+        } catch (fileShareError) {
+          // If file sharing fails (older browsers), fall back to text
+          try {
+            await navigator.share({
+              title: 'OneAI Note',
+              text: content,
+            });
+            return { success: true };
+          } catch (textShareError) {
+            console.error('Error sharing text:', textShareError);
+            // Continue to fallback methods
+          }
+        }
       }
       
-      // If Web Share API not available, create a shareable link instead
-      service = 'link';
+      // Try to detect if on iOS or Samsung device for native format support
+      const userAgent = navigator.userAgent.toLowerCase();
+      const isiOS = /iphone|ipad|ipod/.test(userAgent);
+      const isSamsung = /samsung/.test(userAgent);
+      
+      if (isiOS) {
+        // iOS Notes works best with HTML format
+        downloadAsFile(content, 'html');
+      } else if (isSamsung) {
+        // Samsung Notes supports markdown
+        downloadAsFile(content, 'md');
+      } else {
+        // Default to plain text for other devices
+        downloadAsFile(content, 'txt');
+      }
+      
+      return { success: true };
     }
     
     if (service === 'link') {
@@ -293,16 +376,89 @@ const openExternalUrl = (url: string): void => {
 };
 
 /**
- * Helper to download content as a file
+ * Helper to download content as a file with multiple format options
+ * @param content - The note content
+ * @param format - The file format to download as
  */
-const downloadAsFile = (content: string): void => {
-  const blob = new Blob([content], { type: 'text/plain' });
+const downloadAsFile = (content: string, format: 'txt' | 'md' | 'html' = 'txt'): void => {
+  let fileContent = content;
+  let mimeType = 'text/plain';
+  let extension = 'txt';
+  
+  // Format for different note types
+  switch(format) {
+    case 'md':
+      // Keep as is for markdown
+      mimeType = 'text/markdown';
+      extension = 'md';
+      break;
+    case 'html':
+      // Convert markdown to simple HTML
+      fileContent = `<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OneAI Note</title>
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; }
+    h1, h2, h3 { margin-top: 1.5em; margin-bottom: 0.5em; }
+    p { margin-bottom: 1em; }
+    pre { background: #f5f5f5; padding: 1em; overflow-x: auto; }
+    code { background: #f5f5f5; padding: 0.2em 0.4em; }
+  </style>
+</head>
+<body>
+  ${markdownToHtml(content)}
+</body>
+</html>`;
+      mimeType = 'text/html';
+      extension = 'html';
+      break;
+    default: // txt
+      // Just use plain text
+      mimeType = 'text/plain';
+      extension = 'txt';
+  }
+  
+  // Create and download the file
+  const blob = new Blob([fileContent], { type: mimeType });
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
-  a.download = 'noteflow-note.txt';
+  a.download = `oneai-note.${extension}`;
   document.body.appendChild(a);
   a.click();
   document.body.removeChild(a);
   URL.revokeObjectURL(url);
+};
+
+/**
+ * Simple markdown to HTML converter for basic note formatting
+ */
+const markdownToHtml = (markdown: string): string => {
+  if (!markdown) return '';
+  
+  let html = markdown
+    // Headers
+    .replace(/^# (.+)$/gm, '<h1>$1</h1>')
+    .replace(/^## (.+)$/gm, '<h2>$1</h2>')
+    .replace(/^### (.+)$/gm, '<h3>$1</h3>')
+    // Bold and italic
+    .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+    .replace(/_(.+?)_/g, '<em>$1</em>')
+    // Lists
+    .replace(/^\* (.+)$/gm, '<ul><li>$1</li></ul>')
+    .replace(/^\d+\. (.+)$/gm, '<ol><li>$1</li></ol>')
+    // Code blocks
+    .replace(/```([\s\S]+?)```/g, '<pre><code>$1</code></pre>')
+    .replace(/`([^`]+)`/g, '<code>$1</code>')
+    // Line breaks
+    .replace(/\n/g, '<br />');
+    
+  // Fix nested lists (imperfect but functional)
+  html = html.replace(/<\/ul>\s*<ul>/g, '');
+  html = html.replace(/<\/ol>\s*<ol>/g, '');
+  
+  return html;
 };

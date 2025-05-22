@@ -8,7 +8,9 @@ interface NotesListProps {
   onLoadNote: (noteId: string) => void;
   onDeleteNote: (noteId: string, e: React.MouseEvent) => void;
   onOpenShare: (noteId: string) => void;
+  onRenameNote?: (oldNoteId: string, newNoteId: string) => Promise<boolean>;
   formatNoteId: (id: string) => string;
+  customNoteNames?: Record<string, string>;
 }
 
 const NotesList: React.FC<NotesListProps> = ({
@@ -17,7 +19,9 @@ const NotesList: React.FC<NotesListProps> = ({
   onLoadNote,
   onDeleteNote,
   onOpenShare,
-  formatNoteId
+  onRenameNote,
+  formatNoteId,
+  customNoteNames = {}
 }) => {
   // Filter out any system notes (like encryption-key) that may have slipped through
   const userNotes = Object.entries(notes).filter(([noteId]) => 
@@ -38,7 +42,14 @@ const NotesList: React.FC<NotesListProps> = ({
             onLoadNote={onLoadNote}
             onDeleteNote={onDeleteNote}
             onOpenShare={onOpenShare}
+            onRenameNote={async (oldId, newId) => {
+              if (onRenameNote) {
+                return await onRenameNote(oldId, newId);
+              }
+              return false;
+            }}
             formatNoteId={formatNoteId}
+            displayName={customNoteNames[noteId]}
           />
         ))
       )}

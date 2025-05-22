@@ -31,6 +31,7 @@ interface TextEditorToolbarProps {
   toggleAI: () => void;
   isSidebarOpen: boolean;
   lastSaved: Date | null;
+  isAISidebarOpen?: boolean;
 }
 
 const TextEditorToolbar: React.FC<TextEditorToolbarProps> = ({
@@ -39,6 +40,7 @@ const TextEditorToolbar: React.FC<TextEditorToolbarProps> = ({
   toggleSidebar,
   toggleAI,
   isSidebarOpen,
+  isAISidebarOpen,
   lastSaved
 }) => {
   // Markdown-specific handlers
@@ -60,6 +62,21 @@ const TextEditorToolbar: React.FC<TextEditorToolbarProps> = ({
     <TooltipProvider>
       <div className="border-b border-white/5 bg-gradient-to-r from-gray-900/90 to-gray-800/90 backdrop-blur-md py-2.5 px-4 flex items-center justify-between flex-wrap gap-y-2 shadow-inner">
         <div className="flex items-center space-x-1.5 overflow-x-auto pb-1">
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button 
+                variant="ghost" 
+                size={"icon"}
+                onClick={toggleAI}
+                className={`text-gray-300 hover:text-white rounded-md border ${isAISidebarOpen === true ? 'bg-noteflow-600/30 text-white' : 'bg-transparent hover:bg-noteflow-600/30 border-white/5'}`}
+              >
+                <Sparkles className="h-4 w-4" />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>{isAISidebarOpen === true ? 'Hide AI Panel' : 'Show AI Panel'}</p>
+            </TooltipContent>
+          </Tooltip>
           <Tooltip>
             <TooltipTrigger asChild>
               <Button 

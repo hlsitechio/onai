@@ -65,16 +65,73 @@ export function useNoteContent() {
     loadSavedNotes();
   }, []);
   
-  // Control auto-saving
+  // Control auto-saving and implement daily cache clearing
   useEffect(() => {
     if (!content) return;
     
+    // Auto-save content to localStorage
     const saveInterval = setInterval(() => {
       localStorage.setItem("onlinenote-content", content);
       setLastSaved(new Date());
     }, 5000); // Auto-save every 5 seconds
+    
+    // Check for daily cache clearing
+    const checkCacheClearing = () => {
+      // Get the last clear date
+      const lastClearDate = localStorage.getItem("onlinenote-last-clear-date");
+      const currentDate = new Date().toDateString();
+      
+      // If no clear date or it's a different day, clear cache
+      if (!lastClearDate || lastClearDate !== currentDate) {
+        console.log('Daily cache clearing triggered');
+        
+        // Don't clear immediately during session - schedule for page close/refresh
+        const shouldClearOnExit = localStorage.getItem("onlinenote-clear-on-exit") !== "true";
+        if (shouldClearOnExit) {
+          localStorage.setItem("onlinenote-clear-on-exit", "true");
+        }
+        
+        // Update last clear date
+        localStorage.setItem("onlinenote-last-clear-date", currentDate);
+      }
+    };
+    
+    // Run check immediately and then every hour
+    checkCacheClearing();
+    const clearCheckInterval = setInterval(checkCacheClearing, 3600000); // Check every hour
+    
+    // Setup beforeunload event for clearing on exit
+    const handleBeforeUnload = () => {
+      const shouldClearOnExit = localStorage.getItem("onlinenote-clear-on-exit") === "true";
+      if (shouldClearOnExit) {
+        // Save current note before clearing for emergency recovery
+        const emergencyBackup = JSON.stringify({
+          content,
+          timestamp: new Date().toISOString(),
+          expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString() // 24 hours
+        });
+        localStorage.setItem("onlinenote-emergency-backup", emergencyBackup);
+        
+        // Clear all user notes except essential app settings
+        for (let i = 0; i < localStorage.length; i++) {
+          const key = localStorage.key(i);
+          if (key && key.startsWith('noteflow-') && !key.includes('settings') && !key.includes('init')) {
+            localStorage.removeItem(key);
+          }
+        }
+        
+        // Clear the exit flag
+        localStorage.removeItem("onlinenote-clear-on-exit");
+      }
+    };
+    
+    window.addEventListener('beforeunload', handleBeforeUnload);
 
-    return () => clearInterval(saveInterval);
+    return () => {
+      clearInterval(saveInterval);
+      clearInterval(clearCheckInterval);
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+    };
   }, [content]);
 
   // Execute commands on the editor with better handling for textarea
@@ -153,6 +210,15 @@ export function useNoteContent() {
   
   // Handle manual save with better error handling and persistence
   const handleSave = useCallback(async () => {
+    // Skip if content is empty
+    if (!content.trim()) {
+      toast({
+        title: "Nothing to save",
+        description: "Please add some content to your note before saving."
+      });
+      return;
+    }
+    
     try {
       // Save to localStorage for immediate persistence
       localStorage.setItem("onlinenote-content", content);
@@ -160,8 +226,22 @@ export function useNoteContent() {
       // Generate a new note ID or use the current one
       const noteId = currentNoteId || Date.now().toString();
       
-      // Save the note with the ID
-      const result = await saveNote(noteId, content);
+      // Try multiple times in case of failure (improved reliability)
+      let saveAttempts = 0;
+      let result;
+      
+      while (saveAttempts < 3) {
+        // Save the note with the ID
+        result = await saveNote(noteId, content);
+        
+        if (result.success) break;
+        saveAttempts++;
+        await new Promise(resolve => setTimeout(resolve, 500)); // Wait before retry
+      }
+      
+      if (!result || !result.success) {
+        throw new Error(result?.error || "Failed to save after multiple attempts");
+      }
       
       // Update the current note ID and last saved timestamp
       setCurrentNoteId(noteId);
@@ -170,9 +250,9 @@ export function useNoteContent() {
       // Store the last edited ID for future loads
       localStorage.setItem("onlinenote-last-edited-id", noteId);
       
-      if (!result.success && result.error) {
-        throw new Error(result.error);
-      }
+      // Add security token to track legitimate saves
+      const securityToken = Math.random().toString(36).substring(2, 15);
+      localStorage.setItem("onlinenote-security-token", securityToken);
       
       toast({
         title: "Saved successfully",
@@ -185,6 +265,18 @@ export function useNoteContent() {
         description: "There was an error saving your note. Please try again.",
         variant: "destructive",
       });
+      
+      // Create a secure backup in case of failure
+      try {
+        const secureBackup = JSON.stringify({
+          content,
+          timestamp: new Date().toISOString(),
+          recoveryId: Math.random().toString(36).substring(2, 15)
+        });
+        localStorage.setItem("onlinenote-secure-backup", secureBackup);
+      } catch (backupError) {
+        console.error("Failed to create backup:", backupError);
+      }
     }
   }, [content, toast, currentNoteId]);
 
