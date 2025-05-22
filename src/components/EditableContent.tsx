@@ -1,4 +1,3 @@
-
 import React, { useRef, useEffect, useState } from "react";
 import { marked } from "marked";
 
@@ -130,8 +129,9 @@ const EditableContent: React.FC<EditableContentProps> = ({ content, setContent }
     try {
       const renderer = new marked.Renderer();
       
-      // Fix the link renderer function to match the expected interface
-      renderer.link = function(href, title, text) {
+      // Fix link renderer to match the interfaces expected by marked
+      // @ts-ignore - We need to override the type to match what marked actually expects
+      renderer.link = function(href: string, title: string | null, text: string) {
         const titleAttr = title ? ` title="${title}"` : '';
         return `<a href="${href}"${titleAttr} target="_blank" rel="noopener noreferrer" class="text-blue-400 hover:underline">${text}</a>`;
       };
