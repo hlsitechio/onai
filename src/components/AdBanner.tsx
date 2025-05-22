@@ -21,8 +21,8 @@ const AdBanner: React.FC<AdBannerProps> = ({
   className = '',
   adSlotId = '', 
 }) => {
-  // Change the ref type to HTMLInsElement instead of HTMLDivElement
-  const adRef = useRef<HTMLElement>(null);
+  // Use HTMLModElement which is the correct type for <ins> elements
+  const adRef = useRef<HTMLModElement>(null);
   const [adLoaded, setAdLoaded] = useState(false);
   const [adError, setAdError] = useState(false);
   
@@ -87,7 +87,7 @@ const AdBanner: React.FC<AdBannerProps> = ({
           data-ad-slot={adSlotId || 'auto'}
           data-ad-format={adFormat}
           data-full-width-responsive="true"
-          ref={adRef as React.LegacyRef<HTMLElement>}
+          ref={adRef}
         ></ins>
       ) : (
         // Fallback placeholder when ads fail to load
