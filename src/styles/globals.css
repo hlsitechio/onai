@@ -1,0 +1,27 @@
+/* Global styles to ensure full height and proper background */
+
+html, body, #root {
+  min-height: 100vh;
+  margin: 0;
+  padding: 0;
+}
+
+/* Full-height wrapper in focus mode */
+[data-focus-mode="true"] #root {
+  background-color: black !important;
+  min-height: 100vh !important;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Ensure any potential white space at bottom is covered */
+[data-focus-mode="true"]::after {
+  content: '';
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 100vh;
+  background-color: black;
+  z-index: -1;
+}

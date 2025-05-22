@@ -1,49 +1,53 @@
 
 import { useEffect, useRef } from 'react';
 import { useLocation } from 'react-router-dom';
+import { initializeAnalytics, trackPageView, GTagEvent, GTagPageView } from '../../utils/analytics';
 
 declare global {
   interface Window {
-    adsbygoogle: any[];
+    adsbygoogle: Record<string, unknown>[];
+    gtag: (command: string, action: string, params?: GTagEvent | GTagPageView) => void;
+    dataLayer: unknown[];
   }
 }
 
 /**
- * GoogleAnalytics component for handling AdSense page navigation events
- * This component reinitializes AdSense when routes change in a SPA
+ * GoogleAnalytics component for handling Google Analytics tracking
+ * This component initializes GA4 and tracks route changes in a SPA
  */
 const GoogleAnalytics = () => {
   const location = useLocation();
   const lastPath = useRef<string>(location.pathname);
   
+  // Initialize Google Analytics with Stream ID and Measurement ID on mount
+  useEffect(() => {
+    initializeAnalytics();
+    // Track initial page view
+    trackPageView(location.pathname, document.title);
+    
+    console.log('Google Analytics initialized with Measurement ID: G-LFFQYK81C6 and Stream ID: 11254147432');
+  }, []);
+  
+  // Track page views when route changes
   useEffect(() => {
     // Only trigger on actual path changes
     if (lastPath.current !== location.pathname) {
-      // Update the last path 
+      // Update the last path
       lastPath.current = location.pathname;
       
-      // Notify AdSense of page change
+      // Track page view in Google Analytics
+      trackPageView(location.pathname, document.title);
+      console.log('Analytics: Page navigation tracked', location.pathname);
+      
+      // Also handle AdSense if present
       try {
-        if (typeof window !== 'undefined') {
-          // Log the page change for debugging
-          console.log('Analytics: Page navigation to', location.pathname);
-          
-          // Push a new AdSense ad if available
-          if (window.adsbygoogle && Array.isArray(window.adsbygoogle)) {
-            console.log('AdSense: Pushing new ads after navigation');
-            
-            // Push a new ad
-            window.adsbygoogle.push({});
-            
-            // Additional method that some implementations use
-            if ((window.adsbygoogle as any).requestNonPersonalizedAds !== undefined) {
-              console.log('AdSense: Requesting refresh of non-personalized ads');
-              (window.adsbygoogle as any).requestNonPersonalizedAds();
-            }
-          }
+        if (typeof window !== 'undefined' && window.adsbygoogle && Array.isArray(window.adsbygoogle)) {
+          console.log('AdSense: Pushing new ads after navigation');
+          // Push and execute new ads
+          window.adsbygoogle.push({});
         }
       } catch (error) {
-        console.error('AdSense navigation update error:', error);
+        console.error('Error handling page navigation for ads/analytics:', error);
       }
     }
   }, [location.pathname]);

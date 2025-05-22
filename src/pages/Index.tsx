@@ -2,13 +2,14 @@
 import Header from "@/components/Header";
 import Hero from "@/components/Hero";
 import TextEditor from "@/components/TextEditor";
+import { useFocusMode } from "@/contexts";
 import Footer from "@/components/Footer";
 import AdBanner from "@/components/AdBanner";
-import HowItWorks from "@/components/HowItWorks";
-import NewsletterSection from "@/components/NewsletterSection";
-import AIFeatures from "@/components/AIFeatures";
+import FeatureShowcase from "@/components/FeatureShowcase";
 
 const Index = () => {
+  // Use focus mode context to determine visibility of elements
+  const { isFocusMode } = useFocusMode();
   return (
     <div className="min-h-screen flex flex-col bg-black">
       {/* Enhanced background with multiple gradients for depth and sophistication */}
@@ -19,8 +20,11 @@ const Index = () => {
       <div className="fixed inset-0 opacity-5 mix-blend-overlay pointer-events-none">
         <img src="/lovable-uploads/background.png" alt="Background Texture" className="object-cover w-full h-full" />
       </div>
-      <Header />
-      <Hero />
+      {/* Header and Hero use blur-in-focus-mode class instead of conditional rendering */}
+      <div className="blur-in-focus-mode">
+        <Header />
+        <Hero />
+      </div>
       
       {/* Main editor section with improved visibility */}
       <div id="editor-section" className="container mx-auto px-4 my-12 relative z-10">
@@ -35,40 +39,47 @@ const Index = () => {
         </div>
       </div>
       
-      {/* Combined How It Works and AI Features sections */}
-      <HowItWorks />
-      <AIFeatures />
-      
-      {/* Optimized ad placement between sections */}
-      <div className="container mx-auto px-4 py-6">
-        <div className="flex justify-center">
-          <AdBanner 
-            size="small" 
-            format="horizontal" 
-            adSlotId="9905273540" 
-            className="my-4"
-          />
-        </div>
+      {/* Feature showcase section */}
+      <div className="blur-in-focus-mode">
+        <FeatureShowcase />
       </div>
       
-      {/* Newsletter subscription section */}
-      <NewsletterSection />
-      
-      {/* Optimized ad placement before footer - native format */}
-      <div className="container mx-auto px-4 mb-8">
-        <div className="max-w-3xl mx-auto">
+      {/* Optimized ad placement between sections */}
+      {/* Hide ad banner in focus mode */}
+      {!isFocusMode && (
+        <div className="container mx-auto px-4 py-6">
           <div className="flex justify-center">
             <AdBanner 
-              size="medium" 
-              format="rectangle" 
-              adSlotId="2589674531" 
-              className="mx-auto"
+              size="small" 
+              format="horizontal" 
+              adSlotId="9905273540" 
+              className="my-4"
             />
+          </div>
+        </div>
+      )}
+      
+      {/* No newsletter section as requested */}
+      
+      {/* Optimized ad placement before footer - native format */}
+      <div className="blur-in-focus-mode">
+        <div className="container mx-auto px-4 mb-8">
+          <div className="max-w-3xl mx-auto">
+            <div className="flex justify-center">
+              <AdBanner 
+                size="medium" 
+                format="rectangle" 
+                adSlotId="2589674531" 
+                className="mx-auto"
+              />
+            </div>
           </div>
         </div>
       </div>
       
-      <Footer />
+      <div className="blur-in-focus-mode">
+        <Footer />
+      </div>
     </div>
   );
 };

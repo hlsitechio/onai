@@ -17,12 +17,13 @@ import {
   Code,
   TextQuote,
   Link,
-  Menu
+  Menu,
+  Maximize,
+  Minimize
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
-import { TooltipProvider } from "@radix-ui/react-tooltip";
+import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from "@/components/ui/tooltip";
 
 interface TextEditorToolbarProps {
   execCommand: (command: string, value: string | null) => void;
@@ -32,6 +33,8 @@ interface TextEditorToolbarProps {
   isSidebarOpen: boolean;
   lastSaved: Date | null;
   isAISidebarOpen?: boolean;
+  isFocusMode?: boolean;
+  toggleFocusMode?: () => void;
 }
 
 const TextEditorToolbar: React.FC<TextEditorToolbarProps> = ({
@@ -41,7 +44,9 @@ const TextEditorToolbar: React.FC<TextEditorToolbarProps> = ({
   toggleAI,
   isSidebarOpen,
   isAISidebarOpen,
-  lastSaved
+  lastSaved,
+  isFocusMode = false,
+  toggleFocusMode = () => {}
 }) => {
   // Markdown-specific handlers
   const insertMarkdown = (prefix: string, suffix: string = "") => {
@@ -69,12 +74,34 @@ const TextEditorToolbar: React.FC<TextEditorToolbarProps> = ({
                 size={"icon"}
                 onClick={toggleAI}
                 className={`text-gray-300 hover:text-white rounded-md border ${isAISidebarOpen === true ? 'bg-noteflow-600/30 text-white' : 'bg-transparent hover:bg-noteflow-600/30 border-white/5'}`}
+                disabled={isFocusMode}
               >
                 <Sparkles className="h-4 w-4" />
               </Button>
             </TooltipTrigger>
             <TooltipContent>
               <p>{isAISidebarOpen === true ? 'Hide AI Panel' : 'Show AI Panel'}</p>
+            </TooltipContent>
+          </Tooltip>
+          
+          {/* Focus mode toggle */}
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button 
+                variant="ghost" 
+                size={"icon"}
+                onClick={toggleFocusMode}
+                className={`text-gray-300 hover:text-white rounded-md border ${isFocusMode ? 'bg-purple-600/30 text-white' : 'bg-transparent hover:bg-purple-600/30 border-white/5'}`}
+              >
+                {isFocusMode ? (
+                  <Minimize className="h-4 w-4" />
+                ) : (
+                  <Maximize className="h-4 w-4" />
+                )}
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>{isFocusMode ? 'Exit Focus Mode' : 'Enter Focus Mode'}</p>
             </TooltipContent>
           </Tooltip>
           <Tooltip>
@@ -84,6 +111,7 @@ const TextEditorToolbar: React.FC<TextEditorToolbarProps> = ({
                 size="icon" 
                 onClick={toggleSidebar}
                 className="text-gray-300 hover:text-white hover:bg-gray-800/80 rounded-md border border-white/5"
+                disabled={isFocusMode}
               >
                 <Menu className="h-4 w-4" />
               </Button>

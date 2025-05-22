@@ -1,8 +1,14 @@
 import React from 'react';
+import { useFocusMode } from '@/contexts';
 import { Sparkles, Zap, BrainCircuit, Lightbulb, PenSquare, Stars } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 
 const AIFeatures = () => {
+  // Use focus mode context to determine visibility
+  const { isFocusMode } = useFocusMode();
+  
+  // Don't render anything when focus mode is active
+  if (isFocusMode) return null;
   const features = [
     {
       icon: <Lightbulb className="h-10 w-10 text-amber-400" />,

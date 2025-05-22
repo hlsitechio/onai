@@ -1,0 +1,28 @@
+/* Focus mode styles */
+
+/* Apply when focus mode is active - ensure full black background */
+[data-focus-mode="true"] {
+  background-color: black !important;
+}
+
+/* Make sure html and body are full height and black in focus mode */
+[data-focus-mode="true"] html,
+[data-focus-mode="true"] body {
+  background-color: black !important;
+  min-height: 100vh !important;
+  overflow-x: hidden;
+}
+
+/* Hide elements in focus mode */
+[data-focus-mode="true"] .blur-in-focus-mode {
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.5s ease;
+}
+
+/* Apply when focus mode is NOT active */
+[data-focus-mode="false"] .blur-in-focus-mode {
+  opacity: 1;
+  pointer-events: auto;
+  transition: opacity 0.5s ease;
+}

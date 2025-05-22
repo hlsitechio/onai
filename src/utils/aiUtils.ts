@@ -95,6 +95,11 @@ export async function callGeminiAI(
   customPrompt?: string
 ): Promise<string> {
   try {
+    // Validate inputs first
+    if (!noteContent && !imageUrl) {
+      console.warn('Empty content for AI processing');
+    }
+    
     // No strict rate limiting, just tracking usage
     const isHighUsage = !checkHighUsage();
     
@@ -118,33 +123,64 @@ export async function callGeminiAI(
       privacyMode: true // Signal to backend that privacy protections are enabled
     };
 
-    // Call the Supabase Edge Function
-    const { data, error } = await supabase.functions.invoke('gemini-ai', {
-      body: JSON.stringify(requestBody),
-    });
-    
-    // Increment usage counter on successful request
-    incrementUsageCounter();
-
-    if (error) {
-      throw new Error(`Edge function error: ${error.message}`);
+    // Call the Supabase Edge Function with better error handling
+    try {
+      const { data, error } = await supabase.functions.invoke('gemini-ai', {
+        body: JSON.stringify(requestBody),
+      });
+      
+      // Only increment counter on successful request
+      if (!error) {
+        incrementUsageCounter();
+      }
+  
+      if (error) {
+        // Check if error is related to CSP
+        const isCspError = error.message?.includes('Content Security Policy') || 
+                         error.message?.includes('Failed to fetch') ||
+                         error.message?.includes('NetworkError');
+                         
+        console.error('Supabase function error:', error);
+        
+        if (isCspError) {
+          console.warn('Content Security Policy blocked the Supabase function call');
+          return "I'm sorry, but I can't access the AI service due to security restrictions. This is expected in development mode.";
+        }
+        
+        throw new Error(`Edge function error: ${error.message || 'Unknown error occurred'}`);
+      }
+      
+      // Handle missing data
+      if (!data) {
+        throw new Error('No data received from AI service');
+      }
+      
+      return processAIResponse(data as AIResponse);
+    } catch (supabaseError) {
+      console.error('Supabase invoke error:', supabaseError);
+      throw new Error(`Failed to call AI service: ${supabaseError.message || 'Connection error'}`);
     }
 
-    const response = data as AIResponse;
-    
-    if (response.error) {
-      throw new Error(`AI processing error: ${response.error}`);
-    }
-    
-    if (!response.result) {
-      throw new Error('No valid response received');
-    }
-    
-    return response.result;
   } catch (error) {
     console.error('Error calling Gemini AI:', error);
-    throw error;
+    // Return a user-friendly error instead of throwing
+    return "I'm sorry, I couldn't process your request right now. Please try again later.";
   }
+}
+
+// Helper function to process AI response
+function processAIResponse(response: AIResponse): string {
+  if (response.error) {
+    console.error(`AI processing error: ${response.error}`);
+    return "I'm sorry, there was an error processing your request. Please try again.";
+  }
+  
+  if (!response.result) {
+    console.error('No valid response received from AI');
+    return "I couldn't generate a valid response. Please try a different prompt.";
+  }
+  
+  return response.result;
 }
 
 // Helper functions for note analysis

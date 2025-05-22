@@ -1,7 +1,13 @@
 import React from 'react';
+import { useFocusMode } from '@/contexts';
 import { PenLine, Save, Share2, Sparkles } from 'lucide-react';
 
 const HowItWorks = () => {
+  // Use focus mode context to determine visibility
+  const { isFocusMode } = useFocusMode();
+  
+  // Don't render anything when focus mode is active
+  if (isFocusMode) return null;
   const steps = [
     {
       icon: <PenLine className="h-6 w-6 text-blue-400" />,

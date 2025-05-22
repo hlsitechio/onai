@@ -1,35 +1,57 @@
-
 import React, { useState } from "react";
 import { Separator } from "./ui/separator";
+import { Mail } from "lucide-react";
+import { Button } from './ui/button';
 import PrivacyNotice from "./PrivacyNotice";
+import ContactForm from "./ContactForm";
+import { trackPageView, trackEvent } from '../utils/analytics';
 
 const Footer = () => {
   const currentYear = new Date().getFullYear();
   const [privacyDialogOpen, setPrivacyDialogOpen] = useState(false);
+  const [contactDialogOpen, setContactDialogOpen] = useState(false);
   
   return (
-    <footer className="py-4 bg-black/80 backdrop-blur-lg border-t border-white/10">
+    <footer className="py-4 bg-black/50 backdrop-blur-xl border-t border-indigo-500/20 shadow-lg">
       <div className="container mx-auto px-4">
         {/* Reduced space above the copyright section */}
         <div className="h-2"></div>
         
-        <div className="mt-2 flex flex-col md:flex-row justify-between items-center">
-          <div className="mb-2 md:mb-0">
-            <p className="text-gray-500 text-xs">
+        <div className="mt-2 flex flex-col items-center">
+          <div className="mb-3">
+            <p className="text-gray-500 text-xs text-center">
               © {currentYear} Online Note AI. All rights reserved.
             </p>
-            <a href="https://onlinenote.ai" className="text-gray-600 text-xs hover:text-noteflow-400 transition-colors">onlinenote.ai</a>
+            <a href="https://onlinenote.ai" className="text-gray-600 text-xs hover:text-noteflow-400 transition-colors block text-center">onlinenote.ai</a>
           </div>
           
-          <div className="flex space-x-4">
-            <button 
-              onClick={() => setPrivacyDialogOpen(true)}
+          {/* Sitemap links in a horizontal line */}
+          <div className="flex items-center mb-1 space-x-2">
+            <a 
+              href="/privacy-policy"
               className="text-gray-500 hover:text-noteflow-400 text-xs transition-colors"
+              onClick={() => trackPageView('/privacy-policy', 'Privacy Policy')}
             >
-              Privacy
+              Privacy Policy
+            </a>
+            <span className="text-gray-600 text-xs">|</span>
+            <a href="/terms-of-use" className="text-gray-500 hover:text-noteflow-400 text-xs transition-colors" onClick={() => trackPageView('/terms-of-use', 'Terms of Use')}>Terms of Use</a>
+            <span className="text-gray-600 text-xs">|</span>
+            <a 
+              href="/cookie-settings"
+              className="text-gray-500 hover:text-noteflow-400 text-xs transition-colors"
+              onClick={() => trackPageView('/cookie-settings', 'Cookie Settings')}
+            >
+              Cookie Settings
+            </a>
+            <span className="text-gray-600 text-xs">|</span>
+            <button
+              onClick={() => setContactDialogOpen(true)}
+              className="text-gray-500 hover:text-noteflow-400 text-xs transition-colors flex items-center gap-1"
+            >
+              <Mail size={12} className="text-gray-500" />
+              Contact
             </button>
-            <a href="#" className="text-gray-500 hover:text-noteflow-400 text-xs transition-colors">Terms</a>
-            <a href="#" className="text-gray-500 hover:text-noteflow-400 text-xs transition-colors">Contact</a>
           </div>
         </div>
         
@@ -37,6 +59,12 @@ const Footer = () => {
         <PrivacyNotice 
           open={privacyDialogOpen} 
           onOpenChange={setPrivacyDialogOpen} 
+        />
+        
+        {/* Contact Form Dialog */}
+        <ContactForm
+          open={contactDialogOpen}
+          onOpenChange={setContactDialogOpen}
         />
       </div>
     </footer>

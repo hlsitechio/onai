@@ -1,5 +1,6 @@
 
 import type { Config } from "tailwindcss";
+import tailwindcssAnimate from "tailwindcss-animate";
 
 export default {
 	darkMode: ["class"],
@@ -85,6 +86,16 @@ export default {
 				md: 'calc(var(--radius) - 2px)',
 				sm: 'calc(var(--radius) - 4px)'
 			},
+			backgroundImage: {
+				'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
+				'gradient-conic': 'conic-gradient(from 180deg at 50% 50%, var(--tw-gradient-stops))',
+				'gradient-spotlight': 'radial-gradient(circle at center, var(--tw-gradient-stops))',
+			},
+			boxShadow: {
+				'note-glow': '0 0 40px -10px rgba(124, 58, 237, 0.25)',
+				'glass': '0 8px 32px rgba(0, 0, 0, 0.4)',
+				'glass-dark': '0 8px 32px rgba(0, 0, 0, 0.7)',
+			},
 			keyframes: {
 				'accordion-down': {
 					from: {
@@ -119,5 +130,5 @@ export default {
 			}
 		}
 	},
-	plugins: [require("tailwindcss-animate")],
+	plugins: [tailwindcssAnimate],
 } satisfies Config;

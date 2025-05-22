@@ -1,23 +1,21 @@
 import React, { useRef, useEffect, useState } from "react";
 import { marked } from "marked";
+import { cn } from "@/lib/utils";
 
 interface EditableContentProps {
   content: string;
   setContent: (content: string) => void;
+  isFocusMode?: boolean;
 }
 
-const EditableContent: React.FC<EditableContentProps> = ({ content, setContent }) => {
-  const [isEditing, setIsEditing] = useState(true);
+const EditableContent: React.FC<EditableContentProps> = ({ content, setContent, isFocusMode = false }) => {
+  // Always in editing mode since Preview button is removed
   const [rawContent, setRawContent] = useState(content);
 
   // Update rawContent when content prop changes
   useEffect(() => {
     setRawContent(content);
   }, [content]);
-
-  const toggleEditMode = () => {
-    setIsEditing(!isEditing);
-  };
 
   const renderMarkdown = (text: string) => {
     try {
@@ -47,45 +45,39 @@ const EditableContent: React.FC<EditableContentProps> = ({ content, setContent }
   // Use a textarea to ensure proper text direction and editing
   return (
     <div className="relative h-full">
-      {isEditing ? (
-        <textarea 
-          className="min-h-[400px] w-full h-full p-6 outline-none font-sans text-white bg-black/20 backdrop-blur-md overflow-auto resize-none"
-          style={{ 
-            lineHeight: '1.6',
-            fontSize: '16px',
-            direction: 'ltr',
-            textAlign: 'left',
-            whiteSpace: 'pre-wrap', // Preserve line breaks
-            wordBreak: 'break-word', // Prevent overflow
-            caretColor: 'white', // Make cursor visible
-            backgroundColor: 'rgba(0, 0, 0, 0.2)',
-            color: 'white',
-            border: 'none'
-          }}
-          spellCheck="true"
-          value={rawContent}
-          onChange={(e) => {
-            const newContent = e.target.value;
-            setRawContent(newContent);
-            setContent(newContent);
-          }}
-          placeholder="Start typing your note here..."
-        />
-      ) : (
-        <div 
-          className="min-h-[400px] h-full p-6 outline-none font-sans text-white bg-black/20 backdrop-blur-md overflow-auto markdown-preview"
-          style={{ lineHeight: '1.6' }}
-          dangerouslySetInnerHTML={renderMarkdown(rawContent)}
-          onClick={toggleEditMode}
-        />
+      {/* Subtle glow effect behind the text area in focus mode */}
+      {isFocusMode && (
+        <div className="absolute inset-0 bg-gradient-spotlight from-purple-900/20 via-noteflow-800/10 to-transparent -m-3 rounded-2xl blur-2xl opacity-80 pointer-events-none"></div>
       )}
+      <textarea 
+        className={cn(
+          "min-h-[400px] w-full h-full p-6 outline-none font-sans text-white overflow-auto resize-none transition-all duration-300",
+          isFocusMode 
+            ? "bg-black/50 backdrop-blur-xl shadow-note-glow border border-purple-800/20 z-10" 
+            : "bg-black/30 backdrop-blur-lg border border-white/10"
+        )}
+        style={{ 
+          lineHeight: '1.6',
+          fontSize: isFocusMode ? '18px' : '16px',
+          direction: 'ltr',
+          textAlign: 'left',
+          whiteSpace: 'pre-wrap', // Preserve line breaks
+          wordBreak: 'break-word', // Prevent overflow
+          caretColor: 'white', // Make cursor visible
+          color: 'white',
+          border: 'none'
+        }}
+        spellCheck="true"
+        value={rawContent}
+        onChange={(e) => {
+          const newContent = e.target.value;
+          setRawContent(newContent);
+          setContent(newContent);
+        }}
+        placeholder="Start typing your note here..."
+      />
       
-      <button 
-        onClick={toggleEditMode}
-        className="absolute bottom-4 right-4 bg-indigo-600/80 hover:bg-indigo-600 text-white text-xs px-3 py-1.5 rounded-full transition-colors"
-      >
-        {isEditing ? "Preview" : "Edit"}
-      </button>
+      {/* Preview/Edit button removed as requested */}
     </div>
   );
 };
