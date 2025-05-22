@@ -158,7 +158,7 @@ const TextEditorToolbar: React.FC<TextEditorToolbarProps> = ({
             </Button>
           </TooltipTrigger>
           <TooltipContent>
-            <p>Quote (> Text)</p>
+            <p>Quote ({">"} Text)</p>
           </TooltipContent>
         </Tooltip>
         

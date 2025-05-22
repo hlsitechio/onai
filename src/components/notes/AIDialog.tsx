@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { analyzeNote, generateIdeas, improveWriting, translateNote } from "@/utils/aiUtils";
+import { analyzeNote, generateIdeas, improveWriting, translateNote, summarizeText } from "@/utils/aiUtils";
 import { Sparkles, Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
@@ -85,22 +85,6 @@ const AIDialog: React.FC<AIDialogProps> = ({ isOpen, onOpenChange, content, onAp
     }
   };
 
-  const summarizeText = async (text: string): Promise<string> => {
-    const prompt = `Summarize the following text into a concise, well-structured summary with bullet points for key ideas:
-    
-    ${text}
-    
-    Format your response with a brief overall summary paragraph followed by key points.`;
-    
-    return callGeminiAI(prompt, text, 'summarize');
-  };
-
-  const callGeminiAI = async (prompt: string, noteContent: string, requestType: string): Promise<string> => {
-    // Reuse the existing callGeminiAI function from aiUtils
-    const { callGeminiAI } = await import('@/utils/aiUtils');
-    return callGeminiAI(prompt, noteContent, requestType);
-  };
-
   const handleApplyChanges = () => {
     if (result && ["improve", "translate", "summarize"].includes(selectedAction)) {
       onApplyChanges(result);
@@ -167,9 +151,9 @@ const AIDialog: React.FC<AIDialogProps> = ({ isOpen, onOpenChange, content, onAp
                   <SelectItem value="Russian">Russian</SelectItem>
                   <SelectItem value="Arabic">Arabic</SelectItem>
                 </SelectContent>
-              </SelectContent>
-            </Select>
-          </div>
+              </Select>
+            </div>
+          )}
 
           <div className="mt-2">
             <Button 
