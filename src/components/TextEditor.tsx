@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useRef } from "react";
 import { 
   Bold, 
@@ -81,6 +82,31 @@ const TextEditor = () => {
     setContent(noteContent);
     localStorage.setItem("noteflow-content", noteContent);
   };
+  
+  // Setup key handling for editor
+  useEffect(() => {
+    if (!editorRef.current) return;
+    
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Make sure delete and backspace work properly
+      if (e.key === 'Delete' || e.key === 'Backspace') {
+        // Let the default behavior work, no need to prevent it
+        // Just make sure content is updated properly after the action
+        setTimeout(() => {
+          if (editorRef.current) {
+            setContent(editorRef.current.innerHTML);
+          }
+        }, 0);
+      }
+    };
+    
+    const editorElement = editorRef.current;
+    editorElement.addEventListener('keydown', handleKeyDown);
+    
+    return () => {
+      editorElement.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [editorRef.current]);
   
   return (
     <section id="editor-section" className="py-12 px-4 relative">
@@ -238,6 +264,8 @@ const TextEditor = () => {
                 className="min-h-[400px] p-6 outline-none font-sans text-white bg-black/20 backdrop-blur-md"
                 dangerouslySetInnerHTML={{ __html: content }}
                 onInput={(e) => setContent((e.target as HTMLDivElement).innerHTML)}
+                onBlur={(e) => setContent((e.target as HTMLDivElement).innerHTML)}
+                suppressContentEditableWarning={true}
                 style={{ 
                   minHeight: '400px', 
                   height: '450px',
