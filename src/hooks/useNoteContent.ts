@@ -48,26 +48,79 @@ Use the AI button in the toolbar to analyze, improve, or summarize your notes.`)
     return () => clearInterval(saveInterval);
   }, [content]);
 
-  // Execute commands on the editor with better handling
+  // Execute commands on the editor with better handling for textarea
   const execCommand = useCallback((command: string, value: string | null = null) => {
     try {
-      document.execCommand(command, false, value);
-      
-      // Special handling for formatting commands to make sure they work
-      if (['bold', 'italic', 'underline'].includes(command)) {
-        // Focus back on the editor after command execution
+      // Special handling for different commands with textarea
+      // Since document.execCommand doesn't work with textareas directly
+      // We need to manually update the content with the appropriate formatting
+
+      // Get the active element to see if a textarea is focused
+      const activeElement = document.activeElement as HTMLTextAreaElement;
+      const isTextarea = activeElement && activeElement.tagName === 'TEXTAREA';
+
+      if (isTextarea) {
+        const start = activeElement.selectionStart || 0;
+        const end = activeElement.selectionEnd || 0;
+        const selectedText = activeElement.value.substring(start, end);
+        const beforeSelection = activeElement.value.substring(0, start);
+        const afterSelection = activeElement.value.substring(end);
+        
+        let newText = '';
+        let newCursorPos = start;
+
+        // Handle markdown formatting commands
+        switch(command) {
+          case 'bold':
+            newText = beforeSelection + `**${selectedText}**` + afterSelection;
+            newCursorPos = start + 2 + selectedText.length + 2;
+            break;
+          case 'italic':
+            newText = beforeSelection + `_${selectedText}_` + afterSelection;
+            newCursorPos = start + 1 + selectedText.length + 1;
+            break;
+          case 'underline':
+            // No direct markdown for underline, using HTML
+            newText = beforeSelection + `<u>${selectedText}</u>` + afterSelection;
+            newCursorPos = start + 3 + selectedText.length + 4;
+            break;
+          case 'justifyLeft':
+          case 'justifyCenter':
+          case 'justifyRight':
+            // For alignment, we can't really do this in markdown easily
+            // Just maintain the current text
+            newText = activeElement.value;
+            newCursorPos = end;
+            break;
+          case 'undo':
+          case 'redo':
+            // Let the browser handle these
+            document.execCommand(command, false, value);
+            return;
+          default:
+            // For other commands, we'll just maintain the text
+            newText = activeElement.value;
+            newCursorPos = end;
+        }
+
+        // Update the content
+        setContent(newText);
+        
+        // Set the cursor position after formatting
         setTimeout(() => {
-          const selection = window.getSelection();
-          if (selection && selection.rangeCount > 0) {
-            const range = selection.getRangeAt(0);
-            range.collapse(false); // Move cursor to end of selection
+          if (activeElement) {
+            activeElement.focus();
+            activeElement.setSelectionRange(newCursorPos, newCursorPos);
           }
         }, 0);
+      } else {
+        // Fallback to document.execCommand for contentEditable elements
+        document.execCommand(command, false, value);
       }
     } catch (error) {
       console.error(`Error executing command ${command}:`, error);
     }
-  }, []);
+  }, [setContent]);
   
   // Handle manual save with better error handling
   const handleSave = useCallback(async () => {
