@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 import { getAllNotes, deleteNote, shareNote } from "@/utils/notesStorage";
 import { useToast } from "@/hooks/use-toast";
+import AdBanner from "./AdBanner";
 
 interface NotesSidebarProps {
   currentContent: string;
@@ -96,12 +97,12 @@ const NotesSidebar: React.FC<NotesSidebarProps> = ({ currentContent, onLoadNote,
   };
 
   return (
-    <div className="bg-black/40 backdrop-blur-lg rounded-lg border border-white/10 h-full shadow-lg">
+    <div className="bg-black/40 backdrop-blur-lg rounded-lg border border-white/10 h-full shadow-lg flex flex-col">
       <div className="p-4 border-b border-white/10">
         <h3 className="text-sm font-semibold text-white">My Notes</h3>
       </div>
 
-      <div className="p-4">
+      <div className="p-4 flex-grow overflow-auto">
         <Button
           variant="outline"
           size="sm"
@@ -143,9 +144,12 @@ const NotesSidebar: React.FC<NotesSidebarProps> = ({ currentContent, onLoadNote,
             ))
           )}
         </div>
+        
+        {/* Ad Banner in Sidebar */}
+        <AdBanner size="small" position="sidebar" className="mt-4" />
       </div>
 
-      <div className="p-4 border-t border-white/10 mt-4">
+      <div className="p-4 border-t border-white/10">
         <Button 
           variant="ghost" 
           size="sm" 

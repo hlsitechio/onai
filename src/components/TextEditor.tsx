@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { 
   Bold, 
@@ -17,13 +16,14 @@ import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { useToast } from "@/hooks/use-toast";
 import NotesSidebar from "./NotesSidebar";
+import AdBanner from "./AdBanner";
 import { saveNote } from "@/utils/notesStorage";
 
 const TextEditor = () => {
   const { toast } = useToast();
   const [content, setContent] = useState<string>(localStorage.getItem("noteflow-content") || "");
   const [lastSaved, setLastSaved] = useState<Date | null>(null);
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true); // Changed default to true
   
   // Control auto-saving
   useEffect(() => {
@@ -79,7 +79,7 @@ const TextEditor = () => {
           )}
           
           {/* The editor */}
-          <div className="flex-1">
+          <div className="flex-1 flex flex-col">
             <div className="bg-black/40 backdrop-blur-lg rounded-lg shadow-lg border border-white/10 overflow-hidden">
               {/* Toolbar */}
               <div className="bg-black/60 border-b border-white/10 p-3 flex flex-wrap gap-2">
@@ -224,6 +224,9 @@ const TextEditor = () => {
                 }}
               />
             </div>
+            
+            {/* Ad Banner below editor */}
+            <AdBanner size="medium" position="content" className="mt-4" />
             
             <div className="mt-4 text-center text-sm text-slate-400">
               Your notes are saved in Chrome Storage and locally in your browser.

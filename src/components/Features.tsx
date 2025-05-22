@@ -1,5 +1,6 @@
 
 import { CheckCircle } from "lucide-react";
+import AdBanner from "./AdBanner";
 
 const Features = () => {
   const features = [
@@ -15,6 +16,9 @@ const Features = () => {
     <section className="py-16 px-4 bg-black/95">
       <div className="container mx-auto max-w-6xl">
         <h2 className="text-3xl md:text-4xl font-poppins font-bold text-center mb-12 text-gray-200">Why Choose NoteFlow?</h2>
+        
+        {/* Premium Ad Banner */}
+        <AdBanner size="large" className="my-8 max-w-4xl mx-auto" />
         
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {features.map((feature, index) => (

@@ -1,4 +1,6 @@
 
+import AdBanner from "./AdBanner";
+
 const Footer = () => {
   const currentYear = new Date().getFullYear();
   
@@ -17,6 +19,11 @@ const Footer = () => {
             <a href="#" className="text-gray-500 hover:text-noteflow-400 text-sm transition-colors">Terms of Service</a>
             <a href="#" className="text-gray-500 hover:text-noteflow-400 text-sm transition-colors">Contact</a>
           </div>
+        </div>
+        
+        {/* Small footer ad */}
+        <div className="mt-8">
+          <AdBanner size="small" position="footer" />
         </div>
       </div>
     </footer>
