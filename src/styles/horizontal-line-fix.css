@@ -1,0 +1,49 @@
+/* Direct CSS fix for the horizontal line separation between hero and editor */
+
+/* Target the exact horizontal line highlighted in red in the screenshots */
+.min-h-screen.flex.flex-col.w-screen.max-w-\[100vw\].overflow-x-hidden > div:nth-child(2) {
+  position: relative;
+  border-top: none !important;
+}
+
+/* Target the specific element or pseudo-element that might be creating the line */
+.min-h-screen.flex.flex-col.w-screen.max-w-\[100vw\].overflow-x-hidden > div:nth-child(2)::before {
+  content: none !important;
+  display: none !important;
+}
+
+/* Target the hero section to ensure it has no bottom border */
+.blur-in-focus-mode {
+  border-bottom: none !important;
+  box-shadow: none !important;
+  position: relative;
+}
+
+/* Create an overlay to hide the line */
+.blur-in-focus-mode::after {
+  content: "";
+  position: absolute;
+  bottom: -1px;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background-color: #050510; /* Match the background color */
+  z-index: 11;
+}
+
+/* Override any possible line-creating CSS */
+#editor-section {
+  position: relative;
+  border-top: none !important;
+}
+
+#editor-section::before {
+  content: "";
+  position: absolute;
+  top: -1px;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background-color: #050510; /* Match the background color */
+  z-index: 11;
+}

@@ -50,7 +50,7 @@ const GoogleAnalytics = () => {
         console.error('Error handling page navigation for ads/analytics:', error);
       }
     }
-  }, [location.pathname]);
+  }, [location]); // Using the full location object handles changes to pathname
   
   // This component doesn't render anything
   return null;

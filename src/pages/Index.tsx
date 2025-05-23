@@ -11,28 +11,17 @@ const Index = () => {
   // Use focus mode context to determine visibility of elements
   const { isFocusMode } = useFocusMode();
   return (
-    <div className="min-h-screen flex flex-col bg-black">
-      {/* Enhanced background with multiple gradients for depth and sophistication */}
-      <div className="fixed inset-0 bg-gradient-to-br from-[#070B34] via-[#141E4A] to-[#07051A] pointer-events-none"></div>
-      <div className="fixed inset-0 bg-[radial-gradient(ellipse_at_top_right,rgba(120,90,220,0.15)_0%,rgba(0,0,0,0)_60%)] pointer-events-none"></div>
-      <div className="fixed inset-0 bg-[radial-gradient(ellipse_at_bottom_left,rgba(60,20,180,0.1)_0%,rgba(0,0,0,0)_70%)] pointer-events-none"></div>
-      <div className="fixed inset-0 bg-[radial-gradient(circle_at_center,rgba(30,30,80,0.2)_0%,rgba(0,0,0,0)_60%)] pointer-events-none"></div>
-      <div className="fixed inset-0 opacity-5 mix-blend-overlay pointer-events-none">
-        <img src="/lovable-uploads/background.png" alt="Background Texture" className="object-cover w-full h-full" />
-      </div>
+    <div className="min-h-screen flex flex-col w-screen max-w-[100vw] overflow-x-hidden">
       {/* Header and Hero use blur-in-focus-mode class instead of conditional rendering */}
       <div className="blur-in-focus-mode">
         <Header />
         <Hero />
       </div>
       
-      {/* Main editor section with improved visibility */}
-      <div id="editor-section" className="container mx-auto px-4 my-12 relative z-10">
-        <div className="max-w-6xl mx-auto">
-          <h2 className="text-3xl md:text-4xl font-bold text-white mb-8 text-center tracking-tight">
-            Your Notes, <span className="bg-clip-text text-transparent bg-gradient-to-r from-purple-500 to-indigo-500">Enhanced</span>
-          </h2>
-          
+      {/* Main editor section with improved visibility - removed vertical margins */}
+      <div id="editor-section" className="container mx-auto px-2 sm:px-3 md:px-4 relative z-10 max-w-[96%] lg:max-w-[94%] xl:max-w-[92%]">
+        <div className="mx-auto w-full">
+          {/* Removed heading to eliminate separation */}
           <div className="w-full max-w-[1200px] mx-auto">
             <TextEditor />
           </div>

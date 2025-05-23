@@ -65,7 +65,7 @@ const TextEditorToolbar: React.FC<TextEditorToolbarProps> = ({
 
   return (
     <TooltipProvider>
-      <div className="border-b border-white/5 bg-gradient-to-r from-gray-900/90 to-gray-800/90 backdrop-blur-md py-2.5 px-4 flex items-center justify-between flex-wrap gap-y-2 shadow-inner">
+      <div className="py-2.5 px-4 flex items-center justify-between flex-wrap gap-y-2">
         <div className="flex items-center space-x-1.5 overflow-x-auto pb-1">
           <Tooltip>
             <TooltipTrigger asChild>

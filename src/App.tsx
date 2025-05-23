@@ -3,17 +3,24 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import DotGridBackground from "@/components/DotGridBackground";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
+import PrivacyPolicy from "./pages/privacy-policy";
+import TermsOfUse from "./pages/terms-of-use";
+import CookieSettings from "./pages/cookie-settings";
 import GoogleAnalytics from "./components/analytics/GoogleAnalytics";
 import CookieConsent from "./components/CookieConsent";
-import { useEffect, useState } from "react";
+import ScrollToTop from "./components/ScrollToTop";
+import React, { useEffect, useState, lazy, Suspense } from "react";
 import { validateStorageIntegrity, purgeUserData } from "./utils/securityUtils";
 import { FocusModeProvider } from "./contexts";
 import "./utils/gpuOptimizations"; // Import GPU optimization utilities
 import "./styles/focus-mode.css"; // Import focus mode styles
 import "./styles/globals.css"; // Import global styles
+import "./styles/fix-separation.css"; // Import separation fix styles
+import "./styles/horizontal-line-fix.css"; // Import horizontal line fix
 
 const queryClient = new QueryClient();
 
@@ -71,12 +78,8 @@ const App = () => {
   
   return (
   <QueryClientProvider client={queryClient}>
-    {/* Global glassmorphic background */}
-    <div className="fixed inset-0 bg-black pointer-events-none z-[-1] overflow-hidden">
-      <div className="absolute inset-0 bg-gradient-to-br from-noteflow-950/30 to-black backdrop-blur-md"></div>
-      <div className="absolute -top-[20%] -left-[10%] w-[40%] h-[40%] rounded-full bg-gradient-to-r from-noteflow-600/5 to-noteflow-400/5 blur-[120px] animate-float-slow"></div>
-      <div className="absolute -bottom-[15%] -right-[5%] w-[35%] h-[35%] rounded-full bg-gradient-to-l from-noteflow-400/5 to-purple-500/5 blur-[100px] animate-float-medium"></div>
-    </div>
+    {/* Global dot grid background */}
+    <DotGridBackground />
     
     <TooltipProvider>
       <Toaster />
@@ -88,11 +91,15 @@ const App = () => {
         <GoogleAnalytics />
         <Routes>
           <Route path="/" element={<Index />} />
+          <Route path="/privacy-policy" element={<Suspense fallback={<div>Loading...</div>}><PrivacyPolicy /></Suspense>} />
+          <Route path="/terms-of-use" element={<Suspense fallback={<div>Loading...</div>}><TermsOfUse /></Suspense>} />
+          <Route path="/cookie-settings" element={<Suspense fallback={<div>Loading...</div>}><CookieSettings /></Suspense>} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
       <CookieConsent />
+      <ScrollToTop />
       </FocusModeProvider>
       </div>
     </TooltipProvider>

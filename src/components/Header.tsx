@@ -1,19 +1,65 @@
 import { useState, useEffect } from "react";
 import { useFocusMode } from '../contexts/useFocusMode';
-import { Menu, X, Settings, Mail } from "lucide-react";
+import { Menu, X, Settings, Mail, Home, Heart } from "lucide-react";
 import ContactForm from "./ContactForm";
+import SponsorDialog from "./SponsorDialog";
 import { trackPageView } from '../utils/analytics';
 
 const Header = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [contactDialogOpen, setContactDialogOpen] = useState(false);
+  const [sponsorDialogOpen, setSponsorDialogOpen] = useState(false);
+  const [isScrolled, setIsScrolled] = useState(false);
+  const [isHeaderVisible, setIsHeaderVisible] = useState(true);
+  const [lastScrollY, setLastScrollY] = useState(0);
+  
+  const handleOpenContactDialog = () => {
+    setContactDialogOpen(true);
+  };
+  
+  const handleOpenSponsorDialog = () => {
+    setSponsorDialogOpen(true);
+  };
+  
+  // Handle scroll behavior for header visibility
+  useEffect(() => {
+    const handleScroll = () => {
+      const currentScrollY = window.scrollY;
+      
+      // Determine if we're scrolled down at all
+      if (currentScrollY > 20) {
+        setIsScrolled(true);
+      } else {
+        setIsScrolled(false);
+      }
+      
+      // Hide header on scroll down, show on scroll up
+      if (currentScrollY > lastScrollY && currentScrollY > 100) {
+        setIsHeaderVisible(false);
+      } else {
+        setIsHeaderVisible(true);
+      }
+      
+      setLastScrollY(currentScrollY);
+    };
+    
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [lastScrollY]);
   
   return (
-    <header className="z-20 w-full fixed top-0">
-      <div className="backdrop-blur-lg bg-black/30 border-b border-white/10 shadow-lg">
+    <header className={`z-20 w-full fixed top-0 transition-transform duration-300 ${isHeaderVisible ? 'translate-y-0' : '-translate-y-full'}`}>
+      <div className={`${isScrolled ? 'bg-black/40' : 'bg-transparent'} transition-all duration-300`}>
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
           <div className="flex items-center">
-            <h1 className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-indigo-400 to-purple-500">Online Note AI</h1>
+            <a 
+              href="/" 
+              className="flex items-center group hover:opacity-80 transition-opacity"
+              onClick={() => trackPageView('/', 'Home')}
+            >
+              <Home size={20} className="mr-2 text-indigo-400 group-hover:text-indigo-300 transition-colors" />
+              <h1 className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-indigo-400 to-purple-500">Online Note AI</h1>
+            </a>
           </div>
 
           {/* Desktop navigation menu */}
@@ -41,8 +87,15 @@ const Header = () => {
               Cookie Settings
             </a>
             <button
-              onClick={() => setContactDialogOpen(true)}
-              className="text-gray-300 hover:text-white text-sm transition-colors flex items-center gap-1 bg-indigo-500/20 px-3 py-1 rounded-full border border-indigo-500/30"
+              onClick={handleOpenSponsorDialog}
+              className="text-white text-sm transition-colors flex items-center gap-1 px-3 py-1.5 rounded-full bg-gradient-to-r from-purple-500 to-indigo-500 hover:from-purple-600 hover:to-indigo-600 shadow-md"
+            >
+              <Heart size={14} className="text-white animate-pulse" />
+              Sponsor
+            </button>
+            <button
+              onClick={handleOpenContactDialog}
+              className="text-gray-300 hover:text-white text-sm transition-colors flex items-center gap-1 px-3 py-1 rounded-full"
             >
               <Mail size={14} />
               Contact Us
@@ -53,7 +106,7 @@ const Header = () => {
           <div className="md:hidden">
             <button 
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="text-white p-2 rounded-full bg-indigo-500/20 backdrop-blur-sm border border-indigo-500/30 hover:bg-indigo-500/30 transition-all duration-200"
+              className="text-white p-2 rounded-full hover:bg-black/20 transition-all duration-200"
             >
               {mobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
             </button>
@@ -63,7 +116,7 @@ const Header = () => {
       
       {/* Mobile menu */}
       {mobileMenuOpen && (
-        <div className="absolute top-full left-0 w-full backdrop-blur-xl bg-black/50 border-b border-indigo-500/20 py-4 md:hidden shadow-lg">
+        <div className="absolute top-full left-0 w-full bg-black/20 py-4 md:hidden">
           <div className="container mx-auto px-4 flex flex-col space-y-3">
             <a 
               href="#editor-section" 
@@ -75,9 +128,19 @@ const Header = () => {
             
             {/* Mobile sitemap links */}
             <div className="flex flex-col space-y-3 mt-2 px-2">
+              <button
+                className="text-white text-sm transition-colors py-2 px-3 bg-gradient-to-r from-purple-500 to-indigo-500 rounded-lg flex items-center gap-1 mb-2 shadow-md w-full justify-center"
+                onClick={() => {
+                  handleOpenSponsorDialog();
+                  setMobileMenuOpen(false);
+                }}
+              >
+                <Heart size={14} className="text-white animate-pulse" />
+                Sponsor
+              </button>
               <a
                 href="/privacy-policy"
-                className="text-gray-300 hover:text-white text-sm transition-colors py-1 border-t border-indigo-500/20 pt-3"
+                className="text-gray-300 hover:text-white text-sm transition-colors py-1 pt-3"
                 onClick={() => setMobileMenuOpen(false)}
               >
                 Privacy Policy
@@ -98,9 +161,9 @@ const Header = () => {
                 Cookie Settings
               </a>
               <button
-                className="text-gray-300 hover:text-white text-sm transition-colors py-1 flex items-center gap-1 border-t border-indigo-500/20 pt-3 mt-2"
+                className="text-gray-300 hover:text-white text-sm transition-colors py-1 flex items-center gap-1 pt-3 mt-2"
                 onClick={() => {
-                  setContactDialogOpen(true);
+                  handleOpenContactDialog();
                   setMobileMenuOpen(false);
                 }}
               >
@@ -116,6 +179,12 @@ const Header = () => {
       <ContactForm
         open={contactDialogOpen}
         onOpenChange={setContactDialogOpen}
+      />
+      
+      {/* Sponsor Dialog with QR Code */}
+      <SponsorDialog
+        open={sponsorDialogOpen}
+        onOpenChange={setSponsorDialogOpen}
       />
     </header>
   );

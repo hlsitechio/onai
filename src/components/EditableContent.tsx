@@ -44,28 +44,30 @@ const EditableContent: React.FC<EditableContentProps> = ({ content, setContent, 
 
   // Use a textarea to ensure proper text direction and editing
   return (
-    <div className="relative h-full">
+    <div className="relative h-full w-full mx-auto">
       {/* Subtle glow effect behind the text area in focus mode */}
       {isFocusMode && (
         <div className="absolute inset-0 bg-gradient-spotlight from-purple-900/20 via-noteflow-800/10 to-transparent -m-3 rounded-2xl blur-2xl opacity-80 pointer-events-none"></div>
       )}
       <textarea 
         className={cn(
-          "min-h-[400px] w-full h-full p-6 outline-none font-sans text-white overflow-auto resize-none transition-all duration-300",
+          "min-h-[550px] w-full h-full p-3 md:p-4 outline-none font-sans text-white overflow-auto resize-none transition-all duration-300 max-w-full mx-auto",
           isFocusMode 
             ? "bg-black/50 backdrop-blur-xl shadow-note-glow border border-purple-800/20 z-10" 
             : "bg-black/30 backdrop-blur-lg border border-white/10"
         )}
         style={{ 
-          lineHeight: '1.6',
-          fontSize: isFocusMode ? '18px' : '16px',
+          lineHeight: '1.9',
+          fontSize: isFocusMode ? '22px' : '20px',
           direction: 'ltr',
           textAlign: 'left',
           whiteSpace: 'pre-wrap', // Preserve line breaks
           wordBreak: 'break-word', // Prevent overflow
           caretColor: 'white', // Make cursor visible
           color: 'white',
-          border: 'none'
+          border: 'none',
+          fontWeight: '400',
+          letterSpacing: '0.015em'
         }}
         spellCheck="true"
         value={rawContent}

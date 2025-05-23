@@ -1,7 +1,8 @@
 
 import { useState, useEffect, useRef, useMemo } from 'react';
 import { Button } from "@/components/ui/button";
-import { ArrowDown } from "lucide-react";
+import { ArrowDown, Sparkles, FileText } from "lucide-react";
+import { motion } from "framer-motion";
 
 const Hero = () => {
   const [displayText, setDisplayText] = useState('');
@@ -81,57 +82,161 @@ const Hero = () => {
     }
   };
 
+  // Animation variants for staggered animations
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        delayChildren: 0.3,
+        staggerChildren: 0.2
+      }
+    }
+  };
+
+  const itemVariants = {
+    hidden: { y: 20, opacity: 0 },
+    visible: { 
+      y: 0, 
+      opacity: 1,
+      transition: { type: 'spring', stiffness: 100 }
+    }
+  };
+
+  // Floating animation for decorative elements
+  const floatingVariants = {
+    float: {
+      y: ['-5%', '5%'],
+      transition: {
+        repeat: Infinity,
+        repeatType: 'reverse' as const,
+        duration: 2,
+        ease: 'easeInOut'
+      }
+    }
+  };
+
   return (
-    <section className="py-32 px-4 relative overflow-hidden min-h-[90vh] flex items-center">
-      {/* Animated gradient background */}
+    <section className="pt-32 pb-0 px-4 relative overflow-hidden min-h-[90vh] flex items-center">
+      {/* Hero-specific overlay for mouse interaction */}
       <div 
         ref={gradientRef}
-        className="absolute inset-0 z-0 bg-gradient-to-br from-black via-[#0A0C15] to-[#121631] overflow-hidden"
+        className="absolute inset-0 z-0 overflow-hidden pointer-events-none"
       >
-        {/* Animated particles/stars */}
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_var(--mouse-x,_50%)_var(--mouse-y,_50%),_rgba(120,_60,_255,_0.1)_0%,_transparent_65%)] transition-opacity duration-500"></div>
-        
-        {/* Animated gradient orbs */}
-        <div className="absolute -top-[20%] -left-[10%] w-[40%] h-[40%] rounded-full bg-gradient-to-r from-noteflow-600/20 to-noteflow-400/10 blur-[120px] animate-float-slow"></div>
-        <div className="absolute -bottom-[15%] -right-[5%] w-[35%] h-[35%] rounded-full bg-gradient-to-l from-noteflow-400/20 to-purple-500/10 blur-[100px] animate-float-medium"></div>
-        <div className="absolute top-[30%] right-[10%] w-[25%] h-[25%] rounded-full bg-gradient-to-tl from-blue-500/10 to-purple-600/5 blur-[80px] animate-float-fast"></div>
+        {/* Interactive mouse-follow gradient effect */}
+        <motion.div 
+          className="absolute inset-0 bg-[radial-gradient(circle_at_var(--mouse-x,_50%)_var(--mouse-y,_50%),_rgba(120,_60,_255,_0.1)_0%,_transparent_45%)]" 
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 1 }}
+        />
       </div>
       
-      <div className="container mx-auto max-w-6xl relative z-10">
+      <motion.div 
+        className="container mx-auto max-w-6xl relative z-10"
+        variants={containerVariants}
+        initial="hidden"
+        animate="visible"
+      >
         <div className="flex flex-col items-center text-center">
-          {/* Enhanced heading with text animation */}
-          <div className="relative mb-8">
-            <div className="absolute -inset-1 bg-gradient-to-r from-noteflow-400/30 to-purple-600/30 rounded-lg blur opacity-75 group-hover:opacity-100 transition duration-1000 group-hover:duration-200 animate-tilt"></div>
-            <h1 className="font-poppins font-bold text-5xl md:text-7xl mb-2 text-transparent bg-clip-text bg-gradient-to-r from-white to-noteflow-200 relative">
-              <span className="block h-28">
-                {displayText}
-                <span className={`${cursorVisible ? 'opacity-100' : 'opacity-0'} text-noteflow-400 transition-opacity duration-100`}>|</span>
-              </span>
-            </h1>
-          </div>
-          
-          {/* Enhanced paragraph with premium design */}
-          <div className="relative max-w-3xl w-full mb-12 group">
-            <div className="absolute -inset-0.5 bg-gradient-to-r from-noteflow-600/30 to-purple-600/30 rounded-xl blur-lg opacity-75 group-hover:opacity-100 transition duration-1000 group-hover:duration-200 animate-pulse-slow"></div>
-            <p className="relative text-gray-200 text-xl md:text-2xl p-8 rounded-xl bg-black/30 backdrop-blur-xl border border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.37)] group-hover:border-noteflow-400/20 transition-all">
-              <span className="font-medium text-white">Create beautiful notes</span> with our free, Word-style editor. <span className="bg-gradient-to-r from-noteflow-400 to-purple-400 bg-clip-text text-transparent font-medium">No account needed</span>. 
-              Start typing and your notes save automatically.
-            </p>
-          </div>
-          
-          {/* Enhanced button with animation */}
-          <Button 
-            onClick={scrollToEditor} 
-            className="relative group overflow-hidden bg-gradient-to-r from-noteflow-600 to-noteflow-400 hover:from-noteflow-500 hover:to-noteflow-300 text-white rounded-full px-8 py-6 text-lg font-medium flex items-center gap-2 transition-all duration-300 shadow-lg shadow-noteflow-500/20 hover:shadow-noteflow-400/30 border border-noteflow-400/30 hover:border-noteflow-300/50" 
+          {/* Enhanced heading with advanced text animation */}
+          <motion.div 
+            className="relative mb-8"
+            variants={itemVariants}
           >
-            <span className="absolute inset-0 w-full h-full bg-gradient-to-r from-noteflow-400 to-noteflow-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300 blur-xl"></span>
-            <span className="relative z-10 flex items-center gap-2">
-              Start Taking Notes
-              <ArrowDown className="h-5 w-5 group-hover:translate-y-1 transition-transform duration-300" />
-            </span>
-          </Button>
+            <div className="absolute -inset-1 bg-gradient-to-r from-noteflow-400/30 to-purple-600/30 rounded-lg blur opacity-75 group-hover:opacity-100 transition duration-1000 group-hover:duration-200 animate-tilt"></div>
+            <div className="relative bg-black/20 backdrop-blur-sm p-6 rounded-2xl border border-white/5 shadow-[0_10px_50px_rgba(76,29,149,0.1)]">
+              <motion.h1 
+                className="font-poppins font-bold text-6xl md:text-8xl mb-2 text-transparent bg-clip-text bg-gradient-to-r from-white to-noteflow-200 relative"
+                animate={{ filter: ["brightness(1)", "brightness(1.2)", "brightness(1)"] }}
+                transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
+              >
+                <span className="h-32 md:h-36 flex items-center justify-center">
+                  {displayText}
+                  <motion.span 
+                    className={`text-noteflow-400`}
+                    animate={{ opacity: cursorVisible ? 1 : 0 }}
+                    transition={{ duration: 0.3 }}
+                  >|</motion.span>
+                </span>
+              </motion.h1>
+              
+              {/* Floating sparkles decoration */}
+              <motion.div 
+                className="absolute -top-3 -right-3"
+                variants={floatingVariants}
+                animate="float"
+              >
+                <Sparkles className="w-8 h-8 text-noteflow-400/80" />
+              </motion.div>
+              
+              <motion.div 
+                className="absolute -bottom-3 -left-3"
+                variants={floatingVariants}
+                animate="float"
+                transition={{ delay: 0.5 }}
+              >
+                <FileText className="w-7 h-7 text-noteflow-400/70" />
+              </motion.div>
+            </div>
+          </motion.div>
+          
+          {/* Enhanced paragraph with premium design and animation */}
+          <motion.div 
+            className="relative max-w-3xl w-full mb-12 group"
+            variants={itemVariants}
+          >
+            <motion.div 
+              className="absolute -inset-0.5 bg-gradient-to-r from-noteflow-600/30 to-purple-600/30 rounded-xl blur-lg opacity-75"
+              animate={{ opacity: [0.5, 0.8, 0.5] }}
+              transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+            ></motion.div>
+            <div className="relative text-gray-200 text-xl md:text-2xl p-8 rounded-xl bg-black/30 backdrop-blur-xl border border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.37)] group-hover:border-noteflow-400/20 transition-all">
+              <motion.p
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.5, duration: 0.8 }}
+              >
+                <span className="font-medium text-white">Create beautiful notes</span> with our free, Word-style editor. <span className="bg-gradient-to-r from-noteflow-400 to-purple-400 bg-clip-text text-transparent font-medium">No account needed</span>. 
+                Start typing and your notes save automatically.
+              </motion.p>
+            </div>
+          </motion.div>
+          
+          {/* Enhanced button with advanced animation */}
+          <motion.div variants={itemVariants}>
+            <Button 
+              onClick={scrollToEditor} 
+              className="relative group overflow-hidden bg-gradient-to-r from-noteflow-600 to-noteflow-400 hover:from-noteflow-500 hover:to-noteflow-300 text-white rounded-full px-8 py-6 text-lg font-medium flex items-center gap-2 transition-all duration-300 shadow-lg shadow-noteflow-500/20 hover:shadow-noteflow-400/30 border border-noteflow-400/30 hover:border-noteflow-300/50" 
+            >
+              <motion.span 
+                className="absolute inset-0 w-full h-full bg-gradient-to-r from-noteflow-400 to-noteflow-600 opacity-0 group-hover:opacity-100 blur-xl"
+                animate={{ 
+                  background: [
+                    "linear-gradient(to right, rgba(120, 60, 255, 0.5), rgba(150, 90, 255, 0.5))",
+                    "linear-gradient(to right, rgba(150, 90, 255, 0.5), rgba(180, 120, 255, 0.5))",
+                    "linear-gradient(to right, rgba(120, 60, 255, 0.5), rgba(150, 90, 255, 0.5))"
+                  ]
+                }}
+                transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
+              ></motion.span>
+              <motion.span 
+                className="relative z-10 flex items-center gap-2"
+                whileHover={{ scale: 1.05 }}
+                transition={{ type: "spring", stiffness: 400 }}
+              >
+                Start Taking Notes
+                <motion.div
+                  animate={{ y: [0, 4, 0] }}
+                  transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
+                >
+                  <ArrowDown className="h-5 w-5" />
+                </motion.div>
+              </motion.span>
+            </Button>
+          </motion.div>
         </div>
-      </div>
+      </motion.div>
     </section>
   );
 };

@@ -12,7 +12,7 @@ const Footer = () => {
   const [contactDialogOpen, setContactDialogOpen] = useState(false);
   
   return (
-    <footer className="py-4 bg-black/50 backdrop-blur-xl border-t border-indigo-500/20 shadow-lg">
+    <footer className="py-4">
       <div className="container mx-auto px-4">
         {/* Reduced space above the copyright section */}
         <div className="h-2"></div>

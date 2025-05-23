@@ -101,7 +101,7 @@ const TextEditor = () => {
   
   return (
     <section id="editor-section" className={cn(
-      "py-8 sm:py-12 px-4 relative transition-all duration-500 min-h-screen"
+      "pt-0 pb-4 sm:pb-6 px-3 relative transition-all duration-500 min-h-screen w-full overflow-hidden border-0"
     )}>
       {/* Global overlay that only appears in focus mode */}
       {isFocusMode && (
@@ -122,13 +122,13 @@ const TextEditor = () => {
       )}
       
       <div className={cn(
-        "container mx-auto max-w-7xl relative",
+        "mx-auto px-1 sm:px-2 md:px-3 max-w-[90%] lg:max-w-[92%] xl:max-w-[94%] relative", // Reduced max width to prevent overflow
         isFocusMode ? "z-30" : "z-10"
       )}>
-        <div className="flex flex-col md:flex-row gap-6">
+        <div className="flex flex-col md:flex-row gap-1 lg:gap-2 justify-center w-full"> {/* Added w-full to contain children */}
           {/* Left sidebar with notes list - with animation */}
           <div className={cn(
-            "w-full md:w-72 shrink-0 mb-4 md:mb-0 transition-all duration-300 ease-in-out",
+            "md:w-64 lg:w-72 shrink-0 mb-4 md:mb-0 transition-all duration-300 ease-in-out", // Removed w-full to prevent overflow
             isLeftSidebarOpen ? "opacity-100" : "opacity-0 max-w-0 md:max-w-0 overflow-hidden"
           )}>
             {isLeftSidebarOpen && (
@@ -144,14 +144,14 @@ const TextEditor = () => {
           </div>
           
           {/* The editor with enhanced glassmorphism */}
-          <div className="flex-1 flex flex-col">
+          <div className="flex-1 flex flex-col min-w-0 md:min-w-0 lg:min-w-0 xl:min-w-0 max-w-full mx-auto"> {/* Removed specific min-width percentages that were causing overflow */}
             <div 
               ref={editorRef}
               className={cn(
-                "glass-panel-dark rounded-xl overflow-hidden flex flex-col border border-white/5 transition-all duration-500",
+                "rounded-xl overflow-hidden flex flex-col transition-all duration-500",
                 isFocusMode 
-                  ? "shadow-[0_0_50px_rgba(76,29,149,0.15)] ring-1 ring-purple-800/20" 
-                  : "shadow-[0_8px_30px_rgb(0,0,0,0.4)]"
+                  ? "shadow-[0_0_60px_rgba(76,29,149,0.25)]" 
+                  : ""
               )}
             >
               {/* Toolbar */}
@@ -168,7 +168,8 @@ const TextEditor = () => {
               />
               
               {/* Editor area with responsive dimensions */}
-              <div className="flex-1 h-[300px] sm:h-[400px] md:h-[500px] overflow-hidden">
+              <div className="flex-1 h-[450px] sm:h-[600px] md:h-[700px] lg:h-[800px] xl:h-[900px] 2xl:h-[950px] overflow-hidden relative"> {/* Maximized height with additional breakpoints */}
+                {/* Removed background gradients for seamless design */}
                 <EditableContent 
                   content={content} 
                   setContent={setContent} 
@@ -191,7 +192,7 @@ const TextEditor = () => {
           
           {/* Right sidebar with AI capabilities - with animation */}
           <div className={cn(
-            "w-full md:w-80 lg:w-96 shrink-0 mb-4 md:mb-0 transition-all duration-300 ease-in-out",
+            "md:w-64 lg:w-72 shrink-0 mb-4 md:mb-0 transition-all duration-300 ease-in-out", // Removed w-full to prevent overflow
             isAISidebarOpen ? "opacity-100" : "opacity-0 max-w-0 md:max-w-0 overflow-hidden"
           )}>
             {isAISidebarOpen && (

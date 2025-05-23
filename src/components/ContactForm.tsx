@@ -1,11 +1,6 @@
 import React, { useState } from "react";
-import { X } from "lucide-react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Label } from "@/components/ui/label";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
+import Modal from "react-modal";
+import { X, Mail } from "lucide-react";
 
 interface ContactFormProps {
   open: boolean;
@@ -42,92 +37,112 @@ const ContactForm: React.FC<ContactFormProps> = ({ open, onOpenChange }) => {
   };
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[500px] bg-black/90 backdrop-blur-xl border border-indigo-500/20 shadow-xl text-white">
-        <DialogHeader className="border-b border-indigo-500/20 pb-4">
-          <DialogTitle className="text-xl text-white flex items-center">
-            <span className="bg-clip-text text-transparent bg-gradient-to-r from-indigo-400 to-purple-500">
-              Contact OneAI Notes
-            </span>
-          </DialogTitle>
-          <DialogDescription className="text-gray-400">
-            Send us a message and we'll get back to you as soon as possible.
-          </DialogDescription>
-        </DialogHeader>
-
-        <form onSubmit={handleSubmit} className="space-y-4 mt-4">
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="name" className="text-sm text-gray-300">Your Name</Label>
-              <Input 
-                id="name"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                required
-                className="bg-black/50 border-indigo-500/30 text-white"
-                placeholder="John Doe"
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="email" className="text-sm text-gray-300">Your Email</Label>
-              <Input 
-                id="email"
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-                className="bg-black/50 border-indigo-500/30 text-white"
-                placeholder="john@example.com"
-              />
-            </div>
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="subject" className="text-sm text-gray-300">Inquiry Type</Label>
-            <Select value={subject} onValueChange={setSubject}>
-              <SelectTrigger className="bg-black/50 border-indigo-500/30 text-white">
-                <SelectValue placeholder="Select an inquiry type" />
-              </SelectTrigger>
-              <SelectContent className="bg-black/90 border-indigo-500/30 text-white">
-                <SelectItem value="General Info">General Info</SelectItem>
-                <SelectItem value="Technical Support">Technical Support</SelectItem>
-                <SelectItem value="Inquiry">Business Inquiry</SelectItem>
-                <SelectItem value="Security">Security</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="message" className="text-sm text-gray-300">Message</Label>
-            <Textarea 
-              id="message"
-              value={message}
-              onChange={(e) => setMessage(e.target.value)}
-              required
-              className="min-h-[120px] bg-black/50 border-indigo-500/30 text-white"
-              placeholder="How can we help you?"
-            />
-          </div>
-
-          <div className="flex justify-end gap-3 pt-2">
-            <Button 
-              type="button" 
-              variant="outline" 
-              onClick={() => onOpenChange(false)}
-              className="border-indigo-500/30 text-gray-300 hover:bg-indigo-950/30"
-            >
-              Cancel
-            </Button>
-            <Button 
-              type="submit"
-              className="bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white border-0"
-            >
-              Send Message
-            </Button>
-          </div>
-        </form>
-      </DialogContent>
-    </Dialog>
+    <Modal
+      isOpen={open}
+      onRequestClose={() => onOpenChange(false)}
+      contentLabel="Contact Form"
+      className="fixed left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 max-w-md w-full bg-black/80 backdrop-blur-xl p-6 rounded-xl border border-indigo-500/20 shadow-2xl outline-none text-white z-50"
+      overlayClassName="fixed inset-0 bg-black/70 backdrop-blur-sm z-40"
+    >
+      {/* Header */}
+      <div className="flex flex-col space-y-2 text-center border-b border-indigo-500/20 pb-4">
+        <h2 className="text-xl font-bold flex items-center gap-2 justify-center">
+          <span className="bg-clip-text text-transparent bg-gradient-to-r from-indigo-400 to-purple-500">
+            Contact OneAI Notes
+          </span>
+        </h2>
+        <p className="text-white/80">
+          Have a question or feedback? We'd love to hear from you.
+        </p>
+      </div>
+      
+      <form onSubmit={handleSubmit} className="grid gap-4 py-4">
+        <div className="grid grid-cols-1 gap-2">
+          <label htmlFor="name" className="text-sm text-white/90">
+            Your Name
+          </label>
+          <input
+            id="name"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            className="flex h-10 w-full rounded-md border border-white/10 bg-black/40 px-3 py-2 text-sm text-white placeholder:text-white/50 focus:outline-none focus:ring-1 focus:ring-indigo-500/50 disabled:cursor-not-allowed disabled:opacity-50"
+            placeholder="John Doe"
+            required
+          />
+        </div>
+        
+        <div className="grid grid-cols-1 gap-2">
+          <label htmlFor="email" className="text-sm text-white/90">
+            Your Email
+          </label>
+          <input
+            id="email"
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            className="flex h-10 w-full rounded-md border border-white/10 bg-black/40 px-3 py-2 text-sm text-white placeholder:text-white/50 focus:outline-none focus:ring-1 focus:ring-indigo-500/50 disabled:cursor-not-allowed disabled:opacity-50"
+            placeholder="john@example.com"
+            required
+          />
+        </div>
+        
+        <div className="grid grid-cols-1 gap-2">
+          <label htmlFor="subject" className="text-sm text-white/90">
+            Inquiry Type
+          </label>
+          <select 
+            value={subject} 
+            onChange={(e) => setSubject(e.target.value)}
+            className="flex h-10 w-full rounded-md border border-white/10 bg-black/40 px-3 py-2 text-sm text-white placeholder:text-white/50 focus:outline-none focus:ring-1 focus:ring-indigo-500/50 disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            <option value="General Info">General Information</option>
+            <option value="Support">Technical Support</option>
+            <option value="Feedback">Feedback & Suggestions</option>
+            <option value="Business">Business Inquiry</option>
+            <option value="Other">Other</option>
+          </select>
+        </div>
+        
+        <div className="grid grid-cols-1 gap-2">
+          <label htmlFor="message" className="text-sm text-white/90">
+            Your Message
+          </label>
+          <textarea
+            id="message"
+            value={message}
+            onChange={(e) => setMessage(e.target.value)}
+            className="min-h-[120px] flex w-full rounded-md border border-white/10 bg-black/40 px-3 py-2 text-sm text-white placeholder:text-white/50 focus:outline-none focus:ring-1 focus:ring-indigo-500/50 disabled:cursor-not-allowed disabled:opacity-50"
+            placeholder="Tell us how we can help..."
+            required
+          />
+        </div>
+        
+        <div className="mt-4 flex justify-end gap-2">
+          <button 
+            type="button" 
+            onClick={() => onOpenChange(false)}
+            className="inline-flex h-10 items-center justify-center rounded-md border border-white/10 bg-transparent px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-white/10 focus:outline-none"
+          >
+            Cancel
+          </button>
+          <button 
+            type="submit"
+            className="inline-flex h-10 items-center justify-center rounded-md bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 px-4 py-2 text-sm font-medium text-white transition-colors focus:outline-none"
+          >
+            Send Message
+          </button>
+        </div>
+      </form>
+      
+      {/* Close button */}
+      <button
+        className="absolute right-4 top-4 rounded-sm opacity-70 transition-opacity hover:opacity-100 focus:outline-none"
+        onClick={() => onOpenChange(false)}
+      >
+        <X className="h-4 w-4 text-white" />
+        <span className="sr-only">Close</span>
+      </button>
+    </Modal>
   );
 };
 

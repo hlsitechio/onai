@@ -92,7 +92,8 @@ export default {
 				'gradient-spotlight': 'radial-gradient(circle at center, var(--tw-gradient-stops))',
 			},
 			boxShadow: {
-				'note-glow': '0 0 40px -10px rgba(124, 58, 237, 0.25)',
+				'note-glow': '0 0 25px 5px rgba(139, 92, 246, 0.08)',
+				'inner-glow': 'inset 0 0 30px 5px rgba(139, 92, 246, 0.15)',
 				'glass': '0 8px 32px rgba(0, 0, 0, 0.4)',
 				'glass-dark': '0 8px 32px rgba(0, 0, 0, 0.7)',
 			},
@@ -120,13 +121,37 @@ export default {
 				'fade-up': {
 					'0%': { opacity: '0', transform: 'translateY(20px)' },
 					'100%': { opacity: '1', transform: 'translateY(0)' }
-				}
+				},
+                'pulse-dot': {
+                    '0%': { opacity: '0.4', transform: 'scale(1)' },
+                    '50%': { opacity: '1', transform: 'scale(1.2)' },
+                    '100%': { opacity: '0.4', transform: 'scale(1)' }
+                },
+                'pulse-dot-slow': {
+                    '0%': { opacity: '0.3', transform: 'scale(1)' },
+                    '50%': { opacity: '0.7', transform: 'scale(1.1)' },
+                    '100%': { opacity: '0.3', transform: 'scale(1)' }
+                },
+                'float': {
+                    '0%': { transform: 'translateY(0px)' },
+                    '50%': { transform: 'translateY(-10px)' },
+                    '100%': { transform: 'translateY(0px)' }
+                },
+                'grid-flow': {
+                    '0%': { transform: 'translateY(0px)' },
+                    '50%': { transform: 'translateY(2px)' },
+                    '100%': { transform: 'translateY(0px)' }
+                }
 			},
 			animation: {
 				'accordion-down': 'accordion-down 0.2s ease-out',
 				'accordion-up': 'accordion-up 0.2s ease-out',
 				'fade-in': 'fade-in 0.5s ease-out',
-				'fade-up': 'fade-up 0.5s ease-out'
+				'fade-up': 'fade-up 0.5s ease-out',
+                'pulse-dot': 'pulse-dot 3s infinite ease-in-out',
+                'pulse-dot-slow': 'pulse-dot-slow 5s infinite ease-in-out',
+                'float': 'float 6s infinite ease-in-out',
+                'grid-flow': 'grid-flow 10s infinite ease-in-out'
 			}
 		}
 	},
