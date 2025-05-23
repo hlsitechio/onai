@@ -51,7 +51,7 @@ const EditableContent: React.FC<EditableContentProps> = ({ content, setContent, 
       )}
       <textarea 
         className={cn(
-          "min-h-[550px] w-full h-full p-3 md:p-4 outline-none font-sans text-white overflow-auto resize-none transition-all duration-300 max-w-full mx-auto",
+          "min-h-[550px] w-full h-full p-3 md:p-4 outline-none font-sans text-white overflow-auto resize-none transition-all duration-300 max-w-full mx-auto editable-content-textarea",
           isFocusMode 
             ? "bg-black/50 backdrop-blur-xl shadow-note-glow border border-purple-800/20 z-10" 
             : "bg-black/30 backdrop-blur-lg border border-white/10"
