@@ -17,7 +17,7 @@
 
 Scan the QR code to visit the project instantly:
 
-![image1](image1)
+<img src="https://github.com/user-attachments/assets/3dcc9c05-4aef-49dc-86a8-5dc5ce45b796" alt="frame" width="200"/>
 
 ---
 
