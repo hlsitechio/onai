@@ -8,12 +8,18 @@ interface SponsorDialogProps {
 }
 
 const SponsorDialog: React.FC<SponsorDialogProps> = ({ open, onOpenChange }) => {
+  // Scroll to top when the modal opens
+  React.useEffect(() => {
+    if (open) {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  }, [open]);
   return (
     <Modal
       isOpen={open}
       onRequestClose={() => onOpenChange(false)}
       contentLabel="Sponsor Dialog"
-      className="fixed left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 max-w-md w-full bg-black/80 backdrop-blur-xl p-6 rounded-xl border border-white/10 shadow-2xl outline-none text-white z-50"
+      className="fixed left-1/2 top-24 transform -translate-x-1/2 max-w-md w-full bg-black/80 backdrop-blur-xl p-6 rounded-xl border border-white/10 shadow-2xl outline-none text-white z-50 max-h-[80vh] overflow-y-auto"
       overlayClassName="fixed inset-0 bg-black/70 backdrop-blur-sm z-40"
     >
       {/* Header */}
@@ -34,15 +40,11 @@ const SponsorDialog: React.FC<SponsorDialogProps> = ({ open, onOpenChange }) => 
         </p>
         
         <div className="bg-white p-4 rounded-lg mb-4 w-64 h-64 flex items-center justify-center">
-          {/* QR code image will be displayed here */}
+          {/* Using the exact PNG file for the QR code */}
           <img 
             src="/assets/onlinenoteai_qr_code.png" 
             alt="Sponsor QR Code" 
             className="w-full h-full object-contain"
-            onError={(e) => {
-              const target = e.target as HTMLImageElement;
-              target.src = "/assets/qr-code-fallback.png";
-            }}
           />
         </div>
         

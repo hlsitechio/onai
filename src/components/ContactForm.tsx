@@ -8,6 +8,12 @@ interface ContactFormProps {
 }
 
 const ContactForm: React.FC<ContactFormProps> = ({ open, onOpenChange }) => {
+  // Scroll to top when the modal opens
+  React.useEffect(() => {
+    if (open) {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  }, [open]);
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [subject, setSubject] = useState("General Info");
@@ -41,7 +47,7 @@ const ContactForm: React.FC<ContactFormProps> = ({ open, onOpenChange }) => {
       isOpen={open}
       onRequestClose={() => onOpenChange(false)}
       contentLabel="Contact Form"
-      className="fixed left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 max-w-md w-full bg-black/80 backdrop-blur-xl p-6 rounded-xl border border-indigo-500/20 shadow-2xl outline-none text-white z-50"
+      className="fixed left-1/2 top-24 transform -translate-x-1/2 max-w-md w-full bg-black/80 backdrop-blur-xl p-6 rounded-xl border border-indigo-500/20 shadow-2xl outline-none text-white z-50 max-h-[80vh] overflow-y-auto"
       overlayClassName="fixed inset-0 bg-black/70 backdrop-blur-sm z-40"
     >
       {/* Header */}
