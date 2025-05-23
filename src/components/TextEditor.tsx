@@ -173,7 +173,7 @@ const TextEditor = () => {
               <div className="animate-fadeIn">
                 <NotesSidebar 
                   currentContent={content} 
-                  onLoadNote={(noteId, noteContent) => handleLoadNote(noteId, noteContent)}
+                  onLoadNote={handleLoadNote}
                   onSave={handleSave}
                   onDeleteNote={handleDeleteNote}
                   editorHeight={editorHeight}
