@@ -1,13 +1,15 @@
 # 🚀 Online Note AI
 
-
-
 [![Website](https://img.shields.io/badge/Visit-onlinenote.ai-2ea44f?style=for-the-badge&logo=google-chrome)](https://onlinenote.ai)
 [![Lovable Project](https://img.shields.io/badge/Powered%20by-Lovable-blueviolet?style=for-the-badge)](https://lovable.dev/projects/537bfa69-8d92-4d14-93ac-53fede0eeabf)
 [![Sponsor](https://img.shields.io/badge/Sponsor%20us-❤-red?style=for-the-badge)](https://github.com/sponsors/hlsitechio)
-[![Star](https://img.shields.io/github/stars/hlsitechio/onai?style=social)](https://github.com/hlsitechio/onai/stargazers)
+⭐[![Star](https://img.shields.io/github/stars/hlsitechio/onai?style=social)](https://github.com/hlsitechio/onai/)
+
 ---
 
+![2onlinenote](https://github.com/user-attachments/assets/ae3c0b1c-a3c5-437d-b20b-502c8551edfe)
+
+---
 **Online Note AI** is a modern, AI-powered note-taking web app designed for productivity, collaboration, and security. Take notes, organize your thoughts, and leverage AI—all in one place.
 
 🌐 **Website**: [onlinenote.ai](https://onlinenote.ai)  
@@ -21,25 +23,8 @@
 - 📱**Beautiful & Responsive UI:** Built with modern UI libraries for a smooth experience.
 - 🔓**Open Source:** Community-driven development and transparency.
 
----
 
-## 💖 Support & Sponsorship
-
-Help us keep Online Note AI free and improve it for everyone!  
-**Become a sponsor and get your logo featured here, early access to new features, and a say in the roadmap.**  
-[👉 Sponsor us on GitHub](https://github.com/sponsors/hlsitechio)
----
-
-## 🤝 Contributing
-
-We welcome contributions! Please check issues, open pull requests, or discuss new features.
-
----
-
-DEV SEEKING ! 👨‍💻 👩‍💻 📢
-
-🚀 Looking for a co-worker!
-I’m actively seeking a collaborator to help build and improve this project. 
+## 🚀 Getting Started
 
 ---
 
@@ -53,8 +38,6 @@ I’m actively seeking a collaborator to help build and improve this project.
 - 🟩 [Supabase](https://supabase.com/) (for database & authentication)
   
 ---
-
-## 🚀 Getting Started
 
 ## 🌍 Deployment
 
@@ -102,5 +85,24 @@ Scan the QR code to visit the project instantly:
 
 ---
 
+## 💖 Support & Sponsorship
+
+Help us keep Online Note AI free and improve it for everyone!  
+**Become a sponsor and get your logo featured here, early access to new features, and a say in the roadmap.**  
+[👉 Sponsor us on GitHub](https://github.com/sponsors/hlsitechio)
+
+---
+
+## 🤝 Contributing
+
+We welcome contributions! Please check issues, open pull requests, or discuss new features.
+
+---
+
+DEV SEEKING ! 👨‍💻 👩‍💻 📢
+
+🚀 Looking for a co-worker!
+I’m actively seeking a collaborator to help build and improve this project. 
+
+---
 > **If you love Online Note AI, please ⭐ star the repo and consider sponsoring! Your support helps us grow!**
-> 
