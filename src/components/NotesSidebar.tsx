@@ -11,13 +11,20 @@ interface NotesSidebarProps {
   currentContent: string;
   onLoadNote: (content: string) => void;
   onSave: () => void;
+  onDeleteNote: (noteId: string) => Promise<boolean>;
   editorHeight: number;
+  allNotes: Record<string, string>;
+  onCreateNew: () => void;
 }
+
 const NotesSidebar: React.FC<NotesSidebarProps> = ({
   currentContent,
   onLoadNote,
   onSave,
-  editorHeight
+  onDeleteNote,
+  editorHeight,
+  allNotes,
+  onCreateNew
 }) => {
   const {
     toast
@@ -32,8 +39,8 @@ const NotesSidebar: React.FC<NotesSidebarProps> = ({
   const [isShortcutsOpen, setIsShortcutsOpen] = useState(false);
 
   useEffect(() => {
-    // Load notes on component mount
-    loadNotes();
+    // Use allNotes from props instead of loading from storage
+    setNotes(allNotes);
     
     // Load custom note names from local storage
     const savedNames = localStorage.getItem('noteflow-custom-names');
@@ -44,11 +51,8 @@ const NotesSidebar: React.FC<NotesSidebarProps> = ({
         console.error('Error loading custom note names:', e);
       }
     }
-  }, []);
-  const loadNotes = async () => {
-    const savedNotes = await getAllNotes();
-    setNotes(savedNotes);
-  };
+  }, [allNotes]);
+
   const handleLoadNote = (noteId: string) => {
     setActiveNoteId(noteId);
     onLoadNote(notes[noteId]);
@@ -57,23 +61,25 @@ const NotesSidebar: React.FC<NotesSidebarProps> = ({
       description: `Loaded note from ${formatNoteId(noteId)}`
     });
   };
+
   const handleDeleteNote = async (noteId: string, e: React.MouseEvent) => {
     e.stopPropagation(); // Prevent triggering the note loading
-    await deleteNote(noteId);
-    loadNotes();
+    const success = await onDeleteNote(noteId);
     
-    // Also remove any custom name for this note
-    if (customNoteNames[noteId]) {
-      const updatedNames = { ...customNoteNames };
-      delete updatedNames[noteId];
-      setCustomNoteNames(updatedNames);
-      localStorage.setItem('noteflow-custom-names', JSON.stringify(updatedNames));
+    if (success) {
+      // Also remove any custom name for this note
+      if (customNoteNames[noteId]) {
+        const updatedNames = { ...customNoteNames };
+        delete updatedNames[noteId];
+        setCustomNoteNames(updatedNames);
+        localStorage.setItem('noteflow-custom-names', JSON.stringify(updatedNames));
+      }
+      
+      toast({
+        title: "Note deleted",
+        description: `Deleted note from ${formatNoteId(noteId)}`
+      });
     }
-    
-    toast({
-      title: "Note deleted",
-      description: `Deleted note from ${formatNoteId(noteId)}`
-    });
   };
   
   const handleRenameNote = async (oldNoteId: string, newNoteId: string): Promise<boolean> => {
@@ -97,9 +103,6 @@ const NotesSidebar: React.FC<NotesSidebarProps> = ({
         if (activeNoteId === oldNoteId) {
           setActiveNoteId(newNoteId);
         }
-        
-        // Refresh notes list
-        await loadNotes();
         
         toast({
           title: "Note renamed",
@@ -173,14 +176,12 @@ const NotesSidebar: React.FC<NotesSidebarProps> = ({
   // Handle creating a new note
   const handleNewNote = () => {
     setActiveNoteId('current');
-    onLoadNote('');
+    onCreateNew();
     toast({
       title: "New note created",
       description: "Started a fresh note"
     });
   };
-
-
 
   return (
     <div 
@@ -325,4 +326,5 @@ const NotesSidebar: React.FC<NotesSidebarProps> = ({
     </div>
   );
 };
+
 export default NotesSidebar;
