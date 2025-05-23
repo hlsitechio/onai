@@ -111,4 +111,6 @@ We welcome contributions! Please check issues, open pull requests, or discuss ne
 
 ---
 
+<a href="https://www.buymeacoffee.com/onlinenoteai"><img src="https://img.buymeacoffee.com/button-api/?text=Buy me! Stay free forever!&emoji=🤑&slug=onlinenoteai&button_colour=213e87&font_colour=ffffff&font_family=Inter&outline_colour=ffffff&coffee_colour=FFDD00" /></a>
+
 > **If you love Online Note AI, please ⭐ star the repo and consider sponsoring! Your support helps us grow!**
