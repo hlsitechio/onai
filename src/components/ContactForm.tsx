@@ -1,6 +1,11 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Modal from "react-modal";
 import { X, Mail } from "lucide-react";
+
+// Set the app element for react-modal accessibility
+if (typeof window !== 'undefined') {
+  Modal.setAppElement('#root');
+}
 
 interface ContactFormProps {
   open: boolean;
