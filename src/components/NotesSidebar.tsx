@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
-import { Save, ArrowRight, Plus, Clock, Search, FolderOpen, Star, Edit, Sparkles } from "lucide-react";
+import { Save, ArrowRight, Plus, Clock, Search, FolderOpen, Star, Edit, Sparkles, Keyboard } from "lucide-react";
 import { getAllNotes, deleteNote, shareNote, renameNote } from "@/utils/notesStorage";
 import { useToast } from "@/hooks/use-toast";
 import NotesList from './notes/NotesList';
 import ShareNoteDrawer from './notes/ShareNoteDrawer';
+import KeyboardShortcuts from './notes/KeyboardShortcuts';
+
 interface NotesSidebarProps {
   currentContent: string;
   onLoadNote: (content: string) => void;
@@ -27,6 +29,8 @@ const NotesSidebar: React.FC<NotesSidebarProps> = ({
   const [customNoteNames, setCustomNoteNames] = useState<Record<string, string>>({});
   const [isSearching, setIsSearching] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [isShortcutsOpen, setIsShortcutsOpen] = useState(false);
+
   useEffect(() => {
     // Load notes on component mount
     loadNotes();
@@ -211,6 +215,15 @@ const NotesSidebar: React.FC<NotesSidebarProps> = ({
               >
                 <Search className="h-4 w-4 group-hover:scale-110 transition-all duration-300" />
               </Button>
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                onClick={() => setIsShortcutsOpen(true)}
+                className="h-7 w-7 rounded-full hover:bg-noteflow-500/20 hover:text-noteflow-400 transition-all group"
+                title="Keyboard shortcuts"
+              >
+                <Keyboard className="h-4 w-4 group-hover:scale-110 transition-all duration-300" />
+              </Button>
             </div>
           </div>
         
@@ -302,6 +315,12 @@ const NotesSidebar: React.FC<NotesSidebarProps> = ({
           handleShareNote(service);
           return Promise.resolve(""); // Return an empty string to satisfy the type requirement
         }} 
+      />
+
+      {/* Keyboard Shortcuts Dialog */}
+      <KeyboardShortcuts 
+        isOpen={isShortcutsOpen}
+        onOpenChange={setIsShortcutsOpen}
       />
     </div>
   );
