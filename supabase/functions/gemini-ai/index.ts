@@ -65,6 +65,31 @@ const FUNCTION_DECLARATIONS = {
   }
 };
 
+// Define types for Gemini API parts and content
+type ContentPart = { text?: string; inline_data?: { mime_type: string; data: string } };
+
+// Define proper types for Gemini API request
+interface GeminiRequestBody {
+  contents: Array<{ parts: ContentPart[] }>;
+  generationConfig: {
+    temperature: number;
+    topP: number;
+    topK: number;
+    maxOutputTokens: number;
+  };
+  tools?: Array<{
+    function_declarations: Array<typeof FUNCTION_DECLARATIONS[keyof typeof FUNCTION_DECLARATIONS]>
+  }>;
+  tool_config?: {
+    function_calling_config: {
+      mode: 'AUTO' | 'NONE'
+    }
+  };
+  systemInstruction?: {
+    parts: Array<{ text: string }>
+  };
+}
+
 serve(async (req) => {
   // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
@@ -83,13 +108,13 @@ serve(async (req) => {
     }
 
     // Parse request body
-    const requestBody = await req.json().catch(e => {
+    const requestData = await req.json().catch(e => {
       console.error('Error parsing request JSON:', e);
       throw new Error('Invalid JSON in request body');
     });
     
     // Validate request structure
-    const { prompt, requestType, noteContent, imageUrl } = requestBody;
+    const { prompt, requestType, noteContent, imageUrl } = requestData;
     
     if (!prompt) {
       return new Response(
@@ -171,33 +196,8 @@ serve(async (req) => {
       console.warn(`Invalid image URL format: ${typeof imageUrl === 'string' ? imageUrl.substring(0, 30) : typeof imageUrl}`);
     }
     
-// Define types at the file level for Gemini API parts and content
-type ContentPart = { text?: string; inline_data?: { mime_type: string; data: string } };
-
-// Define proper types for Gemini API request
-interface GeminiRequestBody {
-      contents: Array<{ parts: ContentPart[] }>;
-      generationConfig: {
-        temperature: number;
-        topP: number;
-        topK: number;
-        maxOutputTokens: number;
-      };
-      tools?: Array<{
-        function_declarations: Array<typeof FUNCTION_DECLARATIONS[keyof typeof FUNCTION_DECLARATIONS]>
-      }>;
-      tool_config?: {
-        function_calling_config: {
-          mode: 'AUTO' | 'NONE'
-        }
-      };
-      systemInstruction?: {
-        parts: Array<{ text: string }>
-      };
-    }
-    
     // Base request configuration
-    const requestBody: GeminiRequestBody = {
+    const geminiRequestBody: GeminiRequestBody = {
       contents: [{ parts: requestParts }],
       generationConfig: {
         temperature: getTemperatureForRequestType(requestType),
@@ -209,12 +209,12 @@ interface GeminiRequestBody {
     
     // Add structured output support for analysis and summarization
     if (['analyze', 'summarize'].includes(requestType)) {
-      requestBody.tools = [{
+      geminiRequestBody.tools = [{
         function_declarations: [FUNCTION_DECLARATIONS[requestType as 'analyze' | 'summarize']]
       }];
       
       // Enable function calling
-      requestBody.tool_config = {
+      geminiRequestBody.tool_config = {
         function_calling_config: {
           mode: 'AUTO'
         }
@@ -223,7 +223,7 @@ interface GeminiRequestBody {
     
     // Enable thinking capability for complex tasks
     if (['analyze', 'ideas', 'improve_writing'].includes(requestType)) {
-      requestBody.systemInstruction = {
+      geminiRequestBody.systemInstruction = {
         parts: [{
           text: 'Think step by step. First understand the input thoroughly before generating your response.'
         }]
@@ -252,7 +252,7 @@ interface GeminiRequestBody {
           headers: {
             'Content-Type': 'application/json'
           },
-          body: JSON.stringify(requestBody),
+          body: JSON.stringify(geminiRequestBody),
           signal: controller.signal
         }
       );
