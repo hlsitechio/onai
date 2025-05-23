@@ -21,8 +21,8 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-// Gemini API configuration
-const GEMINI_MODEL = 'gemini-1.5-flash-latest';
+// Gemini API configuration - UPDATED TO 2.5 FLASH
+const GEMINI_MODEL = 'gemini-2.5-flash-preview-05-20';
 const GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta';
 const GEMINI_API_KEY = getEnv('GEMINI_API_KEY');
 
@@ -41,7 +41,7 @@ interface GeminiRequestBody {
   generationConfig: {
     temperature: number;
     topP: number;
-    topK: number;
+    topK?: number;
     maxOutputTokens: number;
   };
   systemInstruction?: {
@@ -182,7 +182,7 @@ serve(async (req) => {
       generationConfig: {
         temperature: getTemperatureForRequestType(requestType),
         topP: 0.95,
-        topK: 40,
+        topK: 64, // Updated to recommended value for Gemini 2.5 Flash
         maxOutputTokens: 2048,
       }
     };
@@ -199,7 +199,7 @@ serve(async (req) => {
     
     // Call Gemini API
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
+    const timeoutId = setTimeout(() => controller.abort(), 45000); // 45 second timeout (increased)
     
     const apiUrl = `${GEMINI_API_URL}/models/${GEMINI_MODEL}:generateContent?key=${GEMINI_API_KEY}`;
     
@@ -273,7 +273,11 @@ serve(async (req) => {
     
     let errorMessage = 'Unknown error occurred';
     if (error instanceof Error) {
-      errorMessage = error.message;
+      if (error.name === 'AbortError') {
+        errorMessage = 'Request timed out. The operation took too long to complete.';
+      } else {
+        errorMessage = error.message;
+      }
     }
     
     return new Response(

@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -172,6 +173,12 @@ const AISidebar: React.FC<AISidebarProps> = ({
     } catch (error: unknown) {
       const errorMessage = error instanceof Error ? error.message : "An error occurred while processing your request.";
       setError(errorMessage);
+      
+      toast({
+        title: "AI processing failed",
+        description: errorMessage,
+        variant: "destructive"
+      });
     } finally {
       setIsLoading(false);
     }

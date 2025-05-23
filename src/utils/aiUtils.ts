@@ -150,6 +150,9 @@ export async function callGeminiAI(
       if (error.message.includes('Content Security Policy')) {
         return "The AI service is temporarily unavailable due to security restrictions. Please try again later.";
       }
+      if (error.message.includes('timeout') || error.message.includes('AbortError')) {
+        return "The AI service took too long to respond. This might happen with complex requests or images. Please try again with simpler content.";
+      }
       return `AI processing failed: ${error.message}`;
     }
     
