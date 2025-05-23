@@ -1,4 +1,3 @@
-
 import { StorageOperationResult } from './notesStorage';
 import { supabase } from '@/integrations/supabase/client';
 import { encryptContent, decryptContent } from './encryptionUtils';
@@ -63,15 +62,6 @@ export const saveNoteToSupabase = async (
     // Prepare the content (encrypt if needed)
     const finalContent = isEncrypted ? await encryptContent(content) : content;
     
-    // Prepare the note object
-    const note: Partial<Note> = {
-      id: noteId,
-      title,
-      content: finalContent,
-      updated_at: new Date().toISOString(),
-      is_encrypted: isEncrypted
-    };
-    
     // Check if the note already exists
     const { data: existingNote, error: checkError } = await supabase
       .from('notes')
@@ -82,16 +72,41 @@ export const saveNoteToSupabase = async (
     // Insert or update based on existence
     let result;
     if (existingNote) {
-      // Update existing note
+      // Update existing note with required fields
+      const updateNote: {
+        id: string;
+        title: string;
+        content: string;
+        updated_at: string;
+        is_encrypted: boolean;
+      } = {
+        id: noteId,
+        title,
+        content: finalContent,
+        updated_at: new Date().toISOString(),
+        is_encrypted: isEncrypted
+      };
+      
       result = await supabase
         .from('notes')
-        .update(note)
+        .update(updateNote)
         .eq('id', noteId);
     } else {
-      // Create new note with additional fields
-      const newNote = {
-        ...note,
+      // Create new note with all required fields
+      const newNote: {
+        id: string;
+        title: string;
+        content: string;
+        created_at: string;
+        updated_at: string;
+        is_encrypted: boolean;
+      } = {
+        id: noteId,
+        title,
+        content: finalContent,
         created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+        is_encrypted: isEncrypted
       };
       
       result = await supabase

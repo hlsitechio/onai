@@ -1,11 +1,14 @@
+
 // Helper functions to work with Chrome Storage
 import { encryptContent, decryptContent } from './encryptionUtils';
 
 // Types
+export type StorageProviderType = 'chrome' | 'local';
 export interface StorageOperationResult {
   success: boolean;
   error?: string;
   shareUrl?: string;
+  newNoteId?: string; // For rename operations
 }
 
 // Constants

@@ -186,7 +186,7 @@ export function useSupabaseNotes() {
       // Generate a new note ID or use the current one
       const noteId = currentNoteId || uuidv4();
       
-      let result = { success: true, error: undefined };
+      let result: { success: boolean, error?: string } = { success: true, error: undefined };
       
       // If Supabase is ready, save there
       if (isSupabaseReady) {
