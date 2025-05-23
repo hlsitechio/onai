@@ -57,6 +57,11 @@ const TextEditor = () => {
     isSupabaseReady
   } = useSupabaseNotes();
   
+  // Create a wrapper function that matches the expected signature
+  const handleNoteLoad = useCallback((content: string) => {
+    setContent(content);
+  }, [setContent]);
+  
   // Update editor height for sidebar matching
   useEffect(() => {
     if (editorRef.current) {
@@ -173,7 +178,7 @@ const TextEditor = () => {
               <div className="animate-fadeIn">
                 <NotesSidebar 
                   currentContent={content} 
-                  onLoadNote={handleLoadNote}
+                  onLoadNote={handleNoteLoad}
                   onSave={handleSave}
                   onDeleteNote={handleDeleteNote}
                   editorHeight={editorHeight}
