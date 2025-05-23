@@ -1,8 +1,12 @@
 # 🚀 Online Note AI
 
+
+
 [![Website](https://img.shields.io/badge/Visit-onlinenote.ai-2ea44f?style=for-the-badge&logo=google-chrome)](https://onlinenote.ai)
 [![Lovable Project](https://img.shields.io/badge/Powered%20by-Lovable-blueviolet?style=for-the-badge)](https://lovable.dev/projects/537bfa69-8d92-4d14-93ac-53fede0eeabf)
 [![Sponsor](https://img.shields.io/badge/Sponsor%20us-❤-red?style=for-the-badge)](https://github.com/sponsors/hlsitechio)
+
+![2onlinenote](https://github.com/user-attachments/assets/8aa07f32-e2d6-4868-a45d-bbeb5dbddfd2)
 
 ---
 
@@ -17,7 +21,6 @@
 
 Scan the QR code to visit the project instantly:
 
-<img src="https://github.com/user-attachments/assets/3dcc9c05-4aef-49dc-86a8-5dc5ce45b796" alt="frame" width="200"/>
 
 ---
 
@@ -111,6 +114,12 @@ We welcome contributions! Please check issues, open pull requests, or discuss ne
 
 ---
 
+<img src="https://github.com/user-attachments/assets/3dcc9c05-4aef-49dc-86a8-5dc5ce45b796" alt="frame" width="200"/>
+
+---
+
 <a href="https://www.buymeacoffee.com/onlinenoteai"><img src="https://img.buymeacoffee.com/button-api/?text=Buy me! Stay free forever!&emoji=🤑&slug=onlinenoteai&button_colour=213e87&font_colour=ffffff&font_family=Inter&outline_colour=ffffff&coffee_colour=FFDD00" /></a>
+
+---
 
 > **If you love Online Note AI, please ⭐ star the repo and consider sponsoring! Your support helps us grow!**
