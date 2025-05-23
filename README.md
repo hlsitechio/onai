@@ -1,75 +1,114 @@
+# 🚀 Online Note AI
 
-# Welcome to Online Note AI
+[![Website](https://img.shields.io/badge/Visit-onlinenote.ai-2ea44f?style=for-the-badge&logo=google-chrome)](https://onlinenote.ai)
+[![Lovable Project](https://img.shields.io/badge/Powered%20by-Lovable-blueviolet?style=for-the-badge)](https://lovable.dev/projects/537bfa69-8d92-4d14-93ac-53fede0eeabf)
+[![Sponsor](https://img.shields.io/badge/Sponsor%20us-❤-red?style=for-the-badge)](https://github.com/sponsors/hlsitechio)
 
-## Project info
+---
 
-**URL**: https://lovable.dev/projects/537bfa69-8d92-4d14-93ac-53fede0eeabf
-**Website**: https://onlinenote.ai
+**Online Note AI** is a modern, AI-powered note-taking web app designed for productivity, collaboration, and security. Take notes, organize your thoughts, and leverage AI—all in one place.
 
-## How can I edit this code?
+🌐 **Website**: [onlinenote.ai](https://onlinenote.ai)  
+🔗 **Lovable Project**: [Project Dashboard](https://lovable.dev/projects/537bfa69-8d92-4d14-93ac-53fede0eeabf)
 
-There are several ways of editing your application.
+---
 
-**Use Lovable**
+## 📱 Quick Access
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/537bfa69-8d92-4d14-93ac-53fede0eeabf) and start prompting.
+Scan the QR code to visit the project instantly:
 
-Changes made via Lovable will be committed automatically to this repo.
+![image1](image1)
 
-**Use your preferred IDE**
+---
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+## ✨ Why Online Note AI?
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+- **AI-Powered Notes:** Generate, summarize, and organize notes with AI assistance.
+- **Cloud Sync:** Access your notes from anywhere, on any device.
+- **Beautiful & Responsive UI:** Built with modern UI libraries for a smooth experience.
+- **Open Source:** Community-driven development and transparency.
 
-Follow these steps:
+---
+
+## 💖 Support & Sponsorship
+
+Help us keep Online Note AI free and improve it for everyone!  
+**Become a sponsor and get your logo featured here, early access to new features, and a say in the roadmap.**  
+[👉 Sponsor us on GitHub](https://github.com/sponsors/hlsitechio)
+
+---
+
+## 🛠️ Technologies
+
+- ⚡️ [Vite](https://vitejs.dev/)
+- ⚛️ [React](https://react.dev/)
+- 🟦 [TypeScript](https://www.typescriptlang.org/)
+- 🎨 [shadcn-ui](https://ui.shadcn.com/)
+- 💨 [Tailwind CSS](https://tailwindcss.com/)
+- 🟩 [Supabase](https://supabase.com/) (for database & authentication)
+
+---
+
+## 🚀 Getting Started
+
+### 1. **Edit via Lovable**
+
+- Visit your [Lovable Project](https://lovable.dev/projects/537bfa69-8d92-4d14-93ac-53fede0eeabf) and start prompting.
+- All changes are automatically committed to this repo.
+
+### 2. **Local Development**
 
 ```sh
-# Step 1: Clone the repository using the project's Git URL.
+# Clone the repository
 git clone <YOUR_GIT_URL>
-
-# Step 2: Navigate to the project directory.
 cd <YOUR_PROJECT_NAME>
 
-# Step 3: Install the necessary dependencies.
-npm i
+# Install dependencies
+npm install
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
+# Start the development server
 npm run dev
 ```
 
-**Edit a file directly in GitHub**
+> **Prerequisite:** Node.js & npm ([install guide](https://github.com/nvm-sh/nvm#installing-and-updating))
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+### 3. **Directly on GitHub**
 
-**Use GitHub Codespaces**
+- Navigate to any file and click the ✏️ "Edit" button to make changes in the browser.
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+### 4. **With GitHub Codespaces**
 
-## What technologies are used for this project?
+- On the repo main page, click **Code → Codespaces** → **New codespace** for a full-featured, cloud-based dev environment.
 
-This project is built with:
+---
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+## 🌍 Deployment
 
-## How can I deploy this project?
+- Open [Lovable](https://lovable.dev/projects/537bfa69-8d92-4d14-93ac-53fede0eeabf)
+- Click `Share → Publish` to go live.
 
-Simply open [Lovable](https://lovable.dev/projects/537bfa69-8d92-4d14-93ac-53fede0eeabf) and click on Share -> Publish.
+---
 
-## Can I connect a custom domain to my Lovable project?
+## 🌐 Custom Domains
 
-Yes, you can!
+You can add a custom domain to your project!
+- Go to **Project > Settings > Domains** and click **Connect Domain**.
+- [Step-by-step guide](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+---
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
+## 🤝 Contributing
+
+We welcome contributions! Please check issues, open pull requests, or discuss new features.
+
+---
+
+## 📣 Contact
+
+- Project lead: [@hlsitechio](https://github.com/hlsitechio)
+- Email: [info@onlinenote.ai](mailto:info@onlinenote.ai)
+- Questions? [Open an issue](https://github.com/hlsitechio/oneai/issues)
+
+---
+
+> **If you love Online Note AI, please ⭐ star the repo and consider sponsoring! Your support helps us grow!**
