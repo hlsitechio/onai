@@ -41,7 +41,7 @@ const SponsorDialog: React.FC<SponsorDialogProps> = ({ open, onOpenChange }) => 
             className="w-full h-full object-contain"
             onError={(e) => {
               const target = e.target as HTMLImageElement;
-              target.src = "https://placehold.co/400x400/black/white?text=QR+Code+Placeholder";
+              target.src = "/assets/qr-code-fallback.png";
             }}
           />
         </div>
@@ -63,9 +63,9 @@ const SponsorDialog: React.FC<SponsorDialogProps> = ({ open, onOpenChange }) => 
         <button 
           type="button"
           className="inline-flex h-10 items-center justify-center rounded-md bg-gradient-to-r from-purple-500 to-indigo-500 hover:from-purple-600 hover:to-indigo-600 px-4 py-2 text-sm font-medium text-white transition-colors focus:outline-none"
-          onClick={() => window.open('https://github.com/sponsors/hlsitechio', '_blank')}
+          onClick={() => window.open('mailto:info@onlinenote.ai?subject=Sponsorship%20Inquiry', '_blank')}
         >
-          Sponsor on GitHub
+          Contact for Sponsorship
         </button>
       </div>
       
