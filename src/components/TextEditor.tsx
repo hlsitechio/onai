@@ -9,7 +9,7 @@ import AIDialog from "./notes/AIDialog";
 import AISidebar from "./notes/AISidebar";
 import { cn } from "@/lib/utils";
 import { useFocusMode } from "@/contexts";
-import { useNoteContent } from "@/hooks/useNoteContent";
+import { useSupabaseNotes } from "@/hooks/useSupabaseNotes";
 
 const TextEditor = () => {
   const { toast } = useToast();
@@ -20,10 +20,27 @@ const TextEditor = () => {
   // Update document data attribute when focus mode changes
   useEffect(() => {
     document.body.setAttribute('data-focus-mode', isFocusMode.toString());
+    
+    // Prevent scrolling in focus mode
+    if (isFocusMode) {
+      document.body.style.overflow = 'hidden';
+      document.documentElement.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+      document.documentElement.style.overflow = '';
+    }
+    
+    // Cleanup on unmount
+    return () => {
+      document.body.style.overflow = '';
+      document.documentElement.style.overflow = '';
+    };
   }, [isFocusMode]);
   
   const editorRef = useRef<HTMLDivElement>(null);
   const [editorHeight, setEditorHeight] = useState<number>(0);
+  
+  // Use Supabase notes hook for proper save functionality
   const { 
     content, 
     setContent, 
@@ -31,10 +48,14 @@ const TextEditor = () => {
     execCommand, 
     handleSave, 
     handleLoadNote,
+    handleDeleteNote,
     isAIDialogOpen,
     toggleAIDialog,
-    setIsAIDialogOpen
-  } = useNoteContent();
+    setIsAIDialogOpen,
+    allNotes,
+    createNewNote,
+    isSupabaseReady
+  } = useSupabaseNotes();
   
   // Update editor height for sidebar matching
   useEffect(() => {
@@ -68,18 +89,38 @@ const TextEditor = () => {
     if (e.ctrlKey && e.key === 's') {
       e.preventDefault();
       handleSave();
-      toast({
-        title: "Note saved",
-        description: "Your note has been saved successfully",
-      });
     }
-  }, [handleSave, toast]);
+    
+    // F11 for focus mode
+    if (e.key === 'F11') {
+      e.preventDefault();
+      toggleFocusMode();
+    }
+    
+    // Ctrl+B for sidebar toggle
+    if (e.ctrlKey && e.key === 'b') {
+      e.preventDefault();
+      toggleLeftSidebar();
+    }
+    
+    // Ctrl+G for AI sidebar
+    if (e.ctrlKey && e.key === 'g') {
+      e.preventDefault();
+      toggleAISidebar();
+    }
+    
+    // Escape to exit focus mode
+    if (e.key === 'Escape' && isFocusMode) {
+      e.preventDefault();
+      setFocusMode(false);
+    }
+  }, [handleSave, isFocusMode]);
   
   // Register the keyboard shortcut effect
   useEffect(() => {
     window.addEventListener('keydown', handleKeyboardShortcut);
     return () => window.removeEventListener('keydown', handleKeyboardShortcut);
-  }, [handleKeyboardShortcut]); // Only depend on the callback itself, which already has dependencies
+  }, [handleKeyboardShortcut]);
   
   // Define regular functions after all hooks
   const toggleLeftSidebar = () => {
@@ -103,55 +144,55 @@ const TextEditor = () => {
     <section id="editor-section" className={cn(
       "pt-0 pb-4 sm:pb-6 px-3 relative transition-all duration-500 min-h-screen w-full overflow-hidden border-0"
     )}>
-      {/* Global overlay that only appears in focus mode */}
+      {/* Enhanced focus mode overlay */}
       {isFocusMode && (
         <>
-          {/* Base background layer with blur effect */}
-          <div className="fixed inset-0 pointer-events-none transition-all duration-500 bg-black/95 backdrop-blur-xl z-10">
-            {/* Animated gradient orbs for visual interest */}
-            <div className="absolute top-1/4 -left-[10%] w-[30%] h-[30%] rounded-full bg-gradient-to-r from-noteflow-900/20 to-noteflow-700/5 blur-[80px] animate-float-slow"></div>
-            <div className="absolute bottom-1/4 -right-[10%] w-[25%] h-[25%] rounded-full bg-gradient-to-l from-noteflow-800/10 to-purple-900/5 blur-[70px] animate-float-medium"></div>
-          </div>
-          
-          {/* Focus mode spotlight effect */}
-          <div className="fixed inset-0 bg-black/95 backdrop-blur-2xl z-20 pointer-events-none">
-            {/* Subtle spotlight effect on the editor in focus mode */}
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[120%] h-[120%] bg-gradient-radial from-noteflow-900/5 to-transparent blur-3xl"></div>
+          {/* Full page blur overlay */}
+          <div className="fixed inset-0 z-[100] pointer-events-none">
+            {/* Black overlay with blur */}
+            <div className="absolute inset-0 bg-black/95 backdrop-blur-2xl"></div>
+            
+            {/* Subtle animated gradients for depth */}
+            <div className="absolute top-1/4 -left-[10%] w-[30%] h-[30%] rounded-full bg-gradient-to-r from-purple-900/20 to-blue-900/10 blur-[100px] animate-pulse"></div>
+            <div className="absolute bottom-1/4 -right-[10%] w-[25%] h-[25%] rounded-full bg-gradient-to-l from-purple-800/15 to-pink-900/10 blur-[80px] animate-pulse"></div>
           </div>
         </>
       )}
       
       <div className={cn(
-        "mx-auto px-1 sm:px-2 md:px-3 max-w-[90%] lg:max-w-[92%] xl:max-w-[94%] relative", // Reduced max width to prevent overflow
-        isFocusMode ? "z-30" : "z-10"
+        "mx-auto px-1 sm:px-2 md:px-3 max-w-[90%] lg:max-w-[92%] xl:max-w-[94%] relative",
+        isFocusMode ? "z-[101]" : "z-10"
       )}>
-        <div className="flex flex-col md:flex-row gap-1 lg:gap-2 justify-center w-full"> {/* Added w-full to contain children */}
-          {/* Left sidebar with notes list - with animation */}
+        <div className="flex flex-col md:flex-row gap-1 lg:gap-2 justify-center w-full">
+          {/* Left sidebar - hidden in focus mode */}
           <div className={cn(
-            "md:w-64 lg:w-72 shrink-0 mb-4 md:mb-0 transition-all duration-300 ease-in-out", // Removed w-full to prevent overflow
-            isLeftSidebarOpen ? "opacity-100" : "opacity-0 max-w-0 md:max-w-0 overflow-hidden"
+            "md:w-64 lg:w-72 shrink-0 mb-4 md:mb-0 transition-all duration-300 ease-in-out",
+            isLeftSidebarOpen && !isFocusMode ? "opacity-100" : "opacity-0 max-w-0 md:max-w-0 overflow-hidden"
           )}>
-            {isLeftSidebarOpen && (
+            {isLeftSidebarOpen && !isFocusMode && (
               <div className="animate-fadeIn">
                 <NotesSidebar 
                   currentContent={content} 
-                  onLoadNote={handleLoadNote} 
+                  onLoadNote={(noteId, noteContent) => handleLoadNote(noteId, noteContent)}
                   onSave={handleSave}
+                  onDeleteNote={handleDeleteNote}
                   editorHeight={editorHeight}
+                  allNotes={allNotes}
+                  onCreateNew={createNewNote}
                 />
               </div>
             )}
           </div>
           
-          {/* The editor with enhanced glassmorphism */}
-          <div className="flex-1 flex flex-col min-w-0 md:min-w-0 lg:min-w-0 xl:min-w-0 max-w-full mx-auto"> {/* Removed specific min-width percentages that were causing overflow */}
+          {/* The editor with enhanced focus mode styling */}
+          <div className="flex-1 flex flex-col min-w-0 md:min-w-0 lg:min-w-0 xl:min-w-0 max-w-full mx-auto">
             <div 
               ref={editorRef}
               className={cn(
                 "rounded-xl overflow-hidden flex flex-col transition-all duration-500",
                 isFocusMode 
-                  ? "shadow-[0_0_60px_rgba(76,29,149,0.25)]" 
-                  : ""
+                  ? "shadow-[0_0_80px_rgba(147,51,234,0.4)] ring-2 ring-purple-500/30 bg-black/80 backdrop-blur-xl" 
+                  : "bg-black/30 backdrop-blur-lg"
               )}
             >
               {/* Toolbar */}
@@ -167,9 +208,13 @@ const TextEditor = () => {
                 toggleFocusMode={toggleFocusMode}
               />
               
-              {/* Editor area with responsive dimensions */}
-              <div className="flex-1 h-[450px] sm:h-[600px] md:h-[700px] lg:h-[800px] xl:h-[900px] 2xl:h-[950px] overflow-hidden relative"> {/* Maximized height with additional breakpoints */}
-                {/* Removed background gradients for seamless design */}
+              {/* Editor area with focus mode sizing */}
+              <div className={cn(
+                "flex-1 overflow-hidden relative transition-all duration-500",
+                isFocusMode 
+                  ? "h-[80vh] max-h-[80vh]" 
+                  : "h-[450px] sm:h-[600px] md:h-[700px] lg:h-[800px] xl:h-[900px] 2xl:h-[950px]"
+              )}>
                 <EditableContent 
                   content={content} 
                   setContent={setContent} 
@@ -178,7 +223,7 @@ const TextEditor = () => {
               </div>
             </div>
             
-            {/* AI Dialog - kept for compatibility but can be hidden by default */}
+            {/* AI Dialog */}
             <AIDialog 
               isOpen={isAIDialogOpen}
               onOpenChange={setIsAIDialogOpen}
@@ -186,16 +231,16 @@ const TextEditor = () => {
               onApplyChanges={setContent}
             />
             
-            {/* Additional space at the bottom */}
-            <div className="h-6"></div>
+            {/* Additional space at the bottom - hidden in focus mode */}
+            {!isFocusMode && <div className="h-6"></div>}
           </div>
           
-          {/* Right sidebar with AI capabilities - with animation */}
+          {/* Right sidebar - hidden in focus mode */}
           <div className={cn(
-            "md:w-64 lg:w-72 shrink-0 mb-4 md:mb-0 transition-all duration-300 ease-in-out", // Removed w-full to prevent overflow
-            isAISidebarOpen ? "opacity-100" : "opacity-0 max-w-0 md:max-w-0 overflow-hidden"
+            "md:w-64 lg:w-72 shrink-0 mb-4 md:mb-0 transition-all duration-300 ease-in-out",
+            isAISidebarOpen && !isFocusMode ? "opacity-100" : "opacity-0 max-w-0 md:max-w-0 overflow-hidden"
           )}>
-            {isAISidebarOpen && (
+            {isAISidebarOpen && !isFocusMode && (
               <div className="animate-fadeIn">
                 <AISidebar
                   content={content}

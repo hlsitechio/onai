@@ -1,8 +1,10 @@
-/* Focus mode styles */
+
+/* Enhanced focus mode styles */
 
 /* Apply when focus mode is active - ensure full black background */
 [data-focus-mode="true"] {
   background-color: black !important;
+  overflow: hidden !important;
 }
 
 /* Make sure html and body are full height and black in focus mode */
@@ -10,7 +12,9 @@
 [data-focus-mode="true"] body {
   background-color: black !important;
   min-height: 100vh !important;
-  overflow-x: hidden;
+  overflow: hidden !important;
+  position: fixed !important;
+  width: 100% !important;
 }
 
 /* Hide elements in focus mode */
@@ -18,6 +22,7 @@
   opacity: 0;
   pointer-events: none;
   transition: opacity 0.5s ease;
+  display: none !important;
 }
 
 /* Apply when focus mode is NOT active */
@@ -25,4 +30,29 @@
   opacity: 1;
   pointer-events: auto;
   transition: opacity 0.5s ease;
+  display: block !important;
+}
+
+/* Ensure the editor panel stays visible and centered in focus mode */
+[data-focus-mode="true"] #editor-section {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  min-height: 100vh !important;
+  background: transparent !important;
+}
+
+/* Prevent any scrolling in focus mode */
+[data-focus-mode="true"] * {
+  scroll-behavior: auto !important;
+}
+
+[data-focus-mode="true"] *::-webkit-scrollbar {
+  display: none !important;
+}
+
+/* Make sure the editor content doesn't overflow in focus mode */
+[data-focus-mode="true"] .editable-content-textarea {
+  max-height: 70vh !important;
+  overflow-y: auto !important;
 }
