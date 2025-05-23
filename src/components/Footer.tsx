@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { Separator } from "./ui/separator";
 import { Mail } from "lucide-react";
@@ -18,11 +19,22 @@ const Footer = () => {
         <div className="h-2"></div>
         
         <div className="mt-2 flex flex-col items-center">
-          <div className="mb-3">
+          <div className="mb-3 flex flex-col items-center space-y-2">
             <p className="text-gray-500 text-xs text-center">
               © {currentYear} Online Note AI. All rights reserved.
             </p>
             <a href="https://onlinenote.ai" className="text-gray-600 text-xs hover:text-noteflow-400 transition-colors block text-center">onlinenote.ai</a>
+            
+            {/* Buy Me a Coffee Button */}
+            <div className="mt-2">
+              <a href="https://www.buymeacoffee.com/onlinenoteai" target="_blank" rel="noopener noreferrer">
+                <img 
+                  src="https://img.buymeacoffee.com/button-api/?text=Buy me! Stay free forever!&emoji=🤑&slug=onlinenoteai&button_colour=213e87&font_colour=ffffff&font_family=Inter&outline_colour=ffffff&coffee_colour=FFDD00" 
+                  alt="Buy Me A Coffee"
+                  className="hover:opacity-80 transition-opacity"
+                />
+              </a>
+            </div>
           </div>
           
           {/* Sitemap links in a horizontal line */}
