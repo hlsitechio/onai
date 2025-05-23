@@ -1,5 +1,3 @@
-
-
 // Console filter to hide tracking and ad-blocking related messages
 // This helps keep the development console clean while preserving important logs
 
@@ -54,7 +52,9 @@ const filterPatterns = [
   'scroll',
   'page_view',
   '⠀⣠⠴⠚⡙⠙⠲⣤', // ASCII art pattern
-  'lovable.dev/careers' // Hiring message
+  'lovable.dev/careers', // Hiring message
+  'was preloaded using link preload but not used within a few seconds',
+  'Please make sure it has an appropriate `as` value'
 ];
 
 // Check if a message should be filtered
@@ -96,4 +96,3 @@ export const disableConsoleFiltering = () => {
 if (import.meta.env.DEV) {
   enableConsoleFiltering();
 }
-
