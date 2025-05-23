@@ -9,16 +9,15 @@ interface AIRequest {
   noteContent: string;
   imageUrl?: string;
   customPrompt?: string;
-  privacyMode?: boolean; // Flag to indicate privacy protections are enabled
+  privacyMode?: boolean;
 }
 
 // Usage tracking for analytics and optimizing the user experience
-// We don't enforce strict limits - users can continue using the service
 const LOCAL_STORAGE_USAGE_KEY = 'oneai_gemini_usage';
-const SOFT_USAGE_THRESHOLD = 100; // Soft threshold for usage notification
+const SOFT_USAGE_THRESHOLD = 100;
 const PRIVACY_ACCEPTED_KEY = 'oneai_privacy_accepted';
 
-// Privacy consent status - users should acknowledge AI limitations
+// Privacy consent status
 export function hasAcceptedPrivacyDisclaimer(): boolean {
   try {
     return localStorage.getItem(PRIVACY_ACCEPTED_KEY) === 'true';
@@ -40,10 +39,10 @@ interface AIResponse {
   error?: string;
 }
 
-// Check if user has high usage - for analytics only, we don't block usage
+// Check if user has high usage
 export function checkHighUsage(): boolean {
   try {
-    const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
+    const today = new Date().toISOString().split('T')[0];
     const usageData = localStorage.getItem(LOCAL_STORAGE_USAGE_KEY);
     let usage: Record<string, number> = {};
     
@@ -51,18 +50,16 @@ export function checkHighUsage(): boolean {
       usage = JSON.parse(usageData);
     }
     
-    // Clean up old dates (reset counters daily)
+    // Clean up old dates
     Object.keys(usage).forEach(date => {
       if (date !== today) {
         delete usage[date];
       }
     });
     
-    // Check today's usage - return true if usage is below threshold
     const todayCount = usage[today] || 0;
     return todayCount < SOFT_USAGE_THRESHOLD;
   } catch (e) {
-    // If localStorage fails, default to allow
     console.warn('Failed to check usage', e);
     return true;
   }
@@ -95,75 +92,67 @@ export async function callGeminiAI(
   customPrompt?: string
 ): Promise<string> {
   try {
-    // Validate inputs first
-    if (!noteContent && !imageUrl) {
-      console.warn('Empty content for AI processing');
+    console.log('Calling Gemini AI with:', { requestType, prompt: prompt.substring(0, 50) + '...', hasImage: !!imageUrl });
+    
+    // Validate inputs
+    if (!prompt && !customPrompt) {
+      throw new Error('No prompt provided');
     }
     
-    // No strict rate limiting, just tracking usage
-    const isHighUsage = !checkHighUsage();
-    
-    // Add privacy disclaimer to the prompt to ensure Gemini knows our privacy policy
-    const privacyPrefix = "IMPORTANT: The following request is being made in accordance with our privacy policy. " +
-                         "User content should not be retained longer than necessary to fulfill this request. " +
-                         "No user data should be used for AI training.\n\n";
-    
-    // Only log high usage, but don't block any requests
-    if (isHighUsage) {
-      console.warn('High usage detected, but continuing to serve the user');
+    if (!requestType) {
+      throw new Error('Request type is required');
     }
+
+    // Privacy disclaimer prefix
+    const privacyPrefix = "IMPORTANT: This request follows our privacy policy. User content should not be retained or used for training.\n\n";
     
-    // Prepare request payload with privacy disclaimer
+    // Prepare request payload
     const requestBody: AIRequest = {
-      prompt: privacyPrefix + prompt,
+      prompt: privacyPrefix + (customPrompt || prompt),
       requestType,
-      noteContent,
+      noteContent: noteContent || "",
       imageUrl,
       customPrompt,
-      privacyMode: true // Signal to backend that privacy protections are enabled
+      privacyMode: true
     };
 
-    // Call the Supabase Edge Function with better error handling
-    try {
-      const { data, error } = await supabase.functions.invoke('gemini-ai', {
-        body: JSON.stringify(requestBody),
-      });
-      
-      // Only increment counter on successful request
-      if (!error) {
-        incrementUsageCounter();
-      }
-  
-      if (error) {
-        // Check if error is related to CSP
-        const isCspError = error.message?.includes('Content Security Policy') || 
-                         error.message?.includes('Failed to fetch') ||
-                         error.message?.includes('NetworkError');
-                         
-        console.error('Supabase function error:', error);
-        
-        if (isCspError) {
-          console.warn('Content Security Policy blocked the Supabase function call');
-          return "I'm sorry, but I can't access the AI service due to security restrictions. This is expected in development mode.";
-        }
-        
-        throw new Error(`Edge function error: ${error.message || 'Unknown error occurred'}`);
-      }
-      
-      // Handle missing data
-      if (!data) {
-        throw new Error('No data received from AI service');
-      }
-      
-      return processAIResponse(data as AIResponse);
-    } catch (supabaseError) {
-      console.error('Supabase invoke error:', supabaseError);
-      throw new Error(`Failed to call AI service: ${supabaseError.message || 'Connection error'}`);
+    console.log('Sending request to Supabase function:', requestBody);
+
+    // Call the Supabase Edge Function
+    const { data, error } = await supabase.functions.invoke('gemini-ai', {
+      body: JSON.stringify(requestBody),
+    });
+    
+    console.log('Supabase function response:', { data, error });
+
+    if (error) {
+      console.error('Supabase function error:', error);
+      throw new Error(`AI service error: ${error.message || 'Unknown error occurred'}`);
     }
+    
+    if (!data) {
+      throw new Error('No data received from AI service');
+    }
+    
+    // Increment usage counter on success
+    incrementUsageCounter();
+    
+    return processAIResponse(data as AIResponse);
 
   } catch (error) {
     console.error('Error calling Gemini AI:', error);
-    // Return a user-friendly error instead of throwing
+    
+    // Return more specific error messages
+    if (error instanceof Error) {
+      if (error.message.includes('Failed to fetch') || error.message.includes('NetworkError')) {
+        return "I'm having trouble connecting to the AI service. Please check your internet connection and try again.";
+      }
+      if (error.message.includes('Content Security Policy')) {
+        return "The AI service is temporarily unavailable due to security restrictions. Please try again later.";
+      }
+      return `AI processing failed: ${error.message}`;
+    }
+    
     return "I'm sorry, I couldn't process your request right now. Please try again later.";
   }
 }
@@ -172,12 +161,12 @@ export async function callGeminiAI(
 function processAIResponse(response: AIResponse): string {
   if (response.error) {
     console.error(`AI processing error: ${response.error}`);
-    return "I'm sorry, there was an error processing your request. Please try again.";
+    throw new Error(response.error);
   }
   
   if (!response.result) {
     console.error('No valid response received from AI');
-    return "I couldn't generate a valid response. Please try a different prompt.";
+    throw new Error('No valid response received from AI');
   }
   
   return response.result;
@@ -189,23 +178,17 @@ export const analyzeNote = async (
   imageUrl?: string, 
   customPrompt?: string
 ): Promise<string> => {
-  // Use custom prompt if provided, otherwise use default
-  const prompt = customPrompt || `Analyze the following ${imageUrl ? 'content/image' : 'note'} and provide a concise summary, key points, and improvement suggestions:
-  
-  ${content ? `Content:\n${content}` : ''}
-  
-  Format your response as:
-  
-  SUMMARY:
-  [A brief summary]
-  
-  KEY POINTS:
-  - [Key point 1]
-  - [Key point 2]
-  
-  SUGGESTIONS:
-  - [Suggestion 1]
-  - [Suggestion 2]`;
+  const prompt = customPrompt || `Analyze the following ${imageUrl ? 'content and image' : 'note'} and provide insights:
+
+${content ? `Content:\n${content}` : ''}
+
+Please provide:
+1. SUMMARY: A brief overview
+2. KEY POINTS: Main takeaways (bullet points)
+3. SUGGESTIONS: Recommendations for improvement
+4. INSIGHTS: Additional observations
+
+Format your response clearly with headers.`;
   
   return callGeminiAI(prompt, content, 'analyze', imageUrl, customPrompt);
 };
@@ -215,11 +198,17 @@ export const generateIdeas = async (
   imageUrl?: string, 
   customPrompt?: string
 ): Promise<string> => {
-  const prompt = customPrompt || `Based on the following ${imageUrl ? 'content/image' : 'note'}, generate related ideas and thoughts that might help expand on this topic:
-  
-  ${content ? `Content:\n${content}` : ''}
-  
-  Provide 5 interesting ideas or thoughts that relate to this content.`;
+  const prompt = customPrompt || `Based on the following ${imageUrl ? 'content and image' : 'note'}, generate creative ideas and suggestions:
+
+${content ? `Content:\n${content}` : ''}
+
+Please provide:
+- 5-7 related ideas or concepts
+- Potential directions to explore
+- Creative connections and associations
+- Actionable next steps
+
+Be creative and think outside the box while staying relevant to the content.`;
   
   return callGeminiAI(prompt, content, 'ideas', imageUrl, customPrompt);
 };
@@ -229,11 +218,17 @@ export const improveWriting = async (
   imageUrl?: string, 
   customPrompt?: string
 ): Promise<string> => {
-  const prompt = customPrompt || `Improve the writing quality of the following ${imageUrl ? 'content based on the image' : 'note'} while preserving its meaning:
-  
-  ${content ? `Content:\n${content}` : ''}
-  
-  Focus on clarity, conciseness, and professional tone. Return only the improved text.`;
+  const prompt = customPrompt || `Improve the writing quality of the following ${imageUrl ? 'content (consider the image context)' : 'text'}:
+
+${content ? `Content:\n${content}` : ''}
+
+Please:
+- Enhance clarity and readability
+- Improve grammar and style
+- Maintain the original meaning and tone
+- Make it more engaging and professional
+
+Return the improved version of the text.`;
   
   return callGeminiAI(prompt, content, 'improve_writing', imageUrl, customPrompt);
 };
@@ -244,11 +239,17 @@ export const translateNote = async (
   imageUrl?: string, 
   customPrompt?: string
 ): Promise<string> => {
-  const prompt = customPrompt || `Translate the following ${imageUrl ? 'content from the image' : 'text'} to ${targetLanguage}:
-  
-  ${content ? `Content:\n${content}` : ''}
-  
-  Return only the translated text.`;
+  const prompt = customPrompt || `Translate the following ${imageUrl ? 'content (consider image context)' : 'text'} to ${targetLanguage}:
+
+${content ? `Content:\n${content}` : ''}
+
+Requirements:
+- Maintain the original meaning and context
+- Use natural, fluent ${targetLanguage}
+- Preserve formatting where possible
+- Keep technical terms accurate
+
+Provide only the translated text.`;
   
   return callGeminiAI(prompt, content, 'translate', imageUrl, customPrompt);
 };
@@ -258,16 +259,22 @@ export const summarizeText = async (
   imageUrl?: string, 
   customPrompt?: string
 ): Promise<string> => {
-  const prompt = customPrompt || `Summarize the following ${imageUrl ? 'content from the image' : 'text'} into a concise version that captures the key points:
-  
-  ${content ? `Content:\n${content}` : ''}
-  
-  Make the summary about 25% of the original length. Return only the summarized text.`;
+  const prompt = customPrompt || `Summarize the following ${imageUrl ? 'content and image' : 'text'} into a concise version:
+
+${content ? `Content:\n${content}` : ''}
+
+Please create:
+- A clear, concise summary (about 25% of original length)
+- Capture all key points and main ideas
+- Maintain important details
+- Use clear, accessible language
+
+Provide only the summarized text.`;
   
   return callGeminiAI(prompt, content, 'summarize', imageUrl, customPrompt);
 };
 
-// Get usage statistics for display to the user - we don't limit usage but still show stats
+// Get usage statistics
 export function getUsageStats(): { used: number; limit: number; percent: number } {
   try {
     const today = new Date().toISOString().split('T')[0];
@@ -279,9 +286,7 @@ export function getUsageStats(): { used: number; limit: number; percent: number 
     }
     
     const used = usage[today] || 0;
-    // We show a higher limit to communicate that we're generous with usage
-    // There's no hard limit, but we still want to show a progress indicator
-    const displayLimit = 500; // Show a very generous limit
+    const displayLimit = 500;
     const percent = Math.min(100, Math.round((used / displayLimit) * 100));
     
     return { used, limit: displayLimit, percent };
@@ -291,7 +296,7 @@ export function getUsageStats(): { used: number; limit: number; percent: number 
   }
 }
 
-// AI disclaimer text for various components
+// AI disclaimer text
 export const AI_DISCLAIMERS = {
   general: "AI technology may produce inaccurate information. Review all outputs carefully.",
   images: "AI image analysis may miss important details or misinterpret visual content.",
