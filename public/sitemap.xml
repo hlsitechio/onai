@@ -1,3 +1,4 @@
+
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -10,7 +11,7 @@
   <!-- Homepage -->
   <url>
     <loc>https://onlinenote.ai/</loc>
-    <lastmod>2025-05-22T12:42:28-04:00</lastmod>
+    <lastmod>2025-05-23T12:42:28-04:00</lastmod>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
     <mobile:mobile/>
@@ -99,6 +100,19 @@
     <image:image>
       <image:loc>https://onlinenote.ai/free-note-app-image.jpg</image:loc>
       <image:title>Free Note Taking App - No Login Required</image:title>
+    </image:image>
+  </url>
+  
+  <!-- Buy Me a Coffee Support Page -->
+  <url>
+    <loc>https://www.buymeacoffee.com/onlinenoteai</loc>
+    <lastmod>2025-05-23T12:45:58-04:00</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+    <mobile:mobile/>
+    <image:image>
+      <image:loc>https://onlinenote.ai/support-image.jpg</image:loc>
+      <image:title>Support Online Note AI - Keep it Free Forever</image:title>
     </image:image>
   </url>
   
