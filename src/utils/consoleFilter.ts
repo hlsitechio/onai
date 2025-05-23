@@ -1,4 +1,5 @@
 
+
 // Console filter to hide tracking and ad-blocking related messages
 // This helps keep the development console clean while preserving important logs
 
@@ -35,6 +36,8 @@ const filterPatterns = [
   'We\'re hiring! https://lovable.dev/careers', // ASCII art + hiring message
   'Unrecognized feature: \'vr\'',
   'Unrecognized feature: \'battery\'',
+  'Unrecognized feature: "vr"',
+  'Unrecognized feature: "battery"',
   'Tracking Prevention blocked a Script resource',
   'Tracking Prevention blocked an Image resource',
   'Tracking Prevention blocked an IFrame resource',
@@ -49,7 +52,9 @@ const filterPatterns = [
   'form_start',
   'form_submit',
   'scroll',
-  'page_view'
+  'page_view',
+  '⠀⣠⠴⠚⡙⠙⠲⣤', // ASCII art pattern
+  'lovable.dev/careers' // Hiring message
 ];
 
 // Check if a message should be filtered
@@ -91,3 +96,4 @@ export const disableConsoleFiltering = () => {
 if (import.meta.env.DEV) {
   enableConsoleFiltering();
 }
+
