@@ -1,3 +1,4 @@
+
 // Console filter to hide tracking and ad-blocking related messages
 // This helps keep the development console clean while preserving important logs
 
@@ -30,7 +31,25 @@ const filterPatterns = [
   'fbevents',
   'was preloaded using link preload but not used',
   'The resource https://www.facebook.com',
-  'pagead/viewthroughconversion'
+  'pagead/viewthroughconversion',
+  'We\'re hiring! https://lovable.dev/careers', // ASCII art + hiring message
+  'Unrecognized feature: \'vr\'',
+  'Unrecognized feature: \'battery\'',
+  'Tracking Prevention blocked a Script resource',
+  'Tracking Prevention blocked an Image resource',
+  'Tracking Prevention blocked an IFrame resource',
+  'Tracking Prevention blocked an XHR request',
+  'Tracking Prevention blocked access to storage',
+  'Images loaded lazily and replaced with placeholders',
+  'go.microsoft.com/fwlink/?linkid=2048113',
+  'AdSense: window.adsbygoogle is not defined',
+  'The resource <URL> was preloaded using link preload',
+  'pagead2.googlesyndication.com',
+  'connect.facebook.net',
+  'form_start',
+  'form_submit',
+  'scroll',
+  'page_view'
 ];
 
 // Check if a message should be filtered
