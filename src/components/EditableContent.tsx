@@ -1,6 +1,8 @@
+
 import React, { useRef, useEffect, useState } from "react";
 import { marked } from "marked";
 import { cn } from "@/lib/utils";
+import SpeechToTextButton from "./SpeechToTextButton";
 
 interface EditableContentProps {
   content: string;
@@ -11,6 +13,7 @@ interface EditableContentProps {
 const EditableContent: React.FC<EditableContentProps> = ({ content, setContent, isFocusMode = false }) => {
   // Always in editing mode since Preview button is removed
   const [rawContent, setRawContent] = useState(content);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   // Update rawContent when content prop changes
   useEffect(() => {
@@ -42,6 +45,32 @@ const EditableContent: React.FC<EditableContentProps> = ({ content, setContent, 
     }
   };
 
+  // Handle speech-to-text transcript
+  const handleSpeechTranscript = (transcript: string) => {
+    if (!transcript.trim()) return;
+
+    const textarea = textareaRef.current;
+    if (textarea) {
+      const cursorPosition = textarea.selectionStart;
+      const textBefore = rawContent.substring(0, cursorPosition);
+      const textAfter = rawContent.substring(cursorPosition);
+      
+      // Add a space before the transcript if needed
+      const needsSpace = textBefore.length > 0 && !textBefore.endsWith(' ') && !textBefore.endsWith('\n');
+      const newContent = textBefore + (needsSpace ? ' ' : '') + transcript + textAfter;
+      
+      setRawContent(newContent);
+      setContent(newContent);
+      
+      // Set cursor position after the inserted text
+      setTimeout(() => {
+        const newPosition = cursorPosition + (needsSpace ? 1 : 0) + transcript.length;
+        textarea.focus();
+        textarea.setSelectionRange(newPosition, newPosition);
+      }, 0);
+    }
+  };
+
   // Use a textarea to ensure proper text direction and editing
   return (
     <div className="relative h-full w-full mx-auto">
@@ -49,9 +78,19 @@ const EditableContent: React.FC<EditableContentProps> = ({ content, setContent, 
       {isFocusMode && (
         <div className="absolute inset-0 bg-gradient-spotlight from-purple-900/20 via-noteflow-800/10 to-transparent -m-3 rounded-2xl blur-2xl opacity-80 pointer-events-none"></div>
       )}
+      
+      {/* Speech-to-text button */}
+      <div className="absolute top-3 right-3 z-10">
+        <SpeechToTextButton 
+          onTranscript={handleSpeechTranscript}
+          className="shadow-lg"
+        />
+      </div>
+      
       <textarea 
+        ref={textareaRef}
         className={cn(
-          "min-h-[550px] w-full h-full p-3 md:p-4 outline-none font-sans text-white overflow-auto resize-none transition-all duration-300 max-w-full mx-auto editable-content-textarea",
+          "min-h-[550px] w-full h-full p-3 md:p-4 pr-16 outline-none font-sans text-white overflow-auto resize-none transition-all duration-300 max-w-full mx-auto editable-content-textarea",
           isFocusMode 
             ? "bg-black/50 backdrop-blur-xl shadow-note-glow border border-purple-800/20 z-10" 
             : "bg-black/30 backdrop-blur-lg border border-white/10"
@@ -76,7 +115,7 @@ const EditableContent: React.FC<EditableContentProps> = ({ content, setContent, 
           setRawContent(newContent);
           setContent(newContent);
         }}
-        placeholder="Start typing your note here..."
+        placeholder="Start typing your note here... or click the microphone to speak"
       />
       
       {/* Preview/Edit button removed as requested */}
