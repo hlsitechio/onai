@@ -58,7 +58,7 @@ const KeyboardShortcuts: React.FC<KeyboardShortcutsProps> = ({ isOpen, onOpenCha
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl bg-gradient-to-b from-black/90 to-black/80 backdrop-blur-xl border border-white/10 text-white max-h-[80vh] overflow-y-auto">
+      <DialogContent className="max-w-2xl bg-gradient-to-b from-black/95 to-black/90 backdrop-blur-xl border border-white/20 text-white max-h-[85vh] overflow-y-auto fixed top-[50%] left-[50%] transform -translate-x-1/2 -translate-y-1/2 z-[9999] shadow-2xl">
         <DialogHeader>
           <DialogTitle className="text-xl font-semibold text-white flex items-center gap-2">
             <Keyboard className="h-5 w-5 text-noteflow-400" />
