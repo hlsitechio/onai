@@ -24,7 +24,7 @@ const corsHeaders = {
 };
 
 // Gemini API configuration
-const GEMINI_MODEL = 'models/gemini-2.5-flash-preview-05-20';
+const GEMINI_MODEL = 'models/gemini-2.5-flash-preview-05-20'; // Using the latest available model
 const GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta';
 const GEMINI_API_KEY = getEnv('GEMINI_API_KEY');
 
@@ -72,9 +72,39 @@ serve(async (req) => {
   }
 
   try {
+    if (!GEMINI_API_KEY) {
+      console.error('GEMINI_API_KEY is not set in environment variables');
+      return new Response(
+        JSON.stringify({ 
+          error: 'Gemini API key is not configured. Please set the GEMINI_API_KEY in Supabase Edge Function Secrets.' 
+        }),
+        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
     // Parse request body
-    const { prompt, requestType, noteContent, imageUrl } = await req.json();
+    const requestBody = await req.json().catch(e => {
+      console.error('Error parsing request JSON:', e);
+      throw new Error('Invalid JSON in request body');
+    });
     
+    // Validate request structure
+    const { prompt, requestType, noteContent, imageUrl } = requestBody;
+    
+    if (!prompt) {
+      return new Response(
+        JSON.stringify({ error: 'Missing required parameter: prompt' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+    
+    if (!requestType) {
+      return new Response(
+        JSON.stringify({ error: 'Missing required parameter: requestType' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
     // Get client IP for rate limiting
     const clientIp = req.headers.get('x-forwarded-for') || 'unknown';
     
@@ -98,8 +128,27 @@ serve(async (req) => {
     }
     
     // Add image if URL is provided
-    if (imageUrl && typeof imageUrl === 'string' && imageUrl.startsWith('http')) {
+    if (imageUrl && typeof imageUrl === 'string' && imageUrl.startsWith('data:image/')) {
       try {
+        // Handle base64 image data directly
+        const mimeType = imageUrl.match(/^data:([^;]+);base64,/)?.[1] || 'image/jpeg';
+        const base64Image = imageUrl.replace(/^data:[^;]+;base64,/, '');
+        
+        requestParts.push({
+          inline_data: {
+            mime_type: mimeType,
+            data: base64Image
+          }
+        });
+        
+        console.log('Successfully processed image data from client');
+      } catch (error) {
+        console.warn('Failed to process image data:', error);
+        // Continue without the image
+      }
+    } else if (imageUrl && typeof imageUrl === 'string' && imageUrl.startsWith('http')) {
+      try {
+        console.log(`Fetching image from URL: ${imageUrl.substring(0, 50)}...`);
         const imageResponse = await fetch(imageUrl);
         if (imageResponse.ok) {
           const imageBuffer = await imageResponse.arrayBuffer();
@@ -110,11 +159,16 @@ serve(async (req) => {
               data: base64Image
             }
           });
+          console.log('Successfully fetched and encoded external image');
+        } else {
+          console.warn(`Failed to fetch image, status: ${imageResponse.status}`);
         }
       } catch (error) {
         console.warn('Failed to fetch image:', error);
         // Continue without the image
       }
+    } else if (imageUrl) {
+      console.warn(`Invalid image URL format: ${typeof imageUrl === 'string' ? imageUrl.substring(0, 30) : typeof imageUrl}`);
     }
     
 // Define types at the file level for Gemini API parts and content
@@ -188,8 +242,11 @@ interface GeminiRequestBody {
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 15000); // 15 second timeout
       
+      const apiUrl = `${GEMINI_API_URL}/${GEMINI_MODEL}:generateContent?key=${GEMINI_API_KEY}`;
+      console.log(`Making request to: ${GEMINI_API_URL}/${GEMINI_MODEL}:generateContent`);
+      
       response = await fetch(
-        `${GEMINI_API_URL}/${GEMINI_MODEL}:generateContent?key=${GEMINI_API_KEY}`,
+        apiUrl,
         {
           method: 'POST',
           headers: {
@@ -205,13 +262,22 @@ interface GeminiRequestBody {
       if (!response.ok) {
         const errorData = await response.text();
         console.error(`Gemini API error: ${response.status}`, errorData);
-        throw new Error(`Gemini API error: ${response.status} - ${errorData}`);
+        return new Response(
+          JSON.stringify({ error: `Error from Gemini API: ${response.status} - ${errorData}` }),
+          { status: response.status, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
       }
       
       console.log('Gemini API response received successfully');
     } catch (apiError) {
       console.error('Error calling Gemini API:', apiError);
-      throw new Error(`Error calling Gemini API: ${apiError instanceof Error ? apiError.message : 'Unknown error'}`); 
+      return new Response(
+        JSON.stringify({ 
+          error: `Error calling Gemini API: ${apiError instanceof Error ? apiError.message : 'Unknown error'}`,
+          details: apiError instanceof Error ? apiError.stack : undefined
+        }),
+        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
     }
     
     if (!response) {
@@ -266,7 +332,10 @@ interface GeminiRequestBody {
     }
 
     if (!result) {
-      throw new Error('No valid response from Gemini API');
+      return new Response(
+        JSON.stringify({ error: 'No valid response from Gemini API' }),
+        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
     }
 
     // Return successful response
@@ -278,7 +347,10 @@ interface GeminiRequestBody {
     // Log and return error
     console.error('Error in gemini-ai function:', error);
     return new Response(
-      JSON.stringify({ error: error.message }),
+      JSON.stringify({ 
+        error: error instanceof Error ? error.message : 'Unknown error in edge function',
+        stack: error instanceof Error ? error.stack : undefined
+      }),
       { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
   }
@@ -311,6 +383,7 @@ function getTemperatureForRequestType(requestType: string): number {
     case 'translate':
       return 0.1; // More literal for translation
     case 'generate_ideas':
+    case 'ideas':
       return 0.7; // More creative for idea generation
     default:
       return 0.4; // Default temperature
