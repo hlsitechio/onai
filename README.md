@@ -16,10 +16,10 @@
 
 ## ✨ Why Online Note AI?
 
-- **AI-Powered Notes:** Generate, summarize, and organize notes with AI assistance.
-- **Cloud Sync:** Access your notes from anywhere, on any device.
-- **Beautiful & Responsive UI:** Built with modern UI libraries for a smooth experience.
-- **Open Source:** Community-driven development and transparency.
+- 🗒️**AI-Powered Notes:** Generate, summarize, and organize notes with AI assistance.
+- ☁️ **Cloud Sync:** Access your notes from anywhere, on any device.
+- 📱**Beautiful & Responsive UI:** Built with modern UI libraries for a smooth experience.
+- 🔓**Open Source:** Community-driven development and transparency.
 
 ---
 
@@ -36,7 +36,7 @@ We welcome contributions! Please check issues, open pull requests, or discuss ne
 
 ---
 
-DEV SEEKING ! 
+DEV SEEKING ! 👨‍💻 👩‍💻 📢
 
 🚀 Looking for a co-worker!
 I’m actively seeking a collaborator to help build and improve this project. 
