@@ -54,6 +54,60 @@ export type Database = {
         }
         Relationships: []
       }
+      notes: {
+        Row: {
+          content: string
+          created_at: string
+          id: string
+          is_encrypted: boolean
+          owner_id: string | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          id: string
+          is_encrypted?: boolean
+          owner_id?: string | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          id?: string
+          is_encrypted?: boolean
+          owner_id?: string | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      shared_notes: {
+        Row: {
+          content: string
+          created_at: string
+          expires_at: string
+          id: string
+          views: number | null
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          expires_at: string
+          id: string
+          views?: number | null
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          expires_at?: string
+          id?: string
+          views?: number | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

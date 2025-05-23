@@ -186,7 +186,7 @@ export function useSupabaseNotes() {
       // Generate a new note ID or use the current one
       const noteId = currentNoteId || uuidv4();
       
-      let result = { success: true };
+      let result = { success: true, error: undefined };
       
       // If Supabase is ready, save there
       if (isSupabaseReady) {
@@ -252,6 +252,7 @@ export function useSupabaseNotes() {
       } else if (shareResult.error) {
         throw new Error(shareResult.error);
       }
+      return null;
     } catch (error) {
       console.error('Error sharing note:', error);
       toast({

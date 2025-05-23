@@ -1,3 +1,4 @@
+
 import { StorageOperationResult } from './notesStorage';
 import { supabase } from '@/integrations/supabase/client';
 import { encryptContent, decryptContent } from './encryptionUtils';
@@ -18,7 +19,7 @@ export interface Note {
 export const initializeSupabaseSchema = async (): Promise<StorageOperationResult> => {
   try {
     // Check if the notes table exists by trying to select from it
-    const { error } = await supabase
+    const { data, error } = await supabase
       .from('notes')
       .select('id')
       .limit(1);
@@ -29,7 +30,6 @@ export const initializeSupabaseSchema = async (): Promise<StorageOperationResult
     }
     
     // If there was an error, it might be because the table doesn't exist
-    // We can create it through the Supabase dashboard or SDK
     console.error("Notes table might not exist:", error);
     
     return { 
@@ -73,7 +73,7 @@ export const saveNoteToSupabase = async (
     };
     
     // Check if the note already exists
-    const { data: existingNote } = await supabase
+    const { data: existingNote, error: checkError } = await supabase
       .from('notes')
       .select('id')
       .eq('id', noteId)
@@ -89,12 +89,14 @@ export const saveNoteToSupabase = async (
         .eq('id', noteId);
     } else {
       // Create new note with additional fields
+      const newNote = {
+        ...note,
+        created_at: new Date().toISOString(),
+      };
+      
       result = await supabase
         .from('notes')
-        .insert({
-          ...note,
-          created_at: new Date().toISOString(),
-        });
+        .insert(newNote);
     }
     
     if (result.error) {
