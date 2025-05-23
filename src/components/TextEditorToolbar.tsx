@@ -1,3 +1,4 @@
+
 import React from "react";
 import { 
   Bold, 
@@ -29,7 +30,7 @@ import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from "@/comp
 import { cn, formatDistanceToNow } from "@/lib/utils";
 
 interface TextEditorToolbarProps {
-  execCommand: (command: string, value: string | null) => void;
+  execCommand: (command: string, value?: string | null) => void;
   handleSave: () => void;
   toggleSidebar: () => void;
   toggleAI: () => void;
@@ -92,7 +93,7 @@ const TextEditorToolbar: React.FC<TextEditorToolbarProps> = ({
         <Button
           variant="ghost"
           size="sm"
-          onClick={() => execCommand('bold')}
+          onClick={() => execCommand('bold', null)}
           className="text-slate-300 hover:text-white hover:bg-white/10 p-1.5 md:p-2"
           title="Bold (Ctrl+B)"
         >
@@ -102,7 +103,7 @@ const TextEditorToolbar: React.FC<TextEditorToolbarProps> = ({
         <Button
           variant="ghost"
           size="sm"
-          onClick={() => execCommand('italic')}
+          onClick={() => execCommand('italic', null)}
           className="text-slate-300 hover:text-white hover:bg-white/10 p-1.5 md:p-2"
           title="Italic (Ctrl+I)"
         >
@@ -112,7 +113,7 @@ const TextEditorToolbar: React.FC<TextEditorToolbarProps> = ({
         <Button
           variant="ghost"
           size="sm"
-          onClick={() => execCommand('underline')}
+          onClick={() => execCommand('underline', null)}
           className="text-slate-300 hover:text-white hover:bg-white/10 p-1.5 md:p-2"
           title="Underline (Ctrl+U)"
         >
@@ -126,7 +127,7 @@ const TextEditorToolbar: React.FC<TextEditorToolbarProps> = ({
           <Button
             variant="ghost"
             size="sm"
-            onClick={() => execCommand('justifyLeft')}
+            onClick={() => execCommand('justifyLeft', null)}
             className="text-slate-300 hover:text-white hover:bg-white/10 p-1.5 md:p-2"
             title="Align Left"
           >
@@ -136,7 +137,7 @@ const TextEditorToolbar: React.FC<TextEditorToolbarProps> = ({
           <Button
             variant="ghost"
             size="sm"
-            onClick={() => execCommand('justifyCenter')}
+            onClick={() => execCommand('justifyCenter', null)}
             className="text-slate-300 hover:text-white hover:bg-white/10 p-1.5 md:p-2"
             title="Align Center"
           >
@@ -146,7 +147,7 @@ const TextEditorToolbar: React.FC<TextEditorToolbarProps> = ({
           <Button
             variant="ghost"
             size="sm"
-            onClick={() => execCommand('justifyRight')}
+            onClick={() => execCommand('justifyRight', null)}
             className="text-slate-300 hover:text-white hover:bg-white/10 p-1.5 md:p-2"
             title="Align Right"
           >
@@ -158,7 +159,7 @@ const TextEditorToolbar: React.FC<TextEditorToolbarProps> = ({
           <Button
             variant="ghost"
             size="sm"
-            onClick={() => execCommand('undo')}
+            onClick={() => execCommand('undo', null)}
             className="text-slate-300 hover:text-white hover:bg-white/10 p-1.5 md:p-2"
             title="Undo (Ctrl+Z)"
           >
@@ -168,7 +169,7 @@ const TextEditorToolbar: React.FC<TextEditorToolbarProps> = ({
           <Button
             variant="ghost"
             size="sm"
-            onClick={() => execCommand('redo')}
+            onClick={() => execCommand('redo', null)}
             className="text-slate-300 hover:text-white hover:bg-white/10 p-1.5 md:p-2"
             title="Redo (Ctrl+Y)"
           >
