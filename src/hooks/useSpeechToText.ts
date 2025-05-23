@@ -22,11 +22,46 @@ export const useSpeechToText = (): UseSpeechToTextReturn => {
   const isSupported = typeof window !== 'undefined' && 
     ('SpeechRecognition' in window || 'webkitSpeechRecognition' in window);
 
+  // Check if device has an available microphone
+  const checkMicrophoneAvailability = async (): Promise<boolean> => {
+    try {
+      const devices = await navigator.mediaDevices.enumerateDevices();
+      const hasMicrophone = devices.some(device => device.kind === 'audioinput');
+      
+      if (!hasMicrophone) {
+        toast({
+          title: "No microphone detected",
+          description: "Please connect a microphone and try again.",
+          variant: "destructive",
+          duration: 5000,
+        });
+        return false;
+      }
+      
+      return true;
+    } catch (error) {
+      console.error('Error checking microphone availability:', error);
+      toast({
+        title: "Microphone check failed",
+        description: "Could not check for available audio devices.",
+        variant: "destructive",
+        duration: 5000,
+      });
+      return false;
+    }
+  };
+
   const requestPermission = useCallback(async (): Promise<boolean> => {
     try {
       console.log('Requesting microphone permission...');
       
-      // First check if permissions API is available
+      // First check if we have a microphone
+      const hasMicrophone = await checkMicrophoneAvailability();
+      if (!hasMicrophone) {
+        return false;
+      }
+      
+      // Check if permissions API is available
       if (navigator.permissions) {
         const permission = await navigator.permissions.query({ name: 'microphone' as PermissionName });
         console.log('Current permission state:', permission.state);
@@ -70,6 +105,10 @@ export const useSpeechToText = (): UseSpeechToTextReturn => {
           case 'NotFoundError':
             title = "No microphone found";
             description = "Please connect a microphone and try again.";
+            break;
+          case 'NotReadableError':
+            title = "Microphone in use";
+            description = "Your microphone may be in use by another application. Please close other applications using your microphone and try again.";
             break;
           case 'NotSupportedError':
             title = "Microphone not supported";

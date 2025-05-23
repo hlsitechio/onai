@@ -1,7 +1,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { Mic, MicOff, AlertCircle, Shield } from 'lucide-react';
+import { Mic, MicOff, AlertCircle, Shield, WifiOff } from 'lucide-react';
 import { useSpeechToText } from '@/hooks/useSpeechToText';
 import { cn } from '@/lib/utils';
 
@@ -26,6 +26,21 @@ const SpeechToTextButton: React.FC<SpeechToTextButtonProps> = ({
 
   const [permissionStatus, setPermissionStatus] = useState<'unknown' | 'granted' | 'denied' | 'prompt'>('unknown');
   const [hasRequestedPermission, setHasRequestedPermission] = useState(false);
+  const [hasConnectivity, setHasConnectivity] = useState<boolean>(navigator.onLine);
+
+  // Check online status
+  useEffect(() => {
+    const handleOnline = () => setHasConnectivity(true);
+    const handleOffline = () => setHasConnectivity(false);
+    
+    window.addEventListener('online', handleOnline);
+    window.addEventListener('offline', handleOffline);
+    
+    return () => {
+      window.removeEventListener('online', handleOnline);
+      window.removeEventListener('offline', handleOffline);
+    };
+  }, []);
 
   // Check permission status on mount
   useEffect(() => {
@@ -66,6 +81,12 @@ const SpeechToTextButton: React.FC<SpeechToTextButtonProps> = ({
       return;
     }
 
+    // Check for internet connection
+    if (!hasConnectivity) {
+      console.log('No internet connection, cannot start speech recognition');
+      return;
+    }
+
     console.log('Starting speech recognition from button click...');
     console.log('Current permission status:', permissionStatus);
 
@@ -99,6 +120,23 @@ const SpeechToTextButton: React.FC<SpeechToTextButtonProps> = ({
         title="Speech recognition not supported in this browser"
       >
         <AlertCircle className="h-4 w-4" />
+      </Button>
+    );
+  }
+
+  if (!hasConnectivity) {
+    return (
+      <Button
+        variant="ghost"
+        size="icon"
+        disabled
+        className={cn(
+          "transition-all duration-200 rounded-md border border-white/5 text-gray-500",
+          className
+        )}
+        title="Voice input requires internet connection"
+      >
+        <WifiOff className="h-4 w-4" />
       </Button>
     );
   }
