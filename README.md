@@ -5,23 +5,13 @@
 [![Website](https://img.shields.io/badge/Visit-onlinenote.ai-2ea44f?style=for-the-badge&logo=google-chrome)](https://onlinenote.ai)
 [![Lovable Project](https://img.shields.io/badge/Powered%20by-Lovable-blueviolet?style=for-the-badge)](https://lovable.dev/projects/537bfa69-8d92-4d14-93ac-53fede0eeabf)
 [![Sponsor](https://img.shields.io/badge/Sponsor%20us-❤-red?style=for-the-badge)](https://github.com/sponsors/hlsitechio)
-
-![2onlinenote](https://github.com/user-attachments/assets/8aa07f32-e2d6-4868-a45d-bbeb5dbddfd2)
-
+[![Star](https://img.shields.io/github/stars/hlsitechio/onai?style=social)](https://github.com/hlsitechio/onai/stargazers)
 ---
 
 **Online Note AI** is a modern, AI-powered note-taking web app designed for productivity, collaboration, and security. Take notes, organize your thoughts, and leverage AI—all in one place.
 
 🌐 **Website**: [onlinenote.ai](https://onlinenote.ai)  
 🔗 **Lovable Project**: [Project Dashboard](https://lovable.dev/projects/537bfa69-8d92-4d14-93ac-53fede0eeabf)
-
----
-
-## 📱 Quick Access
-
-Scan the QR code to visit the project instantly:
-
-
 ---
 
 ## ✨ Why Online Note AI?
@@ -38,6 +28,18 @@ Scan the QR code to visit the project instantly:
 Help us keep Online Note AI free and improve it for everyone!  
 **Become a sponsor and get your logo featured here, early access to new features, and a say in the roadmap.**  
 [👉 Sponsor us on GitHub](https://github.com/sponsors/hlsitechio)
+---
+
+## 🤝 Contributing
+
+We welcome contributions! Please check issues, open pull requests, or discuss new features.
+
+---
+
+DEV SEEKING ! 
+
+🚀 Looking for a co-worker!
+I’m actively seeking a collaborator to help build and improve this project. 
 
 ---
 
@@ -49,25 +51,20 @@ Help us keep Online Note AI free and improve it for everyone!
 - 🎨 [shadcn-ui](https://ui.shadcn.com/)
 - 💨 [Tailwind CSS](https://tailwindcss.com/)
 - 🟩 [Supabase](https://supabase.com/) (for database & authentication)
-
+  
 ---
 
 ## 🚀 Getting Started
 
-### 1. **Edit via Lovable**
-
-- Visit your [Lovable Project](https://lovable.dev/projects/537bfa69-8d92-4d14-93ac-53fede0eeabf) and start prompting.
-- All changes are automatically committed to this repo.
+## 🌍 Deployment
 
 ### 2. **Local Development**
 
 ```sh
-# Clone the repository
-git clone <YOUR_GIT_URL>
-cd <YOUR_PROJECT_NAME>
-
-# Install dependencies
-npm install
+create a folder
+Open CMD  directly into your new folder with the name onai
+# Clone the repository  sur git clone https://github.com/hlsitechio/onai.git 
+Be careful when cloning you need to cd into the right folder after 
 
 # Start the development server
 npm run dev
@@ -83,28 +80,7 @@ npm run dev
 
 - On the repo main page, click **Code → Codespaces** → **New codespace** for a full-featured, cloud-based dev environment.
 
----
 
-## 🌍 Deployment
-
-- Open [Lovable](https://lovable.dev/projects/537bfa69-8d92-4d14-93ac-53fede0eeabf)
-- Click `Share → Publish` to go live.
-
----
-
-## 🌐 Custom Domains
-
-You can add a custom domain to your project!
-- Go to **Project > Settings > Domains** and click **Connect Domain**.
-- [Step-by-step guide](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
-
----
-
-## 🤝 Contributing
-
-We welcome contributions! Please check issues, open pull requests, or discuss new features.
-
----
 
 ## 📣 Contact
 
@@ -113,6 +89,10 @@ We welcome contributions! Please check issues, open pull requests, or discuss ne
 - Questions? [Open an issue](https://github.com/hlsitechio/oneai/issues)
 
 ---
+
+## 📱 Quick Access
+
+Scan the QR code to visit the project instantly:
 
 <img src="https://github.com/user-attachments/assets/3dcc9c05-4aef-49dc-86a8-5dc5ce45b796" alt="frame" width="200"/>
 
@@ -123,3 +103,4 @@ We welcome contributions! Please check issues, open pull requests, or discuss ne
 ---
 
 > **If you love Online Note AI, please ⭐ star the repo and consider sponsoring! Your support helps us grow!**
+> 
