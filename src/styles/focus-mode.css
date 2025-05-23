@@ -17,29 +17,54 @@
   width: 100% !important;
 }
 
-/* Hide elements in focus mode */
+/* Hide and blur all sections except the editor in focus mode */
 [data-focus-mode="true"] .blur-in-focus-mode {
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 0.5s ease;
+  opacity: 0 !important;
+  pointer-events: none !important;
+  transition: opacity 0.5s ease !important;
   display: none !important;
+  filter: blur(20px) !important;
+  background-color: black !important;
 }
 
 /* Apply when focus mode is NOT active */
 [data-focus-mode="false"] .blur-in-focus-mode {
-  opacity: 1;
-  pointer-events: auto;
-  transition: opacity 0.5s ease;
+  opacity: 1 !important;
+  pointer-events: auto !important;
+  transition: opacity 0.5s ease !important;
   display: block !important;
+  filter: none !important;
+  background-color: transparent !important;
 }
 
-/* Ensure the editor panel stays visible and centered in focus mode */
+/* Ensure the editor section stays visible and centered in focus mode */
 [data-focus-mode="true"] #editor-section {
   display: flex !important;
   align-items: center !important;
   justify-content: center !important;
   min-height: 100vh !important;
-  background: transparent !important;
+  background: black !important;
+  position: relative !important;
+  z-index: 1000 !important;
+}
+
+/* Create a strong black overlay behind everything in focus mode */
+[data-focus-mode="true"]::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: black;
+  z-index: 1;
+  pointer-events: none;
+}
+
+/* Ensure editor content is above the overlay */
+[data-focus-mode="true"] #editor-section > * {
+  position: relative;
+  z-index: 1001;
 }
 
 /* Prevent any scrolling in focus mode */
@@ -55,4 +80,16 @@
 [data-focus-mode="true"] .editable-content-textarea {
   max-height: 70vh !important;
   overflow-y: auto !important;
+}
+
+/* Additional black background coverage */
+[data-focus-mode="true"] body::after {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: black;
+  z-index: -1;
 }

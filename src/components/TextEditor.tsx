@@ -1,4 +1,3 @@
-
 import React, { useState, useRef, useEffect, useCallback } from "react";
 import { useToast } from "@/hooks/use-toast";
 import NotesSidebar from "./NotesSidebar";
@@ -19,21 +18,35 @@ const TextEditor = () => {
   
   // Update document data attribute when focus mode changes
   useEffect(() => {
+    // Set focus mode on both body and document element for maximum coverage
     document.body.setAttribute('data-focus-mode', isFocusMode.toString());
+    document.documentElement.setAttribute('data-focus-mode', isFocusMode.toString());
     
     // Prevent scrolling in focus mode
     if (isFocusMode) {
       document.body.style.overflow = 'hidden';
       document.documentElement.style.overflow = 'hidden';
+      document.body.style.position = 'fixed';
+      document.body.style.width = '100%';
+      document.body.style.height = '100%';
+      document.body.style.backgroundColor = 'black';
     } else {
       document.body.style.overflow = '';
       document.documentElement.style.overflow = '';
+      document.body.style.position = '';
+      document.body.style.width = '';
+      document.body.style.height = '';
+      document.body.style.backgroundColor = '';
     }
     
     // Cleanup on unmount
     return () => {
       document.body.style.overflow = '';
       document.documentElement.style.overflow = '';
+      document.body.style.position = '';
+      document.body.style.width = '';
+      document.body.style.height = '';
+      document.body.style.backgroundColor = '';
     };
   }, [isFocusMode]);
   
@@ -149,13 +162,16 @@ const TextEditor = () => {
     <section id="editor-section" className={cn(
       "pt-0 pb-4 sm:pb-6 px-3 relative transition-all duration-500 min-h-screen w-full overflow-hidden border-0"
     )}>
-      {/* Enhanced focus mode overlay */}
+      {/* Enhanced focus mode overlay with stronger black coverage */}
       {isFocusMode && (
         <>
-          {/* Full page blur overlay */}
+          {/* Full page black overlay */}
           <div className="fixed inset-0 z-[100] pointer-events-none">
-            {/* Black overlay with blur */}
-            <div className="absolute inset-0 bg-black/95 backdrop-blur-2xl"></div>
+            {/* Solid black overlay */}
+            <div className="absolute inset-0 bg-black"></div>
+            
+            {/* Additional blur overlay for any remaining content */}
+            <div className="absolute inset-0 bg-black/98 backdrop-blur-3xl"></div>
             
             {/* Subtle animated gradients for depth */}
             <div className="absolute top-1/4 -left-[10%] w-[30%] h-[30%] rounded-full bg-gradient-to-r from-purple-900/20 to-blue-900/10 blur-[100px] animate-pulse"></div>
@@ -196,7 +212,7 @@ const TextEditor = () => {
               className={cn(
                 "rounded-xl overflow-hidden flex flex-col transition-all duration-500",
                 isFocusMode 
-                  ? "shadow-[0_0_80px_rgba(147,51,234,0.4)] ring-2 ring-purple-500/30 bg-black/80 backdrop-blur-xl" 
+                  ? "shadow-[0_0_80px_rgba(147,51,234,0.4)] ring-2 ring-purple-500/30 bg-black/90 backdrop-blur-xl" 
                   : "bg-black/30 backdrop-blur-lg"
               )}
             >
