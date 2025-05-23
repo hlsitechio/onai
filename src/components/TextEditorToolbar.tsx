@@ -1,4 +1,3 @@
-
 import React from "react";
 import { 
   Bold, 
@@ -19,11 +18,15 @@ import {
   Link,
   Menu,
   Maximize,
-  Minimize
+  Minimize,
+  PanelLeft,
+  Focus,
+  Clock
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from "@/components/ui/tooltip";
+import { cn, formatDistanceToNow } from "@/lib/utils";
 
 interface TextEditorToolbarProps {
   execCommand: (command: string, value: string | null) => void;
@@ -31,8 +34,8 @@ interface TextEditorToolbarProps {
   toggleSidebar: () => void;
   toggleAI: () => void;
   isSidebarOpen: boolean;
-  lastSaved: Date | null;
   isAISidebarOpen?: boolean;
+  lastSaved: Date | null;
   isFocusMode?: boolean;
   toggleFocusMode?: () => void;
 }
@@ -64,344 +67,170 @@ const TextEditorToolbar: React.FC<TextEditorToolbarProps> = ({
   };
 
   return (
-    <TooltipProvider>
-      <div className="py-2.5 px-4 flex items-center justify-between flex-wrap gap-y-2">
-        <div className="flex items-center space-x-1.5 overflow-x-auto pb-1">
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button 
-                variant="ghost" 
-                size={"icon"}
-                onClick={toggleAI}
-                className={`text-gray-300 hover:text-white rounded-md border ${isAISidebarOpen === true ? 'bg-noteflow-600/30 text-white' : 'bg-transparent hover:bg-noteflow-600/30 border-white/5'}`}
-                disabled={isFocusMode}
-              >
-                <Sparkles className="h-4 w-4" />
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent>
-              <p>{isAISidebarOpen === true ? 'Hide AI Panel' : 'Show AI Panel'}</p>
-            </TooltipContent>
-          </Tooltip>
-          
-          {/* Focus mode toggle */}
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button 
-                variant="ghost" 
-                size={"icon"}
-                onClick={toggleFocusMode}
-                className={`text-gray-300 hover:text-white rounded-md border ${isFocusMode ? 'bg-purple-600/30 text-white' : 'bg-transparent hover:bg-purple-600/30 border-white/5'}`}
-              >
-                {isFocusMode ? (
-                  <Minimize className="h-4 w-4" />
-                ) : (
-                  <Maximize className="h-4 w-4" />
-                )}
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent>
-              <p>{isFocusMode ? 'Exit Focus Mode' : 'Enter Focus Mode'}</p>
-            </TooltipContent>
-          </Tooltip>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button 
-                variant="ghost" 
-                size="icon" 
-                onClick={toggleSidebar}
-                className="text-gray-300 hover:text-white hover:bg-gray-800/80 rounded-md border border-white/5"
-                disabled={isFocusMode}
-              >
-                <Menu className="h-4 w-4" />
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent>
-              <p>Toggle notes sidebar</p>
-            </TooltipContent>
-          </Tooltip>
-          <span className="text-gray-400">{isSidebarOpen ? "Hide Notes" : "Show Notes"}</span>
-        </div>
-        
-        <Separator orientation="vertical" className="h-8 bg-white/20" />
-        
-        {/* Text formatting */}
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <Button 
-              variant="ghost" 
-              size="icon"
-              onClick={() => insertMarkdown('**', '**')}
-              className="text-gray-300 hover:text-white hover:bg-indigo-600/30 transition-all duration-200 rounded-md border border-white/5"
-            >
-              <Bold className="h-4 w-4" />
-            </Button>
-          </TooltipTrigger>
-          <TooltipContent>
-            <p>Bold (Ctrl+B) or **text**</p>
-          </TooltipContent>
-        </Tooltip>
-        
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <Button 
-              variant="ghost" 
-              size="icon"
-              onClick={() => insertMarkdown('_', '_')}
-              className="text-gray-300 hover:text-white hover:bg-indigo-600/30 transition-all duration-200 rounded-md border border-white/5"
-            >
-              <Italic className="h-4 w-4" />
-            </Button>
-          </TooltipTrigger>
-          <TooltipContent>
-            <p>Italic (Ctrl+I) or _text_</p>
-          </TooltipContent>
-        </Tooltip>
-        
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <Button 
-              variant="ghost" 
-              size="icon"
-              onClick={() => execCommand("underline", null)}
-              className="text-gray-300 hover:text-white hover:bg-indigo-600/30 transition-all duration-200 rounded-md border border-white/5"
-            >
-              <Underline className="h-4 w-4" />
-            </Button>
-          </TooltipTrigger>
-          <TooltipContent>
-            <p>Underline (Ctrl+U)</p>
-          </TooltipContent>
-        </Tooltip>
-        
-        <Separator orientation="vertical" className="h-8 bg-white/20" />
-        
-        {/* Markdown specific formatting */}
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <Button 
-              variant="ghost" 
-              size="icon"
-              onClick={() => insertMarkdown('# ')}
-              className="text-gray-300 hover:text-white hover:bg-indigo-600/30 transition-all duration-200 rounded-md border border-white/5"
-            >
-              <Heading className="h-4 w-4" />
-            </Button>
-          </TooltipTrigger>
-          <TooltipContent>
-            <p>Heading (# Text)</p>
-          </TooltipContent>
-        </Tooltip>
-        
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <Button 
-              variant="ghost" 
-              size="icon"
-              onClick={() => insertMarkdown('> ')}
-              className="text-gray-300 hover:text-white hover:bg-indigo-600/30 transition-all duration-200 rounded-md border border-white/5"
-            >
-              <TextQuote className="h-4 w-4" />
-            </Button>
-          </TooltipTrigger>
-          <TooltipContent>
-            <p>Quote ({'>'} Text)</p>
-          </TooltipContent>
-        </Tooltip>
-        
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <Button 
-              variant="ghost" 
-              size="icon"
-              onClick={() => insertMarkdown('`', '`')}
-              className="text-gray-300 hover:text-white hover:bg-indigo-600/30 transition-all duration-200 rounded-md border border-white/5"
-            >
-              <Code className="h-4 w-4" />
-            </Button>
-          </TooltipTrigger>
-          <TooltipContent>
-            <p>Code (`code`)</p>
-          </TooltipContent>
-        </Tooltip>
-        
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <Button 
-              variant="ghost" 
-              size="icon"
-              onClick={() => insertMarkdown('[', '](url)')}
-              className="text-gray-300 hover:text-white hover:bg-indigo-600/30 transition-all duration-200 rounded-md border border-white/5"
-            >
-              <Link className="h-4 w-4" />
-            </Button>
-          </TooltipTrigger>
-          <TooltipContent>
-            <p>Link [text](url)</p>
-          </TooltipContent>
-        </Tooltip>
-        
-        <Separator orientation="vertical" className="h-8 bg-white/20" />
-        
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <Button 
-              variant="ghost" 
-              size="icon"
-              onClick={() => insertMarkdown('1. ')}
-              className="text-gray-300 hover:text-white hover:bg-indigo-600/30 transition-all duration-200 rounded-md border border-white/5"
-            >
-              <ListOrdered className="h-4 w-4" />
-            </Button>
-          </TooltipTrigger>
-          <TooltipContent>
-            <p>Numbered List (1. item)</p>
-          </TooltipContent>
-        </Tooltip>
-        
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <Button 
-              variant="ghost" 
-              size="icon"
-              onClick={() => insertMarkdown('- ')}
-              className="text-gray-300 hover:text-white hover:bg-indigo-600/30 transition-all duration-200 rounded-md border border-white/5"
-            >
-              <List className="h-4 w-4" />
-            </Button>
-          </TooltipTrigger>
-          <TooltipContent>
-            <p>Bullet List (- item)</p>
-          </TooltipContent>
-        </Tooltip>
-        
-        <Separator orientation="vertical" className="h-8 bg-white/20" />
-        
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <Button 
-              variant="ghost" 
-              size="icon"
-              onClick={() => execCommand("justifyLeft", null)}
-              className="text-gray-300 hover:text-white hover:bg-indigo-600/30 transition-all duration-200 rounded-md border border-white/5"
-            >
-              <AlignLeft className="h-4 w-4" />
-            </Button>
-          </TooltipTrigger>
-          <TooltipContent>
-            <p>Align Left</p>
-          </TooltipContent>
-        </Tooltip>
-        
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <Button 
-              variant="ghost" 
-              size="icon"
-              onClick={() => execCommand("justifyCenter", null)}
-              className="text-gray-300 hover:text-white hover:bg-indigo-600/30 transition-all duration-200 rounded-md border border-white/5"
-            >
-              <AlignCenter className="h-4 w-4" />
-            </Button>
-          </TooltipTrigger>
-          <TooltipContent>
-            <p>Align Center</p>
-          </TooltipContent>
-        </Tooltip>
-        
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <Button 
-              variant="ghost" 
-              size="icon"
-              onClick={() => execCommand("justifyRight", null)}
-              className="text-gray-300 hover:text-white hover:bg-indigo-600/30 transition-all duration-200 rounded-md border border-white/5"
-            >
-              <AlignRight className="h-4 w-4" />
-            </Button>
-          </TooltipTrigger>
-          <TooltipContent>
-            <p>Align Right</p>
-          </TooltipContent>
-        </Tooltip>
-        
-        <Separator orientation="vertical" className="h-8 bg-white/20" />
-        
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <Button 
-              variant="ghost" 
-              size="icon"
-              onClick={() => execCommand("undo", null)}
-              className="text-gray-300 hover:text-white hover:bg-indigo-600/30 transition-all duration-200 rounded-md border border-white/5"
-            >
-              <Undo className="h-4 w-4" />
-            </Button>
-          </TooltipTrigger>
-          <TooltipContent>
-            <p>Undo (Ctrl+Z)</p>
-          </TooltipContent>
-        </Tooltip>
-        
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <Button 
-              variant="ghost" 
-              size="icon"
-              onClick={() => execCommand("redo", null)}
-              className="text-gray-300 hover:text-white hover:bg-indigo-600/30 transition-all duration-200 rounded-md border border-white/5"
-            >
-              <Redo className="h-4 w-4" />
-            </Button>
-          </TooltipTrigger>
-          <TooltipContent>
-            <p>Redo (Ctrl+Y)</p>
-          </TooltipContent>
-        </Tooltip>
-        
-        <Separator orientation="vertical" className="h-8 bg-white/20" />
-        
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={toggleAI}
-              className="text-purple-300 hover:text-white hover:bg-purple-700/40 transition-all duration-200 rounded-md border border-purple-500/20"
-            >
-              <Sparkles className="h-4 w-4" />
-            </Button>
-          </TooltipTrigger>
-          <TooltipContent>
-            <p>AI Assistance</p>
-          </TooltipContent>
-        </Tooltip>
-        
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={handleSave}
-              className="text-blue-300 hover:text-white hover:bg-blue-700/40 transition-all duration-200 rounded-md border border-blue-500/20"
-            >
-              <Save className="h-4 w-4" />
-            </Button>
-          </TooltipTrigger>
-          <TooltipContent>
-            <p>Save Note (Ctrl+S)</p>
-          </TooltipContent>
-        </Tooltip>
-        
-        <div className="text-xs ml-auto flex items-center">
-          {lastSaved && (
-            <span className="text-gray-400 bg-black/30 py-1 px-2.5 rounded-full border border-white/5 shadow-inner">
-              <span className="text-blue-400 mr-1">●</span> Saved at {lastSaved.toLocaleTimeString()}
-            </span>
-          )}
+    <div className={cn(
+      "flex flex-wrap items-center justify-between p-2 md:p-3 transition-all duration-300",
+      isFocusMode 
+        ? "bg-black/70 backdrop-blur-xl border-b border-purple-800/20" 
+        : "bg-black/40 backdrop-blur-lg border-b border-white/10"
+    )}>
+      {/* Left side - formatting tools */}
+      <div className="flex flex-wrap items-center gap-1 md:gap-2">
+        {/* Sidebar toggle */}
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={toggleSidebar}
+          className="text-slate-300 hover:text-white hover:bg-white/10 p-1.5 md:p-2"
+          title="Toggle Notes Sidebar"
+        >
+          <PanelLeft className="h-4 w-4" />
+        </Button>
+
+        <div className="w-px h-6 bg-white/10"></div>
+
+        {/* Formatting buttons */}
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => execCommand('bold')}
+          className="text-slate-300 hover:text-white hover:bg-white/10 p-1.5 md:p-2"
+          title="Bold (Ctrl+B)"
+        >
+          <Bold className="h-4 w-4" />
+        </Button>
+
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => execCommand('italic')}
+          className="text-slate-300 hover:text-white hover:bg-white/10 p-1.5 md:p-2"
+          title="Italic (Ctrl+I)"
+        >
+          <Italic className="h-4 w-4" />
+        </Button>
+
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => execCommand('underline')}
+          className="text-slate-300 hover:text-white hover:bg-white/10 p-1.5 md:p-2"
+          title="Underline (Ctrl+U)"
+        >
+          <Underline className="h-4 w-4" />
+        </Button>
+
+        <div className="w-px h-6 bg-white/10 hidden md:block"></div>
+
+        {/* Alignment buttons - hidden on mobile */}
+        <div className="hidden md:flex items-center gap-1">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => execCommand('justifyLeft')}
+            className="text-slate-300 hover:text-white hover:bg-white/10 p-1.5 md:p-2"
+            title="Align Left"
+          >
+            <AlignLeft className="h-4 w-4" />
+          </Button>
+
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => execCommand('justifyCenter')}
+            className="text-slate-300 hover:text-white hover:bg-white/10 p-1.5 md:p-2"
+            title="Align Center"
+          >
+            <AlignCenter className="h-4 w-4" />
+          </Button>
+
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => execCommand('justifyRight')}
+            className="text-slate-300 hover:text-white hover:bg-white/10 p-1.5 md:p-2"
+            title="Align Right"
+          >
+            <AlignRight className="h-4 w-4" />
+          </Button>
+
+          <div className="w-px h-6 bg-white/10"></div>
+
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => execCommand('undo')}
+            className="text-slate-300 hover:text-white hover:bg-white/10 p-1.5 md:p-2"
+            title="Undo (Ctrl+Z)"
+          >
+            <Undo className="h-4 w-4" />
+          </Button>
+
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => execCommand('redo')}
+            className="text-slate-300 hover:text-white hover:bg-white/10 p-1.5 md:p-2"
+            title="Redo (Ctrl+Y)"
+          >
+            <Redo className="h-4 w-4" />
+          </Button>
         </div>
       </div>
-    </TooltipProvider>
+
+      {/* Right side - actions */}
+      <div className="flex items-center gap-1 md:gap-2 ml-auto">
+        {/* Last saved indicator */}
+        {lastSaved && (
+          <div className="hidden md:flex items-center gap-1.5 text-xs text-slate-400 mr-2">
+            <Clock className="h-3 w-3" />
+            <span>Saved {formatDistanceToNow(lastSaved, { addSuffix: true })}</span>
+          </div>
+        )}
+
+        {/* Focus mode toggle */}
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={toggleFocusMode}
+          className={cn(
+            "p-1.5 md:p-2",
+            isFocusMode 
+              ? "text-purple-300 bg-purple-500/20 hover:bg-purple-500/30" 
+              : "text-slate-300 hover:text-white hover:bg-white/10"
+          )}
+          title={isFocusMode ? "Exit Focus Mode" : "Enter Focus Mode"}
+        >
+          <Focus className="h-4 w-4" />
+        </Button>
+
+        {/* AI Sidebar toggle */}
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={toggleAI}
+          className={cn(
+            "p-1.5 md:p-2",
+            isAISidebarOpen 
+              ? "text-noteflow-300 bg-noteflow-500/20 hover:bg-noteflow-500/30" 
+              : "text-slate-300 hover:text-white hover:bg-white/10"
+          )}
+          title="Toggle AI Sidebar"
+        >
+          <Sparkles className="h-4 w-4" />
+        </Button>
+
+        {/* Save button */}
+        <Button
+          onClick={handleSave}
+          size="sm"
+          className="bg-noteflow-500 hover:bg-noteflow-600 text-white p-1.5 md:p-2 px-3 md:px-4"
+          title="Save Note (Ctrl+S)"
+        >
+          <Save className="h-4 w-4 mr-1" />
+          <span className="hidden sm:inline">Save</span>
+        </Button>
+      </div>
+    </div>
   );
 };
 
