@@ -1,3 +1,4 @@
+
 import React from "react";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
@@ -120,7 +121,16 @@ const PrivacyPolicy = () => {
               We may update this privacy policy from time to time. We will notify you of significant changes by posting the new policy on this page and updating the "Last Updated" date.
             </p>
             
-            <h2 className="text-2xl font-semibold text-white mt-8 mb-4">11. Contact Us</h2>
+            {/* Ezoic Privacy Policy Embed Section */}
+            <h2 className="text-2xl font-semibold text-white mt-8 mb-4">11. Third-Party Services and Advertising</h2>
+            <p className="text-gray-300 mb-4">
+              Our website uses third-party services, including advertising networks, to support our free service. These services may collect and use information about your visits to this and other websites. Below are the disclosures for these services:
+            </p>
+            <div className="bg-gray-900/50 p-4 rounded-lg border border-gray-700/50 mb-6">
+              <span id="ezoic-privacy-policy-embed"></span>
+            </div>
+            
+            <h2 className="text-2xl font-semibold text-white mt-8 mb-4">12. Contact Us</h2>
             <p className="text-gray-300 mb-4">
               If you have questions about this privacy policy, please contact us at:
             </p>
