@@ -35,13 +35,42 @@ const TextEditor = () => {
     setIsAIDialogOpen,
     allNotes,
     createNewNote,
-    isSupabaseReady
+    isSupabaseReady,
+    importNotes
   } = useSupabaseNotes();
   
   // Create a wrapper function that matches the expected signature
   const handleNoteLoad = useCallback((content: string) => {
     setContent(content);
   }, [setContent]);
+  
+  // Handle import notes with proper integration
+  const handleImportNotes = useCallback(async (importedNotes: Record<string, string>) => {
+    try {
+      const success = await importNotes(importedNotes);
+      if (success) {
+        toast({
+          title: "Notes imported successfully",
+          description: `Imported ${Object.keys(importedNotes).length} notes`
+        });
+      } else {
+        toast({
+          title: "Import failed",
+          description: "Some notes could not be imported",
+          variant: "destructive"
+        });
+      }
+      return success;
+    } catch (error) {
+      console.error('Error importing notes:', error);
+      toast({
+        title: "Import error",
+        description: "An error occurred while importing notes",
+        variant: "destructive"
+      });
+      return false;
+    }
+  }, [importNotes, toast]);
   
   // Define regular functions for sidebar toggles
   const toggleLeftSidebar = () => {
@@ -105,6 +134,7 @@ const TextEditor = () => {
                   editorHeight={0}
                   allNotes={allNotes}
                   onCreateNew={createNewNote}
+                  onImportNotes={handleImportNotes}
                 />
               </div>
             )}

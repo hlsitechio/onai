@@ -22,6 +22,7 @@ interface NotesSidebarProps {
   editorHeight: number;
   allNotes: Record<string, string>;
   onCreateNew: () => void;
+  onImportNotes?: (importedNotes: Record<string, string>) => Promise<boolean>;
 }
 
 const NotesSidebar: React.FC<NotesSidebarProps> = ({
@@ -31,7 +32,8 @@ const NotesSidebar: React.FC<NotesSidebarProps> = ({
   onDeleteNote,
   editorHeight,
   allNotes,
-  onCreateNew
+  onCreateNew,
+  onImportNotes
 }) => {
   const [isShareOpen, setIsShareOpen] = useState(false);
   const [selectedNoteId, setSelectedNoteId] = useState<string | null>(null);
@@ -78,12 +80,21 @@ const NotesSidebar: React.FC<NotesSidebarProps> = ({
   };
 
   const handleImportNotesWithMerge = () => {
-    handleImportNotes((importedNotes) => {
-      // Here we would need to trigger a refresh of the notes
-      // Since we don't have direct access to the notes state setter,
-      // we'll need the parent component to handle this
-      console.log('Imported notes:', importedNotes);
-      // The parent component should implement the actual merging logic
+    handleImportNotes(async (importedNotes) => {
+      try {
+        // If parent component has import handler, use it
+        if (onImportNotes) {
+          const success = await onImportNotes(importedNotes);
+          if (!success) {
+            console.error('Failed to import notes via parent component');
+          }
+        } else {
+          // Fallback: just log the imported notes
+          console.log('Imported notes (no parent handler):', importedNotes);
+        }
+      } catch (error) {
+        console.error('Error during import merge:', error);
+      }
     });
   };
 
