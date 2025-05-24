@@ -88,11 +88,11 @@ const TextEditor = () => {
         isFocusMode ? "z-[101]" : "z-10"
       )}>
         <div className="flex flex-col md:flex-row gap-1 lg:gap-2 justify-center w-full h-full">
-          {/* Left sidebar - equal width panel */}
+          {/* Left sidebar - equal width panel (1/3) */}
           <div className={cn(
             "shrink-0 mb-4 md:mb-0 transition-all duration-300 ease-in-out",
             isLeftSidebarOpen && !isFocusMode 
-              ? "opacity-100 w-full md:w-1/3 lg:w-1/3 xl:w-1/3" 
+              ? "opacity-100 w-full md:w-1/3" 
               : "opacity-0 w-0 overflow-hidden"
           )}>
             {isLeftSidebarOpen && !isFocusMode && (
@@ -110,13 +110,13 @@ const TextEditor = () => {
             )}
           </div>
           
-          {/* The editor container - dynamic width based on sidebar states */}
+          {/* The editor container - equal width panel (1/3) when both sidebars open */}
           <div className={cn(
-            "flex-1 transition-all duration-300 ease-in-out",
-            // When both sidebars are open, editor takes 1/3 width
-            isLeftSidebarOpen && isAISidebarOpen && !isFocusMode && "md:w-1/3 lg:w-1/3 xl:w-1/3",
+            "transition-all duration-300 ease-in-out",
+            // When both sidebars are open, all panels take 1/3 width
+            isLeftSidebarOpen && isAISidebarOpen && !isFocusMode && "w-full md:w-1/3",
             // When only one sidebar is open, editor takes 2/3 width  
-            ((isLeftSidebarOpen && !isAISidebarOpen) || (!isLeftSidebarOpen && isAISidebarOpen)) && !isFocusMode && "md:w-2/3 lg:w-2/3 xl:w-2/3",
+            ((isLeftSidebarOpen && !isAISidebarOpen) || (!isLeftSidebarOpen && isAISidebarOpen)) && !isFocusMode && "w-full md:w-2/3",
             // When no sidebars are open or in focus mode, editor takes full width
             ((!isLeftSidebarOpen && !isAISidebarOpen) || isFocusMode) && "w-full"
           )}>
@@ -137,11 +137,11 @@ const TextEditor = () => {
             />
           </div>
           
-          {/* Right sidebar - equal width panel */}
+          {/* Right sidebar - equal width panel (1/3) */}
           <div className={cn(
             "shrink-0 mb-4 md:mb-0 transition-all duration-300 ease-in-out",
             isAISidebarOpen && !isFocusMode 
-              ? "opacity-100 w-full md:w-1/3 lg:w-1/3 xl:w-1/3" 
+              ? "opacity-100 w-full md:w-1/3" 
               : "opacity-0 w-0 overflow-hidden"
           )}>
             {isAISidebarOpen && !isFocusMode && (
