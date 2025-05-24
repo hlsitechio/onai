@@ -1,7 +1,5 @@
 
 import React, { useRef, useEffect, useState } from "react";
-import { Button } from "@/components/ui/button";
-import { useToast } from "@/hooks/use-toast";
 import { useEditorHeight } from "@/hooks/useEditorHeight";
 import { cn } from "@/lib/utils";
 import TextEditorToolbar from "../TextEditorToolbar";
@@ -41,9 +39,7 @@ const EditorContainer: React.FC<EditorContainerProps> = ({
 }) => {
   const editorRef = useRef<HTMLDivElement>(null);
   const isMobileDevice = useIsMobileDevice();
-  const { toast } = useToast();
-  const [speechTranscript, setSpeechTranscript] = useState("");
-  const editorHeight = useEditorHeight(isMobileDevice);
+  const editorHeight = useEditorHeight(editorRef, content);
 
   useEffect(() => {
     if (editorRef.current) {
@@ -72,17 +68,19 @@ const EditorContainer: React.FC<EditorContainerProps> = ({
   };
 
   const handleSpeechTranscript = (transcript: string) => {
-    setSpeechTranscript(transcript);
     if (editorRef.current) {
       const selection = window.getSelection();
       if (selection && selection.rangeCount > 0) {
         const range = selection.getRangeAt(0);
         range.deleteContents();
-        range.insertNode(document.createTextNode(transcript + " "));
+        
+        // Create text node and insert it
+        const textNode = document.createTextNode(transcript + " ");
+        range.insertNode(textNode);
         
         // Move cursor to end of inserted text
-        range.setStartAfter(range.endContainer);
-        range.setEndAfter(range.endContainer);
+        range.setStartAfter(textNode);
+        range.collapse(true);
         selection.removeAllRanges();
         selection.addRange(range);
         
@@ -131,11 +129,14 @@ const EditorContainer: React.FC<EditorContainerProps> = ({
     }
   }, []);
 
+  // Calculate container height for mobile devices
+  const containerHeight = isMobileDevice ? 'calc(100vh - 120px)' : `${editorHeight}px`;
+
   return (
     <div className={cn(
       "glass-panel-dark rounded-xl overflow-hidden flex flex-col transition-all duration-300 shadow-[0_8px_30px_rgb(0,0,0,0.4)] border border-white/5",
       isFocusMode ? "shadow-[0_20px_60px_rgb(147,51,234,0.3)] border-purple-500/20" : ""
-    )} style={{ height: `${editorHeight}px` }}>
+    )} style={{ height: containerHeight }}>
       
       {/* Toolbar */}
       {isMobileDevice ? (
@@ -169,7 +170,7 @@ const EditorContainer: React.FC<EditorContainerProps> = ({
       )}
 
       {/* Editor Content */}
-      <div className="flex-1 flex flex-col overflow-hidden">
+      <div className="flex-1 flex flex-col overflow-hidden relative">
         <div 
           ref={editorRef}
           className={cn(
@@ -196,7 +197,7 @@ const EditorContainer: React.FC<EditorContainerProps> = ({
           data-placeholder="Start writing your note..."
         />
         
-        {/* Placeholder overlay */}
+        {/* Placeholder overlay - now positioned relative to the editor container */}
         {!content && (
           <div className="absolute top-[4rem] left-4 md:left-6 lg:left-8 text-slate-400 pointer-events-none text-base md:text-lg">
             Start writing your note...
