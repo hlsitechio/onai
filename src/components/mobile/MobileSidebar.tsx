@@ -13,14 +13,6 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-interface Note {
-  id: string;
-  title: string;
-  content: string;
-  created_at: string;
-  updated_at: string;
-}
-
 interface MobileSidebarProps {
   isOpen: boolean;
   onClose: () => void;
@@ -28,7 +20,7 @@ interface MobileSidebarProps {
   onLoadNote: (content: string) => void;
   onSave: () => void;
   onDeleteNote: (id: string) => void;
-  allNotes: Note[];
+  allNotes: Record<string, string>;
   onCreateNew: () => void;
 }
 
@@ -44,20 +36,36 @@ const MobileSidebar: React.FC<MobileSidebarProps> = ({
 }) => {
   const [searchTerm, setSearchTerm] = useState('');
 
-  const filteredNotes = allNotes.filter(note =>
+  // Convert Record<string, string> to array for filtering
+  const notesArray = Object.entries(allNotes).map(([id, content]) => ({
+    id,
+    content,
+    title: content.split('\n')[0].substring(0, 50).trim() || 'Untitled Note',
+    created_at: id, // Using ID as timestamp for now
+    updated_at: id,
+  }));
+
+  const filteredNotes = notesArray.filter(note =>
     note.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
     note.content.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    const now = new Date();
-    const diffInHours = Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60));
-    
-    if (diffInHours < 1) return 'Just now';
-    if (diffInHours < 24) return `${diffInHours}h ago`;
-    if (diffInHours < 48) return 'Yesterday';
-    return date.toLocaleDateString();
+    try {
+      const timestamp = Number(dateString);
+      if (isNaN(timestamp)) return 'Unknown';
+      
+      const date = new Date(timestamp);
+      const now = new Date();
+      const diffInHours = Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60));
+      
+      if (diffInHours < 1) return 'Just now';
+      if (diffInHours < 24) return `${diffInHours}h ago`;
+      if (diffInHours < 48) return 'Yesterday';
+      return date.toLocaleDateString();
+    } catch {
+      return 'Unknown';
+    }
   };
 
   return (
@@ -129,7 +137,7 @@ const MobileSidebar: React.FC<MobileSidebarProps> = ({
                     <div className="flex items-start justify-between">
                       <div className="flex-1 min-w-0">
                         <h3 className="font-medium text-white truncate text-base">
-                          {note.title || 'Untitled Note'}
+                          {note.title}
                         </h3>
                         <p className="text-sm text-slate-300 mt-1 line-clamp-2">
                           {note.content.substring(0, 100)}...
