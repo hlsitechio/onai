@@ -84,17 +84,19 @@ const TextEditor = () => {
       <FocusModeOverlay isFocusMode={isFocusMode} />
       
       <div className={cn(
-        "mx-auto px-1 sm:px-2 md:px-3 max-w-[90%] lg:max-w-[92%] xl:max-w-[94%] relative",
+        "mx-auto px-1 sm:px-2 md:px-3 max-w-full relative h-full",
         isFocusMode ? "z-[101]" : "z-10"
       )}>
-        <div className="flex flex-col md:flex-row gap-1 lg:gap-2 justify-center w-full">
-          {/* Left sidebar - hidden in focus mode */}
+        <div className="flex flex-col md:flex-row gap-1 lg:gap-2 justify-center w-full h-full">
+          {/* Left sidebar - equal width panel */}
           <div className={cn(
-            "md:w-64 lg:w-72 shrink-0 mb-4 md:mb-0 transition-all duration-300 ease-in-out",
-            isLeftSidebarOpen && !isFocusMode ? "opacity-100" : "opacity-0 max-w-0 md:max-w-0 overflow-hidden"
+            "shrink-0 mb-4 md:mb-0 transition-all duration-300 ease-in-out",
+            isLeftSidebarOpen && !isFocusMode 
+              ? "opacity-100 w-full md:w-1/3 lg:w-1/3 xl:w-1/3" 
+              : "opacity-0 w-0 overflow-hidden"
           )}>
             {isLeftSidebarOpen && !isFocusMode && (
-              <div className="animate-fadeIn">
+              <div className="animate-fadeIn h-full">
                 <NotesSidebar 
                   currentContent={content} 
                   onLoadNote={handleNoteLoad}
@@ -108,30 +110,42 @@ const TextEditor = () => {
             )}
           </div>
           
-          {/* The editor container */}
-          <EditorContainer
-            content={content}
-            setContent={setContent}
-            execCommand={execCommand}
-            handleSave={handleSave}
-            toggleLeftSidebar={toggleLeftSidebar}
-            toggleAISidebar={toggleAISidebar}
-            isLeftSidebarOpen={isLeftSidebarOpen}
-            isAISidebarOpen={isAISidebarOpen}
-            lastSaved={lastSaved}
-            isFocusMode={isFocusMode}
-            toggleFocusMode={handleToggleFocusMode}
-            isAIDialogOpen={isAIDialogOpen}
-            setIsAIDialogOpen={setIsAIDialogOpen}
-          />
-          
-          {/* Right sidebar - hidden in focus mode */}
+          {/* The editor container - dynamic width based on sidebar states */}
           <div className={cn(
-            "md:w-64 lg:w-72 shrink-0 mb-4 md:mb-0 transition-all duration-300 ease-in-out",
-            isAISidebarOpen && !isFocusMode ? "opacity-100" : "opacity-0 max-w-0 md:max-w-0 overflow-hidden"
+            "flex-1 transition-all duration-300 ease-in-out",
+            // When both sidebars are open, editor takes 1/3 width
+            isLeftSidebarOpen && isAISidebarOpen && !isFocusMode && "md:w-1/3 lg:w-1/3 xl:w-1/3",
+            // When only one sidebar is open, editor takes 2/3 width  
+            ((isLeftSidebarOpen && !isAISidebarOpen) || (!isLeftSidebarOpen && isAISidebarOpen)) && !isFocusMode && "md:w-2/3 lg:w-2/3 xl:w-2/3",
+            // When no sidebars are open or in focus mode, editor takes full width
+            ((!isLeftSidebarOpen && !isAISidebarOpen) || isFocusMode) && "w-full"
+          )}>
+            <EditorContainer
+              content={content}
+              setContent={setContent}
+              execCommand={execCommand}
+              handleSave={handleSave}
+              toggleLeftSidebar={toggleLeftSidebar}
+              toggleAISidebar={toggleAISidebar}
+              isLeftSidebarOpen={isLeftSidebarOpen}
+              isAISidebarOpen={isAISidebarOpen}
+              lastSaved={lastSaved}
+              isFocusMode={isFocusMode}
+              toggleFocusMode={handleToggleFocusMode}
+              isAIDialogOpen={isAIDialogOpen}
+              setIsAIDialogOpen={setIsAIDialogOpen}
+            />
+          </div>
+          
+          {/* Right sidebar - equal width panel */}
+          <div className={cn(
+            "shrink-0 mb-4 md:mb-0 transition-all duration-300 ease-in-out",
+            isAISidebarOpen && !isFocusMode 
+              ? "opacity-100 w-full md:w-1/3 lg:w-1/3 xl:w-1/3" 
+              : "opacity-0 w-0 overflow-hidden"
           )}>
             {isAISidebarOpen && !isFocusMode && (
-              <div className="animate-fadeIn">
+              <div className="animate-fadeIn h-full">
                 <AISidebar
                   content={content}
                   onApplyChanges={setContent}
