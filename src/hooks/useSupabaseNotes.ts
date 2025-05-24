@@ -1,3 +1,4 @@
+
 import { useState, useEffect, useCallback } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { 
@@ -344,6 +345,52 @@ export function useSupabaseNotes() {
     });
   }, [toast]);
 
+  // Import notes functionality
+  const importNotes = useCallback(async (importedNotes: Record<string, string>) => {
+    try {
+      const mergedNotes = { ...allNotes };
+      let importCount = 0;
+      
+      // Merge imported notes with existing ones
+      for (const [noteId, noteContent] of Object.entries(importedNotes)) {
+        if (noteContent && typeof noteContent === 'string') {
+          // Generate new ID if there's a conflict
+          let finalNoteId = noteId;
+          if (mergedNotes[noteId]) {
+            finalNoteId = `${noteId}-imported-${Date.now()}`;
+          }
+          
+          mergedNotes[finalNoteId] = noteContent;
+          
+          // Save to Supabase if available
+          if (isSupabaseReady) {
+            await saveNoteToSupabase(finalNoteId, noteContent);
+          }
+          
+          importCount++;
+        }
+      }
+      
+      // Update local state
+      setAllNotes(mergedNotes);
+      
+      toast({
+        title: 'Notes imported successfully',
+        description: `Imported ${importCount} notes`,
+      });
+      
+      return true;
+    } catch (error) {
+      console.error('Error importing notes:', error);
+      toast({
+        title: 'Import failed',
+        description: 'There was an error importing the notes.',
+        variant: 'destructive',
+      });
+      return false;
+    }
+  }, [allNotes, isSupabaseReady, toast]);
+
   return {
     content,
     setContent,
@@ -361,6 +408,7 @@ export function useSupabaseNotes() {
     isLoading,
     allNotes,
     createNewNote,
-    isSupabaseReady
+    isSupabaseReady,
+    importNotes
   };
 }

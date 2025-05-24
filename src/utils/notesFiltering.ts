@@ -34,6 +34,14 @@ export const getSortedAndFilteredNotes = (
         return !isNaN(timestamp) && timestamp > recentCutoff;
       })
     );
+  } else if (filterType === 'favorites') {
+    // For now, consider notes with custom names as "favorites"
+    // In a real app, this would check a favorites flag in the database
+    filteredNotes = Object.fromEntries(
+      Object.entries(filteredNotes).filter(([noteId]) => {
+        return customNoteNames[noteId] && customNoteNames[noteId].trim() !== '';
+      })
+    );
   }
 
   // Apply sorting

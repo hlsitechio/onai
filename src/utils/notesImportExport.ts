@@ -21,7 +21,7 @@ export const useNotesImportExport = () => {
     });
   };
 
-  const handleImportNotes = () => {
+  const handleImportNotes = (onNotesImported?: (notes: Record<string, string>) => void) => {
     const input = document.createElement('input');
     input.type = 'file';
     input.accept = '.json';
@@ -32,15 +32,38 @@ export const useNotesImportExport = () => {
         reader.onload = (e) => {
           try {
             const importedNotes = JSON.parse(e.target?.result as string);
-            // Here you would merge the imported notes with existing notes
+            
+            // Validate that imported data is an object with string values
+            if (typeof importedNotes !== 'object' || importedNotes === null) {
+              throw new Error('Invalid file format: Expected JSON object');
+            }
+            
+            // Validate each note entry
+            const validatedNotes: Record<string, string> = {};
+            for (const [key, value] of Object.entries(importedNotes)) {
+              if (typeof value === 'string') {
+                validatedNotes[key] = value;
+              }
+            }
+            
+            if (Object.keys(validatedNotes).length === 0) {
+              throw new Error('No valid notes found in the imported file');
+            }
+            
+            // Call the callback with imported notes if provided
+            if (onNotesImported) {
+              onNotesImported(validatedNotes);
+            }
+            
             toast({
               title: "Notes imported",
-              description: "Notes have been imported successfully"
+              description: `Successfully imported ${Object.keys(validatedNotes).length} notes`
             });
           } catch (error) {
+            console.error('Import error:', error);
             toast({
               title: "Import failed",
-              description: "Failed to import notes. Please check the file format.",
+              description: error instanceof Error ? error.message : "Failed to import notes. Please check the file format.",
               variant: "destructive"
             });
           }

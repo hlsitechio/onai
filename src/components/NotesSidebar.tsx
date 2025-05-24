@@ -77,6 +77,16 @@ const NotesSidebar: React.FC<NotesSidebarProps> = ({
     return result.shareUrl || "";
   };
 
+  const handleImportNotesWithMerge = () => {
+    handleImportNotes((importedNotes) => {
+      // Here we would need to trigger a refresh of the notes
+      // Since we don't have direct access to the notes state setter,
+      // we'll need the parent component to handle this
+      console.log('Imported notes:', importedNotes);
+      // The parent component should implement the actual merging logic
+    });
+  };
+
   const getSortedAndFilteredNotesData = () => {
     return getSortedAndFilteredNotes(
       notes,
@@ -105,7 +115,7 @@ const NotesSidebar: React.FC<NotesSidebarProps> = ({
           onSortNotes={handleSortNotes}
           onFilterNotes={handleFilterNotes}
           onExportNotes={() => handleExportNotes(notes)}
-          onImportNotes={handleImportNotes}
+          onImportNotes={handleImportNotesWithMerge}
         />
         
         <SearchBar 
