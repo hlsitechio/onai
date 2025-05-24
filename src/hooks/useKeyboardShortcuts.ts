@@ -48,6 +48,8 @@ export const useKeyboardShortcuts = ({
       e.preventDefault();
       setFocusMode(false);
     }
+    
+    // Note: Removed CTRL+SHIFT+A functionality as it's now in the AI Agent dropdown
   }, [handleSave, isFocusMode, toggleFocusMode, toggleLeftSidebar, toggleAISidebar, setFocusMode]);
   
   // Register the keyboard shortcut effect

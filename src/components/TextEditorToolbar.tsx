@@ -1,3 +1,4 @@
+
 import React from "react";
 import { 
   Bold, 
@@ -136,32 +137,13 @@ const TextEditorToolbar: React.FC<TextEditorToolbarProps> = ({
 
         <div className="w-px h-6 bg-white/10 hidden md:block"></div>
 
-        {/* AI Tools */}
+        {/* Speech to Text */}
         <div className="flex items-center gap-1">
-          {/* Speech to Text */}
           {onSpeechTranscript && (
             <SpeechToTextButton 
               onTranscript={onSpeechTranscript}
               className="p-1.5 md:p-2 h-8 w-8 text-slate-300 hover:text-white hover:bg-white/10"
             />
-          )}
-
-          {/* AI Agent */}
-          {onToggleAIAgent && (
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={onToggleAIAgent}
-              className={cn(
-                "p-1.5 md:p-2",
-                isAIAgentVisible 
-                  ? "text-noteflow-300 bg-noteflow-500/20 hover:bg-noteflow-500/30" 
-                  : "text-slate-300 hover:text-white hover:bg-white/10"
-              )}
-              title="AI Agent (Ctrl+Shift+A)"
-            >
-              <Bot className="h-4 w-4" />
-            </Button>
           )}
         </div>
 
@@ -260,7 +242,7 @@ const TextEditorToolbar: React.FC<TextEditorToolbarProps> = ({
           <span className="hidden sm:inline">Save</span>
         </Button>
 
-        {/* AI Actions Dropdown */}
+        {/* AI Agent Actions Dropdown (replaces old AI processing dropdown) */}
         <AIActionsDropdown
           content={content}
           onApplyChanges={onApplyAIChanges}
