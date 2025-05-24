@@ -233,7 +233,10 @@ const NotesSidebar: React.FC<NotesSidebarProps> = ({
         </div>
       </div>
 
-      <NotesActions onShare={() => handleOpenShare(null)} />
+      <NotesActions 
+        onShare={() => handleOpenShare(null)} 
+        content={currentContent}
+      />
 
       <ShareNoteDrawer 
         isOpen={isShareOpen} 
@@ -242,6 +245,8 @@ const NotesSidebar: React.FC<NotesSidebarProps> = ({
           handleShareNote(service);
           return Promise.resolve("");
         }} 
+        content={selectedNoteId ? notes[selectedNoteId] : currentContent}
+        title={selectedNoteId ? (customNoteNames[selectedNoteId] || formatNoteId(selectedNoteId)) : 'Current Note'}
       />
 
       <KeyboardShortcuts 
