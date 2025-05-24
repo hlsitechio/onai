@@ -8,15 +8,16 @@ import {
   Loader2, 
   InfoIcon,
   AlertTriangle,
-  ShieldCheck
+  ShieldCheck,
+  Square
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import AIDisclaimer from "./AIDisclaimer";
 import AIActionSelector from "./AIActionSelector";
 import ImageUploadArea from "./ImageUploadArea";
-import AIResultsDisplay from "./AIResultsDisplay";
 import { useImageUpload } from "@/hooks/useImageUpload";
-import { useAIProcessor } from "@/hooks/useAIProcessor";
+import { useStreamingAI } from "@/hooks/useStreamingAI";
+import { getUsageStats } from "@/utils/aiUtils";
 
 interface AISidebarProps {
   content: string;
@@ -35,6 +36,7 @@ const AISidebar: React.FC<AISidebarProps> = ({
   const [targetLanguage, setTargetLanguage] = useState("French");
   const [customPrompt, setCustomPrompt] = useState("");
   const [isDisclaimerOpen, setIsDisclaimerOpen] = useState(false);
+  const [usageStats] = useState(() => getUsageStats());
   const { toast } = useToast();
 
   const {
@@ -46,15 +48,17 @@ const AISidebar: React.FC<AISidebarProps> = ({
 
   const {
     isLoading,
+    isStreaming,
     error,
     result,
-    usageStats,
-    processAIAction,
+    streamingResult,
+    processStreamingAI,
+    stopStreaming,
     clearResult
-  } = useAIProcessor();
+  } = useStreamingAI();
 
   const handleProcessAI = () => {
-    processAIAction(selectedAction, content, uploadedImage, customPrompt, targetLanguage);
+    processStreamingAI(selectedAction, content, uploadedImage, customPrompt, targetLanguage);
   };
 
   const handleApplyChanges = () => {
@@ -67,6 +71,8 @@ const AISidebar: React.FC<AISidebarProps> = ({
       });
     }
   };
+
+  const displayText = streamingResult || result;
 
   return (
     <div 
@@ -136,24 +142,37 @@ const AISidebar: React.FC<AISidebarProps> = ({
           />
         </div>
 
-        {/* Process button */}
-        <Button 
-          onClick={handleProcessAI}
-          disabled={isLoading}
-          className="bg-noteflow-500 hover:bg-noteflow-600 text-white"
-        >
-          {isLoading ? (
-            <>
-              <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-              Processing...
-            </>
-          ) : (
-            <>
-              <Sparkles className="h-4 w-4 mr-2" />
-              Process with AI
-            </>
+        {/* Process/Stop buttons */}
+        <div className="flex gap-2">
+          <Button 
+            onClick={handleProcessAI}
+            disabled={isLoading && !isStreaming}
+            className="bg-noteflow-500 hover:bg-noteflow-600 text-white flex-1"
+          >
+            {isLoading && !isStreaming ? (
+              <>
+                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                Processing...
+              </>
+            ) : (
+              <>
+                <Sparkles className="h-4 w-4 mr-2" />
+                Process with AI
+              </>
+            )}
+          </Button>
+
+          {isStreaming && (
+            <Button 
+              onClick={stopStreaming}
+              variant="outline"
+              className="border-red-500/30 bg-red-500/10 text-red-300 hover:bg-red-500/20 hover:text-red-200"
+              title="Stop generation"
+            >
+              <Square className="h-4 w-4" />
+            </Button>
           )}
-        </Button>
+        </div>
 
         {/* Error message */}
         {error && (
@@ -162,13 +181,58 @@ const AISidebar: React.FC<AISidebarProps> = ({
           </div>
         )}
 
-        {/* Results */}
-        <AIResultsDisplay
-          result={result}
-          selectedAction={selectedAction}
-          onClearResult={clearResult}
-          onApplyChanges={handleApplyChanges}
-        />
+        {/* Streaming/Final Results */}
+        {displayText && (
+          <div className="mt-4">
+            <div className="flex items-center justify-between mb-2">
+              <h4 className="font-medium text-white text-sm">
+                {isStreaming ? "Generating..." : "Result:"}
+              </h4>
+              {result && !isStreaming && (
+                <Button 
+                  onClick={clearResult}
+                  variant="ghost" 
+                  size="sm"
+                  className="text-xs text-slate-400 hover:text-white h-6 px-2"
+                >
+                  Clear
+                </Button>
+              )}
+            </div>
+            
+            <div className="relative">
+              <Textarea 
+                value={displayText} 
+                readOnly={!["improve", "translate", "summarize"].includes(selectedAction) || isStreaming}
+                onChange={(e) => !isStreaming && setCustomPrompt(e.target.value)} 
+                className={`h-48 resize-none bg-black/30 border-white/10 text-white text-sm ${
+                  isStreaming ? 'animate-pulse' : ''
+                }`}
+                placeholder={isStreaming ? "AI is typing..." : "Result will appear here..."}
+              />
+              
+              {isStreaming && (
+                <div className="absolute bottom-2 right-2">
+                  <div className="flex items-center gap-1 text-xs text-noteflow-400">
+                    <div className="w-1 h-1 bg-noteflow-400 rounded-full animate-pulse"></div>
+                    <div className="w-1 h-1 bg-noteflow-400 rounded-full animate-pulse" style={{animationDelay: '0.2s'}}></div>
+                    <div className="w-1 h-1 bg-noteflow-400 rounded-full animate-pulse" style={{animationDelay: '0.4s'}}></div>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Apply changes button */}
+            {result && !isStreaming && ["improve", "translate", "summarize"].includes(selectedAction) && (
+              <Button 
+                onClick={handleApplyChanges}
+                className="w-full mt-2 bg-green-600 hover:bg-green-700 text-white"
+              >
+                Apply Changes to Note
+              </Button>
+            )}
+          </div>
+        )}
       </div>
       
       {/* AI Disclaimer Dialog */}
