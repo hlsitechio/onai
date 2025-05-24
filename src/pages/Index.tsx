@@ -1,4 +1,3 @@
-
 import Header from "@/components/Header";
 import Hero from "@/components/Hero";
 import TextEditor from "@/components/TextEditor";
@@ -6,7 +5,6 @@ import { useFocusMode } from "@/contexts";
 import Footer from "@/components/Footer";
 import AdBanner from "@/components/AdBanner";
 import FeatureShowcase from "@/components/FeatureShowcase";
-
 const Index = () => {
   // Use focus mode context to determine visibility of elements
   const {
@@ -23,7 +21,7 @@ const Index = () => {
       <div id="editor-section" className="container mx-auto px-2 sm:px-3 md:px-4 relative z-10 max-w-[96%] lg:max-w-[94%] xl:max-w-[92%]">
         {/* Beta Test Banner */}
         <div className="w-full max-w-[1200px] mx-auto mb-4">
-          <div className="bg-gradient-to-r from-orange-500/20 to-yellow-500/20 border border-orange-400/30 rounded-lg px-4 py-2 text-center">
+          <div className="bg-gradient-to-r from-orange-500/20 to-yellow-500/20 border border-orange-400/30 rounded-lg text-center py-[10px] px-[14px]">
             <span className="text-orange-300 font-medium text-sm">
               🧪 Beta Test - This application is currently in beta testing phase
             </span>
@@ -69,5 +67,4 @@ const Index = () => {
       </div>
     </div>;
 };
-
 export default Index;
