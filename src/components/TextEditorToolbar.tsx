@@ -1,4 +1,3 @@
-
 import React from "react";
 import { 
   Bold, 
@@ -32,6 +31,7 @@ import { Separator } from "@/components/ui/separator";
 import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from "@/components/ui/tooltip";
 import { cn, formatDistanceToNow } from "@/lib/utils";
 import SpeechToTextButton from "./SpeechToTextButton";
+import AIActionsDropdown from "./notes/AIActionsDropdown";
 
 interface TextEditorToolbarProps {
   execCommand: (command: string, value?: string | null) => void;
@@ -46,6 +46,8 @@ interface TextEditorToolbarProps {
   onSpeechTranscript?: (transcript: string) => void;
   onToggleAIAgent?: () => void;
   isAIAgentVisible?: boolean;
+  content?: string;
+  onApplyAIChanges?: (newContent: string) => void;
 }
 
 const TextEditorToolbar: React.FC<TextEditorToolbarProps> = ({
@@ -60,7 +62,9 @@ const TextEditorToolbar: React.FC<TextEditorToolbarProps> = ({
   toggleFocusMode = () => {},
   onSpeechTranscript,
   onToggleAIAgent,
-  isAIAgentVisible = false
+  isAIAgentVisible = false,
+  content = "",
+  onApplyAIChanges = () => {}
 }) => {
   // Markdown-specific handlers
   const insertMarkdown = (prefix: string, suffix: string = "") => {
@@ -245,22 +249,6 @@ const TextEditorToolbar: React.FC<TextEditorToolbarProps> = ({
           <Focus className="h-4 w-4" />
         </Button>
 
-        {/* AI Sidebar toggle */}
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={toggleAI}
-          className={cn(
-            "p-1.5 md:p-2",
-            isAISidebarOpen 
-              ? "text-noteflow-300 bg-noteflow-500/20 hover:bg-noteflow-500/30" 
-              : "text-slate-300 hover:text-white hover:bg-white/10"
-          )}
-          title="Toggle AI Sidebar"
-        >
-          <Sparkles className="h-4 w-4" />
-        </Button>
-
         {/* Save button */}
         <Button
           onClick={handleSave}
@@ -271,6 +259,12 @@ const TextEditorToolbar: React.FC<TextEditorToolbarProps> = ({
           <Save className="h-4 w-4 mr-1" />
           <span className="hidden sm:inline">Save</span>
         </Button>
+
+        {/* AI Actions Dropdown */}
+        <AIActionsDropdown
+          content={content}
+          onApplyChanges={onApplyAIChanges}
+        />
       </div>
     </div>
   );
