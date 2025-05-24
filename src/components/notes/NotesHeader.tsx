@@ -8,6 +8,7 @@ import {
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
+  DropdownMenuPortal,
 } from "@/components/ui/dropdown-menu";
 
 interface NotesHeaderProps {
@@ -58,25 +59,25 @@ const NotesHeader: React.FC<NotesHeaderProps> = ({
           >
             <Search className="h-4 w-4 group-hover:scale-110 transition-all duration-300" />
           </Button>
-          <div className="relative">
-            <DropdownMenu modal={false}>
-              <DropdownMenuTrigger asChild>
-                <Button 
-                  variant="ghost" 
-                  size="icon" 
-                  className="h-7 w-7 rounded-full hover:bg-noteflow-500/20 hover:text-noteflow-400 transition-all group"
-                  title="More options"
-                >
-                  <MoreVertical className="h-4 w-4 group-hover:scale-110 transition-all duration-300" />
-                </Button>
-              </DropdownMenuTrigger>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                className="h-7 w-7 rounded-full hover:bg-noteflow-500/20 hover:text-noteflow-400 transition-all group"
+                title="More options"
+              >
+                <MoreVertical className="h-4 w-4 group-hover:scale-110 transition-all duration-300" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuPortal>
               <DropdownMenuContent 
                 align="end" 
                 side="bottom"
-                className="w-48 bg-black/95 backdrop-blur-xl border border-white/20 shadow-2xl relative z-50"
-                sideOffset={4}
+                className="w-48 bg-black/95 backdrop-blur-xl border border-white/20 shadow-2xl z-[9999]"
+                sideOffset={8}
                 avoidCollisions={true}
-                collisionPadding={10}
+                collisionPadding={16}
               >
                 <DropdownMenuItem onClick={onSortNotes} className="text-white hover:bg-noteflow-500/20 focus:bg-noteflow-500/20">
                   <SortAsc className="h-4 w-4 mr-2" />
@@ -101,8 +102,8 @@ const NotesHeader: React.FC<NotesHeaderProps> = ({
                   Keyboard Shortcuts
                 </DropdownMenuItem>
               </DropdownMenuContent>
-            </DropdownMenu>
-          </div>
+            </DropdownMenuPortal>
+          </DropdownMenu>
         </div>
       </div>
 

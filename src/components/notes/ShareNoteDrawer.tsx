@@ -78,7 +78,7 @@ const ShareNoteDrawer: React.FC<ShareNoteDrawerProps> = ({
   return (
     <>
       <Drawer open={isOpen} onOpenChange={onOpenChange}>
-        <DrawerContent className="bg-black/80 backdrop-blur-md border border-white/10 text-white">
+        <DrawerContent className="bg-black/80 backdrop-blur-md border border-white/10 text-white z-[9998]">
           <DrawerHeader>
             <DrawerTitle className="flex items-center gap-2">
               <Share2 className="h-5 w-5" /> Share Your Note

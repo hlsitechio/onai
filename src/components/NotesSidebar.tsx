@@ -12,7 +12,6 @@ import NotesHeader from './notes/NotesHeader';
 import SearchBar from './notes/SearchBar';
 import NotesActions from './notes/NotesActions';
 import NotesStats from './notes/NotesStats';
-import NotesControls from './notes/NotesControls';
 
 interface NotesSidebarProps {
   currentContent: string;
@@ -176,16 +175,6 @@ const NotesSidebar: React.FC<NotesSidebarProps> = ({
               notes={notes}
               customNoteNames={customNoteNames}
             />
-          </div>
-
-          <div className="flex items-center justify-between text-xs text-slate-400 animate-slideDown mb-3" style={{animationDelay: '0.2s'}}>
-            <NotesControls 
-              onSortNotes={handleSortNotes}
-              onFilterNotes={handleFilterNotes}
-            />
-            <span className="text-xs text-gray-500 px-1.5 py-0.5 bg-white/5 rounded-md">
-              Quick Actions
-            </span>
           </div>
           
           <NotesList 
