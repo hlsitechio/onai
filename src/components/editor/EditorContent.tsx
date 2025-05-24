@@ -26,7 +26,20 @@ const EditorContent: React.FC<EditorContentProps> = ({
   const handlePaste = (e: React.ClipboardEvent<HTMLDivElement>) => {
     e.preventDefault();
     const text = e.clipboardData.getData('text/plain');
-    document.execCommand("insertText", false, text);
+    
+    // Use modern approach instead of deprecated execCommand
+    const selection = window.getSelection();
+    if (selection && selection.rangeCount > 0) {
+      const range = selection.getRangeAt(0);
+      range.deleteContents();
+      const textNode = document.createTextNode(text);
+      range.insertNode(textNode);
+      range.setStartAfter(textNode);
+      range.collapse(true);
+      selection.removeAllRanges();
+      selection.addRange(range);
+    }
+    
     handleInput();
   };
 
@@ -37,58 +50,48 @@ const EditorContent: React.FC<EditorContentProps> = ({
     }
   };
 
-  // Handle placeholder behavior for contentEditable div
+  // Sync content with the editor
   useEffect(() => {
-    if (editorRef.current) {
-      const handleFocus = () => {
-        if (editorRef.current && editorRef.current.innerHTML === '') {
-          editorRef.current.innerHTML = '';
-        }
-      };
-
-      const handleBlur = () => {
-        if (editorRef.current && editorRef.current.innerHTML.trim() === '') {
-          editorRef.current.innerHTML = '';
-        }
-      };
-
-      const element = editorRef.current;
-      element.addEventListener('focus', handleFocus);
-      element.addEventListener('blur', handleBlur);
-
-      return () => {
-        element.removeEventListener('focus', handleFocus);
-        element.removeEventListener('blur', handleBlur);
-      };
+    if (editorRef.current && editorRef.current.innerHTML !== content) {
+      editorRef.current.innerHTML = content;
     }
-  }, [editorRef]);
+  }, [content]);
 
   return (
-    <div 
-      ref={editorRef}
-      className={cn(
-        "flex-1 p-4 md:p-6 lg:p-8 text-white overflow-y-auto resize-none border-none outline-none transition-all duration-300",
-        "text-base md:text-lg leading-relaxed",
-        "prose prose-invert max-w-none",
-        "focus:ring-0 focus:outline-none",
-        "[&>*]:mb-4 [&>*:last-child]:mb-0",
-        "[&_p]:text-white [&_h1]:text-white [&_h2]:text-white [&_h3]:text-white",
-        "[&_ul]:text-white [&_ol]:text-white [&_li]:text-white",
-        "[&_strong]:text-white [&_em]:text-white",
-        isFocusMode ? "bg-black/90" : "bg-black/50"
+    <div className="relative flex-1 overflow-hidden">
+      <div 
+        ref={editorRef}
+        className={cn(
+          "w-full h-full p-6 text-white overflow-y-auto resize-none border-none outline-none transition-all duration-300",
+          "text-lg leading-relaxed min-h-[500px]",
+          "prose prose-invert max-w-none",
+          "focus:ring-0 focus:outline-none",
+          "[&>*]:mb-4 [&>*:last-child]:mb-0",
+          "[&_p]:text-white [&_h1]:text-white [&_h2]:text-white [&_h3]:text-white",
+          "[&_ul]:text-white [&_ol]:text-white [&_li]:text-white",
+          "[&_strong]:text-white [&_em]:text-white",
+          isFocusMode ? "bg-black/70" : "bg-black/30"
+        )}
+        contentEditable
+        suppressContentEditableWarning={true}
+        onInput={handleInput}
+        onPaste={handlePaste}
+        onKeyDown={handleKeyDown}
+        style={{ 
+          minHeight: '500px',
+          wordWrap: 'break-word',
+          overflowWrap: 'break-word'
+        }}
+        data-placeholder="Start writing your note..."
+      />
+      
+      {/* Show placeholder when content is empty */}
+      {!content && (
+        <div className="absolute top-6 left-6 text-slate-400 pointer-events-none text-lg select-none">
+          Start writing your note...
+        </div>
       )}
-      contentEditable
-      suppressContentEditableWarning={true}
-      onInput={handleInput}
-      onPaste={handlePaste}
-      onKeyDown={handleKeyDown}
-      style={{ 
-        minHeight: 'calc(100% - 2rem)',
-        wordWrap: 'break-word',
-        overflowWrap: 'break-word'
-      }}
-      data-placeholder="Start writing your note..."
-    />
+    </div>
   );
 };
 

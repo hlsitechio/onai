@@ -1,13 +1,11 @@
 
 import React from "react";
-import { useEditorHeight } from "@/hooks/useEditorHeight";
 import { useEditorContainer } from "@/hooks/useEditorContainer";
 import { cn } from "@/lib/utils";
 import TextEditorToolbar from "../TextEditorToolbar";
 import MobileToolbar from "../mobile/MobileToolbar";
 import { useIsMobileDevice } from "@/hooks/useIsMobileDevice";
 import EditorContent from "./EditorContent";
-import EditorPlaceholder from "./EditorPlaceholder";
 
 interface EditorContainerProps {
   content: string;
@@ -45,16 +43,13 @@ const EditorContainer: React.FC<EditorContainerProps> = ({
     content,
     setContent
   });
-  const editorHeight = useEditorHeight(editorRef, content);
-
-  // Calculate container height for mobile devices
-  const containerHeight = isMobileDevice ? 'calc(100vh - 120px)' : `${editorHeight}px`;
 
   return (
     <div className={cn(
       "glass-panel-dark rounded-xl overflow-hidden flex flex-col transition-all duration-300 shadow-[0_8px_30px_rgb(0,0,0,0.4)] border border-white/5",
+      "h-[600px] min-h-[600px]", // Fixed height to ensure visibility
       isFocusMode ? "shadow-[0_20px_60px_rgb(147,51,234,0.3)] border-purple-500/20" : ""
-    )} style={{ height: containerHeight }}>
+    )}>
       
       {/* Toolbar */}
       {isMobileDevice ? (
@@ -88,18 +83,13 @@ const EditorContainer: React.FC<EditorContainerProps> = ({
       )}
 
       {/* Editor Content */}
-      <div className="flex-1 flex flex-col overflow-hidden relative">
-        <EditorContent
-          content={content}
-          setContent={setContent}
-          isFocusMode={isFocusMode}
-          onSave={handleSave}
-          editorRef={editorRef}
-        />
-        
-        {/* Placeholder overlay - now positioned relative to the editor container */}
-        <EditorPlaceholder content={content} />
-      </div>
+      <EditorContent
+        content={content}
+        setContent={setContent}
+        isFocusMode={isFocusMode}
+        onSave={handleSave}
+        editorRef={editorRef}
+      />
     </div>
   );
 };
