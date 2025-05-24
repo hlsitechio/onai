@@ -7,7 +7,8 @@ import {
   TrendingUp, 
   MessageSquare,
   ChevronRight,
-  Loader2
+  Loader2,
+  Square
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { callGeminiAI } from '@/utils/aiUtils';
@@ -32,14 +33,41 @@ const InlineAIActions: React.FC<InlineAIActionsProps> = ({
 }) => {
   const [isProcessing, setIsProcessing] = useState(false);
   const [activeAction, setActiveAction] = useState<string | null>(null);
+  const [streamingText, setStreamingText] = useState('');
+  const [isStreaming, setIsStreaming] = useState(false);
   const { toast } = useToast();
   const containerRef = useRef<HTMLDivElement>(null);
+  const abortControllerRef = useRef<AbortController | null>(null);
+
+  // Simulated streaming effect
+  const streamText = (text: string, onComplete: () => void) => {
+    setIsStreaming(true);
+    setStreamingText('');
+    
+    let index = 0;
+    const interval = setInterval(() => {
+      if (index < text.length) {
+        setStreamingText(prev => prev + text[index]);
+        index++;
+      } else {
+        clearInterval(interval);
+        setIsStreaming(false);
+        onComplete();
+      }
+    }, 20); // Typing speed
+
+    return () => clearInterval(interval);
+  };
 
   const handleAction = async (action: 'enhance' | 'amplify' | 'continue' | 'suggest') => {
     if (!selectedText && action !== 'continue') return;
     
     setIsProcessing(true);
     setActiveAction(action);
+    setStreamingText('');
+    
+    // Create abort controller for this request
+    abortControllerRef.current = new AbortController();
     
     try {
       let prompt = '';
@@ -66,28 +94,51 @@ const InlineAIActions: React.FC<InlineAIActionsProps> = ({
       
       const result = await callGeminiAI(prompt, selectedText, requestType);
       
-      if (action === 'enhance' || action === 'suggest') {
-        onTextReplace(result);
-      } else {
-        onTextInsert(result);
-      }
-      
-      toast({
-        title: 'AI Action Complete',
-        description: `Successfully ${action === 'enhance' ? 'enhanced' : action === 'amplify' ? 'amplified' : action === 'continue' ? 'continued' : 'suggested alternatives for'} your text.`,
+      // Start streaming animation
+      const cleanup = streamText(result, () => {
+        if (action === 'enhance' || action === 'suggest') {
+          onTextReplace(result);
+        } else {
+          onTextInsert(result);
+        }
+        
+        toast({
+          title: 'AI Action Complete',
+          description: `Successfully ${action === 'enhance' ? 'enhanced' : action === 'amplify' ? 'amplified' : action === 'continue' ? 'continued' : 'suggested alternatives for'} your text.`,
+        });
+        
+        onClose();
       });
+
+      // Store cleanup function
+      abortControllerRef.current.signal.addEventListener('abort', cleanup);
       
-      onClose();
     } catch (error) {
-      console.error('Error processing AI action:', error);
-      toast({
-        title: 'AI Action Failed',
-        description: 'There was an error processing your request. Please try again.',
-        variant: 'destructive'
-      });
+      if (error.name === 'AbortError') {
+        toast({
+          title: 'Generation Stopped',
+          description: 'AI text generation was stopped.',
+        });
+      } else {
+        console.error('Error processing AI action:', error);
+        toast({
+          title: 'AI Action Failed',
+          description: 'There was an error processing your request. Please try again.',
+          variant: 'destructive'
+        });
+      }
     } finally {
       setIsProcessing(false);
       setActiveAction(null);
+      setIsStreaming(false);
+      setStreamingText('');
+      abortControllerRef.current = null;
+    }
+  };
+
+  const handleStop = () => {
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
     }
   };
 
@@ -113,35 +164,61 @@ const InlineAIActions: React.FC<InlineAIActionsProps> = ({
   return (
     <div
       ref={containerRef}
-      className="fixed z-50 bg-black/95 backdrop-blur-xl border border-white/20 rounded-xl p-3 shadow-2xl min-w-48"
+      className="fixed z-50 bg-black/95 backdrop-blur-xl border border-white/20 rounded-xl shadow-2xl min-w-56 max-w-sm"
       style={{
         left: `${position.x}px`,
         top: `${position.y}px`,
       }}
     >
-      <div className="flex items-center gap-2 mb-3">
+      {/* Header */}
+      <div className="flex items-center gap-2 p-3 border-b border-white/10">
         <Sparkles className="h-4 w-4 text-noteflow-400" />
         <span className="text-sm font-medium text-white">AI Actions</span>
+        {isProcessing && (
+          <Button
+            onClick={handleStop}
+            size="sm"
+            variant="ghost"
+            className="ml-auto h-6 w-6 p-0 hover:bg-red-500/20 hover:text-red-300"
+          >
+            <Square className="h-3 w-3" />
+          </Button>
+        )}
       </div>
       
-      <div className="space-y-1">
+      {/* Streaming preview */}
+      {isStreaming && streamingText && (
+        <div className="p-3 border-b border-white/10 bg-noteflow-500/5">
+          <div className="text-xs text-noteflow-300 mb-1">Preview:</div>
+          <div className="text-sm text-white/90 max-h-24 overflow-y-auto">
+            {streamingText}
+            <span className="animate-pulse">|</span>
+          </div>
+        </div>
+      )}
+      
+      {/* Action buttons */}
+      <div className="p-2 space-y-1">
         <Button
           onClick={() => handleAction('enhance')}
           disabled={isProcessing || !selectedText}
           size="sm"
           variant="ghost"
           className={cn(
-            "w-full justify-start gap-2 text-left",
-            "hover:bg-blue-500/20 hover:text-blue-300",
-            isProcessing && activeAction === 'enhance' && "bg-blue-500/20"
+            "w-full justify-start gap-3 text-left h-10 px-3",
+            "hover:bg-blue-500/20 hover:text-blue-300 text-white/90",
+            isProcessing && activeAction === 'enhance' && "bg-blue-500/20 text-blue-300"
           )}
         >
           {isProcessing && activeAction === 'enhance' ? (
-            <Loader2 className="h-3 w-3 animate-spin" />
+            <Loader2 className="h-4 w-4 animate-spin" />
           ) : (
-            <Wand2 className="h-3 w-3" />
+            <Wand2 className="h-4 w-4" />
           )}
-          <span className="text-xs">Enhance</span>
+          <div className="flex flex-col items-start">
+            <span className="text-sm font-medium">Enhance</span>
+            <span className="text-xs opacity-70">Improve writing quality</span>
+          </div>
         </Button>
         
         <Button
@@ -150,17 +227,20 @@ const InlineAIActions: React.FC<InlineAIActionsProps> = ({
           size="sm"
           variant="ghost"
           className={cn(
-            "w-full justify-start gap-2 text-left",
-            "hover:bg-green-500/20 hover:text-green-300",
-            isProcessing && activeAction === 'amplify' && "bg-green-500/20"
+            "w-full justify-start gap-3 text-left h-10 px-3",
+            "hover:bg-green-500/20 hover:text-green-300 text-white/90",
+            isProcessing && activeAction === 'amplify' && "bg-green-500/20 text-green-300"
           )}
         >
           {isProcessing && activeAction === 'amplify' ? (
-            <Loader2 className="h-3 w-3 animate-spin" />
+            <Loader2 className="h-4 w-4 animate-spin" />
           ) : (
-            <TrendingUp className="h-3 w-3" />
+            <TrendingUp className="h-4 w-4" />
           )}
-          <span className="text-xs">Amplify</span>
+          <div className="flex flex-col items-start">
+            <span className="text-sm font-medium">Amplify</span>
+            <span className="text-xs opacity-70">Expand with more detail</span>
+          </div>
         </Button>
         
         <Button
@@ -169,17 +249,20 @@ const InlineAIActions: React.FC<InlineAIActionsProps> = ({
           size="sm"
           variant="ghost"
           className={cn(
-            "w-full justify-start gap-2 text-left",
-            "hover:bg-purple-500/20 hover:text-purple-300",
-            isProcessing && activeAction === 'continue' && "bg-purple-500/20"
+            "w-full justify-start gap-3 text-left h-10 px-3",
+            "hover:bg-purple-500/20 hover:text-purple-300 text-white/90",
+            isProcessing && activeAction === 'continue' && "bg-purple-500/20 text-purple-300"
           )}
         >
           {isProcessing && activeAction === 'continue' ? (
-            <Loader2 className="h-3 w-3 animate-spin" />
+            <Loader2 className="h-4 w-4 animate-spin" />
           ) : (
-            <ChevronRight className="h-3 w-3" />
+            <ChevronRight className="h-4 w-4" />
           )}
-          <span className="text-xs">Continue</span>
+          <div className="flex flex-col items-start">
+            <span className="text-sm font-medium">Continue</span>
+            <span className="text-xs opacity-70">Continue the thought</span>
+          </div>
         </Button>
         
         <Button
@@ -188,17 +271,20 @@ const InlineAIActions: React.FC<InlineAIActionsProps> = ({
           size="sm"
           variant="ghost"
           className={cn(
-            "w-full justify-start gap-2 text-left",
-            "hover:bg-orange-500/20 hover:text-orange-300",
-            isProcessing && activeAction === 'suggest' && "bg-orange-500/20"
+            "w-full justify-start gap-3 text-left h-10 px-3",
+            "hover:bg-orange-500/20 hover:text-orange-300 text-white/90",
+            isProcessing && activeAction === 'suggest' && "bg-orange-500/20 text-orange-300"
           )}
         >
           {isProcessing && activeAction === 'suggest' ? (
-            <Loader2 className="h-3 w-3 animate-spin" />
+            <Loader2 className="h-4 w-4 animate-spin" />
           ) : (
-            <MessageSquare className="h-3 w-3" />
+            <MessageSquare className="h-4 w-4" />
           )}
-          <span className="text-xs">Suggest</span>
+          <div className="flex flex-col items-start">
+            <span className="text-sm font-medium">Suggest</span>
+            <span className="text-xs opacity-70">Alternative expressions</span>
+          </div>
         </Button>
       </div>
     </div>
