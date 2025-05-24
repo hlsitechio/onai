@@ -2,14 +2,14 @@
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { 
-  Sparkles, 
   ChevronDown,
   ChevronUp,
   Bot,
   Wand2,
   FileText,
   MessageSquare,
-  Lightbulb
+  Lightbulb,
+  Sparkles
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -52,20 +52,20 @@ const AIActionsDropdown: React.FC<AIActionsDropdownProps> = ({
 
       {/* AI Agent Actions Panel */}
       {isOpen && (
-        <div className="absolute top-full right-0 mt-2 w-64 glass-panel-dark rounded-xl overflow-hidden flex flex-col shadow-[0_8px_30px_rgb(0,0,0,0.4)] border border-white/5 z-50">
-          <div className="p-3 border-b border-white/5 flex items-center justify-between">
+        <div className="absolute top-full right-0 mt-2 w-64 bg-gray-900/95 backdrop-blur-xl rounded-xl overflow-hidden flex flex-col shadow-[0_8px_30px_rgb(0,0,0,0.6)] border border-gray-700/50 z-50">
+          <div className="p-3 border-b border-gray-700/50 flex items-center justify-between bg-gray-800/50">
             <div className="flex items-center gap-2">
               <Bot className="h-5 w-5 text-noteflow-400" />
               <h3 className="text-white font-medium text-sm">AI Agent</h3>
             </div>
           </div>
 
-          <div className="p-2 flex flex-col gap-1">
+          <div className="p-2 flex flex-col gap-1 bg-gray-900/90">
             <Button
               variant="ghost"
               size="sm"
               onClick={() => handleAIAction('quick_improve')}
-              className="justify-start text-white hover:bg-white/10 h-8 px-3"
+              className="justify-start text-white hover:bg-gray-700/60 h-8 px-3"
             >
               <Wand2 className="h-4 w-4 mr-2" />
               Quick Improve
@@ -75,7 +75,7 @@ const AIActionsDropdown: React.FC<AIActionsDropdownProps> = ({
               variant="ghost"
               size="sm"
               onClick={() => handleAIAction('suggest_edits')}
-              className="justify-start text-white hover:bg-white/10 h-8 px-3"
+              className="justify-start text-white hover:bg-gray-700/60 h-8 px-3"
             >
               <FileText className="h-4 w-4 mr-2" />
               Suggest Edits
@@ -85,7 +85,7 @@ const AIActionsDropdown: React.FC<AIActionsDropdownProps> = ({
               variant="ghost"
               size="sm"
               onClick={() => handleAIAction('brainstorm')}
-              className="justify-start text-white hover:bg-white/10 h-8 px-3"
+              className="justify-start text-white hover:bg-gray-700/60 h-8 px-3"
             >
               <Lightbulb className="h-4 w-4 mr-2" />
               Brainstorm Ideas
@@ -95,7 +95,7 @@ const AIActionsDropdown: React.FC<AIActionsDropdownProps> = ({
               variant="ghost"
               size="sm"
               onClick={() => handleAIAction('chat_mode')}
-              className="justify-start text-white hover:bg-white/10 h-8 px-3"
+              className="justify-start text-white hover:bg-gray-700/60 h-8 px-3"
             >
               <MessageSquare className="h-4 w-4 mr-2" />
               Chat with AI
@@ -105,7 +105,7 @@ const AIActionsDropdown: React.FC<AIActionsDropdownProps> = ({
               variant="ghost"
               size="sm"
               onClick={() => handleAIAction('writing_assistant')}
-              className="justify-start text-white hover:bg-white/10 h-8 px-3"
+              className="justify-start text-white hover:bg-gray-700/60 h-8 px-3"
             >
               <Sparkles className="h-4 w-4 mr-2" />
               Writing Assistant
