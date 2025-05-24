@@ -1,10 +1,13 @@
 
-import React, { useRef, useEffect, useState } from "react";
+import React from "react";
 import { useEditorHeight } from "@/hooks/useEditorHeight";
+import { useEditorContainer } from "@/hooks/useEditorContainer";
 import { cn } from "@/lib/utils";
 import TextEditorToolbar from "../TextEditorToolbar";
 import MobileToolbar from "../mobile/MobileToolbar";
 import { useIsMobileDevice } from "@/hooks/useIsMobileDevice";
+import EditorContent from "./EditorContent";
+import EditorPlaceholder from "./EditorPlaceholder";
 
 interface EditorContainerProps {
   content: string;
@@ -37,97 +40,12 @@ const EditorContainer: React.FC<EditorContainerProps> = ({
   isAIDialogOpen,
   setIsAIDialogOpen
 }) => {
-  const editorRef = useRef<HTMLDivElement>(null);
   const isMobileDevice = useIsMobileDevice();
+  const { editorRef, handleSpeechTranscript, handleApplyAIChanges } = useEditorContainer({
+    content,
+    setContent
+  });
   const editorHeight = useEditorHeight(editorRef, content);
-
-  useEffect(() => {
-    if (editorRef.current) {
-      editorRef.current.innerHTML = content;
-    }
-  }, [content]);
-
-  const handleInput = () => {
-    if (editorRef.current) {
-      setContent(editorRef.current.innerHTML);
-    }
-  };
-
-  const handlePaste = (e: React.ClipboardEvent<HTMLDivElement>) => {
-    e.preventDefault();
-    const text = e.clipboardData.getData('text/plain');
-    document.execCommand("insertText", false, text);
-    handleInput();
-  };
-
-  const handleKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
-    if ((event.ctrlKey || event.metaKey) && event.key === 's') {
-      event.preventDefault();
-      handleSave();
-    }
-  };
-
-  const handleSpeechTranscript = (transcript: string) => {
-    if (editorRef.current) {
-      const selection = window.getSelection();
-      if (selection && selection.rangeCount > 0) {
-        const range = selection.getRangeAt(0);
-        range.deleteContents();
-        
-        // Create text node and insert it
-        const textNode = document.createTextNode(transcript + " ");
-        range.insertNode(textNode);
-        
-        // Move cursor to end of inserted text
-        range.setStartAfter(textNode);
-        range.collapse(true);
-        selection.removeAllRanges();
-        selection.addRange(range);
-        
-        // Update content
-        setContent(editorRef.current.innerHTML);
-      } else {
-        // If no selection, append to end
-        editorRef.current.innerHTML += transcript + " ";
-        setContent(editorRef.current.innerHTML);
-      }
-      
-      editorRef.current.focus();
-    }
-  };
-
-  const handleApplyAIChanges = (newContent: string) => {
-    setContent(newContent);
-    if (editorRef.current) {
-      editorRef.current.innerHTML = newContent;
-    }
-  };
-
-  // Handle placeholder behavior for contentEditable div
-  useEffect(() => {
-    if (editorRef.current) {
-      const handleFocus = () => {
-        if (editorRef.current && editorRef.current.innerHTML === '') {
-          editorRef.current.innerHTML = '';
-        }
-      };
-
-      const handleBlur = () => {
-        if (editorRef.current && editorRef.current.innerHTML.trim() === '') {
-          editorRef.current.innerHTML = '';
-        }
-      };
-
-      const element = editorRef.current;
-      element.addEventListener('focus', handleFocus);
-      element.addEventListener('blur', handleBlur);
-
-      return () => {
-        element.removeEventListener('focus', handleFocus);
-        element.removeEventListener('blur', handleBlur);
-      };
-    }
-  }, []);
 
   // Calculate container height for mobile devices
   const containerHeight = isMobileDevice ? 'calc(100vh - 120px)' : `${editorHeight}px`;
@@ -171,38 +89,16 @@ const EditorContainer: React.FC<EditorContainerProps> = ({
 
       {/* Editor Content */}
       <div className="flex-1 flex flex-col overflow-hidden relative">
-        <div 
-          ref={editorRef}
-          className={cn(
-            "flex-1 p-4 md:p-6 lg:p-8 text-white overflow-y-auto resize-none border-none outline-none transition-all duration-300",
-            "text-base md:text-lg leading-relaxed",
-            "prose prose-invert max-w-none",
-            "focus:ring-0 focus:outline-none",
-            "[&>*]:mb-4 [&>*:last-child]:mb-0",
-            "[&_p]:text-white [&_h1]:text-white [&_h2]:text-white [&_h3]:text-white",
-            "[&_ul]:text-white [&_ol]:text-white [&_li]:text-white",
-            "[&_strong]:text-white [&_em]:text-white",
-            isFocusMode ? "bg-black/90" : "bg-black/50"
-          )}
-          contentEditable
-          suppressContentEditableWarning={true}
-          onInput={handleInput}
-          onPaste={handlePaste}
-          onKeyDown={handleKeyDown}
-          style={{ 
-            minHeight: 'calc(100% - 2rem)',
-            wordWrap: 'break-word',
-            overflowWrap: 'break-word'
-          }}
-          data-placeholder="Start writing your note..."
+        <EditorContent
+          content={content}
+          setContent={setContent}
+          isFocusMode={isFocusMode}
+          onSave={handleSave}
+          editorRef={editorRef}
         />
         
         {/* Placeholder overlay - now positioned relative to the editor container */}
-        {!content && (
-          <div className="absolute top-[4rem] left-4 md:left-6 lg:left-8 text-slate-400 pointer-events-none text-base md:text-lg">
-            Start writing your note...
-          </div>
-        )}
+        <EditorPlaceholder content={content} />
       </div>
     </div>
   );
