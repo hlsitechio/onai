@@ -1,57 +1,22 @@
-import React, { useState, useRef, useEffect, useCallback } from "react";
+
+import React, { useState, useCallback } from "react";
 import { useToast } from "@/hooks/use-toast";
 import NotesSidebar from "./NotesSidebar";
-import AdBanner from "./AdBanner";
-import TextEditorToolbar from "./TextEditorToolbar";
-import EditableContent from "./EditableContent";
-import AIDialog from "./notes/AIDialog";
 import AISidebar from "./notes/AISidebar";
+import EditorContainer from "./editor/EditorContainer";
+import FocusModeOverlay from "./editor/FocusModeOverlay";
 import { cn } from "@/lib/utils";
-import { useFocusMode } from "@/contexts";
+import { useFocusModeManager } from "@/hooks/useFocusModeManager";
+import { useKeyboardShortcuts } from "@/hooks/useKeyboardShortcuts";
 import { useSupabaseNotes } from "@/hooks/useSupabaseNotes";
 
 const TextEditor = () => {
   const { toast } = useToast();
   const [isLeftSidebarOpen, setIsLeftSidebarOpen] = useState(true);
   const [isAISidebarOpen, setIsAISidebarOpen] = useState(true);
-  const { isFocusMode, setFocusMode } = useFocusMode();
   
-  // Update document data attribute when focus mode changes
-  useEffect(() => {
-    // Set focus mode on both body and document element for maximum coverage
-    document.body.setAttribute('data-focus-mode', isFocusMode.toString());
-    document.documentElement.setAttribute('data-focus-mode', isFocusMode.toString());
-    
-    // Prevent scrolling in focus mode
-    if (isFocusMode) {
-      document.body.style.overflow = 'hidden';
-      document.documentElement.style.overflow = 'hidden';
-      document.body.style.position = 'fixed';
-      document.body.style.width = '100%';
-      document.body.style.height = '100%';
-      document.body.style.backgroundColor = 'black';
-    } else {
-      document.body.style.overflow = '';
-      document.documentElement.style.overflow = '';
-      document.body.style.position = '';
-      document.body.style.width = '';
-      document.body.style.height = '';
-      document.body.style.backgroundColor = '';
-    }
-    
-    // Cleanup on unmount
-    return () => {
-      document.body.style.overflow = '';
-      document.documentElement.style.overflow = '';
-      document.body.style.position = '';
-      document.body.style.width = '';
-      document.body.style.height = '';
-      document.body.style.backgroundColor = '';
-    };
-  }, [isFocusMode]);
-  
-  const editorRef = useRef<HTMLDivElement>(null);
-  const [editorHeight, setEditorHeight] = useState<number>(0);
+  // Focus mode management
+  const { isFocusMode, setFocusMode, toggleFocusMode } = useFocusModeManager();
   
   // Use Supabase notes hook for proper save functionality
   const { 
@@ -75,72 +40,7 @@ const TextEditor = () => {
     setContent(content);
   }, [setContent]);
   
-  // Update editor height for sidebar matching
-  useEffect(() => {
-    if (editorRef.current) {
-      const updateEditorHeight = () => {
-        const height = editorRef.current?.getBoundingClientRect().height || 0;
-        setEditorHeight(height);
-      };
-      
-      updateEditorHeight();
-      window.addEventListener('resize', updateEditorHeight);
-      
-      // Update height on content changes too
-      const observer = new MutationObserver(updateEditorHeight);
-      observer.observe(editorRef.current, { 
-        childList: true, 
-        subtree: true,
-        characterData: true
-      });
-      
-      return () => {
-        window.removeEventListener('resize', updateEditorHeight);
-        observer.disconnect();
-      };
-    }
-  }, [editorRef, content]);
-  
-  // Define all hooks first, before any regular functions
-  const handleKeyboardShortcut = useCallback((e: KeyboardEvent) => {
-    // Ctrl+S for save
-    if (e.ctrlKey && e.key === 's') {
-      e.preventDefault();
-      handleSave();
-    }
-    
-    // F11 for focus mode
-    if (e.key === 'F11') {
-      e.preventDefault();
-      toggleFocusMode();
-    }
-    
-    // Ctrl+B for sidebar toggle
-    if (e.ctrlKey && e.key === 'b') {
-      e.preventDefault();
-      toggleLeftSidebar();
-    }
-    
-    // Ctrl+G for AI sidebar
-    if (e.ctrlKey && e.key === 'g') {
-      e.preventDefault();
-      toggleAISidebar();
-    }
-    
-    // Escape to exit focus mode
-    if (e.key === 'Escape' && isFocusMode) {
-      e.preventDefault();
-      setFocusMode(false);
-    }
-  }, [handleSave, isFocusMode]);
-  
-  // Register the keyboard shortcut effect
-  useEffect(() => {
-    window.addEventListener('keydown', handleKeyboardShortcut);
-    return () => window.removeEventListener('keydown', handleKeyboardShortcut);
-  }, [handleKeyboardShortcut]);
-  
-  // Define regular functions after all hooks
+  // Define regular functions for sidebar toggles
   const toggleLeftSidebar = () => {
     setIsLeftSidebarOpen(!isLeftSidebarOpen);
   };
@@ -149,8 +49,8 @@ const TextEditor = () => {
     setIsAISidebarOpen(!isAISidebarOpen);
   };
   
-  const toggleFocusMode = () => {
-    setFocusMode(!isFocusMode);
+  const handleToggleFocusMode = () => {
+    toggleFocusMode();
     // When entering focus mode, close both sidebars
     if (!isFocusMode) {
       setIsLeftSidebarOpen(false);
@@ -158,27 +58,22 @@ const TextEditor = () => {
     }
   };
   
+  // Setup keyboard shortcuts
+  useKeyboardShortcuts({
+    handleSave,
+    toggleFocusMode: handleToggleFocusMode,
+    toggleLeftSidebar,
+    toggleAISidebar,
+    isFocusMode,
+    setFocusMode
+  });
+  
   return (
     <section id="editor-section" className={cn(
       "pt-0 pb-4 sm:pb-6 px-3 relative transition-all duration-500 min-h-screen w-full overflow-hidden border-0"
     )}>
-      {/* Enhanced focus mode overlay with stronger black coverage */}
-      {isFocusMode && (
-        <>
-          {/* Full page black overlay */}
-          <div className="fixed inset-0 z-[100] pointer-events-none">
-            {/* Solid black overlay */}
-            <div className="absolute inset-0 bg-black"></div>
-            
-            {/* Additional blur overlay for any remaining content */}
-            <div className="absolute inset-0 bg-black/98 backdrop-blur-3xl"></div>
-            
-            {/* Subtle animated gradients for depth */}
-            <div className="absolute top-1/4 -left-[10%] w-[30%] h-[30%] rounded-full bg-gradient-to-r from-purple-900/20 to-blue-900/10 blur-[100px] animate-pulse"></div>
-            <div className="absolute bottom-1/4 -right-[10%] w-[25%] h-[25%] rounded-full bg-gradient-to-l from-purple-800/15 to-pink-900/10 blur-[80px] animate-pulse"></div>
-          </div>
-        </>
-      )}
+      {/* Enhanced focus mode overlay */}
+      <FocusModeOverlay isFocusMode={isFocusMode} />
       
       <div className={cn(
         "mx-auto px-1 sm:px-2 md:px-3 max-w-[90%] lg:max-w-[92%] xl:max-w-[94%] relative",
@@ -197,7 +92,7 @@ const TextEditor = () => {
                   onLoadNote={handleNoteLoad}
                   onSave={handleSave}
                   onDeleteNote={handleDeleteNote}
-                  editorHeight={editorHeight}
+                  editorHeight={0}
                   allNotes={allNotes}
                   onCreateNew={createNewNote}
                 />
@@ -205,56 +100,22 @@ const TextEditor = () => {
             )}
           </div>
           
-          {/* The editor with enhanced focus mode styling */}
-          <div className="flex-1 flex flex-col min-w-0 md:min-w-0 lg:min-w-0 xl:min-w-0 max-w-full mx-auto">
-            <div 
-              ref={editorRef}
-              className={cn(
-                "rounded-xl overflow-hidden flex flex-col transition-all duration-500",
-                isFocusMode 
-                  ? "shadow-[0_0_80px_rgba(147,51,234,0.4)] ring-2 ring-purple-500/30 bg-black/90 backdrop-blur-xl" 
-                  : "bg-black/30 backdrop-blur-lg"
-              )}
-            >
-              {/* Toolbar */}
-              <TextEditorToolbar 
-                execCommand={execCommand}
-                handleSave={handleSave}
-                toggleSidebar={toggleLeftSidebar}
-                toggleAI={toggleAISidebar}
-                isSidebarOpen={isLeftSidebarOpen}
-                isAISidebarOpen={isAISidebarOpen}
-                lastSaved={lastSaved}
-                isFocusMode={isFocusMode}
-                toggleFocusMode={toggleFocusMode}
-              />
-              
-              {/* Editor area with focus mode sizing */}
-              <div className={cn(
-                "flex-1 overflow-hidden relative transition-all duration-500",
-                isFocusMode 
-                  ? "h-[80vh] max-h-[80vh]" 
-                  : "h-[450px] sm:h-[600px] md:h-[700px] lg:h-[800px] xl:h-[900px] 2xl:h-[950px]"
-              )}>
-                <EditableContent 
-                  content={content} 
-                  setContent={setContent} 
-                  isFocusMode={isFocusMode}
-                />
-              </div>
-            </div>
-            
-            {/* AI Dialog */}
-            <AIDialog 
-              isOpen={isAIDialogOpen}
-              onOpenChange={setIsAIDialogOpen}
-              content={content}
-              onApplyChanges={setContent}
-            />
-            
-            {/* Additional space at the bottom - hidden in focus mode */}
-            {!isFocusMode && <div className="h-6"></div>}
-          </div>
+          {/* The editor container */}
+          <EditorContainer
+            content={content}
+            setContent={setContent}
+            execCommand={execCommand}
+            handleSave={handleSave}
+            toggleLeftSidebar={toggleLeftSidebar}
+            toggleAISidebar={toggleAISidebar}
+            isLeftSidebarOpen={isLeftSidebarOpen}
+            isAISidebarOpen={isAISidebarOpen}
+            lastSaved={lastSaved}
+            isFocusMode={isFocusMode}
+            toggleFocusMode={handleToggleFocusMode}
+            isAIDialogOpen={isAIDialogOpen}
+            setIsAIDialogOpen={setIsAIDialogOpen}
+          />
           
           {/* Right sidebar - hidden in focus mode */}
           <div className={cn(
@@ -266,7 +127,7 @@ const TextEditor = () => {
                 <AISidebar
                   content={content}
                   onApplyChanges={setContent}
-                  editorHeight={editorHeight}
+                  editorHeight={0}
                 />
               </div>
             )}
