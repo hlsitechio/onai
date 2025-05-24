@@ -35,7 +35,7 @@
 - 🟦 [TypeScript](https://www.typescriptlang.org/)
 - 🎨 [shadcn-ui](https://ui.shadcn.com/)
 - 💨 [Tailwind CSS](https://tailwindcss.com/)
-- 🟩 [Supabase](https://supabase.com/) (for database & authentication)
+- 🟩 [Supabase](https://supabase.com/) (for database) 
   
 ---
 
