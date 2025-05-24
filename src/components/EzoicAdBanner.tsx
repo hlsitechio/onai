@@ -51,9 +51,19 @@ const EzoicAdBanner: React.FC<EzoicAdBannerProps> = ({
   useEffect(() => {
     if (typeof window !== 'undefined' && adRef.current) {
       try {
-        // Initialize ezstandalone if not exists
-        window.ezstandalone = window.ezstandalone || { cmd: [] };
-        window.ezstandalone.cmd = window.ezstandalone.cmd || [];
+        // Initialize ezstandalone if not exists with proper typing
+        if (!window.ezstandalone) {
+          window.ezstandalone = {
+            cmd: [],
+            showAds: () => {},
+            destroyPlaceholders: () => {},
+            destroyAll: () => {}
+          };
+        }
+        
+        if (!window.ezstandalone.cmd) {
+          window.ezstandalone.cmd = [];
+        }
         
         // Show this specific ad placeholder
         window.ezstandalone.cmd.push(() => {
