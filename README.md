@@ -45,11 +45,12 @@
 
 ```sh
 create a folder
-Open CMD  directly into your new folder with the name onai
-# Clone the repository  sur git clone https://github.com/hlsitechio/onai.git 
+Open powershell directly into your new folder with the name onai
+# Clone the repository git clone https://github.com/hlsitechio/onai.git 
 Be careful when cloning you need to cd into the right folder after 
 
 # Start the development server
+npm install 
 npm run dev
 ```
 
