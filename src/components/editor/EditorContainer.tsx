@@ -1,3 +1,4 @@
+
 import React, { useRef, useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
@@ -104,6 +105,32 @@ const EditorContainer: React.FC<EditorContainerProps> = ({
     }
   };
 
+  // Handle placeholder behavior for contentEditable div
+  useEffect(() => {
+    if (editorRef.current) {
+      const handleFocus = () => {
+        if (editorRef.current && editorRef.current.innerHTML === '') {
+          editorRef.current.innerHTML = '';
+        }
+      };
+
+      const handleBlur = () => {
+        if (editorRef.current && editorRef.current.innerHTML.trim() === '') {
+          editorRef.current.innerHTML = '';
+        }
+      };
+
+      const element = editorRef.current;
+      element.addEventListener('focus', handleFocus);
+      element.addEventListener('blur', handleBlur);
+
+      return () => {
+        element.removeEventListener('focus', handleFocus);
+        element.removeEventListener('blur', handleBlur);
+      };
+    }
+  }, []);
+
   return (
     <div className={cn(
       "glass-panel-dark rounded-xl overflow-hidden flex flex-col transition-all duration-300 shadow-[0_8px_30px_rgb(0,0,0,0.4)] border border-white/5",
@@ -166,8 +193,15 @@ const EditorContainer: React.FC<EditorContainerProps> = ({
             wordWrap: 'break-word',
             overflowWrap: 'break-word'
           }}
-          placeholder="Start writing your note..."
+          data-placeholder="Start writing your note..."
         />
+        
+        {/* Placeholder overlay */}
+        {!content && (
+          <div className="absolute top-[4rem] left-4 md:left-6 lg:left-8 text-slate-400 pointer-events-none text-base md:text-lg">
+            Start writing your note...
+          </div>
+        )}
       </div>
     </div>
   );
