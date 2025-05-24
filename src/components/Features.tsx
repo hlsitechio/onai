@@ -1,6 +1,6 @@
 
 import { CheckCircle } from "lucide-react";
-import AdBanner from "./AdBanner";
+import EzoicAdBanner from "./EzoicAdBanner";
 
 const Features = () => {
   const features = [{
@@ -29,11 +29,11 @@ const Features = () => {
         <h2 className="text-3xl md:text-4xl font-poppins font-bold text-center mb-12 text-gray-200">Why Choose Online Note AI?</h2>
         
         {/* In-article ad format above features */}
-        <AdBanner 
+        <EzoicAdBanner 
           size="medium" 
-          format="in-article" 
-          className="my-8 max-w-4xl mx-auto" 
-          adSlotId="6157600223" 
+          placeholderId={102}
+          adName="in_article"
+          className="my-8 max-w-4xl mx-auto"
         />
         
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -48,12 +48,12 @@ const Features = () => {
           ))}
         </div>
         
-        {/* Autorelaxed ad format before pricing section */}
-        <AdBanner 
+        {/* Middle content ad */}
+        <EzoicAdBanner 
           size="large" 
-          format="autorelaxed" 
-          className="my-12 max-w-4xl mx-auto" 
-          adSlotId="9905273540" 
+          placeholderId={103}
+          adName="middle_of_page"
+          className="my-12 max-w-4xl mx-auto"
         />
         
         {/* Pricing section anchor */}

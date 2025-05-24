@@ -1,7 +1,7 @@
 
 import { useLocation } from "react-router-dom";
 import { useEffect } from "react";
-import AdBanner from "@/components/AdBanner";
+import EzoicAdBanner from "@/components/EzoicAdBanner";
 
 const NotFound = () => {
   const location = useLocation();
@@ -27,14 +27,14 @@ const NotFound = () => {
           
           {/* Ad banner placement in 404 page */}
           <div className="mt-8">
-            <AdBanner size="medium" adSlotId="5678901234" />
+            <EzoicAdBanner size="medium" placeholderId={104} adName="error_page" />
           </div>
         </div>
       </div>
       
       {/* Footer ad banner */}
       <div className="container mx-auto p-4">
-        <AdBanner size="large" position="footer" adSlotId="6789012345" />
+        <EzoicAdBanner size="large" position="footer" placeholderId={105} adName="error_page_footer" />
       </div>
     </div>
   );

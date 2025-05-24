@@ -5,30 +5,35 @@ import { initializeAnalytics, trackPageView, GTagEvent, GTagPageView } from '../
 
 declare global {
   interface Window {
-    adsbygoogle: Record<string, unknown>[];
     gtag: (command: string, action: string, params?: GTagEvent | GTagPageView) => void;
     dataLayer: unknown[];
+    ezstandalone: {
+      cmd: Array<() => void>;
+      showAds: (placeholderIds?: number | number[]) => void;
+      destroyPlaceholders: (placeholderIds: number | number[]) => void;
+      destroyAll: () => void;
+    };
   }
 }
 
 /**
- * GoogleAnalytics component for handling Google Analytics tracking
+ * GoogleAnalytics component for handling Google Analytics tracking and Ezoic ad refresh
  * This component initializes GA4 and tracks route changes in a SPA
  */
 const GoogleAnalytics = () => {
   const location = useLocation();
   const lastPath = useRef<string>(location.pathname);
   
-  // Initialize Google Analytics with Stream ID and Measurement ID on mount
+  // Initialize Google Analytics on mount
   useEffect(() => {
     initializeAnalytics();
     // Track initial page view
     trackPageView(location.pathname, document.title);
     
-    console.log('Google Analytics initialized with Measurement ID: G-LFFQYK81C6 and Stream ID: 11254147432');
+    console.log('Google Analytics initialized with Measurement ID: G-LFFQYK81C6');
   }, []);
   
-  // Track page views when route changes
+  // Track page views and refresh Ezoic ads when route changes
   useEffect(() => {
     // Only trigger on actual path changes
     if (lastPath.current !== location.pathname) {
@@ -39,18 +44,22 @@ const GoogleAnalytics = () => {
       trackPageView(location.pathname, document.title);
       console.log('Analytics: Page navigation tracked', location.pathname);
       
-      // Also handle AdSense if present
+      // Handle Ezoic ad refresh for SPA navigation
       try {
-        if (typeof window !== 'undefined' && window.adsbygoogle && Array.isArray(window.adsbygoogle)) {
-          console.log('AdSense: Pushing new ads after navigation');
-          // Push and execute new ads
-          window.adsbygoogle.push({});
+        if (typeof window !== 'undefined' && window.ezstandalone) {
+          window.ezstandalone.cmd.push(() => {
+            if (window.ezstandalone.showAds) {
+              // Refresh all ads on page change
+              window.ezstandalone.showAds();
+              console.log('Ezoic: Ads refreshed for navigation to', location.pathname);
+            }
+          });
         }
       } catch (error) {
-        console.error('Error handling page navigation for ads/analytics:', error);
+        console.error('Error handling Ezoic ads refresh on navigation:', error);
       }
     }
-  }, [location]); // Using the full location object handles changes to pathname
+  }, [location]);
   
   // This component doesn't render anything
   return null;
