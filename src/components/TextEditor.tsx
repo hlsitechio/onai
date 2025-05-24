@@ -1,6 +1,8 @@
 
 import React, { useState, useCallback } from "react";
 import { useToast } from "@/hooks/use-toast";
+import { useIsMobileDevice } from "@/hooks/useIsMobileDevice";
+import MobileLayout from "./mobile/MobileLayout";
 import NotesSidebar from "./NotesSidebar";
 import AISidebar from "./notes/AISidebar";
 import EditorContainer from "./editor/EditorContainer";
@@ -12,6 +14,7 @@ import { useSupabaseNotes } from "@/hooks/useSupabaseNotes";
 
 const TextEditor = () => {
   const { toast } = useToast();
+  const isMobileDevice = useIsMobileDevice();
   const [isLeftSidebarOpen, setIsLeftSidebarOpen] = useState(true);
   const [isAISidebarOpen, setIsAISidebarOpen] = useState(true);
   
@@ -67,6 +70,11 @@ const TextEditor = () => {
     isFocusMode,
     setFocusMode
   });
+
+  // Use mobile layout for mobile devices
+  if (isMobileDevice) {
+    return <MobileLayout />;
+  }
   
   return (
     <section id="editor-section" className={cn(

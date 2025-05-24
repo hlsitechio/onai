@@ -1,7 +1,9 @@
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* Import mobile-specific styles */
+@import './styles/mobile.css';
 
 /* Fix for white border on right side and panel containment */
 html, body {
