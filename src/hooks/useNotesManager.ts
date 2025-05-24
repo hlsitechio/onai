@@ -30,27 +30,41 @@ export const useNotesManager = ({
 
   const formatNoteId = (id: string): string => {
     if (id === 'current') return 'Current Note';
+    
+    // Always try to get a clean title from content first
+    const content = notes[id] || '';
+    if (content) {
+      const firstLine = content.split('\n')[0].trim();
+      if (firstLine && firstLine.length > 0) {
+        return firstLine.substring(0, 50) + (firstLine.length > 50 ? '...' : '');
+      }
+    }
+    
+    // Fallback for timestamp-based IDs
     try {
       const timestamp = Number(id);
-      if (isNaN(timestamp)) {
-        return id;
+      if (!isNaN(timestamp)) {
+        const date = new Date(timestamp);
+        if (date.toString() !== 'Invalid Date') {
+          return `Note ${date.toLocaleDateString()}`;
+        }
       }
-      const date = new Date(timestamp);
-      if (date.toString() === 'Invalid Date') {
-        return 'Note ' + id.slice(-4);
-      }
-      return date.toLocaleString();
     } catch (e) {
-      return 'Note ' + id.slice(-4);
+      // Continue to final fallback
     }
+    
+    // Final fallback - avoid showing UUIDs
+    return 'Untitled Note';
   };
 
   const handleLoadNote = (noteId: string) => {
     setActiveNoteId(noteId);
     onLoadNote(notes[noteId]);
+    
+    const displayName = customNoteNames[noteId] || formatNoteId(noteId);
     toast({
       title: "Note loaded",
-      description: `Loaded note from ${formatNoteId(noteId)}`
+      description: `Loaded "${displayName}"`
     });
   };
 
@@ -60,21 +74,24 @@ export const useNotesManager = ({
     
     if (success) {
       removeCustomName(noteId);
+      const displayName = customNoteNames[noteId] || formatNoteId(noteId);
       toast({
         title: "Note deleted",
-        description: `Deleted note from ${formatNoteId(noteId)}`
+        description: `Deleted "${displayName}"`
       });
     }
   };
 
   const handleRenameNote = async (oldNoteId: string, newNoteId: string): Promise<boolean> => {
     try {
-      const inputElement = document.querySelector(`[data-note-id="${oldNoteId}"] input`) as HTMLInputElement | null;
-      const displayName = inputElement?.value || '';
+      // Get the custom name that was set during editing
+      const inputElement = document.querySelector(`input[value]`) as HTMLInputElement | null;
+      const displayName = inputElement?.value || formatNoteId(oldNoteId);
       
       const result = await renameNote(oldNoteId, newNoteId);
       
       if (result.success) {
+        // Remove old custom name and set new one
         removeCustomName(oldNoteId);
         updateCustomName(newNoteId, displayName);
         
@@ -84,7 +101,7 @@ export const useNotesManager = ({
         
         toast({
           title: "Note renamed",
-          description: `Note renamed to "${displayName}"`
+          description: `Renamed to "${displayName}"`
         });
         
         return true;
