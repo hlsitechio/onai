@@ -69,12 +69,29 @@ const NotesSidebar: React.FC<NotesSidebarProps> = ({
   };
 
   const handleShareNote = async (service: 'onedrive' | 'googledrive' | 'device' | 'link') => {
-    const { shareNote } = await import("@/utils/notesStorage");
     const content = selectedNoteId ? notes[selectedNoteId] : currentContent;
-    const result = await shareNote(content, service);
-    if (result.success) {
-      // Handle successful share
+    const title = selectedNoteId ? (customNoteNames[selectedNoteId] || formatNoteId(selectedNoteId)) : 'Current Note';
+    
+    const { shareToOneDrive, shareToGoogleDrive, shareToDevice, createShareLink } = await import("@/utils/shareUtils");
+    
+    let result;
+    switch (service) {
+      case 'onedrive':
+        result = await shareToOneDrive(content, title);
+        break;
+      case 'googledrive':
+        result = await shareToGoogleDrive(content, title);
+        break;
+      case 'device':
+        result = await shareToDevice(content, title);
+        break;
+      case 'link':
+        result = await createShareLink(content);
+        break;
+      default:
+        result = { success: false, error: 'Unknown share service' };
     }
+    
     setIsShareOpen(false);
     return result.shareUrl || "";
   };
@@ -82,14 +99,12 @@ const NotesSidebar: React.FC<NotesSidebarProps> = ({
   const handleImportNotesWithMerge = () => {
     handleImportNotes(async (importedNotes) => {
       try {
-        // If parent component has import handler, use it
         if (onImportNotes) {
           const success = await onImportNotes(importedNotes);
           if (!success) {
             console.error('Failed to import notes via parent component');
           }
         } else {
-          // Fallback: just log the imported notes
           console.log('Imported notes (no parent handler):', importedNotes);
         }
       } catch (error) {
@@ -158,6 +173,8 @@ const NotesSidebar: React.FC<NotesSidebarProps> = ({
             <NotesStats 
               notesCount={Object.keys(notes).length}
               sortOrder={sortOrder}
+              notes={notes}
+              customNoteNames={customNoteNames}
             />
           </div>
 

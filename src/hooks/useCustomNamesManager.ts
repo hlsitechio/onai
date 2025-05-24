@@ -1,43 +1,49 @@
 
 import { useState, useEffect } from 'react';
 
-interface CustomNamesManager {
-  customNoteNames: Record<string, string>;
-  updateCustomName: (noteId: string, displayName: string) => void;
-  removeCustomName: (noteId: string) => void;
-}
-
-export const useCustomNamesManager = (): CustomNamesManager => {
+export const useCustomNamesManager = () => {
   const [customNoteNames, setCustomNoteNames] = useState<Record<string, string>>({});
 
+  // Load custom names from localStorage on mount
   useEffect(() => {
-    // Load custom note names from local storage
-    const savedNames = localStorage.getItem('noteflow-custom-names');
-    if (savedNames) {
+    const saved = localStorage.getItem('onlinenote-custom-names');
+    if (saved) {
       try {
-        setCustomNoteNames(JSON.parse(savedNames));
-      } catch (e) {
-        console.error('Error loading custom note names:', e);
+        setCustomNoteNames(JSON.parse(saved));
+      } catch (error) {
+        console.error('Error loading custom names:', error);
       }
     }
   }, []);
 
-  const updateCustomName = (noteId: string, displayName: string) => {
-    const updatedNames = { ...customNoteNames, [noteId]: displayName };
-    setCustomNoteNames(updatedNames);
-    localStorage.setItem('noteflow-custom-names', JSON.stringify(updatedNames));
+  // Save to localStorage whenever custom names change
+  useEffect(() => {
+    localStorage.setItem('onlinenote-custom-names', JSON.stringify(customNoteNames));
+  }, [customNoteNames]);
+
+  const updateCustomName = (noteId: string, name: string) => {
+    setCustomNoteNames(prev => ({
+      ...prev,
+      [noteId]: name
+    }));
   };
 
   const removeCustomName = (noteId: string) => {
-    const updatedNames = { ...customNoteNames };
-    delete updatedNames[noteId];
-    setCustomNoteNames(updatedNames);
-    localStorage.setItem('noteflow-custom-names', JSON.stringify(updatedNames));
+    setCustomNoteNames(prev => {
+      const updated = { ...prev };
+      delete updated[noteId];
+      return updated;
+    });
+  };
+
+  const getCustomName = (noteId: string) => {
+    return customNoteNames[noteId] || '';
   };
 
   return {
     customNoteNames,
     updateCustomName,
-    removeCustomName
+    removeCustomName,
+    getCustomName
   };
 };
