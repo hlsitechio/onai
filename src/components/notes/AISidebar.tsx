@@ -83,7 +83,7 @@ const AISidebar: React.FC<AISidebarProps> = ({
         </div>
       </div>
 
-      <div className="p-4 flex flex-col gap-4 flex-1 overflow-y-auto bg-gray-950">
+      <div className="p-4 flex flex-col gap-4 flex-1 overflow-y-auto bg-[#03010a]">
         {/* Usage info with privacy badge */}
         <div className="flex flex-col gap-1.5">
           <div className="flex items-center justify-between">
