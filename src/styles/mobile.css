@@ -13,7 +13,7 @@
   }
 }
 
-/* Better touch targets */
+/* Better touch targets and reduced spacing */
 @media (max-width: 768px) {
   button, 
   .touch-target {
@@ -66,26 +66,100 @@
     -webkit-text-size-adjust: 100%;
     text-size-adjust: 100%;
   }
+  
+  /* Reduce spacing between sections on mobile */
+  .mobile-compact {
+    padding-top: 1rem !important;
+    padding-bottom: 1rem !important;
+  }
+  
+  /* Mobile header improvements */
+  header {
+    backdrop-filter: blur(12px);
+  }
+  
+  /* Compact mobile menu */
+  .mobile-menu {
+    max-height: calc(100vh - 60px);
+    overflow-y: auto;
+  }
 }
 
 /* Landscape mode optimizations */
 @media screen and (max-width: 768px) and (orientation: landscape) {
   .mobile-toolbar {
-    padding: 8px 16px;
+    padding: 6px 12px;
   }
   
   .mobile-editor {
-    min-height: calc(100vh - 80px);
+    min-height: calc(100vh - 60px);
+  }
+  
+  /* Reduce vertical padding in landscape */
+  #editor-section {
+    padding-top: 1rem !important;
+    padding-bottom: 1rem !important;
   }
 }
 
 /* Very small screens */
 @media screen and (max-width: 320px) {
   .mobile-toolbar {
-    padding: 12px 8px;
+    padding: 8px 6px;
   }
   
   .mobile-toolbar button {
-    padding: 8px;
+    padding: 6px;
+  }
+  
+  /* Extra compact spacing for very small screens */
+  .container {
+    padding-left: 0.75rem;
+    padding-right: 0.75rem;
+  }
+}
+
+/* Improve mobile readability */
+@media (max-width: 768px) {
+  /* Better line height for mobile reading */
+  [contenteditable] {
+    line-height: 1.6;
+  }
+  
+  /* Larger touch targets for mobile toolbar */
+  .mobile-toolbar button {
+    min-width: 44px;
+    min-height: 44px;
+  }
+  
+  /* Optimize mobile menu animations */
+  .mobile-menu-enter {
+    animation: slideDown 0.2s ease-out;
+  }
+  
+  .mobile-menu-exit {
+    animation: slideUp 0.2s ease-in;
+  }
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-10px);
   }
 }

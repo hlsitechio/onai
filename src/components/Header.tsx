@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useFocusMode } from '../contexts/useFocusMode';
 import { Menu, X, Settings, Mail, Home, Heart } from "lucide-react";
@@ -50,20 +51,23 @@ const Header = () => {
   return (
     <header className={`z-20 w-full fixed top-0 transition-transform duration-300 ${isHeaderVisible ? 'translate-y-0' : '-translate-y-full'}`}>
       <div className={`${isScrolled ? 'bg-black/40' : 'bg-transparent'} transition-all duration-300`}>
-        <div className="container mx-auto px-4 py-4 flex items-center justify-between">
+        <div className="container mx-auto px-4 py-3 flex items-center justify-between">
+          {/* Logo */}
           <div className="flex items-center">
             <a 
               href="/" 
               className="flex items-center group hover:opacity-80 transition-opacity"
               onClick={() => trackPageView('/', 'Home')}
             >
-              <Home size={20} className="mr-2 text-indigo-400 group-hover:text-indigo-300 transition-colors" />
-              <h1 className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-indigo-400 to-purple-500">Online Note AI</h1>
+              <Home size={18} className="mr-2 text-indigo-400 group-hover:text-indigo-300 transition-colors" />
+              <h1 className="text-lg md:text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-indigo-400 to-purple-500">
+                Online Note AI
+              </h1>
             </a>
           </div>
 
-          {/* Desktop navigation menu */}
-          <div className="hidden md:flex items-center space-x-6">
+          {/* Desktop navigation */}
+          <div className="hidden md:flex items-center space-x-4">
             <a 
               href="/privacy-policy" 
               className="text-gray-300 hover:text-white text-sm transition-colors"
@@ -102,11 +106,21 @@ const Header = () => {
             </button>
           </div>
         
-          {/* Mobile menu button */}
-          <div className="md:hidden">
+          {/* Mobile: Sponsor + Menu */}
+          <div className="md:hidden flex items-center gap-2">
+            {/* Prominent Sponsor Button */}
+            <button
+              onClick={handleOpenSponsorDialog}
+              className="flex items-center gap-1 px-3 py-2 rounded-full bg-gradient-to-r from-purple-500 to-indigo-500 hover:from-purple-600 hover:to-indigo-600 shadow-lg text-white text-sm font-medium transition-all duration-200 transform hover:scale-105"
+            >
+              <Heart size={16} className="text-white animate-pulse" />
+              <span>Sponsor</span>
+            </button>
+            
+            {/* Menu Button */}
             <button 
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="text-white p-2 rounded-full hover:bg-black/20 transition-all duration-200"
+              className="text-white p-2 rounded-full hover:bg-white/10 transition-all duration-200"
             >
               {mobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
             </button>
@@ -114,60 +128,51 @@ const Header = () => {
         </div>
       </div>
       
-      {/* Mobile menu */}
+      {/* Improved Mobile menu */}
       {mobileMenuOpen && (
-        <div className="absolute top-full left-0 w-full bg-black/20 py-4 md:hidden">
-          <div className="container mx-auto px-4 flex flex-col space-y-3">
+        <div className="absolute top-full left-0 w-full bg-black/95 backdrop-blur-lg md:hidden border-t border-white/10">
+          <div className="container mx-auto px-4 py-4">
+            {/* Get Started Button */}
             <a 
               href="#editor-section" 
-              className="block mt-4 px-4 py-2 bg-gradient-to-r from-indigo-500 to-purple-600 text-white rounded-md hover:from-indigo-600 hover:to-purple-700 transition-all duration-300 text-center backdrop-blur-sm"
+              className="block w-full mb-4 px-4 py-3 bg-gradient-to-r from-indigo-500 to-purple-600 text-white rounded-lg hover:from-indigo-600 hover:to-purple-700 transition-all duration-300 text-center font-medium shadow-lg"
               onClick={() => setMobileMenuOpen(false)}
             >
               Get Started
             </a>
             
-            {/* Mobile sitemap links */}
-            <div className="flex flex-col space-y-3 mt-2 px-2">
-              <button
-                className="text-white text-sm transition-colors py-2 px-3 bg-gradient-to-r from-purple-500 to-indigo-500 rounded-lg flex items-center gap-1 mb-2 shadow-md w-full justify-center"
-                onClick={() => {
-                  handleOpenSponsorDialog();
-                  setMobileMenuOpen(false);
-                }}
-              >
-                <Heart size={14} className="text-white animate-pulse" />
-                Sponsor
-              </button>
+            {/* Navigation Links */}
+            <div className="space-y-1">
               <a
                 href="/privacy-policy"
-                className="text-gray-300 hover:text-white text-sm transition-colors py-1 pt-3"
+                className="block px-4 py-3 text-gray-300 hover:text-white hover:bg-white/10 rounded-lg transition-all duration-200"
                 onClick={() => setMobileMenuOpen(false)}
               >
                 Privacy Policy
               </a>
               <a 
                 href="/terms-of-use" 
-                className="text-gray-300 hover:text-white text-sm transition-colors py-1"
+                className="block px-4 py-3 text-gray-300 hover:text-white hover:bg-white/10 rounded-lg transition-all duration-200"
                 onClick={() => setMobileMenuOpen(false)}
               >
                 Terms of Use
               </a>
               <a
                 href="/cookie-settings"
-                className="text-gray-300 hover:text-white text-sm transition-colors py-1 flex items-center gap-1"
+                className="flex items-center gap-2 px-4 py-3 text-gray-300 hover:text-white hover:bg-white/10 rounded-lg transition-all duration-200"
                 onClick={() => setMobileMenuOpen(false)}
               >
-                <Settings size={14} />
+                <Settings size={16} />
                 Cookie Settings
               </a>
               <button
-                className="text-gray-300 hover:text-white text-sm transition-colors py-1 flex items-center gap-1 pt-3 mt-2"
+                className="flex items-center gap-2 w-full px-4 py-3 text-gray-300 hover:text-white hover:bg-white/10 rounded-lg transition-all duration-200 text-left"
                 onClick={() => {
                   handleOpenContactDialog();
                   setMobileMenuOpen(false);
                 }}
               >
-                <Mail size={14} />
+                <Mail size={16} />
                 Contact Us
               </button>
             </div>

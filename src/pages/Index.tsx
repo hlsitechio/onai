@@ -19,32 +19,31 @@ const Index = () => {
         <Hero />
       </div>
       
-      {/* Main editor section with improved visibility - removed vertical margins */}
-      <div id="editor-section" className="container mx-auto px-2 sm:px-3 md:px-4 relative z-10 max-w-[96%] lg:max-w-[94%] xl:max-w-[92%]">
-        {/* Beta Test Banner */}
-        <div className="w-full max-w-[1200px] mx-auto mb-4">
-          <div className="bg-gradient-to-r from-orange-500/20 to-yellow-500/20 border border-orange-400/30 rounded-lg text-center py-[10px] px-[14px]">
-            <span className="text-orange-300 font-medium text-sm">
+      {/* Main editor section with improved mobile spacing */}
+      <div id="editor-section" className="container mx-auto px-3 sm:px-4 md:px-6 relative z-10 max-w-[96%] lg:max-w-[94%] xl:max-w-[92%]">
+        {/* Beta Test Banner - Smaller on mobile */}
+        <div className="w-full max-w-[1200px] mx-auto mb-3 md:mb-4">
+          <div className="bg-gradient-to-r from-orange-500/20 to-yellow-500/20 border border-orange-400/30 rounded-lg text-center py-2 md:py-3 px-3 md:px-4">
+            <span className="text-orange-300 font-medium text-xs md:text-sm">
               🧪 Beta Test - This application is currently in beta testing phase
             </span>
           </div>
         </div>
         
-        <div className="mx-auto w-full py-[57px]">
-          {/* Removed heading to eliminate separation */}
+        {/* Reduced padding on mobile for less scrolling */}
+        <div className="mx-auto w-full py-6 md:py-12 lg:py-16">
           <div className="w-full max-w-[1200px] mx-auto">
             <TextEditor />
           </div>
         </div>
       </div>
       
-      {/* Feature showcase section */}
-      <div className="blur-in-focus-mode">
+      {/* Feature showcase section - Hidden on mobile to reduce scrolling */}
+      <div className="blur-in-focus-mode hidden md:block">
         <FeatureShowcase />
       </div>
       
-      {/* No manual ad placements - Ezoic will auto-insert */}
-      
+      {/* Compact mobile footer */}
       <div className="blur-in-focus-mode">
         <Footer />
       </div>
