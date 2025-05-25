@@ -14,8 +14,8 @@ interface CompanySponsorsSectionProps {
 }
 
 const CompanySponsorsSection: React.FC<CompanySponsorsSectionProps> = ({ sponsors }) => {
-  // Duplicate sponsors for seamless loop
-  const duplicatedSponsors = [...sponsors, ...sponsors];
+  // Only duplicate if we have more than 3 sponsors to avoid obvious repetition
+  const displaySponsors = sponsors.length > 3 ? [...sponsors, ...sponsors] : sponsors;
 
   return (
     <div className="mb-16">
@@ -25,32 +25,56 @@ const CompanySponsorsSection: React.FC<CompanySponsorsSectionProps> = ({ sponsor
         <p className="text-gray-400 text-sm">Trusted by leading companies worldwide</p>
       </div>
       
-      {/* Auto-scrolling Logo Container - No borders */}
+      {/* Logo Container - Static layout for few sponsors */}
       <div className="relative overflow-hidden py-8">
-        <div 
-          className="flex animate-[scroll_30s_linear_infinite] hover:[animation-play-state:paused]"
-          style={{
-            width: 'calc(200% + 4rem)', // Account for gaps
-          }}
-        >
-          {duplicatedSponsors.map((sponsor, index) => (
-            <div key={index} className="flex-shrink-0 mx-8">
-              <div className="block group cursor-default">
-                <div className="w-40 h-20 flex items-center justify-center p-4 group-hover:scale-105 transition-all duration-300">
-                  <img 
-                    src={sponsor.logo} 
-                    alt={`${sponsor.name} logo`}
-                    className="max-w-full max-h-full object-contain filter grayscale group-hover:grayscale-0 transition-all duration-300 opacity-70 group-hover:opacity-100"
-                  />
-                </div>
-                <div className="text-center mt-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                  <p className="text-white text-sm font-medium">{sponsor.name}</p>
-                  <p className="text-purple-400 text-xs">{sponsor.sponsorshipLevel}</p>
+        {sponsors.length <= 3 ? (
+          // Static centered layout for 3 or fewer sponsors
+          <div className="flex justify-center items-center gap-12">
+            {sponsors.map((sponsor, index) => (
+              <div key={index} className="flex-shrink-0">
+                <div className="block group cursor-default">
+                  <div className="w-40 h-20 flex items-center justify-center p-4 group-hover:scale-105 transition-all duration-300">
+                    <img 
+                      src={sponsor.logo} 
+                      alt={`${sponsor.name} logo`}
+                      className="max-w-full max-h-full object-contain filter grayscale group-hover:grayscale-0 transition-all duration-300 opacity-70 group-hover:opacity-100"
+                    />
+                  </div>
+                  <div className="text-center mt-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                    <p className="text-white text-sm font-medium">{sponsor.name}</p>
+                    <p className="text-purple-400 text-xs">{sponsor.sponsorshipLevel}</p>
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        ) : (
+          // Scrolling layout for more sponsors
+          <div 
+            className="flex animate-[scroll_30s_linear_infinite] hover:[animation-play-state:paused]"
+            style={{
+              width: 'calc(200% + 4rem)', // Account for gaps
+            }}
+          >
+            {displaySponsors.map((sponsor, index) => (
+              <div key={index} className="flex-shrink-0 mx-8">
+                <div className="block group cursor-default">
+                  <div className="w-40 h-20 flex items-center justify-center p-4 group-hover:scale-105 transition-all duration-300">
+                    <img 
+                      src={sponsor.logo} 
+                      alt={`${sponsor.name} logo`}
+                      className="max-w-full max-h-full object-contain filter grayscale group-hover:grayscale-0 transition-all duration-300 opacity-70 group-hover:opacity-100"
+                    />
+                  </div>
+                  <div className="text-center mt-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                    <p className="text-white text-sm font-medium">{sponsor.name}</p>
+                    <p className="text-purple-400 text-xs">{sponsor.sponsorshipLevel}</p>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
         
         {/* Disclaimer in bottom right corner */}
         <div className="absolute bottom-2 right-4">
