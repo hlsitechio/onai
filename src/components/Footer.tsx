@@ -1,6 +1,5 @@
 
 import React, { useState } from "react";
-import { Separator } from "./ui/separator";
 import { Mail } from "lucide-react";
 import { Button } from './ui/button';
 import PrivacyNotice from "./PrivacyNotice";

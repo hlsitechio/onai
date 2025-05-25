@@ -66,7 +66,7 @@ const Index = () => {
         <FeatureShowcase />
       </div>
       
-      {/* Compact mobile footer */}
+      {/* Compact mobile footer - Hide any separator before it */}
       <div className="blur-in-focus-mode">
         <Footer />
       </div>
