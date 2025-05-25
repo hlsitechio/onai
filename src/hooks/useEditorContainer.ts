@@ -16,35 +16,18 @@ export const useEditorContainer = ({ content, setContent }: UseEditorContainerPr
   }, [content]);
 
   const handleSpeechTranscript = (transcript: string) => {
-    if (editorRef.current) {
-      const selection = window.getSelection();
-      if (selection && selection.rangeCount > 0) {
-        const range = selection.getRangeAt(0);
-        range.deleteContents();
-        
-        // Create text node and insert it
-        const textNode = document.createTextNode(transcript + " ");
-        range.insertNode(textNode);
-        
-        // Move cursor to end of inserted text
-        range.setStartAfter(textNode);
-        range.collapse(true);
-        selection.removeAllRanges();
-        selection.addRange(range);
-        
-        // Update content
-        setContent(editorRef.current.innerHTML);
-      } else {
-        // If no selection, append to end
-        editorRef.current.innerHTML += transcript + " ";
-        setContent(editorRef.current.innerHTML);
-      }
-      
-      editorRef.current.focus();
-    }
+    if (!transcript.trim()) return;
+    
+    // Insert transcript at current cursor position or append to content
+    const newContent = content + (content.endsWith('\n') || content === '' ? '' : '\n') + transcript + ' ';
+    setContent(newContent);
   };
 
   const handleApplyAIChanges = (newContent: string) => {
+    if (typeof newContent !== 'string') {
+      console.error('Invalid content type provided to handleApplyAIChanges');
+      return;
+    }
     setContent(newContent);
     if (editorRef.current) {
       editorRef.current.innerHTML = newContent;

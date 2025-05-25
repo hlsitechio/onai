@@ -28,17 +28,21 @@ export const useEditableContentAI = ({
     const textarea = textareaRef.current;
     if (!textarea) return;
 
-    const start = textarea.selectionStart;
-    const end = textarea.selectionEnd;
-    const selectedText = textarea.value.substring(start, end);
-    
-    handleTextSelection({
-      text: selectedText,
-      start,
-      end
-    });
-    
-    updateCursorPosition(start);
+    try {
+      const start = textarea.selectionStart;
+      const end = textarea.selectionEnd;
+      const selectedText = textarea.value.substring(start, end);
+      
+      handleTextSelection({
+        text: selectedText,
+        start,
+        end
+      });
+      
+      updateCursorPosition(start);
+    } catch (error) {
+      console.error('Error handling text area selection:', error);
+    }
   };
 
   // Handle cursor position changes
@@ -46,16 +50,24 @@ export const useEditableContentAI = ({
     const textarea = textareaRef.current;
     if (!textarea) return;
     
-    updateCursorPosition(textarea.selectionStart);
+    try {
+      updateCursorPosition(textarea.selectionStart);
+    } catch (error) {
+      console.error('Error handling cursor change:', error);
+    }
   };
 
   // Keyboard shortcuts for AI agent
   useEffect(() => {
     const handleKeydown = (e: KeyboardEvent) => {
-      // Ctrl/Cmd + Shift + A to toggle AI agent
-      if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key === 'A') {
-        e.preventDefault();
-        onToggleAIAgent?.();
+      try {
+        // Ctrl/Cmd + Shift + A to toggle AI agent
+        if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key === 'A') {
+          e.preventDefault();
+          onToggleAIAgent?.();
+        }
+      } catch (error) {
+        console.error('Error handling keyboard shortcut:', error);
       }
     };
 

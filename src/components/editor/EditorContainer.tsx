@@ -46,6 +46,10 @@ const EditorContainer: React.FC<EditorContainerProps> = ({
   } = useEditorContainer({ content, setContent });
 
   const handleInsertText = (text: string) => {
+    if (!text || typeof text !== 'string') {
+      console.error('Invalid text provided to handleInsertText');
+      return;
+    }
     // Insert text at current cursor position or append to content
     const newContent = content + (content.endsWith('\n') || content === '' ? '' : '\n') + text;
     setContent(newContent);

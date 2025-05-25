@@ -19,6 +19,30 @@ const TextAreaEditor: React.FC<TextAreaEditorProps> = ({
   onTextAreaSelection,
   onCursorChange
 }) => {
+  const handleContentChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    try {
+      onContentChange(e.target.value);
+    } catch (error) {
+      console.error('Error handling content change in TextAreaEditor:', error);
+    }
+  };
+
+  const handleSelection = () => {
+    try {
+      onTextAreaSelection();
+    } catch (error) {
+      console.error('Error handling selection in TextAreaEditor:', error);
+    }
+  };
+
+  const handleCursorChange = () => {
+    try {
+      onCursorChange();
+    } catch (error) {
+      console.error('Error handling cursor change in TextAreaEditor:', error);
+    }
+  };
+
   return (
     <>
       {/* Subtle glow effect behind the text area in focus mode */}
@@ -49,11 +73,11 @@ const TextAreaEditor: React.FC<TextAreaEditorProps> = ({
         }}
         spellCheck="true"
         value={rawContent}
-        onChange={(e) => onContentChange(e.target.value)}
-        onSelect={onTextAreaSelection}
-        onMouseUp={onTextAreaSelection}
-        onKeyUp={onCursorChange}
-        onClick={onCursorChange}
+        onChange={handleContentChange}
+        onSelect={handleSelection}
+        onMouseUp={handleSelection}
+        onKeyUp={handleCursorChange}
+        onClick={handleCursorChange}
         placeholder="Start typing your note here...
 
 💡 Tip: Select text and use AI actions, or press Ctrl+Shift+A for the AI agent"

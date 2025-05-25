@@ -22,7 +22,10 @@ export const useTextAreaOperations = ({
 
   const handleTextReplace = (newText: string) => {
     const textarea = textareaRef.current;
-    if (!textarea) return;
+    if (!textarea || typeof newText !== 'string') {
+      console.error('Invalid parameters for handleTextReplace');
+      return;
+    }
 
     const start = textarea.selectionStart;
     const end = textarea.selectionEnd;
@@ -43,7 +46,10 @@ export const useTextAreaOperations = ({
 
   const handleTextInsert = (text: string) => {
     const textarea = textareaRef.current;
-    if (!textarea) return;
+    if (!textarea || !text || typeof text !== 'string') {
+      console.error('Invalid parameters for handleTextInsert');
+      return;
+    }
 
     const cursorPos = textarea.selectionStart;
     const beforeCursor = rawContent.substring(0, cursorPos);
@@ -68,13 +74,22 @@ export const useTextAreaOperations = ({
   };
 
   const handleContentChange = (newContent: string) => {
+    if (typeof newContent !== 'string') {
+      console.error('Invalid content type provided to handleContentChange');
+      return;
+    }
     setRawContent(newContent);
     setContent(newContent);
   };
 
   const handleSpeechTranscript = (transcript: string) => {
     if (!transcript.trim() || !onSpeechTranscript) return;
-    onSpeechTranscript(transcript);
+    
+    try {
+      onSpeechTranscript(transcript);
+    } catch (error) {
+      console.error('Error handling speech transcript:', error);
+    }
   };
 
   return {
