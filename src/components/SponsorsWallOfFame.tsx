@@ -110,7 +110,7 @@ const SponsorsWallOfFame = () => {
   };
 
   return (
-    <section className="py-16 px-4 bg-gradient-to-b from-[#050510] to-[#0a0a1a]">
+    <section className="py-16 px-4 bg-gradient-to-b from-[#050510] to-[#0a0a1a] overflow-hidden">
       <div className="container mx-auto max-w-6xl">
         {/* Header */}
         <div className="text-center mb-12">
@@ -151,13 +151,18 @@ const SponsorsWallOfFame = () => {
         <div className="mb-16">
           {/* Section Header */}
           <div className="text-center mb-8">
-            <p className="text-gray-400 text-sm uppercase tracking-wider mb-2">Our Clients</p>
-            <h3 className="text-3xl md:text-4xl font-bold text-white">Meet Our Sponsors</h3>
+            <h3 className="text-2xl md:text-3xl font-bold text-white mb-2">Meet Our Sponsors</h3>
+            <p className="text-gray-400 text-sm">Trusted by leading companies worldwide</p>
           </div>
           
           {/* Auto-scrolling Logo Container */}
           <div className="relative overflow-hidden bg-white/5 backdrop-blur-sm rounded-xl border border-white/10 py-8">
-            <div className="flex animate-[scroll_30s_linear_infinite] hover:[animation-play-state:paused]">
+            <div 
+              className="flex animate-[scroll_30s_linear_infinite] hover:[animation-play-state:paused]"
+              style={{
+                width: 'calc(200% + 4rem)', // Account for gaps
+              }}
+            >
               {duplicatedSponsors.map((sponsor, index) => (
                 <div key={index} className="flex-shrink-0 mx-8">
                   <a 
@@ -226,18 +231,6 @@ const SponsorsWallOfFame = () => {
           </div>
         </div>
       </div>
-
-      {/* Custom CSS for the scrolling animation */}
-      <style jsx>{`
-        @keyframes scroll {
-          0% {
-            transform: translateX(0);
-          }
-          100% {
-            transform: translateX(-50%);
-          }
-        }
-      `}</style>
     </section>
   );
 };
