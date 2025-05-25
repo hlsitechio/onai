@@ -1,3 +1,4 @@
+
 import React from 'react';
 import WallOfFameHeader from './sponsors/WallOfFameHeader';
 import CompanySponsorsSection from './sponsors/CompanySponsorsSection';
@@ -43,13 +44,6 @@ const SponsorsWallOfFame = () => {
   // Company sponsors with actual logos
   const companySponsors = [
     {
-      name: "McDonald's",
-      logo: "https://logos-world.net/wp-content/uploads/2020/04/McDonalds-Logo.png",
-      website: "https://mcdonalds.com",
-      tier: "platinum",
-      sponsorshipLevel: "$500+"
-    },
-    {
       name: "Google",
       logo: "https://logos-world.net/wp-content/uploads/2020/09/Google-Logo.png",
       website: "https://google.com",
@@ -62,13 +56,6 @@ const SponsorsWallOfFame = () => {
       website: "https://apple.com",
       tier: "silver",
       sponsorshipLevel: "$100+"
-    },
-    {
-      name: "Tesla",
-      logo: "https://logos-world.net/wp-content/uploads/2020/04/Tesla-Logo.png",
-      website: "https://tesla.com",
-      tier: "gold",
-      sponsorshipLevel: "$250+"
     },
     {
       name: "Amazon",
