@@ -1,6 +1,5 @@
 
 import { CheckCircle } from "lucide-react";
-import EzoicAdBanner from "./EzoicAdBanner";
 
 const Features = () => {
   const features = [{
@@ -28,13 +27,7 @@ const Features = () => {
       <div className="container mx-auto max-w-6xl">
         <h2 className="text-3xl md:text-4xl font-poppins font-bold text-center mb-12 text-gray-200">Why Choose Online Note AI?</h2>
         
-        {/* In-article ad format above features */}
-        <EzoicAdBanner 
-          size="medium" 
-          placeholderId={102}
-          adName="in_article"
-          className="my-8 max-w-4xl mx-auto"
-        />
+        {/* Removed manual ad placement - Ezoic will auto-insert */}
         
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {features.map((feature, index) => (
@@ -48,13 +41,7 @@ const Features = () => {
           ))}
         </div>
         
-        {/* Middle content ad */}
-        <EzoicAdBanner 
-          size="large" 
-          placeholderId={103}
-          adName="middle_of_page"
-          className="my-12 max-w-4xl mx-auto"
-        />
+        {/* Removed manual ad placement - Ezoic will auto-insert */}
         
         {/* Pricing section anchor */}
         <div id="pricing" className="mt-20">

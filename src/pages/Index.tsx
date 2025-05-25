@@ -4,7 +4,6 @@ import Hero from "@/components/Hero";
 import TextEditor from "@/components/TextEditor";
 import { useFocusMode } from "@/contexts";
 import Footer from "@/components/Footer";
-import EzoicAdBanner from "@/components/EzoicAdBanner";
 import FeatureShowcase from "@/components/FeatureShowcase";
 
 const Index = () => {
@@ -44,26 +43,7 @@ const Index = () => {
         <FeatureShowcase />
       </div>
       
-      {/* Optimized ad placement between sections */}
-      {/* Hide ad banner in focus mode */}
-      {!isFocusMode && <div className="container mx-auto px-4 py-6">
-          <div className="flex justify-center">
-            <EzoicAdBanner size="small" placeholderId={100} adName="top_of_page" className="my-4" />
-          </div>
-        </div>}
-      
-      {/* No newsletter section as requested */}
-      
-      {/* Optimized ad placement before footer */}
-      <div className="blur-in-focus-mode">
-        <div className="container mx-auto px-4 mb-8">
-          <div className="max-w-3xl mx-auto">
-            <div className="flex justify-center">
-              <EzoicAdBanner size="medium" placeholderId={101} adName="bottom_of_page" className="mx-auto" />
-            </div>
-          </div>
-        </div>
-      </div>
+      {/* No manual ad placements - Ezoic will auto-insert */}
       
       <div className="blur-in-focus-mode">
         <Footer />
