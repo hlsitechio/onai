@@ -1,3 +1,4 @@
+
 import React from "react";
 import { 
   Bold, 
@@ -31,7 +32,6 @@ import { Separator } from "@/components/ui/separator";
 import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from "@/components/ui/tooltip";
 import { cn, formatDistanceToNow } from "@/lib/utils";
 import SpeechToTextButton from "./SpeechToTextButton";
-import OCRButton from "./notes/OCRButton";
 import AIActionsDropdown from "./notes/AIActionsDropdown";
 
 interface TextEditorToolbarProps {
@@ -79,24 +79,6 @@ const TextEditorToolbar: React.FC<TextEditorToolbarProps> = ({
     } else {
       // If no selection, just insert the markdown syntax
       document.execCommand('insertText', false, `${prefix}${suffix}`);
-    }
-  };
-
-  const handleOCRTextExtracted = (extractedText: string) => {
-    // Insert the extracted text at the current cursor position
-    const selection = window.getSelection();
-    if (selection && selection.rangeCount > 0) {
-      const range = selection.getRangeAt(0);
-      range.deleteContents();
-      const textNode = document.createTextNode(extractedText);
-      range.insertNode(textNode);
-      range.setStartAfter(textNode);
-      range.collapse(true);
-      selection.removeAllRanges();
-      selection.addRange(range);
-    } else {
-      // If no selection, use execCommand as fallback
-      document.execCommand('insertText', false, extractedText);
     }
   };
 
@@ -154,12 +136,6 @@ const TextEditorToolbar: React.FC<TextEditorToolbarProps> = ({
         </Button>
 
         <div className="w-px h-6 bg-white/10 hidden md:block"></div>
-
-        {/* OCR Button */}
-        <OCRButton 
-          onTextExtracted={handleOCRTextExtracted}
-          className="p-1.5 md:p-2"
-        />
 
         {/* Speech to Text */}
         <div className="flex items-center gap-1">
