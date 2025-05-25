@@ -1,5 +1,6 @@
 
-import React, { useState } from "react";
+import React, { useState, useRef, useEffect } from "react";
+import { createPortal } from "react-dom";
 import { Button } from "@/components/ui/button";
 import { 
   ChevronDown,
@@ -23,6 +24,8 @@ const AIActionsDropdown: React.FC<AIActionsDropdownProps> = ({
   onApplyChanges
 }) => {
   const [isOpen, setIsOpen] = useState(false);
+  const [position, setPosition] = useState({ x: 0, y: 0 });
+  const buttonRef = useRef<HTMLButtonElement>(null);
 
   const handleAIAction = (action: string) => {
     console.log(`AI Action triggered: ${action}`, { content });
@@ -30,13 +33,42 @@ const AIActionsDropdown: React.FC<AIActionsDropdownProps> = ({
     setIsOpen(false);
   };
 
+  const toggleDropdown = () => {
+    if (!isOpen && buttonRef.current) {
+      const rect = buttonRef.current.getBoundingClientRect();
+      setPosition({
+        x: rect.right - 256, // 256px is the width of the dropdown (w-64)
+        y: rect.bottom + 8
+      });
+    }
+    setIsOpen(!isOpen);
+  };
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (buttonRef.current && !buttonRef.current.contains(event.target as Node)) {
+        setIsOpen(false);
+      }
+    };
+
+    if (isOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [isOpen]);
+
   return (
-    <div className="relative z-[99999]">
+    <>
       {/* AI Actions Trigger Button */}
       <Button
+        ref={buttonRef}
         variant="ghost"
         size="sm"
-        onClick={() => setIsOpen(!isOpen)}
+        onClick={toggleDropdown}
         className={cn(
           "p-1.5 md:p-2 transition-all duration-200",
           isOpen 
@@ -50,15 +82,16 @@ const AIActionsDropdown: React.FC<AIActionsDropdownProps> = ({
         {isOpen ? <ChevronUp className="h-3 w-3 ml-1" /> : <ChevronDown className="h-3 w-3 ml-1" />}
       </Button>
 
-      {/* AI Agent Actions Panel */}
-      {isOpen && (
-        <div className="fixed top-full right-0 mt-2 w-64 bg-gray-900/95 backdrop-blur-xl rounded-xl overflow-hidden flex flex-col shadow-[0_8px_30px_rgb(0,0,0,0.6)] border border-gray-700/50 z-[99999]"
-             style={{ 
-               position: 'fixed',
-               top: '60px',
-               right: '20px',
-               zIndex: 99999
-             }}>
+      {/* AI Agent Actions Panel - Rendered as Portal */}
+      {isOpen && createPortal(
+        <div 
+          className="fixed w-64 bg-gray-900/95 backdrop-blur-xl rounded-xl overflow-hidden flex flex-col shadow-[0_8px_30px_rgb(0,0,0,0.6)] border border-gray-700/50"
+          style={{ 
+            left: `${position.x}px`,
+            top: `${position.y}px`,
+            zIndex: 999999
+          }}
+        >
           <div className="p-3 border-b border-gray-700/50 flex items-center justify-between bg-gray-800/50">
             <div className="flex items-center gap-2">
               <Bot className="h-5 w-5 text-noteflow-400" />
@@ -117,9 +150,10 @@ const AIActionsDropdown: React.FC<AIActionsDropdownProps> = ({
               Writing Assistant
             </Button>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
-    </div>
+    </>
   );
 };
 
