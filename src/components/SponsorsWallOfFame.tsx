@@ -2,7 +2,6 @@
 import React from 'react';
 import { Heart, Coffee, Building2, Users, Star } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
-import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from '@/components/ui/carousel';
 
 const SponsorsWallOfFame = () => {
   // Individual sponsors from Buy Me a Coffee and other platforms
@@ -41,7 +40,7 @@ const SponsorsWallOfFame = () => {
     }
   ];
 
-  // Company sponsors - now focused on logos for slider
+  // Company sponsors with logos - duplicated for continuous scrolling
   const companySponsors = [
     {
       name: "TechFlow Solutions",
@@ -86,6 +85,9 @@ const SponsorsWallOfFame = () => {
       sponsorshipLevel: "$500+"
     }
   ];
+
+  // Duplicate sponsors for seamless loop
+  const duplicatedSponsors = [...companySponsors, ...companySponsors];
 
   const getTierColor = (tier: string) => {
     switch (tier) {
@@ -145,65 +147,40 @@ const SponsorsWallOfFame = () => {
           </div>
         </div>
 
-        {/* Company Sponsors Logo Slider */}
+        {/* Company Sponsors Logo Section - Horizontal Scrolling */}
         <div className="mb-16">
-          <div className="flex items-center gap-3 mb-8">
-            <Building2 className="h-6 w-6 text-purple-400" />
-            <h3 className="text-2xl font-bold text-white">Company Sponsors</h3>
+          {/* Section Header */}
+          <div className="text-center mb-8">
+            <p className="text-gray-400 text-sm uppercase tracking-wider mb-2">Our Clients</p>
+            <h3 className="text-3xl md:text-4xl font-bold text-white">Meet Our Sponsors</h3>
           </div>
           
-          <div className="relative">
-            <Carousel
-              opts={{
-                align: "start",
-                loop: true,
-              }}
-              className="w-full"
-            >
-              <CarouselContent className="-ml-2 md:-ml-4">
-                {companySponsors.map((sponsor, index) => (
-                  <CarouselItem key={index} className="pl-2 md:pl-4 md:basis-1/2 lg:basis-1/3">
-                    <div className="p-1">
-                      <Card className="bg-black/40 backdrop-blur-lg border-white/10 hover:border-purple-400/50 transition-all hover:shadow-[0_0_25px_rgba(168,85,247,0.15)] group h-48">
-                        <CardContent className="flex flex-col items-center justify-center p-6 h-full">
-                          {/* Tier Badge */}
-                          <div className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium mb-4 bg-gradient-to-r ${getTierColor(sponsor.tier)} text-white`}>
-                            {getTierBadge(sponsor.tier)}
-                          </div>
-                          
-                          {/* Company Logo */}
-                          <div className="w-full h-16 bg-white rounded-lg mb-4 flex items-center justify-center overflow-hidden">
-                            <img 
-                              src={sponsor.logo} 
-                              alt={`${sponsor.name} logo`}
-                              className="max-w-full max-h-full object-contain p-2"
-                            />
-                          </div>
-                          
-                          {/* Company Info */}
-                          <h4 className="text-lg font-bold text-white mb-2 text-center">{sponsor.name}</h4>
-                          
-                          {/* Sponsorship Level and Link */}
-                          <div className="flex flex-col items-center gap-2">
-                            <span className="text-purple-400 font-medium text-sm">{sponsor.sponsorshipLevel}</span>
-                            <a 
-                              href={sponsor.website}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="text-purple-400 hover:text-purple-300 text-sm font-medium group-hover:underline"
-                            >
-                              Visit Website →
-                            </a>
-                          </div>
-                        </CardContent>
-                      </Card>
+          {/* Auto-scrolling Logo Container */}
+          <div className="relative overflow-hidden bg-white/5 backdrop-blur-sm rounded-xl border border-white/10 py-8">
+            <div className="flex animate-[scroll_30s_linear_infinite] hover:[animation-play-state:paused]">
+              {duplicatedSponsors.map((sponsor, index) => (
+                <div key={index} className="flex-shrink-0 mx-8">
+                  <a 
+                    href={sponsor.website}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="block group"
+                  >
+                    <div className="w-40 h-20 bg-white rounded-lg flex items-center justify-center p-4 shadow-lg group-hover:shadow-xl transition-all duration-300 group-hover:scale-105">
+                      <img 
+                        src={sponsor.logo} 
+                        alt={`${sponsor.name} logo`}
+                        className="max-w-full max-h-full object-contain filter grayscale group-hover:grayscale-0 transition-all duration-300"
+                      />
                     </div>
-                  </CarouselItem>
-                ))}
-              </CarouselContent>
-              <CarouselPrevious className="hidden md:flex" />
-              <CarouselNext className="hidden md:flex" />
-            </Carousel>
+                    <div className="text-center mt-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                      <p className="text-white text-sm font-medium">{sponsor.name}</p>
+                      <p className="text-purple-400 text-xs">{sponsor.sponsorshipLevel}</p>
+                    </div>
+                  </a>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
 
@@ -249,6 +226,18 @@ const SponsorsWallOfFame = () => {
           </div>
         </div>
       </div>
+
+      {/* Custom CSS for the scrolling animation */}
+      <style jsx>{`
+        @keyframes scroll {
+          0% {
+            transform: translateX(0);
+          }
+          100% {
+            transform: translateX(-50%);
+          }
+        }
+      `}</style>
     </section>
   );
 };
