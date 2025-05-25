@@ -50,7 +50,10 @@ const OCRPopup: React.FC<OCRPopupProps> = ({ isOpen, onClose, onTextExtracted })
       const { createWorker } = await import('tesseract.js');
       
       console.log('Creating Tesseract worker with language:', selectedLang);
-      const worker = await createWorker(selectedLang, {
+      const worker = await createWorker(selectedLang);
+      
+      // Set up progress tracking
+      worker.setParameters({
         logger: m => {
           console.log('Tesseract progress:', m);
           if (m.status === 'recognizing text' && m.progress !== undefined) {
