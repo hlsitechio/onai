@@ -1,4 +1,5 @@
-import { useState, useEffect, useRef, useMemo } from 'react';
+
+import { useState, useEffect, useMemo } from 'react';
 import { Button } from "@/components/ui/button";
 import { ArrowDown, Sparkles, FileText } from "lucide-react";
 import { motion } from "framer-motion";
@@ -16,7 +17,6 @@ const Hero = () => {
   ], []);
   const [isTyping, setIsTyping] = useState(true);
   const [cursorVisible, setCursorVisible] = useState(true);
-  const gradientRef = useRef<HTMLDivElement>(null);
   
   // Handle cursor blinking
   useEffect(() => {
@@ -25,23 +25,6 @@ const Hero = () => {
     }, 530);
     
     return () => clearInterval(cursorInterval);
-  }, []);
-  
-  // Handle gradient animation on mouse move
-  useEffect(() => {
-    const handleMouseMove = (e: MouseEvent) => {
-      if (gradientRef.current) {
-        const rect = gradientRef.current.getBoundingClientRect();
-        const x = e.clientX - rect.left;
-        const y = e.clientY - rect.top;
-        
-        gradientRef.current.style.setProperty('--mouse-x', `${x}px`);
-        gradientRef.current.style.setProperty('--mouse-y', `${y}px`);
-      }
-    };
-    
-    window.addEventListener('mousemove', handleMouseMove);
-    return () => window.removeEventListener('mousemove', handleMouseMove);
   }, []);
   
   // Text typing animation
@@ -124,20 +107,6 @@ const Hero = () => {
 
   return (
     <section className="pt-32 pb-0 px-4 relative overflow-hidden min-h-[90vh] flex items-center">
-      {/* Hero-specific overlay for mouse interaction */}
-      <div 
-        ref={gradientRef}
-        className="absolute inset-0 z-0 overflow-hidden pointer-events-none"
-      >
-        {/* Interactive mouse-follow gradient effect */}
-        <motion.div 
-          className="absolute inset-0 bg-[radial-gradient(circle_at_var(--mouse-x,_50%)_var(--mouse-y,_50%),_rgba(120,_60,_255,_0.1)_0%,_transparent_45%)]" 
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 1 }}
-        />
-      </div>
-      
       <motion.div 
         className="container mx-auto max-w-6xl relative z-10"
         variants={containerVariants}
