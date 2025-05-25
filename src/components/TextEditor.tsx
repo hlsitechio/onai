@@ -11,6 +11,7 @@ import { cn } from "@/lib/utils";
 import { useFocusModeManager } from "@/hooks/useFocusModeManager";
 import { useKeyboardShortcuts } from "@/hooks/useKeyboardShortcuts";
 import { useSupabaseNotes } from "@/hooks/useSupabaseNotes";
+import { useEditorContainerState } from "@/hooks/useEditorContainerState";
 
 const TextEditor = () => {
   const { toast } = useToast();
@@ -20,6 +21,9 @@ const TextEditor = () => {
   
   // Focus mode management
   const { isFocusMode, setFocusMode, toggleFocusMode } = useFocusModeManager();
+  
+  // AI Agent state
+  const { isAIAgentVisible, toggleAIAgent } = useEditorContainerState();
   
   // Use Supabase notes hook for proper save functionality
   const { 
@@ -164,6 +168,8 @@ const TextEditor = () => {
               toggleFocusMode={handleToggleFocusMode}
               isAIDialogOpen={isAIDialogOpen}
               setIsAIDialogOpen={setIsAIDialogOpen}
+              onToggleAIAgent={toggleAIAgent}
+              isAIAgentVisible={isAIAgentVisible}
             />
           </div>
           

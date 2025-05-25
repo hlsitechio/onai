@@ -17,11 +17,15 @@ import { cn } from "@/lib/utils";
 interface AIActionsDropdownProps {
   content: string;
   onApplyChanges: (newContent: string) => void;
+  onToggleAIAgent: () => void;
+  isAIAgentVisible: boolean;
 }
 
 const AIActionsDropdown: React.FC<AIActionsDropdownProps> = ({ 
   content, 
-  onApplyChanges
+  onApplyChanges,
+  onToggleAIAgent,
+  isAIAgentVisible
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [position, setPosition] = useState({ x: 0, y: 0 });
@@ -30,7 +34,12 @@ const AIActionsDropdown: React.FC<AIActionsDropdownProps> = ({
 
   const handleAIAction = (action: string) => {
     console.log(`AI Action triggered: ${action}`, { content });
-    // These will be implemented to trigger the original AI agent functionality
+    
+    // Show the AI agent when any action is clicked
+    if (!isAIAgentVisible) {
+      onToggleAIAgent();
+    }
+    
     setIsOpen(false);
   };
 
@@ -91,7 +100,7 @@ const AIActionsDropdown: React.FC<AIActionsDropdownProps> = ({
         onClick={toggleDropdown}
         className={cn(
           "p-1.5 md:p-2 transition-all duration-200",
-          isOpen 
+          (isOpen || isAIAgentVisible)
             ? "text-noteflow-300 bg-noteflow-500/20 hover:bg-noteflow-500/30" 
             : "text-slate-300 hover:text-white hover:bg-white/10"
         )}

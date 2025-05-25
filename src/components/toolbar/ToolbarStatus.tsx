@@ -12,6 +12,8 @@ interface ToolbarStatusProps {
   toggleFocusMode: () => void;
   content: string;
   onApplyAIChanges: (newContent: string) => void;
+  onToggleAIAgent: () => void;
+  isAIAgentVisible: boolean;
 }
 
 const ToolbarStatus: React.FC<ToolbarStatusProps> = ({
@@ -20,7 +22,9 @@ const ToolbarStatus: React.FC<ToolbarStatusProps> = ({
   isFocusMode,
   toggleFocusMode,
   content,
-  onApplyAIChanges
+  onApplyAIChanges,
+  onToggleAIAgent,
+  isAIAgentVisible
 }) => {
   return (
     <div className="flex items-center gap-1 md:gap-2 ml-auto">
@@ -63,6 +67,8 @@ const ToolbarStatus: React.FC<ToolbarStatusProps> = ({
       <AIActionsDropdown
         content={content}
         onApplyChanges={onApplyAIChanges}
+        onToggleAIAgent={onToggleAIAgent}
+        isAIAgentVisible={isAIAgentVisible}
       />
     </div>
   );
