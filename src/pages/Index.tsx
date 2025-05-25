@@ -5,6 +5,7 @@ import TextEditor from "@/components/TextEditor";
 import { useFocusMode } from "@/contexts";
 import Footer from "@/components/Footer";
 import FeatureShowcase from "@/components/FeatureShowcase";
+import { Separator } from "@/components/ui/separator";
 
 const Index = () => {
   // Use focus mode context to determine visibility of elements
@@ -38,8 +39,30 @@ const Index = () => {
         </div>
       </div>
       
+      {/* Clear section separator before Feature Showcase */}
+      <div className="blur-in-focus-mode py-8 md:py-12">
+        <div className="container mx-auto max-w-6xl px-4">
+          {/* Visual separator with gradient line */}
+          <div className="relative flex items-center justify-center">
+            <div className="absolute inset-0 flex items-center">
+              <div className="w-full border-t border-gradient-to-r from-transparent via-white/20 to-transparent"></div>
+            </div>
+            <div className="relative bg-gradient-to-b from-[#050510] to-[#0a0a1a] px-6">
+              <div className="h-px bg-gradient-to-r from-transparent via-purple-500/50 to-transparent w-full"></div>
+            </div>
+          </div>
+          
+          {/* Optional decorative text */}
+          <div className="text-center mt-6">
+            <div className="inline-flex items-center px-4 py-2 rounded-full bg-white/5 border border-white/10">
+              <span className="text-gray-400 text-sm font-medium">Discover Our Features</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      
       {/* Feature showcase section - Moved closer with reduced top margin */}
-      <div className="blur-in-focus-mode hidden md:block -mt-8 lg:-mt-12">
+      <div className="blur-in-focus-mode hidden md:block">
         <FeatureShowcase />
       </div>
       
