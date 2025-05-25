@@ -30,16 +30,16 @@ const Index = () => {
           </div>
         </div>
         
-        {/* Minimal padding to eliminate empty space and ensure panels reach Feature Showcase */}
-        <div className="mx-auto w-full py-2 md:py-3">
+        {/* Reduced padding significantly to eliminate empty space */}
+        <div className="mx-auto w-full py-6 md:py-8 lg:py-12">
           <div className="w-full max-w-[1200px] mx-auto">
             <TextEditor />
           </div>
         </div>
       </div>
       
-      {/* Feature showcase section - positioned immediately after editor */}
-      <div className="blur-in-focus-mode hidden md:block">
+      {/* Feature showcase section - Moved closer with reduced top margin */}
+      <div className="blur-in-focus-mode hidden md:block -mt-8 lg:-mt-12">
         <FeatureShowcase />
       </div>
       
