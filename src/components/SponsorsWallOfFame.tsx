@@ -155,8 +155,8 @@ const SponsorsWallOfFame = () => {
             <p className="text-gray-400 text-sm">Trusted by leading companies worldwide</p>
           </div>
           
-          {/* Auto-scrolling Logo Container */}
-          <div className="relative overflow-hidden backdrop-blur-sm rounded-xl border border-white/10 py-8">
+          {/* Auto-scrolling Logo Container - No borders */}
+          <div className="relative overflow-hidden py-8">
             <div 
               className="flex animate-[scroll_30s_linear_infinite] hover:[animation-play-state:paused]"
               style={{
@@ -175,7 +175,7 @@ const SponsorsWallOfFame = () => {
                       <img 
                         src={sponsor.logo} 
                         alt={`${sponsor.name} logo`}
-                        className="max-w-full max-h-full object-contain transition-all duration-300 opacity-80 group-hover:opacity-100"
+                        className="max-w-full max-h-full object-contain filter grayscale group-hover:grayscale-0 transition-all duration-300 opacity-70 group-hover:opacity-100"
                       />
                     </div>
                     <div className="text-center mt-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
@@ -238,6 +238,19 @@ const SponsorsWallOfFame = () => {
           </div>
         </div>
       </div>
+
+      <style>
+        {`
+          @keyframes scroll {
+            0% {
+              transform: translateX(0);
+            }
+            100% {
+              transform: translateX(-50%);
+            }
+          }
+        `}
+      </style>
     </section>
   );
 };
