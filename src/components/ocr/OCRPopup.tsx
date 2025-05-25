@@ -31,7 +31,27 @@ const OCRPopup: React.FC<OCRPopupProps> = ({ isOpen, onClose, onTextExtracted })
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
 
-  const handleImageUpload = (file: File) => {
+  const extractTextWithTesseract = async (imageData: string) => {
+    try {
+      // Dynamic import of Tesseract.js
+      const Tesseract = await import('tesseract.js');
+      
+      const { data: { text } } = await Tesseract.recognize(
+        imageData,
+        'eng',
+        {
+          logger: m => console.log(m) // Optional: log progress
+        }
+      );
+      
+      return text.trim();
+    } catch (error) {
+      console.error('Tesseract OCR error:', error);
+      throw new Error('Failed to extract text from image');
+    }
+  };
+
+  const handleImageUpload = async (file: File) => {
     if (!file.type.match(/^image\/(jpeg|jpg|png|webp)$/)) {
       toast({
         title: "Invalid file type",
@@ -51,9 +71,40 @@ const OCRPopup: React.FC<OCRPopupProps> = ({ isOpen, onClose, onTextExtracted })
     }
 
     const reader = new FileReader();
-    reader.onload = (e) => {
-      setUploadedImage(e.target?.result as string);
+    reader.onload = async (e) => {
+      const imageData = e.target?.result as string;
+      setUploadedImage(imageData);
       setExtractedText('');
+      
+      // Automatically start OCR processing
+      setIsProcessing(true);
+      
+      try {
+        const text = await extractTextWithTesseract(imageData);
+        setExtractedText(text);
+        
+        if (text) {
+          toast({
+            title: "Text extracted successfully",
+            description: "Text has been extracted from the image"
+          });
+        } else {
+          toast({
+            title: "No text found",
+            description: "No readable text was detected in the image",
+            variant: "destructive"
+          });
+        }
+      } catch (error) {
+        console.error('OCR processing error:', error);
+        toast({
+          title: "Extraction failed", 
+          description: "Failed to extract text from the image",
+          variant: "destructive"
+        });
+      } finally {
+        setIsProcessing(false);
+      }
     };
     reader.readAsDataURL(file);
   };
@@ -105,17 +156,32 @@ const OCRPopup: React.FC<OCRPopupProps> = ({ isOpen, onClose, onTextExtracted })
 
     setIsProcessing(true);
     
-    // Simulate OCR processing - replace with actual OCR service
-    setTimeout(() => {
-      const sampleText = "This is extracted text from the image. Replace this with actual OCR implementation using services like Tesseract.js, Google Cloud Vision API, or Azure Computer Vision.";
-      setExtractedText(sampleText);
-      setIsProcessing(false);
+    try {
+      const text = await extractTextWithTesseract(uploadedImage);
+      setExtractedText(text);
       
+      if (text) {
+        toast({
+          title: "Text extracted successfully",
+          description: "You can now copy or insert the extracted text"
+        });
+      } else {
+        toast({
+          title: "No text found",
+          description: "No readable text was detected in the image",
+          variant: "destructive"
+        });
+      }
+    } catch (error) {
+      console.error('OCR processing error:', error);
       toast({
-        title: "Text extracted successfully",
-        description: "You can now copy or insert the extracted text"
+        title: "Extraction failed",
+        description: "Failed to extract text from the image",
+        variant: "destructive"
       });
-    }, 2000);
+    } finally {
+      setIsProcessing(false);
+    }
   };
 
   const copyToClipboard = async () => {
@@ -155,7 +221,7 @@ const OCRPopup: React.FC<OCRPopupProps> = ({ isOpen, onClose, onTextExtracted })
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-4xl max-h-[90vh] bg-black/95 backdrop-blur-xl border border-white/20 text-white overflow-hidden">
+      <DialogContent className="max-w-6xl max-h-[90vh] bg-black/95 backdrop-blur-xl border border-white/20 text-white overflow-hidden">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2 text-xl">
             <FileImage className="h-6 w-6 text-noteflow-400" />
@@ -258,12 +324,12 @@ const OCRPopup: React.FC<OCRPopupProps> = ({ isOpen, onClose, onTextExtracted })
                   {isProcessing ? (
                     <>
                       <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                      Processing...
+                      Extracting Text...
                     </>
                   ) : (
                     <>
                       <FileImage className="h-4 w-4 mr-2" />
-                      Extract Text
+                      Re-extract Text
                     </>
                   )}
                 </Button>
@@ -284,7 +350,7 @@ const OCRPopup: React.FC<OCRPopupProps> = ({ isOpen, onClose, onTextExtracted })
           <div className="flex-1 flex flex-col">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-lg font-medium">Extracted Text</h3>
-              {extractedText && (
+              {extractedText && !isProcessing && (
                 <div className="flex gap-2">
                   <Button
                     variant="ghost"
@@ -315,14 +381,14 @@ const OCRPopup: React.FC<OCRPopupProps> = ({ isOpen, onClose, onTextExtracted })
                 !uploadedImage 
                   ? "Upload an image to extract text..." 
                   : isProcessing 
-                    ? "Processing image..." 
+                    ? "Extracting text from image..." 
                     : "Extracted text will appear here..."
               }
               className="flex-1 bg-black/30 border-white/20 text-white resize-none"
               readOnly={isProcessing}
             />
 
-            {extractedText && (
+            {extractedText && !isProcessing && (
               <div className="mt-4 flex gap-3">
                 <Button 
                   onClick={insertToNote}
