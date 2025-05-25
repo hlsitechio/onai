@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useRef, useMemo } from 'react';
 import { Button } from "@/components/ui/button";
 import { ArrowDown, Sparkles, FileText } from "lucide-react";
@@ -7,7 +6,14 @@ import { motion } from "framer-motion";
 const Hero = () => {
   const [displayText, setDisplayText] = useState('');
   const [currentPhrase, setCurrentPhrase] = useState(0);
-  const phrases = useMemo(() => ['Take Notes.', 'Think Clearly.', 'Stay Organized.', 'Boost Productivity.'], []);
+  const phrases = useMemo(() => [
+    'Think Clearly.', 
+    'Write Brilliantly.', 
+    'Organize Effortlessly.', 
+    'Create Fearlessly.',
+    'Focus Intensely.',
+    'Achieve Greatness.'
+  ], []);
   const [isTyping, setIsTyping] = useState(true);
   const [cursorVisible, setCursorVisible] = useState(true);
   const gradientRef = useRef<HTMLDivElement>(null);
@@ -197,8 +203,8 @@ const Hero = () => {
                 animate={{ opacity: 1 }}
                 transition={{ delay: 0.5, duration: 0.8 }}
               >
-                <span className="font-medium text-white">Create beautiful notes</span> with our free, Word-style editor. <span className="bg-gradient-to-r from-noteflow-400 to-purple-400 bg-clip-text text-transparent font-medium">No account needed</span>. 
-                Start typing and your notes save automatically.
+                <span className="font-medium text-white">Unleash your mind's potential</span> with our revolutionary note-taking experience. <span className="bg-gradient-to-r from-noteflow-400 to-purple-400 bg-clip-text text-transparent font-medium">Zero friction, infinite possibilities</span>. 
+                Your thoughts, organized beautifully and saved instantly.
               </motion.p>
             </div>
           </motion.div>
@@ -209,6 +215,7 @@ const Hero = () => {
               onClick={scrollToEditor} 
               className="relative group overflow-hidden bg-gradient-to-r from-noteflow-600 to-noteflow-400 hover:from-noteflow-500 hover:to-noteflow-300 text-white rounded-full px-8 py-6 text-lg font-medium flex items-center gap-2 transition-all duration-300 shadow-lg shadow-noteflow-500/20 hover:shadow-noteflow-400/30 border border-noteflow-400/30 hover:border-noteflow-300/50" 
             >
+              {/* Button background animation */}
               <motion.span 
                 className="absolute inset-0 w-full h-full bg-gradient-to-r from-noteflow-400 to-noteflow-600 opacity-0 group-hover:opacity-100 blur-xl"
                 animate={{ 
@@ -225,7 +232,7 @@ const Hero = () => {
                 whileHover={{ scale: 1.05 }}
                 transition={{ type: "spring", stiffness: 400 }}
               >
-                Start Taking Notes
+                Begin Your Journey
                 <motion.div
                   animate={{ y: [0, 4, 0] }}
                   transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
