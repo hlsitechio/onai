@@ -39,14 +39,22 @@ const TextEditorToolbar: React.FC<TextEditorToolbarProps> = ({
     <div className="flex flex-wrap items-center justify-between p-2 lg:p-3 border-b border-white/5 bg-[#03010a] gap-2">
       {/* Navigation section */}
       <ToolbarNavigation
-        toggleLeftSidebar={toggleLeftSidebar}
-        toggleAISidebar={toggleAISidebar}
-        isLeftSidebarOpen={isLeftSidebarOpen}
-        isAISidebarOpen={isAISidebarOpen}
+        toggleSidebar={toggleLeftSidebar}
+        onSpeechTranscript={(transcript) => {
+          // Handle speech transcript if needed
+          const newContent = content + (content.endsWith('\n') || content === '' ? '' : '\n') + transcript + ' ';
+          onApplyAIChanges(newContent);
+        }}
+        onOCRClick={() => {
+          // Handle OCR click if needed
+        }}
       />
 
       {/* Actions section */}
-      <ToolbarActions execCommand={execCommand} />
+      <ToolbarActions 
+        execCommand={execCommand} 
+        isFocusMode={isFocusMode}
+      />
 
       {/* Status section */}
       <ToolbarStatus
@@ -56,7 +64,7 @@ const TextEditorToolbar: React.FC<TextEditorToolbarProps> = ({
         toggleFocusMode={toggleFocusMode}
         content={content}
         onApplyAIChanges={onApplyAIChanges}
-        onToggleAIAgent={onToggleAIAgent}
+        onToggleAIAgent={onToggleAIAgent || (() => {})}
         isAIAgentVisible={isAIAgentVisible}
       />
     </div>

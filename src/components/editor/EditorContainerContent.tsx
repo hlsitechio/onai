@@ -80,7 +80,7 @@ const EditorContainerContent: React.FC<EditorContainerContentProps> = ({
       {/* AI Dialog */}
       <AIDialog
         isOpen={isAIDialogOpen}
-        onClose={() => setIsAIDialogOpen(false)}
+        onOpenChange={setIsAIDialogOpen}
         content={content}
         onApplyChanges={setContent}
       />
