@@ -1,3 +1,4 @@
+
 import React, { useState, useRef, useEffect } from "react";
 import { createPortal } from "react-dom";
 import { Button } from "@/components/ui/button";
@@ -33,7 +34,10 @@ const AIActionsDropdown: React.FC<AIActionsDropdownProps> = ({
     setIsOpen(false);
   };
 
-  const toggleDropdown = () => {
+  const toggleDropdown = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
     if (!isOpen && buttonRef.current) {
       const rect = buttonRef.current.getBoundingClientRect();
       setPosition({
@@ -61,14 +65,19 @@ const AIActionsDropdown: React.FC<AIActionsDropdownProps> = ({
     };
 
     if (isOpen) {
-      // Add a small delay to prevent immediate closing when opening
-      setTimeout(() => {
-        document.addEventListener('mousedown', handleClickOutside);
-      }, 0);
+      // Add event listener immediately but with a slight delay to prevent immediate closing
+      const timeoutId = setTimeout(() => {
+        document.addEventListener('mousedown', handleClickOutside, true);
+      }, 100);
+      
+      return () => {
+        clearTimeout(timeoutId);
+        document.removeEventListener('mousedown', handleClickOutside, true);
+      };
     }
 
     return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('mousedown', handleClickOutside, true);
     };
   }, [isOpen]);
 
@@ -99,7 +108,7 @@ const AIActionsDropdown: React.FC<AIActionsDropdownProps> = ({
           ref={dropdownRef}
           className="fixed w-64 bg-gray-900/95 backdrop-blur-xl rounded-xl overflow-hidden flex flex-col shadow-[0_8px_30px_rgb(0,0,0,0.6)] border border-gray-700/50"
           style={{ 
-            left: `${position.x}px`,
+            left: `${Math.max(10, position.x)}px`,
             top: `${position.y}px`,
             zIndex: 999999
           }}

@@ -80,9 +80,9 @@ const MobileEditor: React.FC<MobileEditorProps> = ({
       {/* Animated placeholder */}
       <AnimatedPlaceholder isVisible={!content} />
       
-      {/* Static tip below the animated placeholder */}
+      {/* Static tip below the animated placeholder - moved lower and with reduced opacity */}
       {!content && (
-        <div className="absolute top-16 left-6 text-slate-500 pointer-events-none text-sm select-none">
+        <div className="absolute top-20 left-6 text-slate-500 pointer-events-none text-sm select-none opacity-70">
           💡 Tip: Select text and use AI actions, or press Ctrl+Shift+A for the AI agent
         </div>
       )}
