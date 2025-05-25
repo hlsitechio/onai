@@ -57,19 +57,7 @@ const TextAreaEditor: React.FC<TextAreaEditorProps> = ({
       {/* Subtle glow effect behind the text area in focus mode */}
       {isFocusMode && <div className="absolute inset-0 bg-gradient-spotlight from-purple-900/20 via-noteflow-800/10 to-transparent -m-3 rounded-2xl blur-2xl opacity-80 pointer-events-none"></div>}
       
-      <textarea ref={textareaRef} style={{
-      lineHeight: '1.9',
-      fontSize: isFocusMode ? '22px' : '20px',
-      direction: 'ltr',
-      textAlign: 'left',
-      whiteSpace: 'pre-wrap',
-      wordBreak: 'break-word',
-      caretColor: 'white',
-      color: 'white',
-      border: 'none',
-      fontWeight: '400',
-      letterSpacing: '0.015em'
-    }} spellCheck="true" value={rawContent || ''} onChange={handleContentChange} onSelect={handleSelection} onMouseUp={handleSelection} onKeyUp={handleCursorChange} onClick={handleCursorChange} placeholder="" className="" />
+      
       
       {/* Animated placeholder */}
       <AnimatedPlaceholder isVisible={!rawContent} />
