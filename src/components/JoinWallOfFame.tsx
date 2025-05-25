@@ -1,11 +1,15 @@
 
 import React from 'react';
 import { Star, Coffee, Building2 } from 'lucide-react';
+import DotGridBackground from './DotGridBackground';
 
 const JoinWallOfFame = () => {
   return (
-    <section className="py-16 px-4 bg-gradient-to-b from-[#0a0a1a] to-[#050510]">
-      <div className="container mx-auto max-w-4xl">
+    <section className="py-16 px-4 bg-gradient-to-b from-[#0a0a1a] to-[#050510] relative overflow-hidden">
+      {/* Add the same background as hero section */}
+      <DotGridBackground />
+      
+      <div className="container mx-auto max-w-4xl relative z-10">
         <div className="text-center p-8 bg-gradient-to-r from-purple-900/20 to-pink-900/20 rounded-xl border border-purple-400/20">
           <Star className="h-8 w-8 text-yellow-400 mx-auto mb-4" />
           <h3 className="text-2xl font-bold text-white mb-2">Join Our Wall of Fame!</h3>
