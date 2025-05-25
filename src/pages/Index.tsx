@@ -6,6 +6,7 @@ import { useFocusMode } from "@/contexts";
 import Footer from "@/components/Footer";
 import FeatureShowcase from "@/components/FeatureShowcase";
 import { Separator } from "@/components/ui/separator";
+import "../styles/hide-separators.css";
 
 const Index = () => {
   // Use focus mode context to determine visibility of elements
@@ -64,6 +65,17 @@ const Index = () => {
       {/* Feature showcase section - Moved closer with reduced top margin */}
       <div className="blur-in-focus-mode hidden md:block">
         <FeatureShowcase />
+      </div>
+      
+      {/* Completely hidden separator before footer */}
+      <div className="hidden">
+        <div className="container mx-auto max-w-6xl px-4">
+          <div className="relative flex items-center justify-center">
+            <div className="absolute inset-0 flex items-center">
+              <div className="w-full border-t border-gradient-to-r from-transparent via-white/20 to-transparent"></div>
+            </div>
+          </div>
+        </div>
       </div>
       
       {/* Compact mobile footer - Hide any separator before it */}
