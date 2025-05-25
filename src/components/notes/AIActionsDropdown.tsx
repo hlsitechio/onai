@@ -31,7 +31,7 @@ const AIActionsDropdown: React.FC<AIActionsDropdownProps> = ({
   };
 
   return (
-    <div className="relative z-[9999]">
+    <div className="relative z-[99999]">
       {/* AI Actions Trigger Button */}
       <Button
         variant="ghost"
@@ -52,7 +52,13 @@ const AIActionsDropdown: React.FC<AIActionsDropdownProps> = ({
 
       {/* AI Agent Actions Panel */}
       {isOpen && (
-        <div className="absolute top-full right-0 mt-2 w-64 bg-gray-900/95 backdrop-blur-xl rounded-xl overflow-hidden flex flex-col shadow-[0_8px_30px_rgb(0,0,0,0.6)] border border-gray-700/50 z-[10000]">
+        <div className="fixed top-full right-0 mt-2 w-64 bg-gray-900/95 backdrop-blur-xl rounded-xl overflow-hidden flex flex-col shadow-[0_8px_30px_rgb(0,0,0,0.6)] border border-gray-700/50 z-[99999]"
+             style={{ 
+               position: 'fixed',
+               top: '60px',
+               right: '20px',
+               zIndex: 99999
+             }}>
           <div className="p-3 border-b border-gray-700/50 flex items-center justify-between bg-gray-800/50">
             <div className="flex items-center gap-2">
               <Bot className="h-5 w-5 text-noteflow-400" />
