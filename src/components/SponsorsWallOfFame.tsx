@@ -171,11 +171,11 @@ const SponsorsWallOfFame = () => {
                     rel="noopener noreferrer"
                     className="block group"
                   >
-                    <div className="w-40 h-20 bg-white rounded-lg flex items-center justify-center p-4 shadow-lg group-hover:shadow-xl transition-all duration-300 group-hover:scale-105">
+                    <div className="w-40 h-20 flex items-center justify-center p-4 group-hover:scale-105 transition-all duration-300">
                       <img 
                         src={sponsor.logo} 
                         alt={`${sponsor.name} logo`}
-                        className="max-w-full max-h-full object-contain filter grayscale group-hover:grayscale-0 transition-all duration-300"
+                        className="max-w-full max-h-full object-contain filter grayscale group-hover:grayscale-0 transition-all duration-300 opacity-70 group-hover:opacity-100"
                       />
                     </div>
                     <div className="text-center mt-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
@@ -185,6 +185,13 @@ const SponsorsWallOfFame = () => {
                   </a>
                 </div>
               ))}
+            </div>
+            
+            {/* Disclaimer in bottom right corner */}
+            <div className="absolute bottom-2 right-4">
+              <p className="text-gray-500 text-xs italic">
+                *These are example logos only - Real sponsors will appear here once we have partnerships
+              </p>
             </div>
           </div>
         </div>
