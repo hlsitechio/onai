@@ -39,8 +39,8 @@ const Index = () => {
         </div>
       </div>
       
-      {/* Clear section separator before Feature Showcase */}
-      <div className="blur-in-focus-mode py-8 md:py-12">
+      {/* Hidden section separator before Feature Showcase */}
+      <div className="blur-in-focus-mode py-8 md:py-12 opacity-0 pointer-events-none">
         <div className="container mx-auto max-w-6xl px-4">
           {/* Visual separator with gradient line */}
           <div className="relative flex items-center justify-center">
