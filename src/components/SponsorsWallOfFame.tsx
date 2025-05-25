@@ -40,47 +40,47 @@ const SponsorsWallOfFame = () => {
     }
   ];
 
-  // Company sponsors with logos - duplicated for continuous scrolling
+  // Company sponsors with actual logos - duplicated for continuous scrolling
   const companySponsors = [
     {
-      name: "TechFlow Solutions",
-      logo: "https://images.unsplash.com/photo-1560472354-b33ff0c44a43?w=200&h=100&fit=crop",
-      website: "https://techflow.com",
+      name: "McDonald's",
+      logo: "https://logos-world.net/wp-content/uploads/2020/04/McDonalds-Logo.png",
+      website: "https://mcdonalds.com",
       tier: "platinum",
       sponsorshipLevel: "$500+"
     },
     {
-      name: "CloudNext Inc",
-      logo: "https://images.unsplash.com/photo-1551434678-e076c223a692?w=200&h=100&fit=crop",
-      website: "https://cloudnext.com",
+      name: "Google",
+      logo: "https://logos-world.net/wp-content/uploads/2020/09/Google-Logo.png",
+      website: "https://google.com",
       tier: "gold",
       sponsorshipLevel: "$250+"
     },
     {
-      name: "DevTools Pro",
-      logo: "https://images.unsplash.com/photo-1553028826-f4804151e606?w=200&h=100&fit=crop",
-      website: "https://devtools.pro",
+      name: "Apple",
+      logo: "https://logos-world.net/wp-content/uploads/2020/04/Apple-Logo.png",
+      website: "https://apple.com",
       tier: "silver",
       sponsorshipLevel: "$100+"
     },
     {
-      name: "StartupFlow",
-      logo: "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=200&h=100&fit=crop",
-      website: "https://startupflow.com",
+      name: "Microsoft",
+      logo: "https://logos-world.net/wp-content/uploads/2020/04/Microsoft-Logo.png",
+      website: "https://microsoft.com",
       tier: "gold",
       sponsorshipLevel: "$250+"
     },
     {
-      name: "CodeCraft Studios",
-      logo: "https://images.unsplash.com/photo-1549923746-c502d488b3ea?w=200&h=100&fit=crop",
-      website: "https://codecraft.com",
+      name: "Amazon",
+      logo: "https://logos-world.net/wp-content/uploads/2020/04/Amazon-Logo.png",
+      website: "https://amazon.com",
       tier: "silver",
       sponsorshipLevel: "$100+"
     },
     {
-      name: "InnovateTech",
-      logo: "https://images.unsplash.com/photo-1558494949-ef010cbdcc31?w=200&h=100&fit=crop",
-      website: "https://innovatetech.com",
+      name: "Netflix",
+      logo: "https://logos-world.net/wp-content/uploads/2020/04/Netflix-Logo.png",
+      website: "https://netflix.com",
       tier: "platinum",
       sponsorshipLevel: "$500+"
     }
@@ -156,7 +156,7 @@ const SponsorsWallOfFame = () => {
           </div>
           
           {/* Auto-scrolling Logo Container */}
-          <div className="relative overflow-hidden bg-white/5 backdrop-blur-sm rounded-xl border border-white/10 py-8">
+          <div className="relative overflow-hidden backdrop-blur-sm rounded-xl border border-white/10 py-8">
             <div 
               className="flex animate-[scroll_30s_linear_infinite] hover:[animation-play-state:paused]"
               style={{
@@ -175,7 +175,7 @@ const SponsorsWallOfFame = () => {
                       <img 
                         src={sponsor.logo} 
                         alt={`${sponsor.name} logo`}
-                        className="max-w-full max-h-full object-contain filter grayscale group-hover:grayscale-0 transition-all duration-300 opacity-70 group-hover:opacity-100"
+                        className="max-w-full max-h-full object-contain transition-all duration-300 opacity-80 group-hover:opacity-100"
                       />
                     </div>
                     <div className="text-center mt-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
