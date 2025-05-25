@@ -13,9 +13,17 @@ import {
   Loader2,
   Eye,
   EyeOff,
-  Clipboard
+  Clipboard,
+  Languages
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+
+// Supported languages for OCR
+const SUPPORTED_LANGS = [
+  { code: 'eng', name: 'English' },
+  { code: 'fra', name: 'Français' },
+  { code: 'spa', name: 'Español' }
+];
 
 interface OCRPopupProps {
   isOpen: boolean;
@@ -28,18 +36,28 @@ const OCRPopup: React.FC<OCRPopupProps> = ({ isOpen, onClose, onTextExtracted })
   const [extractedText, setExtractedText] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
   const [showPreview, setShowPreview] = useState(true);
+  const [selectedLang, setSelectedLang] = useState('eng');
+  const [ocrProgress, setOcrProgress] = useState<number>(0);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
 
   const extractTextWithTesseract = async (imageData: string) => {
+    setOcrProgress(0);
     try {
       console.log('Starting OCR processing with Tesseract.js...');
       
       // Import Tesseract.js dynamically
       const { createWorker } = await import('tesseract.js');
       
-      console.log('Creating Tesseract worker...');
-      const worker = await createWorker('eng');
+      console.log('Creating Tesseract worker with language:', selectedLang);
+      const worker = await createWorker(selectedLang, {
+        logger: m => {
+          console.log('Tesseract progress:', m);
+          if (m.status === 'recognizing text' && m.progress !== undefined) {
+            setOcrProgress(Math.round(m.progress * 100));
+          }
+        }
+      });
       
       console.log('Processing image with OCR...');
       const { data: { text } } = await worker.recognize(imageData);
@@ -47,6 +65,7 @@ const OCRPopup: React.FC<OCRPopupProps> = ({ isOpen, onClose, onTextExtracted })
       console.log('OCR completed, extracted text:', text);
       
       await worker.terminate();
+      setOcrProgress(100);
       
       return text.trim();
     } catch (error) {
@@ -237,6 +256,7 @@ const OCRPopup: React.FC<OCRPopupProps> = ({ isOpen, onClose, onTextExtracted })
     setUploadedImage(null);
     setExtractedText('');
     setIsProcessing(false);
+    setOcrProgress(0);
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
     }
@@ -258,6 +278,21 @@ const OCRPopup: React.FC<OCRPopupProps> = ({ isOpen, onClose, onTextExtracted })
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-lg font-medium">Image Upload</h3>
               <div className="flex items-center gap-2">
+                {/* Language selector */}
+                <div className="flex items-center gap-1">
+                  <Languages className="h-4 w-4 text-slate-300" />
+                  <select
+                    value={selectedLang}
+                    onChange={(e) => setSelectedLang(e.target.value)}
+                    className="bg-black/50 border border-slate-600 rounded px-2 py-1 text-sm text-white"
+                    disabled={isProcessing}
+                  >
+                    {SUPPORTED_LANGS.map(lang => (
+                      <option key={lang.code} value={lang.code}>{lang.name}</option>
+                    ))}
+                  </select>
+                </div>
+                
                 <Button
                   variant="ghost"
                   size="sm"
@@ -287,6 +322,9 @@ const OCRPopup: React.FC<OCRPopupProps> = ({ isOpen, onClose, onTextExtracted })
                 onDrop={handleDrop}
                 onDragOver={handleDragOver}
                 onClick={() => fileInputRef.current?.click()}
+                tabIndex={0}
+                role="button"
+                aria-label="Upload an image"
               >
                 <Upload className="h-16 w-16 text-white/40 mb-4" />
                 <h3 className="text-xl font-medium mb-2">Upload Image</h3>
@@ -367,6 +405,19 @@ const OCRPopup: React.FC<OCRPopupProps> = ({ isOpen, onClose, onTextExtracted })
                 </Button>
               </div>
             )}
+
+            {/* Progress bar */}
+            {isProcessing && (
+              <div className="mt-2 w-full">
+                <div className="h-2 rounded bg-slate-700 overflow-hidden">
+                  <div
+                    className="bg-noteflow-400 h-full transition-all duration-200"
+                    style={{ width: `${ocrProgress}%` }}
+                  />
+                </div>
+                <span className="text-xs text-slate-400">{ocrProgress}%</span>
+              </div>
+            )}
           </div>
 
           {/* Right Panel - Extracted Text */}
@@ -409,6 +460,7 @@ const OCRPopup: React.FC<OCRPopupProps> = ({ isOpen, onClose, onTextExtracted })
               }
               className="flex-1 bg-black/30 border-white/20 text-white resize-none"
               readOnly={isProcessing}
+              spellCheck={false}
             />
 
             {isProcessing && (
