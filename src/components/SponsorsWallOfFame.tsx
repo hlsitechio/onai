@@ -65,9 +65,9 @@ const SponsorsWallOfFame = () => {
       sponsorshipLevel: "$100+"
     },
     {
-      name: "Microsoft",
-      logo: "https://logos-world.net/wp-content/uploads/2020/04/Microsoft-Logo.png",
-      website: "https://microsoft.com",
+      name: "Tesla",
+      logo: "https://logos-world.net/wp-content/uploads/2020/04/Tesla-Logo.png",
+      website: "https://tesla.com",
       tier: "gold",
       sponsorshipLevel: "$250+"
     },

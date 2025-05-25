@@ -35,12 +35,7 @@ const CompanySponsorsSection: React.FC<CompanySponsorsSectionProps> = ({ sponsor
         >
           {duplicatedSponsors.map((sponsor, index) => (
             <div key={index} className="flex-shrink-0 mx-8">
-              <a 
-                href={sponsor.website}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="block group"
-              >
+              <div className="block group cursor-default">
                 <div className="w-40 h-20 flex items-center justify-center p-4 group-hover:scale-105 transition-all duration-300">
                   <img 
                     src={sponsor.logo} 
@@ -52,7 +47,7 @@ const CompanySponsorsSection: React.FC<CompanySponsorsSectionProps> = ({ sponsor
                   <p className="text-white text-sm font-medium">{sponsor.name}</p>
                   <p className="text-purple-400 text-xs">{sponsor.sponsorshipLevel}</p>
                 </div>
-              </a>
+              </div>
             </div>
           ))}
         </div>
