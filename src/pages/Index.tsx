@@ -1,6 +1,7 @@
 
 import Header from "@/components/Header";
 import Hero from "@/components/Hero";
+import SponsorsWallOfFame from "@/components/SponsorsWallOfFame";
 import TextEditor from "@/components/TextEditor";
 import { useFocusMode } from "@/contexts";
 import Footer from "@/components/Footer";
@@ -30,6 +31,11 @@ const Index = () => {
       <div className="blur-in-focus-mode">
         <Header />
         <Hero />
+      </div>
+      
+      {/* Sponsors Wall of Fame - New section after hero */}
+      <div className="blur-in-focus-mode">
+        <SponsorsWallOfFame />
       </div>
       
       {/* Main editor section with improved mobile spacing */}
