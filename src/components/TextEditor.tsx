@@ -105,8 +105,8 @@ const TextEditor = () => {
     return <MobileLayout />;
   }
   
-  // Calculate consistent height for all panels - make them taller to reach the Feature Showcase
-  const panelHeight = "calc(100vh - 120px)";
+  // Calculate height to reach exactly where Feature Showcase begins
+  const panelHeight = "calc(100vh - 80px)";
   
   return (
     <section id="editor-section" className={cn(
@@ -134,7 +134,7 @@ const TextEditor = () => {
                   onLoadNote={handleNoteLoad}
                   onSave={handleSave}
                   onDeleteNote={handleDeleteNote}
-                  editorHeight={parseInt(panelHeight.replace(/[^\d]/g, '')) - 120}
+                  editorHeight={parseInt(panelHeight.replace(/[^\d]/g, '')) - 80}
                   allNotes={allNotes}
                   onCreateNew={createNewNote}
                   onImportNotes={handleImportNotes}
@@ -182,7 +182,7 @@ const TextEditor = () => {
                 <AISidebar
                   content={content}
                   onApplyChanges={setContent}
-                  editorHeight={parseInt(panelHeight.replace(/[^\d]/g, '')) - 120}
+                  editorHeight={parseInt(panelHeight.replace(/[^\d]/g, '')) - 80}
                 />
               </div>
             )}
