@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { useFocusMode } from '@/contexts';
 import { 
@@ -126,7 +127,13 @@ const FeatureShowcase = () => {
               )}
             </h3>
             
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className={cn(
+              "grid gap-6",
+              // Mobile-friendly grid: 2 columns for Advanced Features to reduce scrolling
+              categoryIndex === 1 
+                ? "grid-cols-1 sm:grid-cols-2 lg:grid-cols-4" 
+                : "grid-cols-1 md:grid-cols-2 lg:grid-cols-4"
+            )}>
               {category.items.map((feature, index) => (
                 <div 
                   key={index} 
