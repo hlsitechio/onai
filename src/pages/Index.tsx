@@ -6,6 +6,7 @@ import TextEditor from "@/components/TextEditor";
 import { useFocusMode } from "@/contexts";
 import Footer from "@/components/Footer";
 import VisitorCounter from "@/components/VisitorCounter";
+import JoinWallOfFame from "@/components/JoinWallOfFame";
 import { Separator } from "@/components/ui/separator";
 import "../styles/hide-separators.css";
 import React, { lazy, Suspense } from "react";
@@ -84,6 +85,11 @@ const Index = () => {
         <Suspense fallback={<FeatureShowcaseLoader />}>
           <FeatureShowcase />
         </Suspense>
+      </div>
+      
+      {/* Join Our Wall of Fame section - Moved after Feature Showcase */}
+      <div className="blur-in-focus-mode">
+        <JoinWallOfFame />
       </div>
       
       {/* Completely hidden separator before footer */}

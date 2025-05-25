@@ -2,6 +2,7 @@
 import React from 'react';
 import { Heart, Coffee, Building2, Users, Star } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
+import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from '@/components/ui/carousel';
 
 const SponsorsWallOfFame = () => {
   // Individual sponsors from Buy Me a Coffee and other platforms
@@ -40,13 +41,12 @@ const SponsorsWallOfFame = () => {
     }
   ];
 
-  // Company sponsors
+  // Company sponsors - now focused on logos for slider
   const companySponsors = [
     {
       name: "TechFlow Solutions",
       logo: "https://images.unsplash.com/photo-1560472354-b33ff0c44a43?w=200&h=100&fit=crop",
       website: "https://techflow.com",
-      description: "Leading digital transformation consultancy helping businesses modernize their operations.",
       tier: "platinum",
       sponsorshipLevel: "$500+"
     },
@@ -54,7 +54,6 @@ const SponsorsWallOfFame = () => {
       name: "CloudNext Inc",
       logo: "https://images.unsplash.com/photo-1551434678-e076c223a692?w=200&h=100&fit=crop",
       website: "https://cloudnext.com",
-      description: "Cloud infrastructure and software development company focused on scalable solutions.",
       tier: "gold",
       sponsorshipLevel: "$250+"
     },
@@ -62,9 +61,29 @@ const SponsorsWallOfFame = () => {
       name: "DevTools Pro",
       logo: "https://images.unsplash.com/photo-1553028826-f4804151e606?w=200&h=100&fit=crop",
       website: "https://devtools.pro",
-      description: "Professional development tools and resources for modern software teams.",
       tier: "silver",
       sponsorshipLevel: "$100+"
+    },
+    {
+      name: "StartupFlow",
+      logo: "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=200&h=100&fit=crop",
+      website: "https://startupflow.com",
+      tier: "gold",
+      sponsorshipLevel: "$250+"
+    },
+    {
+      name: "CodeCraft Studios",
+      logo: "https://images.unsplash.com/photo-1549923746-c502d488b3ea?w=200&h=100&fit=crop",
+      website: "https://codecraft.com",
+      tier: "silver",
+      sponsorshipLevel: "$100+"
+    },
+    {
+      name: "InnovateTech",
+      logo: "https://images.unsplash.com/photo-1558494949-ef010cbdcc31?w=200&h=100&fit=crop",
+      website: "https://innovatetech.com",
+      tier: "platinum",
+      sponsorshipLevel: "$500+"
     }
   ];
 
@@ -126,50 +145,65 @@ const SponsorsWallOfFame = () => {
           </div>
         </div>
 
-        {/* Company Sponsors Section */}
+        {/* Company Sponsors Logo Slider */}
         <div className="mb-16">
           <div className="flex items-center gap-3 mb-8">
             <Building2 className="h-6 w-6 text-purple-400" />
             <h3 className="text-2xl font-bold text-white">Company Sponsors</h3>
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {companySponsors.map((sponsor, index) => (
-              <Card key={index} className="bg-black/40 backdrop-blur-lg border-white/10 hover:border-purple-400/50 transition-all hover:shadow-[0_0_25px_rgba(168,85,247,0.15)] group">
-                <CardContent className="p-6">
-                  {/* Tier Badge */}
-                  <div className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium mb-4 bg-gradient-to-r ${getTierColor(sponsor.tier)} text-white`}>
-                    {getTierBadge(sponsor.tier)}
-                  </div>
-                  
-                  {/* Company Logo */}
-                  <div className="w-full h-24 bg-white rounded-lg mb-4 flex items-center justify-center overflow-hidden">
-                    <img 
-                      src={sponsor.logo} 
-                      alt={`${sponsor.name} logo`}
-                      className="max-w-full max-h-full object-contain p-2"
-                    />
-                  </div>
-                  
-                  {/* Company Info */}
-                  <h4 className="text-xl font-bold text-white mb-2">{sponsor.name}</h4>
-                  <p className="text-gray-400 text-sm mb-4 line-clamp-3">{sponsor.description}</p>
-                  
-                  {/* Sponsorship Level */}
-                  <div className="flex items-center justify-between">
-                    <span className="text-purple-400 font-medium text-sm">{sponsor.sponsorshipLevel}</span>
-                    <a 
-                      href={sponsor.website}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-purple-400 hover:text-purple-300 text-sm font-medium group-hover:underline"
-                    >
-                      Visit Website →
-                    </a>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
+          <div className="relative">
+            <Carousel
+              opts={{
+                align: "start",
+                loop: true,
+              }}
+              className="w-full"
+            >
+              <CarouselContent className="-ml-2 md:-ml-4">
+                {companySponsors.map((sponsor, index) => (
+                  <CarouselItem key={index} className="pl-2 md:pl-4 md:basis-1/2 lg:basis-1/3">
+                    <div className="p-1">
+                      <Card className="bg-black/40 backdrop-blur-lg border-white/10 hover:border-purple-400/50 transition-all hover:shadow-[0_0_25px_rgba(168,85,247,0.15)] group h-48">
+                        <CardContent className="flex flex-col items-center justify-center p-6 h-full">
+                          {/* Tier Badge */}
+                          <div className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium mb-4 bg-gradient-to-r ${getTierColor(sponsor.tier)} text-white`}>
+                            {getTierBadge(sponsor.tier)}
+                          </div>
+                          
+                          {/* Company Logo */}
+                          <div className="w-full h-16 bg-white rounded-lg mb-4 flex items-center justify-center overflow-hidden">
+                            <img 
+                              src={sponsor.logo} 
+                              alt={`${sponsor.name} logo`}
+                              className="max-w-full max-h-full object-contain p-2"
+                            />
+                          </div>
+                          
+                          {/* Company Info */}
+                          <h4 className="text-lg font-bold text-white mb-2 text-center">{sponsor.name}</h4>
+                          
+                          {/* Sponsorship Level and Link */}
+                          <div className="flex flex-col items-center gap-2">
+                            <span className="text-purple-400 font-medium text-sm">{sponsor.sponsorshipLevel}</span>
+                            <a 
+                              href={sponsor.website}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-purple-400 hover:text-purple-300 text-sm font-medium group-hover:underline"
+                            >
+                              Visit Website →
+                            </a>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    </div>
+                  </CarouselItem>
+                ))}
+              </CarouselContent>
+              <CarouselPrevious className="hidden md:flex" />
+              <CarouselNext className="hidden md:flex" />
+            </Carousel>
           </div>
         </div>
 
@@ -212,34 +246,6 @@ const SponsorsWallOfFame = () => {
                 </CardContent>
               </Card>
             ))}
-          </div>
-        </div>
-
-        {/* Bottom CTA */}
-        <div className="text-center mt-12 p-8 bg-gradient-to-r from-purple-900/20 to-pink-900/20 rounded-xl border border-purple-400/20">
-          <Star className="h-8 w-8 text-yellow-400 mx-auto mb-4" />
-          <h3 className="text-2xl font-bold text-white mb-2">Join Our Wall of Fame!</h3>
-          <p className="text-gray-300 mb-6">
-            Your support helps us maintain and improve Online Note AI for everyone. 
-            Every contribution, no matter the size, makes a difference!
-          </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <a 
-              href="https://buymeacoffee.com/onlinenoteai" 
-              target="_blank" 
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 text-white px-8 py-3 rounded-lg font-medium transition-all hover:scale-105"
-            >
-              <Coffee className="h-5 w-5" />
-              Support Us
-            </a>
-            <a 
-              href="mailto:info@onlinenote.ai?subject=Corporate%20Sponsorship"
-              className="inline-flex items-center gap-2 border border-purple-400 text-purple-400 hover:bg-purple-400 hover:text-white px-8 py-3 rounded-lg font-medium transition-all hover:scale-105"
-            >
-              <Building2 className="h-5 w-5" />
-              Corporate Partnership
-            </a>
           </div>
         </div>
       </div>
