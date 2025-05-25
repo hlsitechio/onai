@@ -1,7 +1,6 @@
 
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { Eye, Users } from 'lucide-react';
 
 interface VisitorStats {
   total_visits: number;
@@ -35,7 +34,7 @@ const VisitorCounter = () => {
       }
     };
 
-    // Get visitor stats
+    // Get visitor stats (for your internal tracking)
     const getStats = async () => {
       try {
         const { data, error } = await supabase
@@ -47,6 +46,8 @@ const VisitorCounter = () => {
           console.error('Error fetching stats:', error);
         } else {
           setStats(data);
+          // Log stats to console for your reference
+          console.log('Visitor Stats:', data);
         }
       } catch (error) {
         console.error('Error getting visitor stats:', error);
@@ -80,35 +81,8 @@ const VisitorCounter = () => {
     };
   }, []);
 
-  if (isLoading) {
-    return (
-      <div className="fixed bottom-4 right-4 bg-black/80 backdrop-blur-sm text-white px-4 py-2 rounded-lg border border-white/10 shadow-lg">
-        <div className="flex items-center gap-2">
-          <div className="animate-pulse w-4 h-4 bg-gray-400 rounded"></div>
-          <span className="text-sm">Loading stats...</span>
-        </div>
-      </div>
-    );
-  }
-
-  if (!stats) {
-    return null;
-  }
-
-  return (
-    <div className="fixed bottom-4 right-4 bg-black/80 backdrop-blur-sm text-white px-4 py-2 rounded-lg border border-white/10 shadow-lg z-50">
-      <div className="flex items-center gap-4 text-sm">
-        <div className="flex items-center gap-1">
-          <Eye className="w-4 h-4 text-green-400" />
-          <span>{stats.total_visits} visits</span>
-        </div>
-        <div className="flex items-center gap-1">
-          <Users className="w-4 h-4 text-blue-400" />
-          <span>{stats.unique_visitors} unique</span>
-        </div>
-      </div>
-    </div>
-  );
+  // Return null to completely hide the widget from users
+  return null;
 };
 
 export default VisitorCounter;
