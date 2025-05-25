@@ -35,7 +35,7 @@ const SponsorsWallOfFame = () => {
       name: "Emily Davis",
       amount: "$30",
       message: "Great for organizing my thoughts and ideas!",
-      avatar: "https://images.unsplash.com/photo-1494790108755-2616b612b786?w=100&h=100&fit=crop&crop=face",
+      avatar: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=100&h=100&fit=crop&crop=face",
       platform: "buymeacoffee",
       tier: "silver"
     }
