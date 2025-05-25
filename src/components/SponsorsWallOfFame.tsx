@@ -3,6 +3,7 @@ import React from 'react';
 import WallOfFameHeader from './sponsors/WallOfFameHeader';
 import CompanySponsorsSection from './sponsors/CompanySponsorsSection';
 import IndividualSponsorsSection from './sponsors/IndividualSponsorsSection';
+import DotGridBackground from './DotGridBackground';
 
 const SponsorsWallOfFame = () => {
   // Individual sponsors from Buy Me a Coffee and other platforms
@@ -67,8 +68,11 @@ const SponsorsWallOfFame = () => {
   ];
 
   return (
-    <section className="py-16 px-4 bg-gradient-to-b from-[#050510] to-[#0a0a1a] overflow-hidden">
-      <div className="container mx-auto max-w-6xl">
+    <section className="py-16 px-4 bg-gradient-to-b from-[#050510] to-[#0a0a1a] overflow-hidden relative">
+      {/* Add the same background as hero section */}
+      <DotGridBackground />
+      
+      <div className="container mx-auto max-w-6xl relative z-10">
         <WallOfFameHeader />
         <CompanySponsorsSection sponsors={companySponsors} />
         <IndividualSponsorsSection sponsors={individualSponsors} />
