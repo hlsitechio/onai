@@ -1,4 +1,3 @@
-
 import React from 'react';
 import WallOfFameHeader from './sponsors/WallOfFameHeader';
 import CompanySponsorsSection from './sponsors/CompanySponsorsSection';
@@ -77,13 +76,6 @@ const SponsorsWallOfFame = () => {
       website: "https://amazon.com",
       tier: "silver",
       sponsorshipLevel: "$100+"
-    },
-    {
-      name: "Netflix",
-      logo: "https://logos-world.net/wp-content/uploads/2020/04/Netflix-Logo.png",
-      website: "https://netflix.com",
-      tier: "platinum",
-      sponsorshipLevel: "$500+"
     }
   ];
 
