@@ -84,6 +84,39 @@ export type Database = {
         }
         Relationships: []
       }
+      page_visits: {
+        Row: {
+          city: string | null
+          country: string | null
+          id: string
+          ip_address: string | null
+          page_path: string
+          referrer: string | null
+          user_agent: string | null
+          visited_at: string
+        }
+        Insert: {
+          city?: string | null
+          country?: string | null
+          id?: string
+          ip_address?: string | null
+          page_path: string
+          referrer?: string | null
+          user_agent?: string | null
+          visited_at?: string
+        }
+        Update: {
+          city?: string | null
+          country?: string | null
+          id?: string
+          ip_address?: string | null
+          page_path?: string
+          referrer?: string | null
+          user_agent?: string | null
+          visited_at?: string
+        }
+        Relationships: []
+      }
       shared_notes: {
         Row: {
           content: string
@@ -110,7 +143,22 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      daily_visit_counts: {
+        Row: {
+          page_path: string | null
+          visit_count: number | null
+          visit_date: string | null
+        }
+        Relationships: []
+      }
+      visitor_stats: {
+        Row: {
+          last_visit_date: string | null
+          total_visits: number | null
+          unique_visitors: number | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       [_ in never]: never

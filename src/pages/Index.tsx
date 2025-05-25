@@ -5,6 +5,7 @@ import TextEditor from "@/components/TextEditor";
 import { useFocusMode } from "@/contexts";
 import Footer from "@/components/Footer";
 import FeatureShowcase from "@/components/FeatureShowcase";
+import VisitorCounter from "@/components/VisitorCounter";
 import { Separator } from "@/components/ui/separator";
 import "../styles/hide-separators.css";
 
@@ -82,6 +83,9 @@ const Index = () => {
       <div className="blur-in-focus-mode">
         <Footer />
       </div>
+
+      {/* Visitor Counter Widget */}
+      <VisitorCounter />
     </div>;
 };
 
