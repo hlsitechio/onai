@@ -1,7 +1,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { Mic, MicOff, AlertCircle, WifiOff } from 'lucide-react';
+import { Mic, MicOff, AlertCircle, Shield, WifiOff } from 'lucide-react';
 import { useSpeechToText } from '@/hooks/useSpeechToText';
 import { cn } from '@/lib/utils';
 
@@ -153,7 +153,7 @@ const SpeechToTextButton: React.FC<SpeechToTextButtonProps> = ({
     
     if (permissionStatus === 'denied') {
       return {
-        icon: <Mic className="h-4 w-4" />,
+        icon: <Shield className="h-4 w-4" />,
         className: "text-yellow-400 hover:text-yellow-300 bg-yellow-900/20 hover:bg-yellow-900/30",
         title: "Microphone access denied - click to request permission"
       };
@@ -161,7 +161,7 @@ const SpeechToTextButton: React.FC<SpeechToTextButtonProps> = ({
     
     if (permissionStatus === 'prompt' || !hasRequestedPermission) {
       return {
-        icon: <Mic className="h-4 w-4" />,
+        icon: <Shield className="h-4 w-4" />,
         className: "text-blue-400 hover:text-blue-300 bg-blue-900/20 hover:bg-blue-900/30",
         title: "Click to allow microphone access and start voice input"
       };

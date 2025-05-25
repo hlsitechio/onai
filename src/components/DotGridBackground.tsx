@@ -1,10 +1,9 @@
-
 import React from 'react';
 import { motion } from 'framer-motion';
 
 const DotGridBackground: React.FC = () => {
   return (
-    <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
+    <div className="fixed inset-0 z-[-2] overflow-hidden pointer-events-none">
       {/* Base background color with gradient */}
       <div className="absolute inset-0 bg-gradient-to-br from-[#050510] via-[#0A0A1B] to-[#050510]"></div>
       
@@ -12,7 +11,7 @@ const DotGridBackground: React.FC = () => {
       <div className="absolute inset-0">
         {/* Grid dots pattern with subtle animation */}
         <motion.svg 
-          className="w-full h-full opacity-60" 
+          className="w-full h-full opacity-25" 
           xmlns="http://www.w3.org/2000/svg" 
           width="100%" 
           height="100%"
@@ -30,7 +29,7 @@ const DotGridBackground: React.FC = () => {
                 cx="15" 
                 cy="15" 
                 r="1.5" 
-                fill="rgba(120, 90, 220, 0.8)" 
+                fill="rgba(120, 90, 220, 0.6)" 
               />
             </pattern>
             
@@ -45,7 +44,7 @@ const DotGridBackground: React.FC = () => {
                 cx="40" 
                 cy="40" 
                 r="2" 
-                fill="rgba(150, 120, 255, 0.6)" 
+                fill="rgba(150, 120, 255, 0.4)" 
               />
             </pattern>
             

@@ -67,50 +67,8 @@ const SponsorsWallOfFame = () => {
   ];
 
   return (
-    <section className="py-16 px-4 bg-gradient-to-b from-[#050510] to-[#0a0a1a] overflow-hidden relative">
-      {/* Local dot grid background for this section */}
-      <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
-        <div className="absolute inset-0 bg-gradient-to-br from-[#050510] via-[#0A0A1B] to-[#050510]"></div>
-        <svg 
-          className="w-full h-full opacity-40" 
-          xmlns="http://www.w3.org/2000/svg" 
-          width="100%" 
-          height="100%"
-        >
-          <defs>
-            <pattern 
-              id="sponsorDotGrid" 
-              width="30" 
-              height="30" 
-              patternUnits="userSpaceOnUse"
-            >
-              <circle 
-                cx="15" 
-                cy="15" 
-                r="1.5" 
-                fill="rgba(120, 90, 220, 0.8)" 
-              />
-            </pattern>
-            <pattern 
-              id="sponsorDotGridLarge" 
-              width="80" 
-              height="80" 
-              patternUnits="userSpaceOnUse"
-            >
-              <circle 
-                cx="40" 
-                cy="40" 
-                r="2" 
-                fill="rgba(150, 120, 255, 0.6)" 
-              />
-            </pattern>
-          </defs>
-          <rect width="100%" height="100%" fill="url(#sponsorDotGrid)" />
-          <rect width="100%" height="100%" fill="url(#sponsorDotGridLarge)" />
-        </svg>
-      </div>
-      
-      <div className="container mx-auto max-w-6xl relative z-10">
+    <section className="py-16 px-4 bg-gradient-to-b from-[#050510] to-[#0a0a1a] overflow-hidden">
+      <div className="container mx-auto max-w-6xl">
         <WallOfFameHeader />
         <CompanySponsorsSection sponsors={companySponsors} />
         <IndividualSponsorsSection sponsors={individualSponsors} />

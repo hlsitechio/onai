@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Button } from "@/components/ui/button";
-import { ScanText } from "lucide-react";
+import { FileImage } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface OCRButtonProps {
@@ -28,7 +28,7 @@ const OCRButton: React.FC<OCRButtonProps> = ({
       )}
       title="OCR - Extract Text from Image"
     >
-      <ScanText className="h-4 w-4" />
+      <FileImage className="h-4 w-4" />
     </Button>
   );
 };
