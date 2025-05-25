@@ -1,11 +1,9 @@
 
-import React from "react";
-import { useEditorContainer } from "@/hooks/useEditorContainer";
+import React, { useState } from "react";
 import { cn } from "@/lib/utils";
 import TextEditorToolbar from "../TextEditorToolbar";
-import MobileToolbar from "../mobile/MobileToolbar";
-import { useIsMobileDevice } from "@/hooks/useIsMobileDevice";
-import EditorContent from "./EditorContent";
+import EditableContent from "../EditableContent";
+import { useEditorContainer } from "@/hooks/useEditorContainer";
 
 interface EditorContainerProps {
   content: string;
@@ -35,61 +33,60 @@ const EditorContainer: React.FC<EditorContainerProps> = ({
   lastSaved,
   isFocusMode,
   toggleFocusMode,
-  isAIDialogOpen,
-  setIsAIDialogOpen
+  isAIDialogOpen = false,
+  setIsAIDialogOpen = () => {}
 }) => {
-  const isMobileDevice = useIsMobileDevice();
-  const { editorRef, handleSpeechTranscript, handleApplyAIChanges } = useEditorContainer({
-    content,
-    setContent
-  });
+  const [isAIAgentVisible, setIsAIAgentVisible] = useState(false);
+  
+  const {
+    editorRef,
+    handleSpeechTranscript,
+    handleApplyAIChanges
+  } = useEditorContainer({ content, setContent });
+
+  const handleInsertText = (text: string) => {
+    // Insert text at current cursor position or append to content
+    const newContent = content + (content.endsWith('\n') || content === '' ? '' : '\n') + text;
+    setContent(newContent);
+  };
+
+  const toggleAIAgent = () => {
+    setIsAIAgentVisible(!isAIAgentVisible);
+  };
 
   return (
     <div className={cn(
-      "glass-panel-dark rounded-xl overflow-hidden flex flex-col transition-all duration-300 shadow-[0_8px_30px_rgb(0,0,0,0.4)] border border-white/5",
-      "h-[calc(100vh-200px)] min-h-[calc(100vh-200px)]", // Adjusted height to reach the separator
-      isFocusMode ? "shadow-[0_20px_60px_rgb(147,51,234,0.3)] border-purple-500/20" : ""
+      "glass-panel-dark rounded-xl overflow-hidden shadow-[0_8px_30px_rgb(0,0,0,0.4)] border border-white/5 transition-all duration-300 h-[calc(100vh-200px)]",
+      isFocusMode && "ring-2 ring-purple-500/30 shadow-note-glow"
     )}>
-      
-      {/* Toolbar */}
-      {isMobileDevice ? (
-        <MobileToolbar
-          execCommand={execCommand}
-          handleSave={handleSave}
-          toggleSidebar={toggleLeftSidebar}
-          toggleAI={toggleAISidebar}
-          isSidebarOpen={isLeftSidebarOpen}
-          isAISidebarOpen={isAISidebarOpen}
-          isFocusMode={isFocusMode}
-          toggleFocusMode={toggleFocusMode}
-        />
-      ) : (
-        <TextEditorToolbar
-          execCommand={execCommand}
-          handleSave={handleSave}
-          toggleSidebar={toggleLeftSidebar}
-          toggleAI={toggleAISidebar}
-          isSidebarOpen={isLeftSidebarOpen}
-          isAISidebarOpen={isAISidebarOpen}
-          lastSaved={lastSaved}
-          isFocusMode={isFocusMode}
-          toggleFocusMode={toggleFocusMode}
-          onSpeechTranscript={handleSpeechTranscript}
-          onToggleAIAgent={() => setIsAIDialogOpen?.(!isAIDialogOpen)}
-          isAIAgentVisible={isAIDialogOpen}
-          content={content}
-          onApplyAIChanges={handleApplyAIChanges}
-        />
-      )}
-
-      {/* Editor Content */}
-      <EditorContent
-        content={content}
-        setContent={setContent}
+      <TextEditorToolbar
+        execCommand={execCommand}
+        handleSave={handleSave}
+        toggleSidebar={toggleLeftSidebar}
+        toggleAI={toggleAISidebar}
+        isSidebarOpen={isLeftSidebarOpen}
+        isAISidebarOpen={isAISidebarOpen}
+        lastSaved={lastSaved}
         isFocusMode={isFocusMode}
-        onSave={handleSave}
-        editorRef={editorRef}
+        toggleFocusMode={toggleFocusMode}
+        onSpeechTranscript={handleSpeechTranscript}
+        onToggleAIAgent={toggleAIAgent}
+        isAIAgentVisible={isAIAgentVisible}
+        content={content}
+        onApplyAIChanges={handleApplyAIChanges}
+        onInsertText={handleInsertText}
       />
+      
+      <div className="h-[calc(100%-60px)] relative">
+        <EditableContent
+          content={content}
+          setContent={setContent}
+          isFocusMode={isFocusMode}
+          onSpeechTranscript={handleSpeechTranscript}
+          onToggleAIAgent={toggleAIAgent}
+          isAIAgentVisible={isAIAgentVisible}
+        />
+      </div>
     </div>
   );
 };

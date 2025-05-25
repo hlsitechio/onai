@@ -1,5 +1,4 @@
-
-import React from "react";
+import React, { useState } from "react";
 import { 
   Bold, 
   Italic, 
@@ -33,6 +32,8 @@ import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from "@/comp
 import { cn, formatDistanceToNow } from "@/lib/utils";
 import SpeechToTextButton from "./SpeechToTextButton";
 import AIActionsDropdown from "./notes/AIActionsDropdown";
+import OCRButton from "./ocr/OCRButton";
+import OCRPopup from "./ocr/OCRPopup";
 
 interface TextEditorToolbarProps {
   execCommand: (command: string, value?: string | null) => void;
@@ -49,6 +50,7 @@ interface TextEditorToolbarProps {
   isAIAgentVisible?: boolean;
   content?: string;
   onApplyAIChanges?: (newContent: string) => void;
+  onInsertText?: (text: string) => void;
 }
 
 const TextEditorToolbar: React.FC<TextEditorToolbarProps> = ({
@@ -65,8 +67,11 @@ const TextEditorToolbar: React.FC<TextEditorToolbarProps> = ({
   onToggleAIAgent,
   isAIAgentVisible = false,
   content = "",
-  onApplyAIChanges = () => {}
+  onApplyAIChanges = () => {},
+  onInsertText = () => {}
 }) => {
+  const [isOCROpen, setIsOCROpen] = useState(false);
+
   // Markdown-specific handlers
   const insertMarkdown = (prefix: string, suffix: string = "") => {
     const selection = window.getSelection();
@@ -82,173 +87,188 @@ const TextEditorToolbar: React.FC<TextEditorToolbarProps> = ({
     }
   };
 
+  const handleOCRTextExtracted = (text: string) => {
+    onInsertText(text);
+  };
+
   return (
-    <div className={cn(
-      "flex flex-wrap items-center justify-between p-2 md:p-3 transition-all duration-300",
-      isFocusMode 
-        ? "bg-black/70 backdrop-blur-xl border-b border-purple-800/20" 
-        : "bg-black/40 backdrop-blur-lg border-b border-white/10"
-    )}>
-      {/* Left side - formatting tools */}
-      <div className="flex flex-wrap items-center gap-1 md:gap-2">
-        {/* Sidebar toggle */}
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={toggleSidebar}
-          className="text-slate-300 hover:text-white hover:bg-white/10 p-1.5 md:p-2"
-          title="Toggle Notes Sidebar"
-        >
-          <PanelLeft className="h-4 w-4" />
-        </Button>
-
-        <div className="w-px h-6 bg-white/10"></div>
-
-        {/* Formatting buttons */}
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={() => execCommand('bold', null)}
-          className="text-slate-300 hover:text-white hover:bg-white/10 p-1.5 md:p-2"
-          title="Bold (Ctrl+B)"
-        >
-          <Bold className="h-4 w-4" />
-        </Button>
-
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={() => execCommand('italic', null)}
-          className="text-slate-300 hover:text-white hover:bg-white/10 p-1.5 md:p-2"
-          title="Italic (Ctrl+I)"
-        >
-          <Italic className="h-4 w-4" />
-        </Button>
-
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={() => execCommand('underline', null)}
-          className="text-slate-300 hover:text-white hover:bg-white/10 p-1.5 md:p-2"
-          title="Underline (Ctrl+U)"
-        >
-          <Underline className="h-4 w-4" />
-        </Button>
-
-        <div className="w-px h-6 bg-white/10 hidden md:block"></div>
-
-        {/* Speech to Text */}
-        <div className="flex items-center gap-1">
-          {onSpeechTranscript && (
-            <SpeechToTextButton 
-              onTranscript={onSpeechTranscript}
-              className="p-1.5 md:p-2 h-8 w-8 text-slate-300 hover:text-white hover:bg-white/10"
-            />
-          )}
-        </div>
-
-        {/* Alignment buttons - hidden on mobile */}
-        <div className="hidden md:flex items-center gap-1">
-          <div className="w-px h-6 bg-white/10"></div>
-
+    <>
+      <div className={cn(
+        "flex flex-wrap items-center justify-between p-2 md:p-3 transition-all duration-300",
+        isFocusMode 
+          ? "bg-black/70 backdrop-blur-xl border-b border-purple-800/20" 
+          : "bg-black/40 backdrop-blur-lg border-b border-white/10"
+      )}>
+        {/* Left side - formatting tools */}
+        <div className="flex flex-wrap items-center gap-1 md:gap-2">
+          {/* Sidebar toggle */}
           <Button
             variant="ghost"
             size="sm"
-            onClick={() => execCommand('justifyLeft', null)}
+            onClick={toggleSidebar}
             className="text-slate-300 hover:text-white hover:bg-white/10 p-1.5 md:p-2"
-            title="Align Left"
+            title="Toggle Notes Sidebar"
           >
-            <AlignLeft className="h-4 w-4" />
-          </Button>
-
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => execCommand('justifyCenter', null)}
-            className="text-slate-300 hover:text-white hover:bg-white/10 p-1.5 md:p-2"
-            title="Align Center"
-          >
-            <AlignCenter className="h-4 w-4" />
-          </Button>
-
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => execCommand('justifyRight', null)}
-            className="text-slate-300 hover:text-white hover:bg-white/10 p-1.5 md:p-2"
-            title="Align Right"
-          >
-            <AlignRight className="h-4 w-4" />
+            <PanelLeft className="h-4 w-4" />
           </Button>
 
           <div className="w-px h-6 bg-white/10"></div>
 
+          {/* Formatting buttons */}
           <Button
             variant="ghost"
             size="sm"
-            onClick={() => execCommand('undo', null)}
+            onClick={() => execCommand('bold', null)}
             className="text-slate-300 hover:text-white hover:bg-white/10 p-1.5 md:p-2"
-            title="Undo (Ctrl+Z)"
+            title="Bold (Ctrl+B)"
           >
-            <Undo className="h-4 w-4" />
+            <Bold className="h-4 w-4" />
           </Button>
 
           <Button
             variant="ghost"
             size="sm"
-            onClick={() => execCommand('redo', null)}
+            onClick={() => execCommand('italic', null)}
             className="text-slate-300 hover:text-white hover:bg-white/10 p-1.5 md:p-2"
-            title="Redo (Ctrl+Y)"
+            title="Italic (Ctrl+I)"
           >
-            <Redo className="h-4 w-4" />
+            <Italic className="h-4 w-4" />
           </Button>
-        </div>
-      </div>
 
-      {/* Right side - actions */}
-      <div className="flex items-center gap-1 md:gap-2 ml-auto">
-        {/* Last saved indicator */}
-        {lastSaved && (
-          <div className="hidden md:flex items-center gap-1.5 text-xs text-slate-400 mr-2">
-            <Clock className="h-3 w-3" />
-            <span>Saved {formatDistanceToNow(lastSaved, { addSuffix: true })}</span>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => execCommand('underline', null)}
+            className="text-slate-300 hover:text-white hover:bg-white/10 p-1.5 md:p-2"
+            title="Underline (Ctrl+U)"
+          >
+            <Underline className="h-4 w-4" />
+          </Button>
+
+          <div className="w-px h-6 bg-white/10 hidden md:block"></div>
+
+          {/* OCR and Speech to Text */}
+          <div className="flex items-center gap-1">
+            <OCRButton onClick={() => setIsOCROpen(true)} />
+            
+            {onSpeechTranscript && (
+              <SpeechToTextButton 
+                onTranscript={onSpeechTranscript}
+                className="p-1.5 md:p-2 h-8 w-8 text-slate-300 hover:text-white hover:bg-white/10"
+              />
+            )}
           </div>
-        )}
 
-        {/* Focus mode toggle */}
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={toggleFocusMode}
-          className={cn(
-            "p-1.5 md:p-2",
-            isFocusMode 
-              ? "text-purple-300 bg-purple-500/20 hover:bg-purple-500/30" 
-              : "text-slate-300 hover:text-white hover:bg-white/10"
+          {/* Alignment buttons - hidden on mobile */}
+          <div className="hidden md:flex items-center gap-1">
+            <div className="w-px h-6 bg-white/10"></div>
+
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => execCommand('justifyLeft', null)}
+              className="text-slate-300 hover:text-white hover:bg-white/10 p-1.5 md:p-2"
+              title="Align Left"
+            >
+              <AlignLeft className="h-4 w-4" />
+            </Button>
+
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => execCommand('justifyCenter', null)}
+              className="text-slate-300 hover:text-white hover:bg-white/10 p-1.5 md:p-2"
+              title="Align Center"
+            >
+              <AlignCenter className="h-4 w-4" />
+            </Button>
+
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => execCommand('justifyRight', null)}
+              className="text-slate-300 hover:text-white hover:bg-white/10 p-1.5 md:p-2"
+              title="Align Right"
+            >
+              <AlignRight className="h-4 w-4" />
+            </Button>
+
+            <div className="w-px h-6 bg-white/10"></div>
+
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => execCommand('undo', null)}
+              className="text-slate-300 hover:text-white hover:bg-white/10 p-1.5 md:p-2"
+              title="Undo (Ctrl+Z)"
+            >
+              <Undo className="h-4 w-4" />
+            </Button>
+
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => execCommand('redo', null)}
+              className="text-slate-300 hover:text-white hover:bg-white/10 p-1.5 md:p-2"
+              title="Redo (Ctrl+Y)"
+            >
+              <Redo className="h-4 w-4" />
+            </Button>
+          </div>
+        </div>
+
+        {/* Right side - actions */}
+        <div className="flex items-center gap-1 md:gap-2 ml-auto">
+          {/* Last saved indicator */}
+          {lastSaved && (
+            <div className="hidden md:flex items-center gap-1.5 text-xs text-slate-400 mr-2">
+              <Clock className="h-3 w-3" />
+              <span>Saved {formatDistanceToNow(lastSaved, { addSuffix: true })}</span>
+            </div>
           )}
-          title={isFocusMode ? "Exit Focus Mode" : "Enter Focus Mode"}
-        >
-          <Focus className="h-4 w-4" />
-        </Button>
 
-        {/* Save button */}
-        <Button
-          onClick={handleSave}
-          size="sm"
-          className="bg-noteflow-500 hover:bg-noteflow-600 text-white p-1.5 md:p-2 px-3 md:px-4"
-          title="Save Note (Ctrl+S)"
-        >
-          <Save className="h-4 w-4 mr-1" />
-          <span className="hidden sm:inline">Save</span>
-        </Button>
+          {/* Focus mode toggle */}
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={toggleFocusMode}
+            className={cn(
+              "p-1.5 md:p-2",
+              isFocusMode 
+                ? "text-purple-300 bg-purple-500/20 hover:bg-purple-500/30" 
+                : "text-slate-300 hover:text-white hover:bg-white/10"
+            )}
+            title={isFocusMode ? "Exit Focus Mode" : "Enter Focus Mode"}
+          >
+            <Focus className="h-4 w-4" />
+          </Button>
 
-        {/* AI Agent Actions Dropdown (replaces old AI processing dropdown) */}
-        <AIActionsDropdown
-          content={content}
-          onApplyChanges={onApplyAIChanges}
-        />
+          {/* Save button */}
+          <Button
+            onClick={handleSave}
+            size="sm"
+            className="bg-noteflow-500 hover:bg-noteflow-600 text-white p-1.5 md:p-2 px-3 md:px-4"
+            title="Save Note (Ctrl+S)"
+          >
+            <Save className="h-4 w-4 mr-1" />
+            <span className="hidden sm:inline">Save</span>
+          </Button>
+
+          {/* AI Agent Actions Dropdown (replaces old AI processing dropdown) */}
+          <AIActionsDropdown
+            content={content}
+            onApplyChanges={onApplyAIChanges}
+          />
+        </div>
       </div>
-    </div>
+
+      {/* OCR Popup */}
+      <OCRPopup
+        isOpen={isOCROpen}
+        onClose={() => setIsOCROpen(false)}
+        onTextExtracted={handleOCRTextExtracted}
+      />
+    </>
   );
 };
 

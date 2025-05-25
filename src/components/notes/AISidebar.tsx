@@ -9,12 +9,15 @@ import {
   InfoIcon,
   AlertTriangle,
   ShieldCheck,
-  Square
+  Square,
+  FileImage
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import AIDisclaimer from "./AIDisclaimer";
 import AIActionSelector from "./AIActionSelector";
 import ImageUploadArea from "./ImageUploadArea";
+import OCRButton from "../ocr/OCRButton";
+import OCRPopup from "../ocr/OCRPopup";
 import { useImageUpload } from "@/hooks/useImageUpload";
 import { useStreamingAI } from "@/hooks/useStreamingAI";
 import { getUsageStats } from "@/utils/aiUtils";
@@ -36,6 +39,7 @@ const AISidebar: React.FC<AISidebarProps> = ({
   const [targetLanguage, setTargetLanguage] = useState("French");
   const [customPrompt, setCustomPrompt] = useState("");
   const [isDisclaimerOpen, setIsDisclaimerOpen] = useState(false);
+  const [isOCROpen, setIsOCROpen] = useState(false);
   const [usageStats] = useState(() => getUsageStats());
   const { toast } = useToast();
 
@@ -70,6 +74,14 @@ const AISidebar: React.FC<AISidebarProps> = ({
         description: "The AI-generated content has been applied to your note.",
       });
     }
+  };
+
+  const handleOCRTextExtracted = (text: string) => {
+    onApplyChanges(content + (content.endsWith('\n') || content === '' ? '' : '\n') + text);
+    toast({
+      title: "OCR text inserted",
+      description: "Extracted text has been added to your note.",
+    });
   };
 
   const displayText = streamingResult || result;
@@ -111,6 +123,19 @@ const AISidebar: React.FC<AISidebarProps> = ({
             <AlertTriangle className="h-3 w-3 text-amber-400" />
             <span className="text-xs text-amber-300/80">AI may produce inaccurate content</span>
           </div>
+        </div>
+
+        {/* OCR Access */}
+        <div className="flex items-center justify-between p-2 bg-black/20 rounded-lg border border-white/10">
+          <div className="flex items-center gap-2">
+            <FileImage className="h-4 w-4 text-noteflow-400" />
+            <span className="text-sm text-white">Extract Text from Image</span>
+          </div>
+          <OCRButton 
+            onClick={() => setIsOCROpen(true)}
+            variant="outline"
+            className="border-noteflow-500/30 bg-noteflow-500/10 text-noteflow-300 hover:bg-noteflow-500/20"
+          />
         </div>
 
         <AIActionSelector
@@ -238,6 +263,13 @@ const AISidebar: React.FC<AISidebarProps> = ({
       <AIDisclaimer 
         isOpen={isDisclaimerOpen}
         onClose={() => setIsDisclaimerOpen(false)}
+      />
+
+      {/* OCR Popup */}
+      <OCRPopup
+        isOpen={isOCROpen}
+        onClose={() => setIsOCROpen(false)}
+        onTextExtracted={handleOCRTextExtracted}
       />
     </div>
   );
