@@ -203,8 +203,8 @@ const Hero = () => {
                 animate={{ opacity: 1 }}
                 transition={{ delay: 0.5, duration: 0.8 }}
               >
-                <span className="font-medium text-white">Unleash your mind's potential</span> with our revolutionary note-taking experience. <span className="bg-gradient-to-r from-noteflow-400 to-purple-400 bg-clip-text text-transparent font-medium">Zero friction, infinite possibilities</span>. 
-                Your thoughts, organized beautifully and saved instantly.
+                <span className="font-medium text-white">Stop wrestling with bloated apps.</span> Notion is overcomplicated. Obsidian is overkill. <span className="bg-gradient-to-r from-red-400 to-orange-400 bg-clip-text text-transparent font-medium">You need notes that work, not features you'll never use.</span> 
+                Simple. Fast. Powerful. <span className="bg-gradient-to-r from-noteflow-400 to-purple-400 bg-clip-text text-transparent font-medium">Start writing instantly.</span>
               </motion.p>
             </div>
           </motion.div>
