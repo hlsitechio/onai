@@ -7,6 +7,7 @@ import { useFocusMode } from "@/contexts";
 import Footer from "@/components/Footer";
 import VisitorCounter from "@/components/VisitorCounter";
 import JoinWallOfFame from "@/components/JoinWallOfFame";
+import DotGridBackground from "@/components/DotGridBackground";
 import { Separator } from "@/components/ui/separator";
 import "../styles/hide-separators.css";
 import React, { lazy, Suspense } from "react";
@@ -27,15 +28,18 @@ const Index = () => {
     isFocusMode
   } = useFocusMode();
   
-  return <div className="min-h-screen flex flex-col w-screen max-w-[100vw] overflow-x-hidden">
+  return <div className="min-h-screen flex flex-col w-screen max-w-[100vw] overflow-x-hidden relative">
+      {/* Global dot grid background for the main page */}
+      <DotGridBackground />
+      
       {/* Header and Hero use blur-in-focus-mode class instead of conditional rendering */}
-      <div className="blur-in-focus-mode">
+      <div className="blur-in-focus-mode relative z-10">
         <Header />
         <Hero />
       </div>
       
       {/* Sponsors Wall of Fame - New section after hero */}
-      <div className="blur-in-focus-mode">
+      <div className="blur-in-focus-mode relative z-10">
         <SponsorsWallOfFame />
       </div>
       
@@ -81,14 +85,14 @@ const Index = () => {
       </div>
       
       {/* Feature showcase section - Lazy loaded and reduced top margin */}
-      <div className="blur-in-focus-mode hidden md:block">
+      <div className="blur-in-focus-mode hidden md:block relative z-10">
         <Suspense fallback={<FeatureShowcaseLoader />}>
           <FeatureShowcase />
         </Suspense>
       </div>
       
       {/* Join Our Wall of Fame section - Moved after Feature Showcase */}
-      <div className="blur-in-focus-mode">
+      <div className="blur-in-focus-mode relative z-10">
         <JoinWallOfFame />
       </div>
       
@@ -104,7 +108,7 @@ const Index = () => {
       </div>
       
       {/* Compact mobile footer - Hide any separator before it */}
-      <div className="blur-in-focus-mode">
+      <div className="blur-in-focus-mode relative z-10">
         <Footer />
       </div>
 
