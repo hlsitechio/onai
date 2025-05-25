@@ -1,6 +1,7 @@
 
 import React, { useRef, useEffect } from 'react';
 import { cn } from '@/lib/utils';
+import AnimatedPlaceholder from '../editor/AnimatedPlaceholder';
 
 interface MobileEditorProps {
   content: string;
@@ -67,7 +68,7 @@ const MobileEditor: React.FC<MobileEditorProps> = ({
           "-webkit-touch-callout-default",
           "break-words"
         )}
-        data-placeholder={placeholder}
+        data-placeholder=""
         style={{
           minHeight: isFocusMode ? 'calc(100vh - 120px)' : 'calc(100vh - 200px)',
           WebkitUserSelect: 'text',
@@ -76,10 +77,13 @@ const MobileEditor: React.FC<MobileEditorProps> = ({
         suppressContentEditableWarning={true}
       />
       
-      {/* Placeholder */}
+      {/* Animated placeholder */}
+      <AnimatedPlaceholder isVisible={!content} />
+      
+      {/* Static tip below the animated placeholder */}
       {!content && (
-        <div className="absolute top-6 left-6 text-slate-400 pointer-events-none text-base">
-          {placeholder}
+        <div className="absolute top-16 left-6 text-slate-500 pointer-events-none text-sm select-none">
+          💡 Tip: Select text and use AI actions, or press Ctrl+Shift+A for the AI agent
         </div>
       )}
     </div>

@@ -1,6 +1,7 @@
 
 import React from "react";
 import { cn } from "@/lib/utils";
+import AnimatedPlaceholder from "./AnimatedPlaceholder";
 
 interface TextAreaEditorProps {
   textareaRef: React.RefObject<HTMLTextAreaElement>;
@@ -93,10 +94,18 @@ const TextAreaEditor: React.FC<TextAreaEditorProps> = ({
         onMouseUp={handleSelection}
         onKeyUp={handleCursorChange}
         onClick={handleCursorChange}
-        placeholder="Start typing your note here...
-
-💡 Tip: Select text and use AI actions, or press Ctrl+Shift+A for the AI agent"
+        placeholder=""
       />
+      
+      {/* Animated placeholder */}
+      <AnimatedPlaceholder isVisible={!rawContent} />
+      
+      {/* Static tip below the animated placeholder */}
+      {!rawContent && (
+        <div className="absolute top-16 left-6 text-slate-500 pointer-events-none text-sm select-none">
+          💡 Tip: Select text and use AI actions, or press Ctrl+Shift+A for the AI agent
+        </div>
+      )}
     </>
   );
 };

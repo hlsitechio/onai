@@ -1,6 +1,7 @@
 
 import React, { useRef, useEffect } from "react";
 import { cn } from "@/lib/utils";
+import AnimatedPlaceholder from "./AnimatedPlaceholder";
 
 interface EditorContentProps {
   content: string;
@@ -103,13 +104,16 @@ const EditorContent: React.FC<EditorContentProps> = ({
           wordWrap: 'break-word',
           overflowWrap: 'break-word'
         }}
-        data-placeholder="Start writing your note..."
+        data-placeholder=""
       />
       
-      {/* Show placeholder when content is empty */}
+      {/* Animated placeholder */}
+      <AnimatedPlaceholder isVisible={!content} />
+      
+      {/* Static tip below the animated placeholder */}
       {!content && (
-        <div className="absolute top-6 left-6 text-slate-400 pointer-events-none text-lg select-none">
-          Start writing your note...
+        <div className="absolute top-16 left-6 text-slate-500 pointer-events-none text-sm select-none">
+          💡 Tip: Select text and use AI actions, or press Ctrl+Shift+A for the AI agent
         </div>
       )}
     </div>
