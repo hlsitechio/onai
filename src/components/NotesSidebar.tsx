@@ -125,11 +125,7 @@ const NotesSidebar: React.FC<NotesSidebarProps> = ({
 
   return (
     <div 
-      className="bg-gradient-to-b from-black/60 to-black/40 backdrop-blur-xl rounded-xl border border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.37)] flex flex-col text-white overflow-hidden animate-fadeIn" 
-      style={{
-        height: editorHeight && window.innerWidth >= 768 ? `${editorHeight}px` : 'auto',
-        maxHeight: window.innerWidth < 768 ? '350px' : 'none'
-      }}
+      className="bg-gradient-to-b from-black/60 to-black/40 backdrop-blur-xl rounded-xl border border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.37)] flex flex-col text-white overflow-hidden animate-fadeIn h-[calc(100vh-200px)]"
     >
       <div className="p-3 sm:p-4 border-b border-white/10 bg-black/20">
         <NotesHeader 

@@ -76,8 +76,7 @@ const AISidebar: React.FC<AISidebarProps> = ({
 
   return (
     <div 
-      className="w-full md:w-80 lg:w-96 glass-panel-dark rounded-xl overflow-hidden flex flex-col shadow-[0_8px_30px_rgb(0,0,0,0.4)] border border-white/5"
-      style={editorHeight ? { height: `${editorHeight}px` } : {}}
+      className="w-full md:w-80 lg:w-96 glass-panel-dark rounded-xl overflow-hidden flex flex-col shadow-[0_8px_30px_rgb(0,0,0,0.4)] border border-white/5 h-[calc(100vh-200px)]"
     >
       <div className="p-3 border-b border-white/5 flex items-center justify-between">
         <div className="flex items-center gap-2">

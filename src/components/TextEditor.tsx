@@ -117,7 +117,7 @@ const TextEditor = () => {
         isFocusMode ? "z-[101]" : "z-10"
       )}>
         <div className="flex flex-col md:flex-row gap-1 lg:gap-2 justify-center w-full h-full">
-          {/* Left sidebar - equal width panel (1/3) */}
+          {/* Left sidebar - equal width panel (1/3) with fixed height */}
           <div className={cn(
             "shrink-0 mb-4 md:mb-0 transition-all duration-300 ease-in-out",
             isLeftSidebarOpen && !isFocusMode 
@@ -140,7 +140,7 @@ const TextEditor = () => {
             )}
           </div>
           
-          {/* The editor container - equal width panel (1/3) when both sidebars open */}
+          {/* The editor container - equal width panel (1/3) when both sidebars open with fixed height */}
           <div className={cn(
             "transition-all duration-300 ease-in-out",
             // When both sidebars are open, all panels take 1/3 width
@@ -167,7 +167,7 @@ const TextEditor = () => {
             />
           </div>
           
-          {/* Right sidebar - equal width panel (1/3) */}
+          {/* Right sidebar - equal width panel (1/3) with fixed height */}
           <div className={cn(
             "shrink-0 mb-4 md:mb-0 transition-all duration-300 ease-in-out",
             isAISidebarOpen && !isFocusMode 
