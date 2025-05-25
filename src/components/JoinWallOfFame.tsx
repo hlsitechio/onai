@@ -24,7 +24,7 @@ const JoinWallOfFame = () => {
               Support Us
             </a>
             <a 
-              href="mailto:info@onlinenote.ai?subject=Corporate%20Sponsorship"
+              href="mailto:info@onlinenote.ai"
               className="inline-flex items-center gap-2 border border-purple-400 text-purple-400 hover:bg-purple-400 hover:text-white px-8 py-3 rounded-lg font-medium transition-all hover:scale-105"
             >
               <Building2 className="h-5 w-5" />
