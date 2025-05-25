@@ -1,9 +1,10 @@
 
-import React, { useState } from "react";
+import React from "react";
 import { cn } from "@/lib/utils";
 import TextEditorToolbar from "../TextEditorToolbar";
-import EditableContent from "../EditableContent";
+import EditorContainerContent from "./EditorContainerContent";
 import { useEditorContainer } from "@/hooks/useEditorContainer";
+import { useEditorContainerState } from "@/hooks/useEditorContainerState";
 
 interface EditorContainerProps {
   content: string;
@@ -36,7 +37,7 @@ const EditorContainer: React.FC<EditorContainerProps> = ({
   isAIDialogOpen = false,
   setIsAIDialogOpen = () => {}
 }) => {
-  const [isAIAgentVisible, setIsAIAgentVisible] = useState(false);
+  const { isAIAgentVisible, toggleAIAgent } = useEditorContainerState();
   
   const {
     editorRef,
@@ -48,10 +49,6 @@ const EditorContainer: React.FC<EditorContainerProps> = ({
     // Insert text at current cursor position or append to content
     const newContent = content + (content.endsWith('\n') || content === '' ? '' : '\n') + text;
     setContent(newContent);
-  };
-
-  const toggleAIAgent = () => {
-    setIsAIAgentVisible(!isAIAgentVisible);
   };
 
   return (
@@ -77,16 +74,14 @@ const EditorContainer: React.FC<EditorContainerProps> = ({
         onInsertText={handleInsertText}
       />
       
-      <div className="h-[calc(100%-60px)] relative">
-        <EditableContent
-          content={content}
-          setContent={setContent}
-          isFocusMode={isFocusMode}
-          onSpeechTranscript={handleSpeechTranscript}
-          onToggleAIAgent={toggleAIAgent}
-          isAIAgentVisible={isAIAgentVisible}
-        />
-      </div>
+      <EditorContainerContent
+        content={content}
+        setContent={setContent}
+        isFocusMode={isFocusMode}
+        handleSpeechTranscript={handleSpeechTranscript}
+        toggleAIAgent={toggleAIAgent}
+        isAIAgentVisible={isAIAgentVisible}
+      />
     </div>
   );
 };
