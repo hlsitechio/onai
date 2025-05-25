@@ -4,10 +4,20 @@ import Hero from "@/components/Hero";
 import TextEditor from "@/components/TextEditor";
 import { useFocusMode } from "@/contexts";
 import Footer from "@/components/Footer";
-import FeatureShowcase from "@/components/FeatureShowcase";
 import VisitorCounter from "@/components/VisitorCounter";
 import { Separator } from "@/components/ui/separator";
 import "../styles/hide-separators.css";
+import React, { lazy, Suspense } from "react";
+
+// Lazy load FeatureShowcase since it's only shown on desktop and not critical for initial load
+const FeatureShowcase = lazy(() => import("@/components/FeatureShowcase"));
+
+// Loading component for FeatureShowcase
+const FeatureShowcaseLoader = () => (
+  <div className="py-16 flex justify-center">
+    <div className="animate-pulse text-white/40">Loading features...</div>
+  </div>
+);
 
 const Index = () => {
   // Use focus mode context to determine visibility of elements
@@ -63,9 +73,11 @@ const Index = () => {
         </div>
       </div>
       
-      {/* Feature showcase section - Moved closer with reduced top margin */}
+      {/* Feature showcase section - Lazy loaded and reduced top margin */}
       <div className="blur-in-focus-mode hidden md:block">
-        <FeatureShowcase />
+        <Suspense fallback={<FeatureShowcaseLoader />}>
+          <FeatureShowcase />
+        </Suspense>
       </div>
       
       {/* Completely hidden separator before footer */}
