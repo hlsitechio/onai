@@ -1,4 +1,3 @@
-
 import React, { useState, useRef, useEffect } from "react";
 import { createPortal } from "react-dom";
 import { Button } from "@/components/ui/button";
@@ -26,6 +25,7 @@ const AIActionsDropdown: React.FC<AIActionsDropdownProps> = ({
   const [isOpen, setIsOpen] = useState(false);
   const [position, setPosition] = useState({ x: 0, y: 0 });
   const buttonRef = useRef<HTMLButtonElement>(null);
+  const dropdownRef = useRef<HTMLDivElement>(null);
 
   const handleAIAction = (action: string) => {
     console.log(`AI Action triggered: ${action}`, { content });
@@ -47,13 +47,24 @@ const AIActionsDropdown: React.FC<AIActionsDropdownProps> = ({
   // Close dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (buttonRef.current && !buttonRef.current.contains(event.target as Node)) {
-        setIsOpen(false);
+      const target = event.target as Node;
+      
+      // Don't close if clicking on the button or inside the dropdown
+      if (
+        (buttonRef.current && buttonRef.current.contains(target)) ||
+        (dropdownRef.current && dropdownRef.current.contains(target))
+      ) {
+        return;
       }
+      
+      setIsOpen(false);
     };
 
     if (isOpen) {
-      document.addEventListener('mousedown', handleClickOutside);
+      // Add a small delay to prevent immediate closing when opening
+      setTimeout(() => {
+        document.addEventListener('mousedown', handleClickOutside);
+      }, 0);
     }
 
     return () => {
@@ -85,6 +96,7 @@ const AIActionsDropdown: React.FC<AIActionsDropdownProps> = ({
       {/* AI Agent Actions Panel - Rendered as Portal */}
       {isOpen && createPortal(
         <div 
+          ref={dropdownRef}
           className="fixed w-64 bg-gray-900/95 backdrop-blur-xl rounded-xl overflow-hidden flex flex-col shadow-[0_8px_30px_rgb(0,0,0,0.6)] border border-gray-700/50"
           style={{ 
             left: `${position.x}px`,
