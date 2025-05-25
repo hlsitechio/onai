@@ -1,9 +1,9 @@
 
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
-import { Upload, Image as ImageIcon, X, Copy, FileText, Loader2 } from "lucide-react";
+import { Upload, Image as ImageIcon, X, Copy, FileText, Loader2, Clipboard } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 interface OCRUploadProps {
@@ -19,38 +19,101 @@ const OCRUpload: React.FC<OCRUploadProps> = ({ onTextExtracted, onClose }) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
 
+  // Add clipboard paste functionality
+  useEffect(() => {
+    const handlePaste = async (e: ClipboardEvent) => {
+      const items = e.clipboardData?.items;
+      if (!items) return;
+
+      for (const item of Array.from(items)) {
+        if (item.type.startsWith('image/')) {
+          e.preventDefault();
+          const file = item.getAsFile();
+          if (file) {
+            await handleImageFile(file);
+            toast({
+              title: "Image pasted",
+              description: "Image from clipboard has been loaded successfully.",
+            });
+          }
+        }
+      }
+    };
+
+    document.addEventListener('paste', handlePaste);
+    return () => document.removeEventListener('paste', handlePaste);
+  }, [toast]);
+
+  const handleImageFile = async (file: File) => {
+    // Validate file type
+    const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
+    if (!validTypes.includes(file.type)) {
+      toast({
+        title: "Invalid file type",
+        description: "Please select a JPG, PNG, or WebP image file.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    // Validate file size (max 10MB)
+    if (file.size > 10 * 1024 * 1024) {
+      toast({
+        title: "File too large",
+        description: "Please select an image smaller than 10MB.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    setSelectedImage(file);
+    
+    // Create preview
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      setImagePreview(e.target?.result as string);
+    };
+    reader.readAsDataURL(file);
+  };
+
   const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      // Validate file type
-      const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
-      if (!validTypes.includes(file.type)) {
-        toast({
-          title: "Invalid file type",
-          description: "Please select a JPG, PNG, or WebP image file.",
-          variant: "destructive"
-        });
-        return;
-      }
+      handleImageFile(file);
+    }
+  };
 
-      // Validate file size (max 10MB)
-      if (file.size > 10 * 1024 * 1024) {
-        toast({
-          title: "File too large",
-          description: "Please select an image smaller than 10MB.",
-          variant: "destructive"
-        });
-        return;
-      }
-
-      setSelectedImage(file);
+  const handlePasteFromClipboard = async () => {
+    try {
+      const clipboardItems = await navigator.clipboard.read();
       
-      // Create preview
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        setImagePreview(e.target?.result as string);
-      };
-      reader.readAsDataURL(file);
+      for (const item of clipboardItems) {
+        for (const type of item.types) {
+          if (type.startsWith('image/')) {
+            const blob = await item.getType(type);
+            const file = new File([blob], `clipboard-image.${type.split('/')[1]}`, { type });
+            await handleImageFile(file);
+            toast({
+              title: "Image pasted",
+              description: "Image from clipboard has been loaded successfully.",
+            });
+            return;
+          }
+        }
+      }
+      
+      toast({
+        title: "No image found",
+        description: "No image found in clipboard. Please copy an image first.",
+        variant: "destructive"
+      });
+    } catch (error) {
+      console.error('Clipboard paste error:', error);
+      toast({
+        title: "Paste failed",
+        description: "Could not access clipboard. Try using Ctrl+V instead.",
+        variant: "destructive"
+      });
     }
   };
 
@@ -184,6 +247,7 @@ The image "${selectedImage.name}" would be processed and any text content would 
                 <div>
                   <p className="text-white">Click to upload an image</p>
                   <p className="text-sm text-slate-400">JPG, PNG, or WebP (max 10MB)</p>
+                  <p className="text-xs text-slate-500 mt-1">Or paste an image with Ctrl+V</p>
                 </div>
               </div>
             )}
@@ -196,6 +260,17 @@ The image "${selectedImage.name}" would be processed and any text content would 
             onChange={handleImageSelect}
             className="hidden"
           />
+
+          {/* Paste from Clipboard Button */}
+          <Button
+            onClick={handlePasteFromClipboard}
+            variant="outline"
+            className="w-full border-white/20 text-white hover:bg-white/10"
+            size="sm"
+          >
+            <Clipboard className="h-4 w-4 mr-2" />
+            Paste Image from Clipboard
+          </Button>
         </div>
 
         {/* Process Button */}
