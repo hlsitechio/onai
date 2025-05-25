@@ -27,21 +27,31 @@ export const useTextAreaOperations = ({
       return;
     }
 
-    const start = textarea.selectionStart;
-    const end = textarea.selectionEnd;
-    const beforeSelection = rawContent.substring(0, start);
-    const afterSelection = rawContent.substring(end);
-    
-    const newContent = beforeSelection + newText + afterSelection;
-    setRawContent(newContent);
-    setContent(newContent);
+    try {
+      const start = textarea.selectionStart;
+      const end = textarea.selectionEnd;
+      const beforeSelection = rawContent.substring(0, start);
+      const afterSelection = rawContent.substring(end);
+      
+      const newContent = beforeSelection + newText + afterSelection;
+      setRawContent(newContent);
+      setContent(newContent);
 
-    // Update cursor position after replacement
-    setTimeout(() => {
-      const newPosition = start + newText.length;
-      textarea.focus();
-      textarea.setSelectionRange(newPosition, newPosition);
-    }, 0);
+      // Update cursor position after replacement with better error handling
+      setTimeout(() => {
+        if (textareaRef.current) {
+          const newPosition = start + newText.length;
+          try {
+            textareaRef.current.focus();
+            textareaRef.current.setSelectionRange(newPosition, newPosition);
+          } catch (error) {
+            console.warn('Could not set cursor position:', error);
+          }
+        }
+      }, 0);
+    } catch (error) {
+      console.error('Error in handleTextReplace:', error);
+    }
   };
 
   const handleTextInsert = (text: string) => {
@@ -51,26 +61,36 @@ export const useTextAreaOperations = ({
       return;
     }
 
-    const cursorPos = textarea.selectionStart;
-    const beforeCursor = rawContent.substring(0, cursorPos);
-    const afterCursor = rawContent.substring(cursorPos);
-    
-    // Add appropriate spacing
-    const needsSpaceBefore = beforeCursor.length > 0 && !beforeCursor.endsWith(' ') && !beforeCursor.endsWith('\n');
-    const needsSpaceAfter = afterCursor.length > 0 && !afterCursor.startsWith(' ') && !afterCursor.startsWith('\n');
-    
-    const insertText = (needsSpaceBefore ? ' ' : '') + text + (needsSpaceAfter ? ' ' : '');
-    const newContent = beforeCursor + insertText + afterCursor;
-    
-    setRawContent(newContent);
-    setContent(newContent);
+    try {
+      const cursorPos = textarea.selectionStart;
+      const beforeCursor = rawContent.substring(0, cursorPos);
+      const afterCursor = rawContent.substring(cursorPos);
+      
+      // Add appropriate spacing
+      const needsSpaceBefore = beforeCursor.length > 0 && !beforeCursor.endsWith(' ') && !beforeCursor.endsWith('\n');
+      const needsSpaceAfter = afterCursor.length > 0 && !afterCursor.startsWith(' ') && !afterCursor.startsWith('\n');
+      
+      const insertText = (needsSpaceBefore ? ' ' : '') + text + (needsSpaceAfter ? ' ' : '');
+      const newContent = beforeCursor + insertText + afterCursor;
+      
+      setRawContent(newContent);
+      setContent(newContent);
 
-    // Update cursor position after insertion
-    setTimeout(() => {
-      const newPosition = cursorPos + insertText.length;
-      textarea.focus();
-      textarea.setSelectionRange(newPosition, newPosition);
-    }, 0);
+      // Update cursor position after insertion with better error handling
+      setTimeout(() => {
+        if (textareaRef.current) {
+          const newPosition = cursorPos + insertText.length;
+          try {
+            textareaRef.current.focus();
+            textareaRef.current.setSelectionRange(newPosition, newPosition);
+          } catch (error) {
+            console.warn('Could not set cursor position:', error);
+          }
+        }
+      }, 0);
+    } catch (error) {
+      console.error('Error in handleTextInsert:', error);
+    }
   };
 
   const handleContentChange = (newContent: string) => {
@@ -78,8 +98,13 @@ export const useTextAreaOperations = ({
       console.error('Invalid content type provided to handleContentChange');
       return;
     }
-    setRawContent(newContent);
-    setContent(newContent);
+    
+    try {
+      setRawContent(newContent);
+      setContent(newContent);
+    } catch (error) {
+      console.error('Error in handleContentChange:', error);
+    }
   };
 
   const handleSpeechTranscript = (transcript: string) => {

@@ -21,6 +21,11 @@ const TextAreaEditor: React.FC<TextAreaEditorProps> = ({
 }) => {
   const handleContentChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     try {
+      // Ensure the target still exists before processing
+      if (!e.target || typeof e.target.value !== 'string') {
+        console.warn('Invalid target in content change handler');
+        return;
+      }
       onContentChange(e.target.value);
     } catch (error) {
       console.error('Error handling content change in TextAreaEditor:', error);
@@ -29,6 +34,11 @@ const TextAreaEditor: React.FC<TextAreaEditorProps> = ({
 
   const handleSelection = () => {
     try {
+      // Check if textarea ref exists before proceeding
+      if (!textareaRef.current) {
+        console.warn('Textarea ref is null in selection handler');
+        return;
+      }
       onTextAreaSelection();
     } catch (error) {
       console.error('Error handling selection in TextAreaEditor:', error);
@@ -37,6 +47,11 @@ const TextAreaEditor: React.FC<TextAreaEditorProps> = ({
 
   const handleCursorChange = () => {
     try {
+      // Check if textarea ref exists before proceeding
+      if (!textareaRef.current) {
+        console.warn('Textarea ref is null in cursor change handler');
+        return;
+      }
       onCursorChange();
     } catch (error) {
       console.error('Error handling cursor change in TextAreaEditor:', error);
@@ -72,7 +87,7 @@ const TextAreaEditor: React.FC<TextAreaEditorProps> = ({
           letterSpacing: '0.015em'
         }}
         spellCheck="true"
-        value={rawContent}
+        value={rawContent || ''}
         onChange={handleContentChange}
         onSelect={handleSelection}
         onMouseUp={handleSelection}

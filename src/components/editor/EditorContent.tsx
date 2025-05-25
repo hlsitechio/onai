@@ -18,44 +18,65 @@ const EditorContent: React.FC<EditorContentProps> = ({
   editorRef
 }) => {
   const handleInput = () => {
-    if (editorRef.current) {
-      setContent(editorRef.current.innerHTML);
+    try {
+      if (editorRef.current && typeof editorRef.current.innerHTML === 'string') {
+        setContent(editorRef.current.innerHTML);
+      }
+    } catch (error) {
+      console.error('Error handling input in EditorContent:', error);
     }
   };
 
   const handlePaste = (e: React.ClipboardEvent<HTMLDivElement>) => {
-    e.preventDefault();
-    const text = e.clipboardData.getData('text/plain');
-    
-    // Use modern approach instead of deprecated execCommand
-    const selection = window.getSelection();
-    if (selection && selection.rangeCount > 0) {
-      const range = selection.getRangeAt(0);
-      range.deleteContents();
-      const textNode = document.createTextNode(text);
-      range.insertNode(textNode);
-      range.setStartAfter(textNode);
-      range.collapse(true);
-      selection.removeAllRanges();
-      selection.addRange(range);
+    try {
+      e.preventDefault();
+      const text = e.clipboardData?.getData('text/plain');
+      
+      if (!text) {
+        console.warn('No text data in clipboard');
+        return;
+      }
+
+      // Use modern approach instead of deprecated execCommand
+      const selection = window.getSelection();
+      if (selection && selection.rangeCount > 0) {
+        const range = selection.getRangeAt(0);
+        range.deleteContents();
+        const textNode = document.createTextNode(text);
+        range.insertNode(textNode);
+        range.setStartAfter(textNode);
+        range.collapse(true);
+        selection.removeAllRanges();
+        selection.addRange(range);
+      }
+      
+      handleInput();
+    } catch (error) {
+      console.error('Error handling paste in EditorContent:', error);
     }
-    
-    handleInput();
   };
 
   const handleKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
-    if ((event.ctrlKey || event.metaKey) && event.key === 's') {
-      event.preventDefault();
-      onSave();
+    try {
+      if ((event.ctrlKey || event.metaKey) && event.key === 's') {
+        event.preventDefault();
+        onSave();
+      }
+    } catch (error) {
+      console.error('Error handling keydown in EditorContent:', error);
     }
   };
 
-  // Sync content with the editor
+  // Sync content with the editor with better error handling
   useEffect(() => {
-    if (editorRef.current && editorRef.current.innerHTML !== content) {
-      editorRef.current.innerHTML = content;
+    try {
+      if (editorRef.current && editorRef.current.innerHTML !== content) {
+        editorRef.current.innerHTML = content || '';
+      }
+    } catch (error) {
+      console.error('Error syncing content in EditorContent:', error);
     }
-  }, [content]);
+  }, [content, editorRef]);
 
   return (
     <div className="relative flex-1 overflow-hidden">

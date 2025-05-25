@@ -23,14 +23,24 @@ export const useEditableContentAI = ({
     updateCursorPosition
   } = useAIAgent();
 
-  // Handle text selection in textarea
+  // Handle text selection in textarea with null checks
   const handleTextAreaSelection = () => {
     const textarea = textareaRef.current;
-    if (!textarea) return;
+    if (!textarea) {
+      console.warn('Textarea ref is null in handleTextAreaSelection');
+      return;
+    }
 
     try {
       const start = textarea.selectionStart;
       const end = textarea.selectionEnd;
+      
+      // Ensure we have valid selection indices
+      if (typeof start !== 'number' || typeof end !== 'number') {
+        console.warn('Invalid selection range');
+        return;
+      }
+      
       const selectedText = textarea.value.substring(start, end);
       
       handleTextSelection({
@@ -45,26 +55,34 @@ export const useEditableContentAI = ({
     }
   };
 
-  // Handle cursor position changes
+  // Handle cursor position changes with null checks
   const handleCursorChange = () => {
     const textarea = textareaRef.current;
-    if (!textarea) return;
+    if (!textarea) {
+      console.warn('Textarea ref is null in handleCursorChange');
+      return;
+    }
     
     try {
-      updateCursorPosition(textarea.selectionStart);
+      const selectionStart = textarea.selectionStart;
+      if (typeof selectionStart === 'number') {
+        updateCursorPosition(selectionStart);
+      }
     } catch (error) {
       console.error('Error handling cursor change:', error);
     }
   };
 
-  // Keyboard shortcuts for AI agent
+  // Keyboard shortcuts for AI agent with better error handling
   useEffect(() => {
     const handleKeydown = (e: KeyboardEvent) => {
       try {
         // Ctrl/Cmd + Shift + A to toggle AI agent
         if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key === 'A') {
           e.preventDefault();
-          onToggleAIAgent?.();
+          if (onToggleAIAgent) {
+            onToggleAIAgent();
+          }
         }
       } catch (error) {
         console.error('Error handling keyboard shortcut:', error);
@@ -72,7 +90,13 @@ export const useEditableContentAI = ({
     };
 
     document.addEventListener('keydown', handleKeydown);
-    return () => document.removeEventListener('keydown', handleKeydown);
+    return () => {
+      try {
+        document.removeEventListener('keydown', handleKeydown);
+      } catch (error) {
+        console.error('Error removing keyboard event listener:', error);
+      }
+    };
   }, [onToggleAIAgent]);
 
   return {
