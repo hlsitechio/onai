@@ -1,9 +1,10 @@
+
 import React from 'react';
 import { motion } from 'framer-motion';
 
 const DotGridBackground: React.FC = () => {
   return (
-    <div className="fixed inset-0 z-[-2] overflow-hidden pointer-events-none">
+    <div className="absolute inset-0 z-[-2] overflow-hidden pointer-events-none">
       {/* Base background color with gradient */}
       <div className="absolute inset-0 bg-gradient-to-br from-[#050510] via-[#0A0A1B] to-[#050510]"></div>
       
