@@ -105,6 +105,9 @@ const TextEditor = () => {
     return <MobileLayout />;
   }
   
+  // Calculate consistent height for all panels
+  const panelHeight = "calc(100vh - 200px)";
+  
   return (
     <section id="editor-section" className={cn(
       "pt-0 pb-4 sm:pb-6 px-3 relative transition-all duration-500 min-h-screen w-full overflow-hidden border-0"
@@ -117,7 +120,7 @@ const TextEditor = () => {
         isFocusMode ? "z-[101]" : "z-10"
       )}>
         <div className="flex flex-col md:flex-row gap-1 lg:gap-2 justify-center w-full h-full">
-          {/* Left sidebar - equal width panel (1/3) */}
+          {/* Left sidebar - equal width panel (1/3) with consistent height */}
           <div className={cn(
             "shrink-0 mb-4 md:mb-0 transition-all duration-300 ease-in-out",
             isLeftSidebarOpen && !isFocusMode 
@@ -125,13 +128,13 @@ const TextEditor = () => {
               : "opacity-0 w-0 overflow-hidden"
           )}>
             {isLeftSidebarOpen && !isFocusMode && (
-              <div className="animate-fadeIn h-full">
+              <div className="animate-fadeIn" style={{ height: panelHeight }}>
                 <NotesSidebar 
                   currentContent={content} 
                   onLoadNote={handleNoteLoad}
                   onSave={handleSave}
                   onDeleteNote={handleDeleteNote}
-                  editorHeight={0}
+                  editorHeight={parseInt(panelHeight.replace(/[^\d]/g, '')) - 200}
                   allNotes={allNotes}
                   onCreateNew={createNewNote}
                   onImportNotes={handleImportNotes}
@@ -140,7 +143,7 @@ const TextEditor = () => {
             )}
           </div>
           
-          {/* The editor container - equal width panel (1/3) when both sidebars open */}
+          {/* The editor container - equal width panel (1/3) when both sidebars open with consistent height */}
           <div className={cn(
             "transition-all duration-300 ease-in-out",
             // When both sidebars are open, all panels take 1/3 width
@@ -149,7 +152,7 @@ const TextEditor = () => {
             ((isLeftSidebarOpen && !isAISidebarOpen) || (!isLeftSidebarOpen && isAISidebarOpen)) && !isFocusMode && "w-full md:w-2/3",
             // When no sidebars are open or in focus mode, editor takes full width
             ((!isLeftSidebarOpen && !isAISidebarOpen) || isFocusMode) && "w-full"
-          )}>
+          )} style={{ height: panelHeight }}>
             <EditorContainer
               content={content}
               setContent={setContent}
@@ -167,7 +170,7 @@ const TextEditor = () => {
             />
           </div>
           
-          {/* Right sidebar - equal width panel (1/3) */}
+          {/* Right sidebar - equal width panel (1/3) with consistent height */}
           <div className={cn(
             "shrink-0 mb-4 md:mb-0 transition-all duration-300 ease-in-out",
             isAISidebarOpen && !isFocusMode 
@@ -175,11 +178,11 @@ const TextEditor = () => {
               : "opacity-0 w-0 overflow-hidden"
           )}>
             {isAISidebarOpen && !isFocusMode && (
-              <div className="animate-fadeIn h-full">
+              <div className="animate-fadeIn" style={{ height: panelHeight }}>
                 <AISidebar
                   content={content}
                   onApplyChanges={setContent}
-                  editorHeight={0}
+                  editorHeight={parseInt(panelHeight.replace(/[^\d]/g, '')) - 200}
                 />
               </div>
             )}
