@@ -121,7 +121,7 @@ const NotesSidebar: React.FC<NotesSidebarProps> = ({
         <SearchBar isSearching={isSearching} searchQuery={searchQuery} onSearchToggle={() => setIsSearching(!isSearching)} onSearchChange={setSearchQuery} />
       </div>
 
-      <div className="flex-1 overflow-auto custom-scrollbar bg-gray-950">
+      <div className="flex-1 overflow-auto custom-scrollbar bg-[#03010a]">
         <div className="p-4 animate-slideDown" style={{
         animationDelay: '0.3s'
       }}>
