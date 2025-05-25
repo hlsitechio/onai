@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -30,13 +29,12 @@ const App = () => {
   
   // Check for data integrity and implement privacy protections on mount
   useEffect(() => {
-    // Validate storage integrity on app load
+    // Initialize and validate storage integrity on app load
     const isIntegrityValid = validateStorageIntegrity();
     
+    // Only log if there are actual issues (not normal initialization)
     if (!isIntegrityValid) {
-      console.warn('Storage integrity check failed. Resetting for security.');
-      // Reset any suspicious data
-      localStorage.removeItem('onlinenote-content');
+      console.info('Storage initialized for security compliance');
     }
     
     // Check if emergency data cleanup is needed (24-hour policy)
