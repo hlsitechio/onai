@@ -3,7 +3,6 @@ import React from "react";
 import TextEditorToolbar from "../TextEditorToolbar";
 import EditableContent from "../EditableContent";
 import AIDialog from "../notes/AIDialog";
-import { useEditorContainerState } from "@/hooks/useEditorContainerState";
 
 interface EditorContainerContentProps {
   content: string;
@@ -19,8 +18,6 @@ interface EditorContainerContentProps {
   toggleFocusMode: () => void;
   isAIDialogOpen: boolean;
   setIsAIDialogOpen: (open: boolean) => void;
-  onToggleAIAgent?: () => void;
-  isAIAgentVisible?: boolean;
 }
 
 const EditorContainerContent: React.FC<EditorContainerContentProps> = ({
@@ -36,15 +33,8 @@ const EditorContainerContent: React.FC<EditorContainerContentProps> = ({
   isFocusMode,
   toggleFocusMode,
   isAIDialogOpen,
-  setIsAIDialogOpen,
-  onToggleAIAgent,
-  isAIAgentVisible = false
+  setIsAIDialogOpen
 }) => {
-  const { toggleAIAgent: localToggleAIAgent } = useEditorContainerState();
-
-  // Use the passed onToggleAIAgent if available, otherwise use local state
-  const handleToggleAIAgent = onToggleAIAgent || localToggleAIAgent;
-
   return (
     <>
       {/* Toolbar */}
@@ -61,8 +51,6 @@ const EditorContainerContent: React.FC<EditorContainerContentProps> = ({
           toggleFocusMode={toggleFocusMode}
           content={content}
           onApplyAIChanges={setContent}
-          onToggleAIAgent={handleToggleAIAgent}
-          isAIAgentVisible={isAIAgentVisible}
         />
       </div>
 
@@ -72,8 +60,6 @@ const EditorContainerContent: React.FC<EditorContainerContentProps> = ({
           content={content}
           setContent={setContent}
           isFocusMode={isFocusMode}
-          onToggleAIAgent={handleToggleAIAgent}
-          isAIAgentVisible={isAIAgentVisible}
         />
       </div>
 

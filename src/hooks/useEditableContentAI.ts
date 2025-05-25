@@ -5,13 +5,11 @@ import { useAIAgent } from "@/hooks/useAIAgent";
 interface UseEditableContentAIProps {
   textareaRef: React.RefObject<HTMLTextAreaElement>;
   rawContent: string;
-  onToggleAIAgent?: () => void;
 }
 
 export const useEditableContentAI = ({
   textareaRef,
-  rawContent,
-  onToggleAIAgent
+  rawContent
 }: UseEditableContentAIProps) => {
   const {
     selectedText,
@@ -72,32 +70,6 @@ export const useEditableContentAI = ({
       console.error('Error handling cursor change:', error);
     }
   };
-
-  // Keyboard shortcuts for AI agent with better error handling
-  useEffect(() => {
-    const handleKeydown = (e: KeyboardEvent) => {
-      try {
-        // Ctrl/Cmd + Shift + A to toggle AI agent
-        if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key === 'A') {
-          e.preventDefault();
-          if (onToggleAIAgent) {
-            onToggleAIAgent();
-          }
-        }
-      } catch (error) {
-        console.error('Error handling keyboard shortcut:', error);
-      }
-    };
-
-    document.addEventListener('keydown', handleKeydown);
-    return () => {
-      try {
-        document.removeEventListener('keydown', handleKeydown);
-      } catch (error) {
-        console.error('Error removing keyboard event listener:', error);
-      }
-    };
-  }, [onToggleAIAgent]);
 
   return {
     selectedText,

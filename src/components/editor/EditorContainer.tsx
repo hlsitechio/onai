@@ -17,8 +17,6 @@ interface EditorContainerProps {
   toggleFocusMode: () => void;
   isAIDialogOpen: boolean;
   setIsAIDialogOpen: (open: boolean) => void;
-  onToggleAIAgent?: () => void;
-  isAIAgentVisible?: boolean;
 }
 
 const EditorContainer: React.FC<EditorContainerProps> = ({
@@ -34,9 +32,7 @@ const EditorContainer: React.FC<EditorContainerProps> = ({
   isFocusMode,
   toggleFocusMode,
   isAIDialogOpen,
-  setIsAIDialogOpen,
-  onToggleAIAgent,
-  isAIAgentVisible = false
+  setIsAIDialogOpen
 }) => {
   return (
     <div className={cn(
@@ -57,8 +53,6 @@ const EditorContainer: React.FC<EditorContainerProps> = ({
         toggleFocusMode={toggleFocusMode}
         isAIDialogOpen={isAIDialogOpen}
         setIsAIDialogOpen={setIsAIDialogOpen}
-        onToggleAIAgent={onToggleAIAgent}
-        isAIAgentVisible={isAIAgentVisible}
       />
     </div>
   );

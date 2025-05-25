@@ -3,28 +3,19 @@ import React from "react";
 import { Save, Focus, Clock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn, formatDistanceToNow } from "@/lib/utils";
-import AIActionsDropdown from "../notes/AIActionsDropdown";
 
 interface ToolbarStatusProps {
   handleSave: () => void;
   lastSaved: Date | null;
   isFocusMode: boolean;
   toggleFocusMode: () => void;
-  content: string;
-  onApplyAIChanges: (newContent: string) => void;
-  onToggleAIAgent: () => void;
-  isAIAgentVisible: boolean;
 }
 
 const ToolbarStatus: React.FC<ToolbarStatusProps> = ({
   handleSave,
   lastSaved,
   isFocusMode,
-  toggleFocusMode,
-  content,
-  onApplyAIChanges,
-  onToggleAIAgent,
-  isAIAgentVisible
+  toggleFocusMode
 }) => {
   return (
     <div className="flex items-center gap-1 md:gap-2 ml-auto">
@@ -62,14 +53,6 @@ const ToolbarStatus: React.FC<ToolbarStatusProps> = ({
         <Save className="h-4 w-4 mr-1" />
         <span className="hidden sm:inline">Save</span>
       </Button>
-
-      {/* AI Agent Actions Dropdown */}
-      <AIActionsDropdown
-        content={content}
-        onApplyChanges={onApplyAIChanges}
-        onToggleAIAgent={onToggleAIAgent}
-        isAIAgentVisible={isAIAgentVisible}
-      />
     </div>
   );
 };

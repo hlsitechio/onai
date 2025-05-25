@@ -1,24 +1,22 @@
+
 import React from "react";
 import InlineAIActions from "./ai-agent/InlineAIActions";
-import AIAgent from "./ai-agent/AIAgent";
 import TextAreaEditor from "./editor/TextAreaEditor";
 import { useTextAreaOperations } from "@/hooks/useTextAreaOperations";
 import { useEditableContentAI } from "@/hooks/useEditableContentAI";
+
 interface EditableContentProps {
   content: string;
   setContent: (content: string) => void;
   isFocusMode?: boolean;
   onSpeechTranscript?: (transcript: string) => void;
-  onToggleAIAgent?: () => void;
-  isAIAgentVisible?: boolean;
 }
+
 const EditableContent: React.FC<EditableContentProps> = ({
   content,
   setContent,
   isFocusMode = false,
-  onSpeechTranscript,
-  onToggleAIAgent,
-  isAIAgentVisible = false
+  onSpeechTranscript
 }) => {
   const {
     rawContent,
@@ -32,6 +30,7 @@ const EditableContent: React.FC<EditableContentProps> = ({
     setContent,
     onSpeechTranscript
   });
+
   const {
     selectedText,
     cursorPosition,
@@ -42,17 +41,31 @@ const EditableContent: React.FC<EditableContentProps> = ({
     hideInlineActions
   } = useEditableContentAI({
     textareaRef,
-    rawContent,
-    onToggleAIAgent
+    rawContent
   });
-  return <div className="relative h-full w-full mx-auto bg-[#03010a]">
-      <TextAreaEditor textareaRef={textareaRef} rawContent={rawContent} isFocusMode={isFocusMode} onContentChange={handleContentChange} onTextAreaSelection={handleTextAreaSelection} onCursorChange={handleCursorChange} />
 
-      {/* AI Agent */}
-      {isAIAgentVisible && <AIAgent content={rawContent} onContentChange={handleContentChange} cursorPosition={cursorPosition} isVisible={isAIAgentVisible} />}
+  return (
+    <div className="relative h-full w-full mx-auto bg-[#03010a]">
+      <TextAreaEditor
+        textareaRef={textareaRef}
+        rawContent={rawContent}
+        isFocusMode={isFocusMode}
+        onContentChange={handleContentChange}
+        onTextAreaSelection={handleTextAreaSelection}
+        onCursorChange={handleCursorChange}
+      />
 
       {/* Inline AI Actions */}
-      <InlineAIActions selectedText={selectedText} onTextReplace={handleTextReplace} onTextInsert={handleTextInsert} position={inlineActionsPosition} isVisible={isInlineActionsVisible} onClose={hideInlineActions} />
-    </div>;
+      <InlineAIActions
+        selectedText={selectedText}
+        onTextReplace={handleTextReplace}
+        onTextInsert={handleTextInsert}
+        position={inlineActionsPosition}
+        isVisible={isInlineActionsVisible}
+        onClose={hideInlineActions}
+      />
+    </div>
+  );
 };
+
 export default EditableContent;

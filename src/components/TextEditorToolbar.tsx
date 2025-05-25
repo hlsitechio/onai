@@ -16,24 +16,17 @@ interface TextEditorToolbarProps {
   toggleFocusMode: () => void;
   content: string;
   onApplyAIChanges: (newContent: string) => void;
-  onToggleAIAgent?: () => void;
-  isAIAgentVisible?: boolean;
 }
 
 const TextEditorToolbar: React.FC<TextEditorToolbarProps> = ({
   execCommand,
   handleSave,
   toggleLeftSidebar,
-  toggleAISidebar,
-  isLeftSidebarOpen,
-  isAISidebarOpen,
   lastSaved,
   isFocusMode,
   toggleFocusMode,
   content,
-  onApplyAIChanges,
-  onToggleAIAgent,
-  isAIAgentVisible = false
+  onApplyAIChanges
 }) => {
   return (
     <div className="flex flex-wrap items-center justify-between p-2 lg:p-3 border-b border-white/5 bg-[#03010a] gap-2">
@@ -62,10 +55,6 @@ const TextEditorToolbar: React.FC<TextEditorToolbarProps> = ({
         lastSaved={lastSaved}
         isFocusMode={isFocusMode}
         toggleFocusMode={toggleFocusMode}
-        content={content}
-        onApplyAIChanges={onApplyAIChanges}
-        onToggleAIAgent={onToggleAIAgent || (() => {})}
-        isAIAgentVisible={isAIAgentVisible}
       />
     </div>
   );
