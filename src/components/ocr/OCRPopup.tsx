@@ -33,25 +33,31 @@ const OCRPopup: React.FC<OCRPopupProps> = ({ isOpen, onClose, onTextExtracted })
 
   const extractTextWithTesseract = async (imageData: string) => {
     try {
-      // Dynamic import of Tesseract.js
-      const Tesseract = await import('tesseract.js');
+      console.log('Starting OCR processing with Tesseract.js...');
       
-      const { data: { text } } = await Tesseract.recognize(
-        imageData,
-        'eng',
-        {
-          logger: m => console.log(m) // Optional: log progress
-        }
-      );
+      // Import Tesseract.js dynamically
+      const { createWorker } = await import('tesseract.js');
+      
+      console.log('Creating Tesseract worker...');
+      const worker = await createWorker('eng');
+      
+      console.log('Processing image with OCR...');
+      const { data: { text } } = await worker.recognize(imageData);
+      
+      console.log('OCR completed, extracted text:', text);
+      
+      await worker.terminate();
       
       return text.trim();
     } catch (error) {
       console.error('Tesseract OCR error:', error);
-      throw new Error('Failed to extract text from image');
+      throw new Error(`Failed to extract text from image: ${error.message}`);
     }
   };
 
   const handleImageUpload = async (file: File) => {
+    console.log('Uploading image:', file.name, file.type, file.size);
+    
     if (!file.type.match(/^image\/(jpeg|jpg|png|webp)$/)) {
       toast({
         title: "Invalid file type",
@@ -73,6 +79,7 @@ const OCRPopup: React.FC<OCRPopupProps> = ({ isOpen, onClose, onTextExtracted })
     const reader = new FileReader();
     reader.onload = async (e) => {
       const imageData = e.target?.result as string;
+      console.log('Image loaded, starting OCR...');
       setUploadedImage(imageData);
       setExtractedText('');
       
@@ -81,12 +88,13 @@ const OCRPopup: React.FC<OCRPopupProps> = ({ isOpen, onClose, onTextExtracted })
       
       try {
         const text = await extractTextWithTesseract(imageData);
+        console.log('Setting extracted text:', text);
         setExtractedText(text);
         
-        if (text) {
+        if (text && text.length > 0) {
           toast({
             title: "Text extracted successfully",
-            description: "Text has been extracted from the image"
+            description: `Extracted ${text.length} characters from the image`
           });
         } else {
           toast({
@@ -97,9 +105,10 @@ const OCRPopup: React.FC<OCRPopupProps> = ({ isOpen, onClose, onTextExtracted })
         }
       } catch (error) {
         console.error('OCR processing error:', error);
+        setExtractedText('');
         toast({
           title: "Extraction failed", 
-          description: "Failed to extract text from the image",
+          description: error.message || "Failed to extract text from the image",
           variant: "destructive"
         });
       } finally {
@@ -112,25 +121,35 @@ const OCRPopup: React.FC<OCRPopupProps> = ({ isOpen, onClose, onTextExtracted })
   const handleFileInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
+      console.log('File selected from input:', file.name);
       handleImageUpload(file);
     }
   };
 
   const handlePasteFromClipboard = async () => {
     try {
+      console.log('Attempting to read from clipboard...');
       const clipboardItems = await navigator.clipboard.read();
       
       for (const clipboardItem of clipboardItems) {
         for (const type of clipboardItem.types) {
           if (type.startsWith('image/')) {
+            console.log('Found image in clipboard:', type);
             const blob = await clipboardItem.getType(type);
             const file = new File([blob], 'pasted-image.png', { type });
             handleImageUpload(file);
-            break;
+            return;
           }
         }
       }
+      
+      toast({
+        title: "No image found",
+        description: "No image found in clipboard",
+        variant: "destructive"
+      });
     } catch (error) {
+      console.error('Clipboard access error:', error);
       toast({
         title: "Clipboard access failed",
         description: "Please grant clipboard permissions or upload an image manually",
@@ -143,6 +162,7 @@ const OCRPopup: React.FC<OCRPopupProps> = ({ isOpen, onClose, onTextExtracted })
     e.preventDefault();
     const file = e.dataTransfer.files[0];
     if (file) {
+      console.log('File dropped:', file.name);
       handleImageUpload(file);
     }
   };
@@ -154,13 +174,15 @@ const OCRPopup: React.FC<OCRPopupProps> = ({ isOpen, onClose, onTextExtracted })
   const extractText = async () => {
     if (!uploadedImage) return;
 
+    console.log('Re-extracting text from uploaded image...');
     setIsProcessing(true);
+    setExtractedText('');
     
     try {
       const text = await extractTextWithTesseract(uploadedImage);
       setExtractedText(text);
       
-      if (text) {
+      if (text && text.length > 0) {
         toast({
           title: "Text extracted successfully",
           description: "You can now copy or insert the extracted text"
@@ -176,7 +198,7 @@ const OCRPopup: React.FC<OCRPopupProps> = ({ isOpen, onClose, onTextExtracted })
       console.error('OCR processing error:', error);
       toast({
         title: "Extraction failed",
-        description: "Failed to extract text from the image",
+        description: error.message || "Failed to extract text from the image",
         variant: "destructive"
       });
     } finally {
@@ -214,6 +236,7 @@ const OCRPopup: React.FC<OCRPopupProps> = ({ isOpen, onClose, onTextExtracted })
   const clearAll = () => {
     setUploadedImage(null);
     setExtractedText('');
+    setIsProcessing(false);
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
     }
@@ -387,6 +410,13 @@ const OCRPopup: React.FC<OCRPopupProps> = ({ isOpen, onClose, onTextExtracted })
               className="flex-1 bg-black/30 border-white/20 text-white resize-none"
               readOnly={isProcessing}
             />
+
+            {isProcessing && (
+              <div className="mt-2 flex items-center gap-2 text-noteflow-400">
+                <Loader2 className="h-4 w-4 animate-spin" />
+                <span className="text-sm">Processing image with OCR...</span>
+              </div>
+            )}
 
             {extractedText && !isProcessing && (
               <div className="mt-4 flex gap-3">
