@@ -30,16 +30,16 @@ const Index = () => {
           </div>
         </div>
         
-        {/* Reduced padding on mobile for less scrolling */}
-        <div className="mx-auto w-full py-6 md:py-12 lg:py-16">
+        {/* Reduced padding significantly to eliminate empty space */}
+        <div className="mx-auto w-full py-6 md:py-8 lg:py-12">
           <div className="w-full max-w-[1200px] mx-auto">
             <TextEditor />
           </div>
         </div>
       </div>
       
-      {/* Feature showcase section - Hidden on mobile to reduce scrolling */}
-      <div className="blur-in-focus-mode hidden md:block">
+      {/* Feature showcase section - Moved closer with reduced top margin */}
+      <div className="blur-in-focus-mode hidden md:block -mt-8 lg:-mt-12">
         <FeatureShowcase />
       </div>
       
