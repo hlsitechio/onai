@@ -7,12 +7,12 @@ const Hero = () => {
   const [displayText, setDisplayText] = useState('');
   const [currentPhrase, setCurrentPhrase] = useState(0);
   const phrases = useMemo(() => [
-    'Think Clearly.', 
-    'Write Brilliantly.', 
-    'Organize Effortlessly.', 
-    'Create Fearlessly.',
-    'Focus Intensely.',
-    'Achieve Greatness.'
+    'Think Clearly', 
+    'Write Brilliantly', 
+    'Organize Effortlessly', 
+    'Create Fearlessly',
+    'Focus Intensely',
+    'Achieve Greatness'
   ], []);
   const [isTyping, setIsTyping] = useState(true);
   const [cursorVisible, setCursorVisible] = useState(true);
