@@ -1,6 +1,6 @@
 
 import { useState, useEffect } from "react";
-import { useFocusMode } from '../contexts/useFocusMode';
+import { useFocusMode } from '@/contexts';
 import { Menu, X, Settings, Mail, Home, Heart } from "lucide-react";
 import ContactForm from "./ContactForm";
 import SponsorDialog from "./SponsorDialog";

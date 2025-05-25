@@ -1,13 +1,9 @@
 import { createContext } from 'react';
-
-interface FocusModeContextType {
-  focusMode: boolean;
-  setFocusMode: (focusMode: boolean) => void;
-}
+import { FocusModeContextType } from './FocusModeTypes';
 
 // Default context values
 const defaultContext: FocusModeContextType = {
-  focusMode: false,
+  isFocusMode: false,
   setFocusMode: () => {},
 };
 
