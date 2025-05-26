@@ -1,4 +1,3 @@
-
 import React, { useEffect } from "react";
 import { 
   Bold, 
@@ -59,13 +58,22 @@ const ToolbarActions: React.FC<ToolbarActionsProps> = ({
       return contentEditableElements[0] as HTMLDivElement;
     }
     
+    // Fallback: look for textarea in the editor
+    const textareaElements = document.querySelectorAll('textarea');
+    if (textareaElements.length > 0) {
+      return textareaElements[0] as HTMLTextAreaElement;
+    }
+    
     return null;
   };
 
   // Enhanced text manipulation for both textarea and contentEditable
   const insertTextAtCursor = (text: string) => {
     const editor = getActiveEditor();
-    if (!editor) return;
+    if (!editor) {
+      console.warn('No active editor found');
+      return;
+    }
 
     if (editor.tagName === 'TEXTAREA') {
       const textarea = editor as HTMLTextAreaElement;
@@ -76,7 +84,7 @@ const ToolbarActions: React.FC<ToolbarActionsProps> = ({
       
       textarea.value = beforeText + text + afterText;
       
-      // Trigger change event
+      // Trigger change event to update the editor state
       const event = new Event('input', { bubbles: true });
       textarea.dispatchEvent(event);
       
@@ -89,9 +97,23 @@ const ToolbarActions: React.FC<ToolbarActionsProps> = ({
       if (selection && selection.rangeCount > 0) {
         const range = selection.getRangeAt(0);
         range.deleteContents();
-        const textNode = document.createTextNode(text);
-        range.insertNode(textNode);
-        range.setStartAfter(textNode);
+        
+        // Create text node for plain text or HTML for formatted content
+        const isHTML = text.includes('<') && text.includes('>');
+        if (isHTML) {
+          const div = document.createElement('div');
+          div.innerHTML = DOMPurify.sanitize(text);
+          const fragment = document.createDocumentFragment();
+          while (div.firstChild) {
+            fragment.appendChild(div.firstChild);
+          }
+          range.insertNode(fragment);
+        } else {
+          const textNode = document.createTextNode(text);
+          range.insertNode(textNode);
+          range.setStartAfter(textNode);
+        }
+        
         range.collapse(true);
         selection.removeAllRanges();
         selection.addRange(range);
@@ -106,7 +128,10 @@ const ToolbarActions: React.FC<ToolbarActionsProps> = ({
 
   const wrapSelectedText = (prefix: string, suffix: string = prefix) => {
     const editor = getActiveEditor();
-    if (!editor) return;
+    if (!editor) {
+      console.warn('No active editor found');
+      return;
+    }
 
     if (editor.tagName === 'TEXTAREA') {
       const textarea = editor as HTMLTextAreaElement;
@@ -151,9 +176,39 @@ const ToolbarActions: React.FC<ToolbarActionsProps> = ({
   };
 
   // Enhanced formatting functions
-  const handleBold = () => wrapSelectedText('**');
-  const handleItalic = () => wrapSelectedText('*');
-  const handleUnderline = () => wrapSelectedText('<u>', '</u>');
+  const handleBold = () => {
+    const editor = getActiveEditor();
+    if (editor && editor.contentEditable === 'true') {
+      document.execCommand('bold', false);
+      const event = new Event('input', { bubbles: true });
+      editor.dispatchEvent(event);
+    } else {
+      wrapSelectedText('**');
+    }
+  };
+
+  const handleItalic = () => {
+    const editor = getActiveEditor();
+    if (editor && editor.contentEditable === 'true') {
+      document.execCommand('italic', false);
+      const event = new Event('input', { bubbles: true });
+      editor.dispatchEvent(event);
+    } else {
+      wrapSelectedText('*');
+    }
+  };
+
+  const handleUnderline = () => {
+    const editor = getActiveEditor();
+    if (editor && editor.contentEditable === 'true') {
+      document.execCommand('underline', false);
+      const event = new Event('input', { bubbles: true });
+      editor.dispatchEvent(event);
+    } else {
+      wrapSelectedText('<u>', '</u>');
+    }
+  };
+
   const handleStrikethrough = () => wrapSelectedText('~~');
   const handleCode = () => wrapSelectedText('`');
 
@@ -191,14 +246,29 @@ const ToolbarActions: React.FC<ToolbarActionsProps> = ({
       textarea.dispatchEvent(event);
       textarea.focus();
     } else {
-      // For contentEditable, insert at current position
-      insertTextAtCursor('\n' + prefix);
+      // For contentEditable, use document.execCommand for headings
+      document.execCommand('formatBlock', false, `h${level}`);
+      const event = new Event('input', { bubbles: true });
+      editor.dispatchEvent(event);
     }
   };
 
   const handleInsertList = (ordered: boolean = false) => {
-    const prefix = ordered ? '1. ' : '- ';
-    insertTextAtCursor('\n' + prefix);
+    const editor = getActiveEditor();
+    if (!editor) return;
+
+    if (editor.contentEditable === 'true') {
+      if (ordered) {
+        document.execCommand('insertOrderedList', false);
+      } else {
+        document.execCommand('insertUnorderedList', false);
+      }
+      const event = new Event('input', { bubbles: true });
+      editor.dispatchEvent(event);
+    } else {
+      const prefix = ordered ? '1. ' : '- ';
+      insertTextAtCursor('\n' + prefix);
+    }
   };
 
   const handleInsertLink = () => {
@@ -206,12 +276,47 @@ const ToolbarActions: React.FC<ToolbarActionsProps> = ({
     if (url && url.trim()) {
       const sanitizedUrl = DOMPurify.sanitize(url.trim());
       const linkText = prompt('Enter link text:', 'Link text') || 'Link text';
-      insertTextAtCursor(`[${linkText}](${sanitizedUrl})`);
+      
+      const editor = getActiveEditor();
+      if (editor && editor.contentEditable === 'true') {
+        const selection = window.getSelection();
+        if (selection && selection.rangeCount > 0) {
+          const range = selection.getRangeAt(0);
+          const selectedText = range.toString();
+          
+          if (selectedText) {
+            document.execCommand('createLink', false, sanitizedUrl);
+          } else {
+            const link = document.createElement('a');
+            link.href = sanitizedUrl;
+            link.textContent = linkText;
+            range.insertNode(link);
+            range.setStartAfter(link);
+            range.collapse(true);
+            selection.removeAllRanges();
+            selection.addRange(range);
+          }
+          
+          const event = new Event('input', { bubbles: true });
+          editor.dispatchEvent(event);
+        }
+      } else {
+        insertTextAtCursor(`[${linkText}](${sanitizedUrl})`);
+      }
     }
   };
 
   const handleBlockquote = () => {
-    insertTextAtCursor('\n> ');
+    const editor = getActiveEditor();
+    if (!editor) return;
+
+    if (editor.contentEditable === 'true') {
+      document.execCommand('formatBlock', false, 'blockquote');
+      const event = new Event('input', { bubbles: true });
+      editor.dispatchEvent(event);
+    } else {
+      insertTextAtCursor('\n> ');
+    }
   };
 
   const handleInsertImage = () => {
@@ -219,10 +324,33 @@ const ToolbarActions: React.FC<ToolbarActionsProps> = ({
     if (url && url.trim()) {
       const altText = prompt('Enter alt text:', 'Image') || 'Image';
       const sanitizedUrl = DOMPurify.sanitize(url.trim());
-      insertTextAtCursor(`\n![${altText}](${sanitizedUrl})\n`);
+      
+      const editor = getActiveEditor();
+      if (editor && editor.contentEditable === 'true') {
+        const img = document.createElement('img');
+        img.src = sanitizedUrl;
+        img.alt = altText;
+        img.style.maxWidth = '100%';
+        
+        const selection = window.getSelection();
+        if (selection && selection.rangeCount > 0) {
+          const range = selection.getRangeAt(0);
+          range.insertNode(img);
+          range.setStartAfter(img);
+          range.collapse(true);
+          selection.removeAllRanges();
+          selection.addRange(range);
+          
+          const event = new Event('input', { bubbles: true });
+          editor.dispatchEvent(event);
+        }
+      } else {
+        insertTextAtCursor(`\n![${altText}](${sanitizedUrl})\n`);
+      }
     }
   };
 
+  // Enhanced formatting functions
   const handleFind = (text: string, options: { caseSensitive: boolean; wholeWord: boolean; useRegex?: boolean }) => {
     if (!text.trim()) return;
     
