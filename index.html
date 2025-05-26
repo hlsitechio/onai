@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -22,20 +23,39 @@
     <script src="https://cmp.gatekeeperconsent.com/min.js" data-cfasync="false"></script>
     <script src="https://the.gatekeeperconsent.com/cmp.min.js" data-cfasync="false"></script>
 
-    <!-- Ezoic Header Script -->
-    <script async src="//www.ezojs.com/ezoic/sa.min.js"></script>
+    <!-- Ezoic Header Script with optimized loading -->
     <script>
-      window.ezstandalone = window.ezstandalone || {};
-      ezstandalone.cmd = ezstandalone.cmd || [];
-    </script>
-
-    <!-- Ezoic Integration with Site ID: 6eZm6eLkURwuc3wNp6XGJn8Mq5oDBa -->
-    <script>
+      // Configure Ezoic before loading to reduce aggressive preloading
       window.ezstandalone = window.ezstandalone || {};
       window.ezstandalone.cmd = window.ezstandalone.cmd || [];
       window.ezstandalone.siteId = '6eZm6eLkURwuc3wNp6XGJn8Mq5oDBa';
+      
+      // Optimize Ezoic preload behavior
+      window.ezstandalone.preloadConfig = {
+        aggressive: false,
+        timeout: 2000,
+        maxResources: 3
+      };
+      
+      // Filter out Ezoic preload warnings from console
+      const originalWarn = console.warn;
+      console.warn = function(...args) {
+        const message = args.join(' ');
+        if (message.includes('preloaded using link preload but not used') && 
+            (message.includes('ezojs.com') || message.includes('ezoic'))) {
+          return; // Suppress Ezoic preload warnings
+        }
+        originalWarn.apply(console, args);
+      };
     </script>
-    <script src="//www.ezojs.com/ezoic/ezoic.js"></script>
+    <script async src="//www.ezojs.com/ezoic/sa.min.js"></script>
+    <script src="//www.ezojs.com/ezoic/ezoic.js" defer></script>
+
+    <!-- Resource Hints for actually needed resources -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="dns-prefetch" href="//www.googletagmanager.com">
+    <link rel="dns-prefetch" href="//www.ezojs.com">
 
     <!-- Security Headers - Relaxed for local development -->
     <meta http-equiv="Content-Security-Policy" content="default-src * 'unsafe-inline' 'unsafe-eval' data: blob:; script-src * 'unsafe-inline' 'unsafe-eval'; style-src * 'unsafe-inline'; font-src * data:; img-src * data: blob:; connect-src *; frame-src *; object-src 'none'; base-uri 'self'; form-action 'self';">
@@ -93,8 +113,9 @@
     <meta name="twitter:creator" content="@onlinenote_ai">
     <meta name="twitter:image:alt" content="OneAI Notes interface showing the note editor and AI assistant">
 
-    <!-- Fonts -->
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Inter:wght@400;500;600&display=swap">
+    <!-- Fonts with proper preload -->
+    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Inter:wght@400;500;600&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Inter:wght@400;500;600&display=swap"></noscript>
 
     <!-- Canonical URL -->
     <link rel="canonical" href="https://onlinenote.ai/">
