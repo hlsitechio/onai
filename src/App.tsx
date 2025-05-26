@@ -4,6 +4,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import DotGridBackground from "@/components/DotGridBackground";
+import ErrorBoundary from "@/components/ErrorBoundary";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
@@ -24,7 +25,20 @@ const PrivacyPolicy = lazy(() => import("./pages/privacy-policy"));
 const TermsOfUse = lazy(() => import("./pages/terms-of-use"));
 const CookieSettings = lazy(() => import("./pages/cookie-settings"));
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      retry: (failureCount, error) => {
+        // Don't retry on certain errors
+        if (error?.message?.includes('DOM') || error?.message?.includes('appendChild')) {
+          return false;
+        }
+        return failureCount < 3;
+      },
+      staleTime: 5 * 60 * 1000, // 5 minutes
+    },
+  },
+});
 
 // Loading component for lazy-loaded pages
 const PageLoader = () => (
@@ -36,50 +50,88 @@ const PageLoader = () => (
   </div>
 );
 
+// App initialization component
+const AppInitializer: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const [isInitialized, setIsInitialized] = useState(false);
+  const [initError, setInitError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const initializeApp = async () => {
+      try {
+        // Initialize and validate storage integrity on app load
+        const isIntegrityValid = validateStorageIntegrity();
+        
+        // Only log if there are actual issues (not normal initialization)
+        if (!isIntegrityValid) {
+          console.info('Storage initialized for security compliance');
+        }
+        
+        // Check if emergency data cleanup is needed (24-hour policy)
+        const checkDataRetention = () => {
+          try {
+            const lastPurgeTime = localStorage.getItem('onlinenote-purged');
+            
+            if (!lastPurgeTime) {
+              // Set initial purge time if not set
+              localStorage.setItem('onlinenote-purged', new Date().toISOString());
+              return;
+            }
+            
+            // Calculate time since last purge
+            const lastPurge = new Date(lastPurgeTime);
+            const currentTime = new Date();
+            const hoursSinceLastPurge = (currentTime.getTime() - lastPurge.getTime()) / (1000 * 60 * 60);
+            
+            // If more than 24 hours have passed, purge user data
+            if (hoursSinceLastPurge >= 24) {
+              purgeUserData();
+            }
+          } catch (error) {
+            console.warn('Data retention check failed:', error);
+          }
+        };
+        
+        // Run retention check
+        checkDataRetention();
+        
+        // Set up interval to check retention periodically
+        const retentionInterval = setInterval(checkDataRetention, 60 * 60 * 1000); // Check every hour
+        
+        setIsInitialized(true);
+        
+        // Store cleanup function for later use
+        (window as any).__appCleanup = () => clearInterval(retentionInterval);
+      } catch (error) {
+        console.error('App initialization failed:', error);
+        setInitError(error instanceof Error ? error.message : 'Unknown initialization error');
+        setIsInitialized(true); // Allow app to continue even with errors
+      }
+    };
+
+    initializeApp();
+
+    // Cleanup on unmount
+    return () => {
+      if ((window as any).__appCleanup) {
+        (window as any).__appCleanup();
+      }
+    };
+  }, []);
+
+  if (!isInitialized) {
+    return <PageLoader />;
+  }
+
+  if (initError) {
+    console.warn('App initialized with warnings:', initError);
+  }
+
+  return <>{children}</>;
+};
+
 const App = () => {
   // State to track when app is fully loaded for animations
   const [isAppLoaded, setIsAppLoaded] = useState(false);
-  
-  // Check for data integrity and implement privacy protections on mount
-  useEffect(() => {
-    // Initialize and validate storage integrity on app load
-    const isIntegrityValid = validateStorageIntegrity();
-    
-    // Only log if there are actual issues (not normal initialization)
-    if (!isIntegrityValid) {
-      console.info('Storage initialized for security compliance');
-    }
-    
-    // Check if emergency data cleanup is needed (24-hour policy)
-    const checkDataRetention = () => {
-      const lastPurgeTime = localStorage.getItem('onlinenote-purged');
-      
-      if (!lastPurgeTime) {
-        // Set initial purge time if not set
-        localStorage.setItem('onlinenote-purged', new Date().toISOString());
-        return;
-      }
-      
-      // Calculate time since last purge
-      const lastPurge = new Date(lastPurgeTime);
-      const currentTime = new Date();
-      const hoursSinceLastPurge = (currentTime.getTime() - lastPurge.getTime()) / (1000 * 60 * 60);
-      
-      // If more than 24 hours have passed, purge user data
-      if (hoursSinceLastPurge >= 24) {
-        purgeUserData();
-      }
-    };
-    
-    // Run retention check
-    checkDataRetention();
-    
-    // Set up interval to check retention periodically
-    const retentionInterval = setInterval(checkDataRetention, 60 * 60 * 1000); // Check every hour
-    
-    // Clean up interval on unmount
-    return () => clearInterval(retentionInterval);
-  }, []);
   
   // Set app as loaded after a slight delay for animations
   useEffect(() => {
@@ -88,45 +140,49 @@ const App = () => {
   }, []);
   
   return (
-  <QueryClientProvider client={queryClient}>
-    {/* Global dot grid background */}
-    <DotGridBackground />
-    
-    <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <div className={`transition-opacity duration-500 ${isAppLoaded ? 'opacity-100' : 'opacity-0'}`}>
-        <FocusModeProvider>
-          <BrowserRouter>
-        {/* Analytics component for tracking route changes */}
-        <GoogleAnalytics />
-        <Routes>
-          <Route path="/" element={<Index />} />
-          <Route path="/privacy-policy" element={
-            <Suspense fallback={<PageLoader />}>
-              <PrivacyPolicy />
-            </Suspense>
-          } />
-          <Route path="/terms-of-use" element={
-            <Suspense fallback={<PageLoader />}>
-              <TermsOfUse />
-            </Suspense>
-          } />
-          <Route path="/cookie-settings" element={
-            <Suspense fallback={<PageLoader />}>
-              <CookieSettings />
-            </Suspense>
-          } />
-          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-      </BrowserRouter>
-      <CookieConsent />
-      <ScrollToTop />
-      </FocusModeProvider>
-      </div>
-    </TooltipProvider>
-  </QueryClientProvider>
+    <ErrorBoundary>
+      <QueryClientProvider client={queryClient}>
+        <AppInitializer>
+          {/* Global dot grid background */}
+          <DotGridBackground />
+          
+          <TooltipProvider>
+            <Toaster />
+            <Sonner />
+            <div className={`transition-opacity duration-500 ${isAppLoaded ? 'opacity-100' : 'opacity-0'}`}>
+              <FocusModeProvider>
+                <BrowserRouter>
+                  {/* Analytics component for tracking route changes */}
+                  <GoogleAnalytics />
+                  <Routes>
+                    <Route path="/" element={<Index />} />
+                    <Route path="/privacy-policy" element={
+                      <Suspense fallback={<PageLoader />}>
+                        <PrivacyPolicy />
+                      </Suspense>
+                    } />
+                    <Route path="/terms-of-use" element={
+                      <Suspense fallback={<PageLoader />}>
+                        <TermsOfUse />
+                      </Suspense>
+                    } />
+                    <Route path="/cookie-settings" element={
+                      <Suspense fallback={<PageLoader />}>
+                        <CookieSettings />
+                      </Suspense>
+                    } />
+                    {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+                    <Route path="*" element={<NotFound />} />
+                  </Routes>
+                </BrowserRouter>
+                <CookieConsent />
+                <ScrollToTop />
+              </FocusModeProvider>
+            </div>
+          </TooltipProvider>
+        </AppInitializer>
+      </QueryClientProvider>
+    </ErrorBoundary>
   );
 };
 
