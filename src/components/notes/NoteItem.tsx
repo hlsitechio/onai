@@ -1,9 +1,11 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { ArrowRight, Trash2, Check, X, FileEdit, Tag } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { Badge } from "@/components/ui/badge";
+
+import React, { useEffect, useState } from 'react';
 import { generateAutoTags } from "@/utils/autoTagging";
+import { useNoteItemState } from "./hooks/useNoteItemState";
+import NoteRenameInput from "./components/NoteRenameInput";
+import NoteActions from "./components/NoteActions";
+import NoteAutoTags from "./components/NoteAutoTags";
+import NoteContent from "./components/NoteContent";
 
 interface NoteItemProps {
   noteId: string;
@@ -30,32 +32,17 @@ const NoteItem: React.FC<NoteItemProps> = ({
   displayName,
   className = ''
 }) => {
-  const [isRenaming, setIsRenaming] = useState(false);
-  const [newName, setNewName] = useState('');
-  const [isHovered, setIsHovered] = useState(false);
+  const {
+    isRenaming,
+    setIsRenaming,
+    newName,
+    setNewName,
+    isHovered,
+    setIsHovered,
+    getCleanTitle
+  } = useNoteItemState(noteId, displayName, content);
+
   const [autoTags, setAutoTags] = useState<{ name: string; color: string }[]>([]);
-  const inputRef = useRef<HTMLInputElement>(null);
-  
-  // Generate a clean title from content or use custom name
-  const getCleanTitle = () => {
-    if (displayName && displayName.trim()) {
-      return displayName;
-    }
-    
-    // Extract first meaningful line from content
-    const firstLine = content.split('\n')[0].trim();
-    if (firstLine && firstLine.length > 0) {
-      return firstLine.substring(0, 50) + (firstLine.length > 50 ? '...' : '');
-    }
-    
-    // Fallback to a simple "Note" with creation info
-    return `Note ${new Date().toLocaleDateString()}`;
-  };
-  
-  // Initialize with clean title
-  useEffect(() => {
-    setNewName(getCleanTitle());
-  }, [noteId, displayName, content]);
   
   // Generate auto tags based on content using the improved utility
   useEffect(() => {
@@ -64,14 +51,6 @@ const NoteItem: React.FC<NoteItemProps> = ({
       setAutoTags(tags);
     }
   }, [content]);
-  
-  // Focus the input when renaming starts
-  useEffect(() => {
-    if (isRenaming && inputRef.current) {
-      inputRef.current.focus();
-      inputRef.current.select();
-    }
-  }, [isRenaming]);
   
   const handleTitleClick = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -123,112 +102,36 @@ const NoteItem: React.FC<NoteItemProps> = ({
     >
       <div className="flex justify-between items-start">
         {isRenaming ? (
-          <div className="flex-1 flex items-center" onClick={(e) => e.stopPropagation()}>
-            <input
-              ref={inputRef}
-              type="text"
-              value={newName}
-              onChange={(e) => setNewName(e.target.value)}
-              onKeyDown={handleKeyDown}
-              className="w-full bg-black/30 border border-noteflow-500/50 rounded text-sm text-white px-2 py-1 focus:outline-none focus:ring-1 focus:ring-noteflow-500"
-              placeholder="Enter note title"
-            />
-            <div className="flex gap-1 ml-2">
-              <Button
-                size="icon"
-                variant="ghost"
-                onClick={handleRenameSubmit}
-                className="h-6 w-6 p-0.5 hover:bg-noteflow-500/20 rounded-full hover:text-noteflow-400 transition-all"
-              >
-                <Check className="h-4 w-4" />
-              </Button>
-              <Button
-                size="icon"
-                variant="ghost"
-                onClick={handleRenameCancel}
-                className="h-6 w-6 p-0.5 hover:bg-red-500/20 rounded-full hover:text-red-400 transition-all"
-              >
-                <X className="h-4 w-4" />
-              </Button>
-            </div>
-          </div>
+          <NoteRenameInput
+            newName={newName}
+            setNewName={setNewName}
+            onSubmit={handleRenameSubmit}
+            onCancel={handleRenameCancel}
+            onKeyDown={handleKeyDown}
+          />
         ) : (
           <>
-            <div className="flex items-start space-x-2 flex-1 min-w-0">
-              <FileEdit className={`h-3.5 w-3.5 text-noteflow-400 mt-0.5 shrink-0 ${isActive ? 'opacity-100' : 'opacity-50'}`} />
-              <div className="flex-1 min-w-0">
-                <button
-                  onClick={handleTitleClick}
-                  className="text-sm text-white truncate max-w-full text-left hover:text-noteflow-300 transition-colors font-medium"
-                >
-                  {getCleanTitle()}
-                </button>
-                <p className="text-xs text-slate-400 mt-1 line-clamp-2">
-                  {content.substring(0, 80)}...
-                </p>
-              </div>
-            </div>
+            <NoteContent
+              title={getCleanTitle()}
+              content={content}
+              isActive={isActive}
+              onTitleClick={handleTitleClick}
+            />
             
-            <div className={`flex gap-1 transition-opacity duration-200 ${isHovered || isActive ? 'opacity-100' : 'opacity-0'}`}>
-              <TooltipProvider delayDuration={300}>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Button 
-                      size="icon"
-                      variant="ghost"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        onOpenShare(noteId);
-                      }}
-                      className="h-6 w-6 p-1 hover:bg-noteflow-500/20 rounded hover:text-noteflow-400 transition-all group"
-                    >
-                      <ArrowRight className="h-3.5 w-3.5 group-hover:translate-x-0.5 transition-transform" />
-                    </Button>
-                  </TooltipTrigger>
-                  <TooltipContent side="top" className="bg-black/80 border-white/10 text-xs">
-                    Share note
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
-              
-              <TooltipProvider delayDuration={300}>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Button
-                      size="icon"
-                      variant="ghost"
-                      onClick={(e) => onDeleteNote(noteId, e)}
-                      className="h-6 w-6 p-1 hover:bg-red-500/20 rounded hover:text-red-400 transition-all group"
-                    >
-                      <Trash2 className="h-3.5 w-3.5 group-hover:scale-110 transition-transform" />
-                    </Button>
-                  </TooltipTrigger>
-                  <TooltipContent side="top" className="bg-black/80 border-white/10 text-xs">
-                    Delete note
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
-            </div>
+            <NoteActions
+              noteId={noteId}
+              isHovered={isHovered}
+              isActive={isActive}
+              onOpenShare={onOpenShare}
+              onDeleteNote={onDeleteNote}
+            />
           </>
         )}
       </div>
       
       {/* Auto Tags */}
-      {autoTags.length > 0 && !isRenaming && (
-        <div className="flex items-center gap-1 mt-2 pt-2 border-t border-white/5">
-          <Tag className="h-3 w-3 text-noteflow-400 opacity-60" />
-          <div className="flex gap-1 flex-wrap">
-            {autoTags.map((tag) => (
-              <Badge 
-                key={tag.name} 
-                variant="secondary" 
-                className={`text-xs px-1.5 py-0.5 ${tag.color} hover:opacity-80 transition-opacity cursor-pointer`}
-              >
-                {tag.name}
-              </Badge>
-            ))}
-          </div>
-        </div>
+      {!isRenaming && (
+        <NoteAutoTags autoTags={autoTags} />
       )}
     </div>
   );
