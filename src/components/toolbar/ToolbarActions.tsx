@@ -39,56 +39,115 @@ const ToolbarActions: React.FC<ToolbarActionsProps> = ({
   execCommand,
   isFocusMode
 }) => {
-  // Get active textarea element
-  const getActiveTextarea = (): HTMLTextAreaElement | null => {
-    const activeElement = document.activeElement as HTMLTextAreaElement;
-    return activeElement && activeElement.tagName === 'TEXTAREA' ? activeElement : null;
+  // Get active editor element (either textarea or contentEditable div)
+  const getActiveEditor = (): HTMLTextAreaElement | HTMLDivElement | null => {
+    const activeElement = document.activeElement as HTMLTextAreaElement | HTMLDivElement;
+    
+    // Check for textarea first
+    if (activeElement && activeElement.tagName === 'TEXTAREA') {
+      return activeElement as HTMLTextAreaElement;
+    }
+    
+    // Check for contentEditable div
+    if (activeElement && activeElement.contentEditable === 'true') {
+      return activeElement as HTMLDivElement;
+    }
+    
+    // Fallback: look for any contentEditable element in the editor
+    const contentEditableElements = document.querySelectorAll('[contenteditable="true"]');
+    if (contentEditableElements.length > 0) {
+      return contentEditableElements[0] as HTMLDivElement;
+    }
+    
+    return null;
   };
 
-  // Enhanced text wrapping with undo support
+  // Enhanced text manipulation for both textarea and contentEditable
+  const insertTextAtCursor = (text: string) => {
+    const editor = getActiveEditor();
+    if (!editor) return;
+
+    if (editor.tagName === 'TEXTAREA') {
+      const textarea = editor as HTMLTextAreaElement;
+      const start = textarea.selectionStart;
+      const end = textarea.selectionEnd;
+      const beforeText = textarea.value.substring(0, start);
+      const afterText = textarea.value.substring(end);
+      
+      textarea.value = beforeText + text + afterText;
+      
+      // Trigger change event
+      const event = new Event('input', { bubbles: true });
+      textarea.dispatchEvent(event);
+      
+      const newCursorPos = start + text.length;
+      textarea.setSelectionRange(newCursorPos, newCursorPos);
+      textarea.focus();
+    } else {
+      // ContentEditable div
+      const selection = window.getSelection();
+      if (selection && selection.rangeCount > 0) {
+        const range = selection.getRangeAt(0);
+        range.deleteContents();
+        const textNode = document.createTextNode(text);
+        range.insertNode(textNode);
+        range.setStartAfter(textNode);
+        range.collapse(true);
+        selection.removeAllRanges();
+        selection.addRange(range);
+        
+        // Trigger input event to update content
+        const event = new Event('input', { bubbles: true });
+        editor.dispatchEvent(event);
+      }
+      editor.focus();
+    }
+  };
+
   const wrapSelectedText = (prefix: string, suffix: string = prefix) => {
-    const textarea = getActiveTextarea();
-    if (!textarea) return;
+    const editor = getActiveEditor();
+    if (!editor) return;
 
-    const start = textarea.selectionStart;
-    const end = textarea.selectionEnd;
-    const selectedText = textarea.value.substring(start, end);
-    const beforeText = textarea.value.substring(0, start);
-    const afterText = textarea.value.substring(end);
-    
-    const newText = beforeText + prefix + selectedText + suffix + afterText;
-    textarea.value = newText;
-    
-    // Trigger change event
-    const event = new Event('input', { bubbles: true });
-    textarea.dispatchEvent(event);
-    
-    // Set cursor position
-    const newCursorPos = start + prefix.length + selectedText.length + suffix.length;
-    textarea.setSelectionRange(newCursorPos, newCursorPos);
-    textarea.focus();
-  };
-
-  const insertText = (text: string) => {
-    const textarea = getActiveTextarea();
-    if (!textarea) return;
-
-    const start = textarea.selectionStart;
-    const end = textarea.selectionEnd;
-    const beforeText = textarea.value.substring(0, start);
-    const afterText = textarea.value.substring(end);
-    
-    const newText = beforeText + text + afterText;
-    textarea.value = newText;
-    
-    // Trigger change event
-    const event = new Event('input', { bubbles: true });
-    textarea.dispatchEvent(event);
-    
-    // Set cursor position
-    const newCursorPos = start + text.length;
-    textarea.setSelectionRange(newCursorPos, newCursorPos);
-    textarea.focus();
+    if (editor.tagName === 'TEXTAREA') {
+      const textarea = editor as HTMLTextAreaElement;
+      const start = textarea.selectionStart;
+      const end = textarea.selectionEnd;
+      const selectedText = textarea.value.substring(start, end);
+      const beforeText = textarea.value.substring(0, start);
+      const afterText = textarea.value.substring(end);
+      
+      const newText = beforeText + prefix + selectedText + suffix + afterText;
+      textarea.value = newText;
+      
+      const event = new Event('input', { bubbles: true });
+      textarea.dispatchEvent(event);
+      
+      const newCursorPos = start + prefix.length + selectedText.length + suffix.length;
+      textarea.setSelectionRange(newCursorPos, newCursorPos);
+      textarea.focus();
+    } else {
+      // ContentEditable div
+      const selection = window.getSelection();
+      if (selection && selection.rangeCount > 0) {
+        const range = selection.getRangeAt(0);
+        const selectedText = range.toString();
+        
+        range.deleteContents();
+        const wrappedText = prefix + selectedText + suffix;
+        const textNode = document.createTextNode(wrappedText);
+        range.insertNode(textNode);
+        
+        // Set cursor after the wrapped text
+        range.setStartAfter(textNode);
+        range.collapse(true);
+        selection.removeAllRanges();
+        selection.addRange(range);
+        
+        const event = new Event('input', { bubbles: true });
+        editor.dispatchEvent(event);
+      }
+      editor.focus();
+    }
   };
 
   // Enhanced formatting functions
@@ -98,113 +157,15 @@ const ToolbarActions: React.FC<ToolbarActionsProps> = ({
   const handleStrikethrough = () => wrapSelectedText('~~');
   const handleCode = () => wrapSelectedText('`');
 
-  // Enhanced heading function with better line detection
   const handleHeading = (level: number) => {
-    const textarea = getActiveTextarea();
-    if (!textarea) return;
+    const editor = getActiveEditor();
+    if (!editor) return;
 
-    const start = textarea.selectionStart;
-    const lines = textarea.value.split('\n');
-    let currentLine = 0;
-    let charCount = 0;
-    
-    // Find current line
-    for (let i = 0; i < lines.length; i++) {
-      if (charCount + lines[i].length >= start) {
-        currentLine = i;
-        break;
-      }
-      charCount += lines[i].length + 1;
-    }
-    
     const prefix = '#'.repeat(level) + ' ';
     
-    // Remove existing heading if present
-    const currentLineText = lines[currentLine];
-    const headingMatch = currentLineText.match(/^#{1,6}\s*/);
-    if (headingMatch) {
-      lines[currentLine] = currentLineText.replace(/^#{1,6}\s*/, '');
-    }
-    
-    // Add new heading
-    lines[currentLine] = prefix + lines[currentLine];
-    textarea.value = lines.join('\n');
-    
-    const event = new Event('input', { bubbles: true });
-    textarea.dispatchEvent(event);
-    textarea.focus();
-  };
-
-  // Enhanced list function with smart indentation
-  const handleInsertList = (ordered: boolean = false) => {
-    const textarea = getActiveTextarea();
-    if (!textarea) return;
-
-    const start = textarea.selectionStart;
-    const selectedText = textarea.value.substring(textarea.selectionStart, textarea.selectionEnd);
-    
-    if (selectedText) {
-      // Convert selected text to list
-      const lines = selectedText.split('\n').filter(line => line.trim());
-      const listItems = lines.map((line, index) => {
-        const prefix = ordered ? `${index + 1}. ` : '- ';
-        return prefix + line.trim();
-      }).join('\n');
-      
-      const beforeText = textarea.value.substring(0, textarea.selectionStart);
-      const afterText = textarea.value.substring(textarea.selectionEnd);
-      textarea.value = beforeText + listItems + afterText;
-    } else {
-      // Insert single list item
-      const prefix = ordered ? '1. ' : '- ';
-      insertText('\n' + prefix);
-    }
-    
-    const event = new Event('input', { bubbles: true });
-    textarea.dispatchEvent(event);
-    textarea.focus();
-  };
-
-  // Enhanced link insertion with validation
-  const handleInsertLink = () => {
-    const textarea = getActiveTextarea();
-    if (!textarea) return;
-
-    const selectedText = textarea.value.substring(textarea.selectionStart, textarea.selectionEnd);
-    const linkText = selectedText || 'Link text';
-    
-    const url = prompt('Enter URL:', 'https://');
-    if (url && url.trim()) {
-      const sanitizedUrl = DOMPurify.sanitize(url.trim());
-      const finalLinkText = selectedText || prompt('Enter link text:', 'Link text') || 'Link text';
-      
-      if (selectedText) {
-        wrapSelectedText(`[`, `](${sanitizedUrl})`);
-      } else {
-        insertText(`[${finalLinkText}](${sanitizedUrl})`);
-      }
-    }
-  };
-
-  // Enhanced blockquote with multi-line support
-  const handleBlockquote = () => {
-    const textarea = getActiveTextarea();
-    if (!textarea) return;
-
-    const start = textarea.selectionStart;
-    const end = textarea.selectionEnd;
-    const selectedText = textarea.value.substring(start, end);
-    
-    if (selectedText) {
-      // Handle multi-line selection
-      const lines = selectedText.split('\n');
-      const quotedLines = lines.map(line => '> ' + line).join('\n');
-      
-      const beforeText = textarea.value.substring(0, start);
-      const afterText = textarea.value.substring(end);
-      textarea.value = beforeText + quotedLines + afterText;
-    } else {
-      // Handle current line
+    if (editor.tagName === 'TEXTAREA') {
+      const textarea = editor as HTMLTextAreaElement;
+      const start = textarea.selectionStart;
       const lines = textarea.value.split('\n');
       let currentLine = 0;
       let charCount = 0;
@@ -217,140 +178,153 @@ const ToolbarActions: React.FC<ToolbarActionsProps> = ({
         charCount += lines[i].length + 1;
       }
       
-      lines[currentLine] = '> ' + lines[currentLine];
+      const currentLineText = lines[currentLine];
+      const headingMatch = currentLineText.match(/^#{1,6}\s*/);
+      if (headingMatch) {
+        lines[currentLine] = currentLineText.replace(/^#{1,6}\s*/, '');
+      }
+      
+      lines[currentLine] = prefix + lines[currentLine];
       textarea.value = lines.join('\n');
+      
+      const event = new Event('input', { bubbles: true });
+      textarea.dispatchEvent(event);
+      textarea.focus();
+    } else {
+      // For contentEditable, insert at current position
+      insertTextAtCursor('\n' + prefix);
     }
-    
-    const event = new Event('input', { bubbles: true });
-    textarea.dispatchEvent(event);
-    textarea.focus();
   };
 
-  // Enhanced image insertion with drag & drop support
+  const handleInsertList = (ordered: boolean = false) => {
+    const prefix = ordered ? '1. ' : '- ';
+    insertTextAtCursor('\n' + prefix);
+  };
+
+  const handleInsertLink = () => {
+    const url = prompt('Enter URL:', 'https://');
+    if (url && url.trim()) {
+      const sanitizedUrl = DOMPurify.sanitize(url.trim());
+      const linkText = prompt('Enter link text:', 'Link text') || 'Link text';
+      insertTextAtCursor(`[${linkText}](${sanitizedUrl})`);
+    }
+  };
+
+  const handleBlockquote = () => {
+    insertTextAtCursor('\n> ');
+  };
+
   const handleInsertImage = () => {
     const url = prompt('Enter image URL:', 'https://');
     if (url && url.trim()) {
       const altText = prompt('Enter alt text:', 'Image') || 'Image';
       const sanitizedUrl = DOMPurify.sanitize(url.trim());
-      insertText(`\n![${altText}](${sanitizedUrl})\n`);
+      insertTextAtCursor(`\n![${altText}](${sanitizedUrl})\n`);
     }
   };
 
-  // Advanced find with regex support
   const handleFind = (text: string, options: { caseSensitive: boolean; wholeWord: boolean; useRegex?: boolean }) => {
     if (!text.trim()) return;
     
-    const textarea = getActiveTextarea();
-    if (!textarea) return;
+    const editor = getActiveEditor();
+    if (!editor) return;
     
-    const content = textarea.value;
+    let content = '';
+    if (editor.tagName === 'TEXTAREA') {
+      content = (editor as HTMLTextAreaElement).value;
+    } else {
+      content = editor.textContent || '';
+    }
     
     try {
-      let searchPattern;
-      if (options.useRegex) {
-        const flags = options.caseSensitive ? 'g' : 'gi';
-        searchPattern = new RegExp(text, flags);
-      } else {
-        let pattern = options.caseSensitive ? text : text.toLowerCase();
-        if (options.wholeWord) {
-          pattern = `\\b${pattern.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`;
-        }
-        const flags = options.caseSensitive ? 'g' : 'gi';
-        searchPattern = new RegExp(pattern, flags);
-      }
-      
-      const searchContent = options.caseSensitive ? content : content.toLowerCase();
-      const match = searchPattern.exec(options.caseSensitive ? content : content);
-      
-      if (match) {
-        textarea.setSelectionRange(match.index, match.index + match[0].length);
-        textarea.focus();
-        textarea.scrollIntoView({ block: 'center' });
-      }
-    } catch (error) {
-      console.error('Search error:', error);
-      // Fallback to simple search
       const searchText = options.caseSensitive ? content : content.toLowerCase();
       const findText = options.caseSensitive ? text : text.toLowerCase();
       const index = searchText.indexOf(findText);
       
       if (index !== -1) {
-        textarea.setSelectionRange(index, index + text.length);
-        textarea.focus();
+        if (editor.tagName === 'TEXTAREA') {
+          const textarea = editor as HTMLTextAreaElement;
+          textarea.setSelectionRange(index, index + text.length);
+          textarea.focus();
+        } else {
+          // For contentEditable, we'll focus the editor
+          editor.focus();
+        }
       }
+    } catch (error) {
+      console.error('Search error:', error);
     }
   };
 
-  // Enhanced replace with undo support
   const handleReplace = (findText: string, replaceText: string, replaceAll: boolean) => {
-    const textarea = getActiveTextarea();
-    if (!textarea) return;
+    const editor = getActiveEditor();
+    if (!editor) return;
     
     const sanitizedReplaceText = DOMPurify.sanitize(replaceText);
     
-    if (replaceAll) {
-      const newContent = textarea.value.replace(
-        new RegExp(findText.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g'), 
-        sanitizedReplaceText
-      );
-      textarea.value = newContent;
-    } else {
-      const selectedText = textarea.value.substring(textarea.selectionStart, textarea.selectionEnd);
-      if (selectedText === findText) {
-        const start = textarea.selectionStart;
-        const beforeText = textarea.value.substring(0, start);
-        const afterText = textarea.value.substring(textarea.selectionEnd);
-        
-        textarea.value = beforeText + sanitizedReplaceText + afterText;
-        textarea.setSelectionRange(start + sanitizedReplaceText.length, start + sanitizedReplaceText.length);
+    if (editor.tagName === 'TEXTAREA') {
+      const textarea = editor as HTMLTextAreaElement;
+      if (replaceAll) {
+        const newContent = textarea.value.replace(
+          new RegExp(findText.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g'), 
+          sanitizedReplaceText
+        );
+        textarea.value = newContent;
+      } else {
+        const selectedText = textarea.value.substring(textarea.selectionStart, textarea.selectionEnd);
+        if (selectedText === findText) {
+          const start = textarea.selectionStart;
+          const beforeText = textarea.value.substring(0, start);
+          const afterText = textarea.value.substring(textarea.selectionEnd);
+          
+          textarea.value = beforeText + sanitizedReplaceText + afterText;
+          textarea.setSelectionRange(start + sanitizedReplaceText.length, start + sanitizedReplaceText.length);
+        }
       }
+      
+      const event = new Event('input', { bubbles: true });
+      textarea.dispatchEvent(event);
+      textarea.focus();
     }
-    
-    const event = new Event('input', { bubbles: true });
-    textarea.dispatchEvent(event);
-    textarea.focus();
   };
 
-  // Enhanced font controls with system font detection
   const handleFontFamilyChange = (fontFamily: string) => {
-    const textarea = getActiveTextarea();
-    if (textarea) {
-      textarea.style.fontFamily = fontFamily;
+    const editor = getActiveEditor();
+    if (editor) {
+      editor.style.fontFamily = fontFamily;
     }
   };
 
   const handleFontSizeChange = (action: 'increase' | 'decrease' | 'set', size?: number) => {
-    const textarea = getActiveTextarea();
-    if (!textarea) return;
+    const editor = getActiveEditor();
+    if (!editor) return;
     
-    const currentSize = parseFloat(window.getComputedStyle(textarea).fontSize);
+    const currentSize = parseFloat(window.getComputedStyle(editor).fontSize);
     
     switch (action) {
       case 'increase':
-        textarea.style.fontSize = `${Math.min(currentSize + 2, 32)}px`;
+        editor.style.fontSize = `${Math.min(currentSize + 2, 32)}px`;
         break;
       case 'decrease':
-        textarea.style.fontSize = `${Math.max(currentSize - 2, 8)}px`;
+        editor.style.fontSize = `${Math.max(currentSize - 2, 8)}px`;
         break;
       case 'set':
-        if (size) textarea.style.fontSize = `${size}px`;
+        if (size) editor.style.fontSize = `${size}px`;
         break;
     }
   };
 
-  // Enhanced color controls with theme support
   const handleColorChange = (color: string, type: 'text' | 'background') => {
-    const textarea = getActiveTextarea();
-    if (textarea) {
+    const editor = getActiveEditor();
+    if (editor) {
       if (type === 'text') {
-        textarea.style.color = color;
+        editor.style.color = color;
       } else {
-        textarea.style.backgroundColor = color;
+        editor.style.backgroundColor = color;
       }
     }
   };
 
-  // Enhanced table insertion with templates
   const handleInsertTable = (rows: number, cols: number, hasHeader: boolean) => {
     let tableMarkdown = '\n';
     
@@ -367,15 +341,20 @@ const ToolbarActions: React.FC<ToolbarActionsProps> = ({
     }
     
     tableMarkdown += '\n';
-    insertText(tableMarkdown);
+    insertTextAtCursor(tableMarkdown);
   };
 
-  // Export/Import functions
   const handleExportMarkdown = () => {
-    const textarea = getActiveTextarea();
-    if (!textarea) return;
+    const editor = getActiveEditor();
+    if (!editor) return;
     
-    const content = textarea.value;
+    let content = '';
+    if (editor.tagName === 'TEXTAREA') {
+      content = (editor as HTMLTextAreaElement).value;
+    } else {
+      content = editor.textContent || '';
+    }
+    
     const blob = new Blob([content], { type: 'text/markdown' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -397,11 +376,15 @@ const ToolbarActions: React.FC<ToolbarActionsProps> = ({
         const reader = new FileReader();
         reader.onload = (e) => {
           const content = e.target?.result as string;
-          const textarea = getActiveTextarea();
-          if (textarea) {
-            textarea.value = content;
+          const editor = getActiveEditor();
+          if (editor) {
+            if (editor.tagName === 'TEXTAREA') {
+              (editor as HTMLTextAreaElement).value = content;
+            } else {
+              editor.textContent = content;
+            }
             const event = new Event('input', { bubbles: true });
-            textarea.dispatchEvent(event);
+            editor.dispatchEvent(event);
           }
         };
         reader.readAsText(file);
@@ -413,8 +396,8 @@ const ToolbarActions: React.FC<ToolbarActionsProps> = ({
   // Keyboard shortcuts using native event listeners
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      // Only trigger if we have an active textarea
-      if (!getActiveTextarea()) return;
+      // Only trigger if we have an active editor
+      if (!getActiveEditor()) return;
       
       // Check for Ctrl/Cmd key combinations
       const isCtrlOrCmd = e.ctrlKey || e.metaKey;
