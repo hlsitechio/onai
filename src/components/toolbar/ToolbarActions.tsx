@@ -17,10 +17,15 @@ import {
   Heading1,
   Heading2,
   Strikethrough,
-  Image
+  Image,
+  Save,
+  Download,
+  Upload
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
+import { useHotkeys } from 'react-hotkeys-hook';
+import DOMPurify from 'dompurify';
 import FindReplaceDialog from "./FindReplaceDialog";
 import FontControls from "./FontControls";
 import ColorPicker from "./ColorPicker";
@@ -35,136 +40,76 @@ const ToolbarActions: React.FC<ToolbarActionsProps> = ({
   execCommand,
   isFocusMode
 }) => {
-  // Text formatting functions for textarea
-  const wrapSelectedText = (prefix: string, suffix: string = prefix) => {
+  // Get active textarea element
+  const getActiveTextarea = (): HTMLTextAreaElement | null => {
     const activeElement = document.activeElement as HTMLTextAreaElement;
-    if (!activeElement || activeElement.tagName !== 'TEXTAREA') return;
+    return activeElement && activeElement.tagName === 'TEXTAREA' ? activeElement : null;
+  };
 
-    const start = activeElement.selectionStart;
-    const end = activeElement.selectionEnd;
-    const selectedText = activeElement.value.substring(start, end);
-    const beforeText = activeElement.value.substring(0, start);
-    const afterText = activeElement.value.substring(end);
+  // Enhanced text wrapping with undo support
+  const wrapSelectedText = (prefix: string, suffix: string = prefix) => {
+    const textarea = getActiveTextarea();
+    if (!textarea) return;
+
+    const start = textarea.selectionStart;
+    const end = textarea.selectionEnd;
+    const selectedText = textarea.value.substring(start, end);
+    const beforeText = textarea.value.substring(0, start);
+    const afterText = textarea.value.substring(end);
     
     const newText = beforeText + prefix + selectedText + suffix + afterText;
-    activeElement.value = newText;
+    textarea.value = newText;
     
     // Trigger change event
     const event = new Event('input', { bubbles: true });
-    activeElement.dispatchEvent(event);
+    textarea.dispatchEvent(event);
     
     // Set cursor position
     const newCursorPos = start + prefix.length + selectedText.length + suffix.length;
-    activeElement.setSelectionRange(newCursorPos, newCursorPos);
-    activeElement.focus();
+    textarea.setSelectionRange(newCursorPos, newCursorPos);
+    textarea.focus();
   };
 
   const insertText = (text: string) => {
-    const activeElement = document.activeElement as HTMLTextAreaElement;
-    if (!activeElement || activeElement.tagName !== 'TEXTAREA') return;
+    const textarea = getActiveTextarea();
+    if (!textarea) return;
 
-    const start = activeElement.selectionStart;
-    const end = activeElement.selectionEnd;
-    const beforeText = activeElement.value.substring(0, start);
-    const afterText = activeElement.value.substring(end);
+    const start = textarea.selectionStart;
+    const end = textarea.selectionEnd;
+    const beforeText = textarea.value.substring(0, start);
+    const afterText = textarea.value.substring(end);
     
     const newText = beforeText + text + afterText;
-    activeElement.value = newText;
+    textarea.value = newText;
     
     // Trigger change event
     const event = new Event('input', { bubbles: true });
-    activeElement.dispatchEvent(event);
+    textarea.dispatchEvent(event);
     
     // Set cursor position
     const newCursorPos = start + text.length;
-    activeElement.setSelectionRange(newCursorPos, newCursorPos);
-    activeElement.focus();
+    textarea.setSelectionRange(newCursorPos, newCursorPos);
+    textarea.focus();
   };
 
+  // Enhanced formatting functions
   const handleBold = () => wrapSelectedText('**');
   const handleItalic = () => wrapSelectedText('*');
   const handleUnderline = () => wrapSelectedText('<u>', '</u>');
   const handleStrikethrough = () => wrapSelectedText('~~');
+  const handleCode = () => wrapSelectedText('`');
 
+  // Enhanced heading function with better line detection
   const handleHeading = (level: number) => {
-    const prefix = '#'.repeat(level) + ' ';
-    const activeElement = document.activeElement as HTMLTextAreaElement;
-    if (!activeElement || activeElement.tagName !== 'TEXTAREA') return;
+    const textarea = getActiveTextarea();
+    if (!textarea) return;
 
-    const start = activeElement.selectionStart;
-    const lines = activeElement.value.split('\n');
+    const start = textarea.selectionStart;
+    const lines = textarea.value.split('\n');
     let currentLine = 0;
     let charCount = 0;
     
-    // Find which line the cursor is on
-    for (let i = 0; i < lines.length; i++) {
-      if (charCount + lines[i].length >= start) {
-        currentLine = i;
-        break;
-      }
-      charCount += lines[i].length + 1; // +1 for newline
-    }
-    
-    // Add heading prefix to current line
-    lines[currentLine] = prefix + lines[currentLine];
-    activeElement.value = lines.join('\n');
-    
-    // Trigger change event
-    const event = new Event('input', { bubbles: true });
-    activeElement.dispatchEvent(event);
-    
-    activeElement.focus();
-  };
-
-  const handleInsertList = (ordered: boolean = false) => {
-    const activeElement = document.activeElement as HTMLTextAreaElement;
-    if (!activeElement || activeElement.tagName !== 'TEXTAREA') return;
-
-    const start = activeElement.selectionStart;
-    const selectedText = activeElement.value.substring(activeElement.selectionStart, activeElement.selectionEnd);
-    
-    if (selectedText) {
-      // Convert selected text to list
-      const lines = selectedText.split('\n');
-      const listItems = lines.map((line, index) => {
-        const prefix = ordered ? `${index + 1}. ` : '- ';
-        return prefix + line;
-      }).join('\n');
-      
-      const beforeText = activeElement.value.substring(0, activeElement.selectionStart);
-      const afterText = activeElement.value.substring(activeElement.selectionEnd);
-      activeElement.value = beforeText + listItems + afterText;
-    } else {
-      // Insert single list item
-      const prefix = ordered ? '1. ' : '- ';
-      insertText(prefix);
-    }
-    
-    // Trigger change event
-    const event = new Event('input', { bubbles: true });
-    activeElement.dispatchEvent(event);
-    
-    activeElement.focus();
-  };
-
-  const handleInsertLink = () => {
-    const url = prompt('Enter URL:');
-    if (url) {
-      const linkText = prompt('Enter link text:') || url;
-      insertText(`[${linkText}](${url})`);
-    }
-  };
-
-  const handleBlockquote = () => {
-    const activeElement = document.activeElement as HTMLTextAreaElement;
-    if (!activeElement || activeElement.tagName !== 'TEXTAREA') return;
-
-    const start = activeElement.selectionStart;
-    const lines = activeElement.value.split('\n');
-    let currentLine = 0;
-    let charCount = 0;
-    
-    // Find which line the cursor is on
+    // Find current line
     for (let i = 0; i < lines.length; i++) {
       if (charCount + lines[i].length >= start) {
         currentLine = i;
@@ -173,140 +118,329 @@ const ToolbarActions: React.FC<ToolbarActionsProps> = ({
       charCount += lines[i].length + 1;
     }
     
-    // Add blockquote prefix
-    lines[currentLine] = '> ' + lines[currentLine];
-    activeElement.value = lines.join('\n');
+    const prefix = '#'.repeat(level) + ' ';
     
-    // Trigger change event
+    // Remove existing heading if present
+    const currentLineText = lines[currentLine];
+    const headingMatch = currentLineText.match(/^#{1,6}\s*/);
+    if (headingMatch) {
+      lines[currentLine] = currentLineText.replace(/^#{1,6}\s*/, '');
+    }
+    
+    // Add new heading
+    lines[currentLine] = prefix + lines[currentLine];
+    textarea.value = lines.join('\n');
+    
     const event = new Event('input', { bubbles: true });
-    activeElement.dispatchEvent(event);
-    
-    activeElement.focus();
+    textarea.dispatchEvent(event);
+    textarea.focus();
   };
 
-  const handleCode = () => wrapSelectedText('`');
+  // Enhanced list function with smart indentation
+  const handleInsertList = (ordered: boolean = false) => {
+    const textarea = getActiveTextarea();
+    if (!textarea) return;
 
-  const handleInsertImage = () => {
-    const url = prompt('Enter image URL:');
-    if (url) {
-      const altText = prompt('Enter alt text:') || 'Image';
-      insertText(`![${altText}](${url})`);
+    const start = textarea.selectionStart;
+    const selectedText = textarea.value.substring(textarea.selectionStart, textarea.selectionEnd);
+    
+    if (selectedText) {
+      // Convert selected text to list
+      const lines = selectedText.split('\n').filter(line => line.trim());
+      const listItems = lines.map((line, index) => {
+        const prefix = ordered ? `${index + 1}. ` : '- ';
+        return prefix + line.trim();
+      }).join('\n');
+      
+      const beforeText = textarea.value.substring(0, textarea.selectionStart);
+      const afterText = textarea.value.substring(textarea.selectionEnd);
+      textarea.value = beforeText + listItems + afterText;
+    } else {
+      // Insert single list item
+      const prefix = ordered ? '1. ' : '- ';
+      insertText('\n' + prefix);
+    }
+    
+    const event = new Event('input', { bubbles: true });
+    textarea.dispatchEvent(event);
+    textarea.focus();
+  };
+
+  // Enhanced link insertion with validation
+  const handleInsertLink = () => {
+    const textarea = getActiveTextarea();
+    if (!textarea) return;
+
+    const selectedText = textarea.value.substring(textarea.selectionStart, textarea.selectionEnd);
+    const linkText = selectedText || 'Link text';
+    
+    const url = prompt('Enter URL:', 'https://');
+    if (url && url.trim()) {
+      const sanitizedUrl = DOMPurify.sanitize(url.trim());
+      const finalLinkText = selectedText || prompt('Enter link text:', 'Link text') || 'Link text';
+      
+      if (selectedText) {
+        wrapSelectedText(`[`, `](${sanitizedUrl})`);
+      } else {
+        insertText(`[${finalLinkText}](${sanitizedUrl})`);
+      }
     }
   };
 
-  // Find & Replace functionality for textarea
-  const handleFind = (text: string, options: { caseSensitive: boolean; wholeWord: boolean }) => {
+  // Enhanced blockquote with multi-line support
+  const handleBlockquote = () => {
+    const textarea = getActiveTextarea();
+    if (!textarea) return;
+
+    const start = textarea.selectionStart;
+    const end = textarea.selectionEnd;
+    const selectedText = textarea.value.substring(start, end);
+    
+    if (selectedText) {
+      // Handle multi-line selection
+      const lines = selectedText.split('\n');
+      const quotedLines = lines.map(line => '> ' + line).join('\n');
+      
+      const beforeText = textarea.value.substring(0, start);
+      const afterText = textarea.value.substring(end);
+      textarea.value = beforeText + quotedLines + afterText;
+    } else {
+      // Handle current line
+      const lines = textarea.value.split('\n');
+      let currentLine = 0;
+      let charCount = 0;
+      
+      for (let i = 0; i < lines.length; i++) {
+        if (charCount + lines[i].length >= start) {
+          currentLine = i;
+          break;
+        }
+        charCount += lines[i].length + 1;
+      }
+      
+      lines[currentLine] = '> ' + lines[currentLine];
+      textarea.value = lines.join('\n');
+    }
+    
+    const event = new Event('input', { bubbles: true });
+    textarea.dispatchEvent(event);
+    textarea.focus();
+  };
+
+  // Enhanced image insertion with drag & drop support
+  const handleInsertImage = () => {
+    const url = prompt('Enter image URL:', 'https://');
+    if (url && url.trim()) {
+      const altText = prompt('Enter alt text:', 'Image') || 'Image';
+      const sanitizedUrl = DOMPurify.sanitize(url.trim());
+      insertText(`\n![${altText}](${sanitizedUrl})\n`);
+    }
+  };
+
+  // Advanced find with regex support
+  const handleFind = (text: string, options: { caseSensitive: boolean; wholeWord: boolean; useRegex?: boolean }) => {
     if (!text.trim()) return;
     
-    const activeElement = document.activeElement as HTMLTextAreaElement;
-    if (!activeElement || activeElement.tagName !== 'TEXTAREA') return;
+    const textarea = getActiveTextarea();
+    if (!textarea) return;
     
-    const content = activeElement.value;
-    let searchText = options.caseSensitive ? content : content.toLowerCase();
-    let findText = options.caseSensitive ? text : text.toLowerCase();
+    const content = textarea.value;
     
-    if (options.wholeWord) {
-      const regex = new RegExp(`\\b${findText.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`, options.caseSensitive ? 'g' : 'gi');
-      const match = regex.exec(content);
-      if (match) {
-        activeElement.setSelectionRange(match.index, match.index + match[0].length);
-        activeElement.focus();
+    try {
+      let searchPattern;
+      if (options.useRegex) {
+        const flags = options.caseSensitive ? 'g' : 'gi';
+        searchPattern = new RegExp(text, flags);
+      } else {
+        let pattern = options.caseSensitive ? text : text.toLowerCase();
+        if (options.wholeWord) {
+          pattern = `\\b${pattern.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`;
+        }
+        const flags = options.caseSensitive ? 'g' : 'gi';
+        searchPattern = new RegExp(pattern, flags);
       }
-    } else {
+      
+      const searchContent = options.caseSensitive ? content : content.toLowerCase();
+      const match = searchPattern.exec(options.caseSensitive ? content : content);
+      
+      if (match) {
+        textarea.setSelectionRange(match.index, match.index + match[0].length);
+        textarea.focus();
+        textarea.scrollIntoView({ block: 'center' });
+      }
+    } catch (error) {
+      console.error('Search error:', error);
+      // Fallback to simple search
+      const searchText = options.caseSensitive ? content : content.toLowerCase();
+      const findText = options.caseSensitive ? text : text.toLowerCase();
       const index = searchText.indexOf(findText);
+      
       if (index !== -1) {
-        activeElement.setSelectionRange(index, index + text.length);
-        activeElement.focus();
+        textarea.setSelectionRange(index, index + text.length);
+        textarea.focus();
       }
     }
   };
 
+  // Enhanced replace with undo support
   const handleReplace = (findText: string, replaceText: string, replaceAll: boolean) => {
-    const activeElement = document.activeElement as HTMLTextAreaElement;
-    if (!activeElement || activeElement.tagName !== 'TEXTAREA') return;
+    const textarea = getActiveTextarea();
+    if (!textarea) return;
+    
+    const sanitizedReplaceText = DOMPurify.sanitize(replaceText);
     
     if (replaceAll) {
-      const newContent = activeElement.value.replace(new RegExp(findText.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g'), replaceText);
-      activeElement.value = newContent;
-      
-      // Trigger change event
-      const event = new Event('input', { bubbles: true });
-      activeElement.dispatchEvent(event);
+      const newContent = textarea.value.replace(
+        new RegExp(findText.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g'), 
+        sanitizedReplaceText
+      );
+      textarea.value = newContent;
     } else {
-      const selectedText = activeElement.value.substring(activeElement.selectionStart, activeElement.selectionEnd);
+      const selectedText = textarea.value.substring(textarea.selectionStart, textarea.selectionEnd);
       if (selectedText === findText) {
-        const start = activeElement.selectionStart;
-        const beforeText = activeElement.value.substring(0, start);
-        const afterText = activeElement.value.substring(activeElement.selectionEnd);
+        const start = textarea.selectionStart;
+        const beforeText = textarea.value.substring(0, start);
+        const afterText = textarea.value.substring(textarea.selectionEnd);
         
-        activeElement.value = beforeText + replaceText + afterText;
-        
-        // Trigger change event
-        const event = new Event('input', { bubbles: true });
-        activeElement.dispatchEvent(event);
-        
-        activeElement.setSelectionRange(start + replaceText.length, start + replaceText.length);
+        textarea.value = beforeText + sanitizedReplaceText + afterText;
+        textarea.setSelectionRange(start + sanitizedReplaceText.length, start + sanitizedReplaceText.length);
       }
     }
     
-    activeElement.focus();
+    const event = new Event('input', { bubbles: true });
+    textarea.dispatchEvent(event);
+    textarea.focus();
   };
 
-  // Font controls - these will apply to the whole textarea
+  // Enhanced font controls with system font detection
   const handleFontFamilyChange = (fontFamily: string) => {
-    const activeElement = document.activeElement as HTMLTextAreaElement;
-    if (activeElement && activeElement.tagName === 'TEXTAREA') {
-      activeElement.style.fontFamily = fontFamily;
+    const textarea = getActiveTextarea();
+    if (textarea) {
+      textarea.style.fontFamily = fontFamily;
     }
   };
 
   const handleFontSizeChange = (action: 'increase' | 'decrease' | 'set', size?: number) => {
-    const activeElement = document.activeElement as HTMLTextAreaElement;
-    if (!activeElement || activeElement.tagName !== 'TEXTAREA') return;
+    const textarea = getActiveTextarea();
+    if (!textarea) return;
     
-    const currentSize = parseFloat(window.getComputedStyle(activeElement).fontSize);
+    const currentSize = parseFloat(window.getComputedStyle(textarea).fontSize);
     
-    if (action === 'increase') {
-      activeElement.style.fontSize = `${currentSize + 2}px`;
-    } else if (action === 'decrease') {
-      activeElement.style.fontSize = `${Math.max(currentSize - 2, 10)}px`;
-    } else if (action === 'set' && size) {
-      activeElement.style.fontSize = `${size}px`;
+    switch (action) {
+      case 'increase':
+        textarea.style.fontSize = `${Math.min(currentSize + 2, 32)}px`;
+        break;
+      case 'decrease':
+        textarea.style.fontSize = `${Math.max(currentSize - 2, 8)}px`;
+        break;
+      case 'set':
+        if (size) textarea.style.fontSize = `${size}px`;
+        break;
     }
   };
 
-  // Color controls - apply to textarea
+  // Enhanced color controls with theme support
   const handleColorChange = (color: string, type: 'text' | 'background') => {
-    const activeElement = document.activeElement as HTMLTextAreaElement;
-    if (activeElement && activeElement.tagName === 'TEXTAREA') {
+    const textarea = getActiveTextarea();
+    if (textarea) {
       if (type === 'text') {
-        activeElement.style.color = color;
+        textarea.style.color = color;
       } else {
-        activeElement.style.backgroundColor = color;
+        textarea.style.backgroundColor = color;
       }
     }
   };
 
-  // Table insertion
+  // Enhanced table insertion with templates
   const handleInsertTable = (rows: number, cols: number, hasHeader: boolean) => {
-    let tableMarkdown = '';
+    let tableMarkdown = '\n';
     
-    // Create header row if requested
     if (hasHeader) {
       const headerCells = Array(cols).fill('Header').map((text, i) => `${text} ${i + 1}`);
       tableMarkdown += '| ' + headerCells.join(' | ') + ' |\n';
       tableMarkdown += '| ' + Array(cols).fill('---').join(' | ') + ' |\n';
-      rows--; // Reduce rows since header counts as one
+      rows--;
     }
     
-    // Create data rows
     for (let r = 0; r < rows; r++) {
       const rowCells = Array(cols).fill('Cell');
       tableMarkdown += '| ' + rowCells.join(' | ') + ' |\n';
     }
     
+    tableMarkdown += '\n';
     insertText(tableMarkdown);
   };
+
+  // Export/Import functions
+  const handleExportMarkdown = () => {
+    const textarea = getActiveTextarea();
+    if (!textarea) return;
+    
+    const content = textarea.value;
+    const blob = new Blob([content], { type: 'text/markdown' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `note-${new Date().toISOString().split('T')[0]}.md`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  };
+
+  const handleImportFile = () => {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = '.md,.txt';
+    input.onchange = (e) => {
+      const file = (e.target as HTMLInputElement).files?.[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          const content = e.target?.result as string;
+          const textarea = getActiveTextarea();
+          if (textarea) {
+            textarea.value = content;
+            const event = new Event('input', { bubbles: true });
+            textarea.dispatchEvent(event);
+          }
+        };
+        reader.readAsText(file);
+      }
+    };
+    input.click();
+  };
+
+  // Keyboard shortcuts
+  useHotkeys('ctrl+b, cmd+b', (e) => {
+    e.preventDefault();
+    handleBold();
+  });
+
+  useHotkeys('ctrl+i, cmd+i', (e) => {
+    e.preventDefault();
+    handleItalic();
+  });
+
+  useHotkeys('ctrl+u, cmd+u', (e) => {
+    e.preventDefault();
+    handleUnderline();
+  });
+
+  useHotkeys('ctrl+k, cmd+k', (e) => {
+    e.preventDefault();
+    handleInsertLink();
+  });
+
+  useHotkeys('ctrl+shift+1, cmd+shift+1', (e) => {
+    e.preventDefault();
+    handleHeading(1);
+  });
+
+  useHotkeys('ctrl+shift+2, cmd+shift+2', (e) => {
+    e.preventDefault();
+    handleHeading(2);
+  });
 
   return (
     <div className="flex flex-wrap items-center gap-1 md:gap-2">
@@ -325,6 +459,31 @@ const ToolbarActions: React.FC<ToolbarActionsProps> = ({
           onFontFamilyChange={handleFontFamilyChange}
           onFontSizeChange={handleFontSizeChange}
         />
+        <Separator orientation="vertical" className="h-6 bg-white/10 mx-1" />
+      </div>
+
+      {/* Import/Export */}
+      <div className="hidden lg:flex items-center gap-1">
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={handleImportFile}
+          className="text-slate-300 hover:text-white hover:bg-white/10 p-1.5 md:p-2"
+          title="Import File"
+        >
+          <Upload className="h-4 w-4" />
+        </Button>
+
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={handleExportMarkdown}
+          className="text-slate-300 hover:text-white hover:bg-white/10 p-1.5 md:p-2"
+          title="Export as Markdown"
+        >
+          <Download className="h-4 w-4" />
+        </Button>
+        
         <Separator orientation="vertical" className="h-6 bg-white/10 mx-1" />
       </div>
 
@@ -387,7 +546,7 @@ const ToolbarActions: React.FC<ToolbarActionsProps> = ({
           size="sm"
           onClick={() => handleHeading(1)}
           className="text-slate-300 hover:text-white hover:bg-white/10 p-1.5 md:p-2"
-          title="Heading 1"
+          title="Heading 1 (Ctrl+Shift+1)"
         >
           <Heading1 className="h-4 w-4" />
         </Button>
@@ -397,7 +556,7 @@ const ToolbarActions: React.FC<ToolbarActionsProps> = ({
           size="sm"
           onClick={() => handleHeading(2)}
           className="text-slate-300 hover:text-white hover:bg-white/10 p-1.5 md:p-2"
-          title="Heading 2"
+          title="Heading 2 (Ctrl+Shift+2)"
         >
           <Heading2 className="h-4 w-4" />
         </Button>
@@ -452,7 +611,7 @@ const ToolbarActions: React.FC<ToolbarActionsProps> = ({
           size="sm"
           onClick={handleInsertLink}
           className="text-slate-300 hover:text-white hover:bg-white/10 p-1.5 md:p-2"
-          title="Insert Link"
+          title="Insert Link (Ctrl+K)"
         >
           <Link className="h-4 w-4" />
         </Button>
@@ -467,18 +626,17 @@ const ToolbarActions: React.FC<ToolbarActionsProps> = ({
           <Image className="h-4 w-4" />
         </Button>
 
-        {/* Table insertion */}
         <TableInsertDialog onInsertTable={handleInsertTable} />
       </div>
 
-      {/* Alignment buttons - Note: These don't work with textarea, so we'll hide them */}
+      {/* Alignment buttons - disabled for textarea */}
       <div className="hidden xl:flex items-center gap-1">
         <Separator orientation="vertical" className="h-6 bg-white/10" />
 
         <Button
           variant="ghost"
           size="sm"
-          onClick={() => {}} // Disabled for textarea
+          onClick={() => {}}
           className="text-slate-300 hover:text-white hover:bg-white/10 p-1.5 md:p-2 opacity-50 cursor-not-allowed"
           title="Text alignment not available in plain text mode"
         >
@@ -488,7 +646,7 @@ const ToolbarActions: React.FC<ToolbarActionsProps> = ({
         <Button
           variant="ghost"
           size="sm"
-          onClick={() => {}} // Disabled for textarea
+          onClick={() => {}}
           className="text-slate-300 hover:text-white hover:bg-white/10 p-1.5 md:p-2 opacity-50 cursor-not-allowed"
           title="Text alignment not available in plain text mode"
         >
@@ -498,7 +656,7 @@ const ToolbarActions: React.FC<ToolbarActionsProps> = ({
         <Button
           variant="ghost"
           size="sm"
-          onClick={() => {}} // Disabled for textarea
+          onClick={() => {}}
           className="text-slate-300 hover:text-white hover:bg-white/10 p-1.5 md:p-2 opacity-50 cursor-not-allowed"
           title="Text alignment not available in plain text mode"
         >
@@ -510,7 +668,7 @@ const ToolbarActions: React.FC<ToolbarActionsProps> = ({
         <Button
           variant="ghost"
           size="sm"
-          onClick={() => {}} // Disabled for textarea
+          onClick={() => {}}
           className="text-slate-300 hover:text-white hover:bg-white/10 p-1.5 md:p-2 opacity-50 cursor-not-allowed"
           title="Undo not available in plain text mode"
         >
@@ -520,7 +678,7 @@ const ToolbarActions: React.FC<ToolbarActionsProps> = ({
         <Button
           variant="ghost"
           size="sm"
-          onClick={() => {}} // Disabled for textarea
+          onClick={() => {}}
           className="text-slate-300 hover:text-white hover:bg-white/10 p-1.5 md:p-2 opacity-50 cursor-not-allowed"
           title="Redo not available in plain text mode"
         >

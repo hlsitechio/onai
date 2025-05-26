@@ -1,13 +1,13 @@
 
 import React, { useState } from "react";
-import { Search, Replace, X, ChevronDown, ChevronUp } from "lucide-react";
+import { Search, Replace, X, ChevronDown, ChevronUp, Regex } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
 
 interface FindReplaceDialogProps {
-  onFind: (text: string, options: { caseSensitive: boolean; wholeWord: boolean }) => void;
+  onFind: (text: string, options: { caseSensitive: boolean; wholeWord: boolean; useRegex?: boolean }) => void;
   onReplace: (findText: string, replaceText: string, replaceAll: boolean) => void;
 }
 
@@ -20,16 +20,24 @@ const FindReplaceDialog: React.FC<FindReplaceDialogProps> = ({
   const [replaceText, setReplaceText] = useState("");
   const [caseSensitive, setCaseSensitive] = useState(false);
   const [wholeWord, setWholeWord] = useState(false);
+  const [useRegex, setUseRegex] = useState(false);
 
   const handleFind = () => {
     if (findText.trim()) {
-      onFind(findText, { caseSensitive, wholeWord });
+      onFind(findText, { caseSensitive, wholeWord, useRegex });
     }
   };
 
   const handleReplace = (replaceAll: boolean = false) => {
     if (findText.trim()) {
       onReplace(findText, replaceText, replaceAll);
+    }
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent, action: () => void) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      action();
     }
   };
 
@@ -52,14 +60,19 @@ const FindReplaceDialog: React.FC<FindReplaceDialogProps> = ({
           </div>
           
           <div className="space-y-3">
-            <div>
+            <div className="relative">
               <Input
                 placeholder="Find..."
                 value={findText}
                 onChange={(e) => setFindText(e.target.value)}
-                className="bg-black/30 border-white/20 text-white"
-                onKeyDown={(e) => e.key === 'Enter' && handleFind()}
+                className="bg-black/30 border-white/20 text-white pr-10"
+                onKeyDown={(e) => handleKeyDown(e, handleFind)}
               />
+              {useRegex && (
+                <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                  <Regex className="h-4 w-4 text-blue-400" />
+                </div>
+              )}
             </div>
             
             <div>
@@ -68,10 +81,11 @@ const FindReplaceDialog: React.FC<FindReplaceDialogProps> = ({
                 value={replaceText}
                 onChange={(e) => setReplaceText(e.target.value)}
                 className="bg-black/30 border-white/20 text-white"
+                onKeyDown={(e) => handleKeyDown(e, () => handleReplace(false))}
               />
             </div>
             
-            <div className="flex gap-2 text-sm">
+            <div className="flex gap-2 text-sm flex-wrap">
               <label className="flex items-center gap-1 cursor-pointer">
                 <input
                   type="checkbox"
@@ -90,22 +104,32 @@ const FindReplaceDialog: React.FC<FindReplaceDialogProps> = ({
                 />
                 Whole word
               </label>
+              <label className="flex items-center gap-1 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={useRegex}
+                  onChange={(e) => setUseRegex(e.target.checked)}
+                  className="w-3 h-3"
+                />
+                Regex
+              </label>
             </div>
             
-            <div className="flex gap-2">
+            <div className="flex gap-2 flex-wrap">
               <Button
                 onClick={handleFind}
                 size="sm"
                 className="bg-blue-600 hover:bg-blue-700"
               >
                 <Search className="h-3 w-3 mr-1" />
-                Find
+                Find Next
               </Button>
               <Button
                 onClick={() => handleReplace(false)}
                 size="sm"
                 variant="outline"
                 className="border-white/20 text-white hover:bg-white/10"
+                disabled={!findText.trim()}
               >
                 <Replace className="h-3 w-3 mr-1" />
                 Replace
@@ -115,10 +139,20 @@ const FindReplaceDialog: React.FC<FindReplaceDialogProps> = ({
                 size="sm"
                 variant="outline"
                 className="border-white/20 text-white hover:bg-white/10"
+                disabled={!findText.trim()}
               >
                 Replace All
               </Button>
             </div>
+
+            {useRegex && (
+              <div className="text-xs text-slate-400 bg-black/20 p-2 rounded">
+                <p><strong>Regex Examples:</strong></p>
+                <p>• <code>\d+</code> - matches numbers</p>
+                <p>• <code>\w+@\w+\.\w+</code> - matches emails</p>
+                <p>• <code>^#.+</code> - matches headings</p>
+              </div>
+            )}
           </div>
         </div>
       </DialogContent>
