@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useCallback } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { 
@@ -9,6 +8,7 @@ import {
   initializeSupabaseSchema
 } from '@/utils/supabaseStorage';
 import { v4 as uuidv4 } from 'uuid';
+import { decryptContent } from '@/utils/encryptionUtils';
 
 export function useSupabaseNotes() {
   const { toast } = useToast();
@@ -45,16 +45,25 @@ export function useSupabaseNotes() {
     initialize();
   }, [toast]);
 
-  // Load content from Supabase with fallback to local storage
+  // Load content from Supabase with proper decryption handling
   useEffect(() => {
     const loadSavedNotes = async () => {
       setIsLoading(true);
       try {
-        // First check if there's a last edited note ID in localStorage
         const lastEditedId = localStorage.getItem('onlinenote-last-edited-id');
         const currentContent = localStorage.getItem('onlinenote-content');
         
-        // Try to get notes from Supabase if it's ready
+        // Decrypt local content if it's encrypted
+        let decryptedLocalContent = currentContent;
+        if (currentContent) {
+          try {
+            decryptedLocalContent = await decryptContent(currentContent);
+          } catch (decryptError) {
+            console.log('Local content is not encrypted or decryption failed, using as-is');
+            decryptedLocalContent = currentContent;
+          }
+        }
+        
         let supabaseNotes: Record<string, string> = {};
         if (isSupabaseReady) {
           supabaseNotes = await getAllNotesFromSupabase();
@@ -64,55 +73,48 @@ export function useSupabaseNotes() {
         const noteIds = Object.keys(supabaseNotes);
         
         if (noteIds.length > 0) {
-          // If we have saved notes, prioritize the last edited one
           if (lastEditedId && supabaseNotes[lastEditedId]) {
             setContent(supabaseNotes[lastEditedId]);
             setCurrentNoteId(lastEditedId);
           } else {
-            // Otherwise use the most recent note (first in the array since they're sorted by updated_at DESC)
             const mostRecentId = noteIds[0];
             setContent(supabaseNotes[mostRecentId]);
             setCurrentNoteId(mostRecentId);
-            // Update the last edited ID
             localStorage.setItem('onlinenote-last-edited-id', mostRecentId);
           }
-        } else if (currentContent) {
-          // If no saved notes but we have content in localStorage, use that
-          setContent(currentContent);
+        } else if (decryptedLocalContent) {
+          setContent(decryptedLocalContent);
         } else {
-          // Start with an empty editor
           setContent('');
         }
       } catch (error) {
         console.error('Error loading saved notes:', error);
-        // Start with an empty editor even on errors
         setContent('');
       } finally {
         setIsLoading(false);
       }
     };
     
-    if (isSupabaseReady) {
+    if (isSupabaseReady !== null) {
       loadSavedNotes();
     }
   }, [isSupabaseReady]);
   
-  // Handle auto-saving to localStorage
+  // Handle auto-saving to localStorage with encryption
   useEffect(() => {
     if (!content) return;
     
     const saveInterval = setInterval(() => {
       localStorage.setItem('onlinenote-content', content);
       setLastSaved(new Date());
-    }, 5000); // Auto-save to localStorage every 5 seconds
+    }, 5000);
 
     return () => clearInterval(saveInterval);
   }, [content]);
 
-  // Execute commands on the editor (same as in useNoteContent)
+  // Execute commands on the editor
   const execCommand = useCallback((command: string, value: string | null = null) => {
     try {
-      // Special handling for different commands with textarea
       const activeElement = document.activeElement as HTMLTextAreaElement;
       const isTextarea = activeElement && activeElement.tagName === 'TEXTAREA';
 
@@ -126,7 +128,6 @@ export function useSupabaseNotes() {
         let newText = '';
         let newCursorPos = start;
 
-        // Handle markdown formatting commands
         switch(command) {
           case 'bold':
             newText = beforeSelection + `**${selectedText}**` + afterSelection;
@@ -137,32 +138,25 @@ export function useSupabaseNotes() {
             newCursorPos = start + 1 + selectedText.length + 1;
             break;
           case 'underline':
-            // No direct markdown for underline, using HTML
             newText = beforeSelection + `<u>${selectedText}</u>` + afterSelection;
             newCursorPos = start + 3 + selectedText.length + 4;
             break;
           case 'justifyLeft':
           case 'justifyCenter':
           case 'justifyRight':
-            // For alignment, we can't really do this in markdown easily
             newText = activeElement.value;
             newCursorPos = end;
             break;
           case 'undo':
           case 'redo':
-            // Let the browser handle these
             document.execCommand(command, false, value);
             return;
           default:
-            // For other commands, maintain the text
             newText = activeElement.value;
             newCursorPos = end;
         }
 
-        // Update the content
         setContent(newText);
-        
-        // Set the cursor position after formatting
         setTimeout(() => {
           if (activeElement) {
             activeElement.focus();
@@ -170,7 +164,6 @@ export function useSupabaseNotes() {
           }
         }, 0);
       } else {
-        // Fallback to document.execCommand for contentEditable elements
         document.execCommand(command, false, value);
       }
     } catch (error) {
@@ -178,34 +171,27 @@ export function useSupabaseNotes() {
     }
   }, [setContent]);
   
-  // Handle manual save with persistence to Supabase
+  // Handle manual save with Supabase integration
   const handleSave = useCallback(async () => {
     try {
-      // Always save to localStorage as a backup
       localStorage.setItem('onlinenote-content', content);
       
-      // Generate a new note ID or use the current one
       const noteId = currentNoteId || uuidv4();
       
       let result: { success: boolean, error?: string } = { success: true, error: undefined };
       
-      // If Supabase is ready, save there
       if (isSupabaseReady) {
-        result = await saveNoteToSupabase(noteId, content);
+        result = await saveNoteToSupabase(noteId, content, true); // Enable encryption
       }
       
-      // Update the current note ID and last saved timestamp
       setCurrentNoteId(noteId);
       setLastSaved(new Date());
-      
-      // Store the last edited ID for future loads
       localStorage.setItem('onlinenote-last-edited-id', noteId);
       
       if (!result.success && result.error) {
         throw new Error(result.error);
       }
       
-      // Refresh the notes list
       if (isSupabaseReady) {
         const updatedNotes = await getAllNotesFromSupabase();
         setAllNotes(updatedNotes);
@@ -230,16 +216,13 @@ export function useSupabaseNotes() {
   // Handle sharing a note
   const handleShareNote = useCallback(async () => {
     try {
-      // Make sure the note is saved first
       await handleSave();
       
       let shareResult;
       
       if (isSupabaseReady) {
-        // Use Supabase for sharing
         shareResult = await shareNoteViaSupabase(content, 'link');
       } else {
-        // Use local device download as fallback
         shareResult = await shareNoteViaSupabase(content, 'device');
       }
       
@@ -298,13 +281,10 @@ export function useSupabaseNotes() {
         }
       }
       
-      // Remove from local storage if it's the current note
       if (currentNoteId === noteId) {
         localStorage.removeItem('onlinenote-last-edited-id');
-        // Don't clear content if it's the active note - user might want to save it with a new ID
       }
       
-      // Refresh notes list
       if (isSupabaseReady) {
         const updatedNotes = await getAllNotesFromSupabase();
         setAllNotes(updatedNotes);
@@ -351,10 +331,8 @@ export function useSupabaseNotes() {
       const mergedNotes = { ...allNotes };
       let importCount = 0;
       
-      // Merge imported notes with existing ones
       for (const [noteId, noteContent] of Object.entries(importedNotes)) {
         if (noteContent && typeof noteContent === 'string') {
-          // Generate new ID if there's a conflict
           let finalNoteId = noteId;
           if (mergedNotes[noteId]) {
             finalNoteId = `${noteId}-imported-${Date.now()}`;
@@ -362,16 +340,14 @@ export function useSupabaseNotes() {
           
           mergedNotes[finalNoteId] = noteContent;
           
-          // Save to Supabase if available
           if (isSupabaseReady) {
-            await saveNoteToSupabase(finalNoteId, noteContent);
+            await saveNoteToSupabase(finalNoteId, noteContent, true); // Enable encryption
           }
           
           importCount++;
         }
       }
       
-      // Update local state
       setAllNotes(mergedNotes);
       
       toast({

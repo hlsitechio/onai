@@ -1,3 +1,4 @@
+
 import { StorageOperationResult } from './notesStorage';
 import { supabase } from '@/integrations/supabase/client';
 import { encryptContent, decryptContent } from './encryptionUtils';
@@ -45,7 +46,7 @@ export const initializeSupabaseSchema = async (): Promise<StorageOperationResult
 };
 
 /**
- * Save a note to Supabase
+ * Save a note to Supabase with proper encryption handling
  */
 export const saveNoteToSupabase = async (
   noteId: string, 
@@ -59,8 +60,23 @@ export const saveNoteToSupabase = async (
       .substring(0, 50)
       .trim() || 'Untitled Note';
     
-    // Prepare the content (encrypt if needed)
-    const finalContent = isEncrypted ? await encryptContent(content) : content;
+    // Prepare the content (encrypt if needed and content is substantial)
+    let finalContent = content;
+    let actuallyEncrypted = false;
+    
+    if (isEncrypted && content.trim() && content.length >= 10) {
+      try {
+        finalContent = await encryptContent(content);
+        actuallyEncrypted = true;
+      } catch (encryptError) {
+        console.error('Encryption failed, saving as plain text:', encryptError);
+        finalContent = content;
+        actuallyEncrypted = false;
+      }
+    } else {
+      finalContent = content;
+      actuallyEncrypted = false;
+    }
     
     // Check if the note already exists
     const { data: existingNote, error: checkError } = await supabase
@@ -72,46 +88,28 @@ export const saveNoteToSupabase = async (
     // Insert or update based on existence
     let result;
     if (existingNote) {
-      // Update existing note with required fields
-      const updateNote: {
-        id: string;
-        title: string;
-        content: string;
-        updated_at: string;
-        is_encrypted: boolean;
-      } = {
-        id: noteId,
-        title,
-        content: finalContent,
-        updated_at: new Date().toISOString(),
-        is_encrypted: isEncrypted
-      };
-      
+      // Update existing note
       result = await supabase
         .from('notes')
-        .update(updateNote)
+        .update({
+          title,
+          content: finalContent,
+          updated_at: new Date().toISOString(),
+          is_encrypted: actuallyEncrypted
+        })
         .eq('id', noteId);
     } else {
-      // Create new note with all required fields
-      const newNote: {
-        id: string;
-        title: string;
-        content: string;
-        created_at: string;
-        updated_at: string;
-        is_encrypted: boolean;
-      } = {
-        id: noteId,
-        title,
-        content: finalContent,
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
-        is_encrypted: isEncrypted
-      };
-      
+      // Create new note
       result = await supabase
         .from('notes')
-        .insert(newNote);
+        .insert({
+          id: noteId,
+          title,
+          content: finalContent,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+          is_encrypted: actuallyEncrypted
+        });
     }
     
     if (result.error) {
@@ -129,7 +127,7 @@ export const saveNoteToSupabase = async (
 };
 
 /**
- * Get all notes from Supabase
+ * Get all notes from Supabase with proper decryption
  */
 export const getAllNotesFromSupabase = async (): Promise<Record<string, string>> => {
   try {
@@ -151,21 +149,27 @@ export const getAllNotesFromSupabase = async (): Promise<Record<string, string>>
     
     for (const note of data) {
       try {
-        const content = note.is_encrypted 
-          ? await decryptContent(note.content)
-          : note.content;
+        let content = note.content;
         
-        notesMap[note.id] = content;
+        // Handle decryption based on the is_encrypted flag and content format
+        if (note.is_encrypted || content.startsWith('ENC:')) {
+          content = await decryptContent(content);
+        }
+        
+        // Only include notes with valid content
+        if (content && typeof content === 'string') {
+          notesMap[note.id] = content;
+        }
       } catch (decryptError) {
         console.error(`Error decrypting note ${note.id}:`, decryptError);
-        // Skip this note if decryption fails
+        // Include the note with a warning instead of skipping
+        notesMap[note.id] = `[Error: Could not decrypt note - ${decryptError.message}]`;
       }
     }
     
     return notesMap;
   } catch (error) {
     console.error("Error getting notes from Supabase:", error);
-    // Return empty object on error
     return {};
   }
 };
@@ -234,12 +238,11 @@ export const shareNoteViaSupabase = async (
     if (service === 'device') {
       return {
         success: true,
-        shareUrl: '' // This will be ignored as the download happens directly
+        shareUrl: ''
       };
     }
     
     // For cloud services, we'd implement OAuth flows
-    // This is a placeholder for future implementation
     return {
       success: false,
       error: `Sharing to ${service} is not yet implemented`
