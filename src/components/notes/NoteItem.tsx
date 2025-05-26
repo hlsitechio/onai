@@ -1,4 +1,3 @@
-
 import React, { useState, useRef, useEffect } from 'react';
 import { ArrowRight, Trash2, Check, X, FileEdit, Tag } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -16,6 +15,7 @@ interface NoteItemProps {
   onRenameNote: (oldNoteId: string, newNoteId: string) => Promise<boolean>;
   formatNoteId: (id: string) => string;
   displayName?: string;
+  className?: string;
 }
 
 const NoteItem: React.FC<NoteItemProps> = ({
@@ -27,7 +27,8 @@ const NoteItem: React.FC<NoteItemProps> = ({
   onOpenShare,
   onRenameNote,
   formatNoteId,
-  displayName
+  displayName,
+  className = ''
 }) => {
   const [isRenaming, setIsRenaming] = useState(false);
   const [newName, setNewName] = useState('');
@@ -115,7 +116,7 @@ const NoteItem: React.FC<NoteItemProps> = ({
     <div 
       className={`p-3 rounded-md flex flex-col cursor-pointer transition-all duration-200 ${
         isActive ? 'bg-noteflow-500/20 border border-noteflow-500/30' : 'hover:bg-white/5 border border-transparent'
-      }`}
+      } ${className}`}
       onClick={() => !isRenaming && onLoadNote(noteId)}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
