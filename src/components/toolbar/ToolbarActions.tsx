@@ -35,140 +35,277 @@ const ToolbarActions: React.FC<ToolbarActionsProps> = ({
   execCommand,
   isFocusMode
 }) => {
+  // Text formatting functions for textarea
+  const wrapSelectedText = (prefix: string, suffix: string = prefix) => {
+    const activeElement = document.activeElement as HTMLTextAreaElement;
+    if (!activeElement || activeElement.tagName !== 'TEXTAREA') return;
+
+    const start = activeElement.selectionStart;
+    const end = activeElement.selectionEnd;
+    const selectedText = activeElement.value.substring(start, end);
+    const beforeText = activeElement.value.substring(0, start);
+    const afterText = activeElement.value.substring(end);
+    
+    const newText = beforeText + prefix + selectedText + suffix + afterText;
+    activeElement.value = newText;
+    
+    // Trigger change event
+    const event = new Event('input', { bubbles: true });
+    activeElement.dispatchEvent(event);
+    
+    // Set cursor position
+    const newCursorPos = start + prefix.length + selectedText.length + suffix.length;
+    activeElement.setSelectionRange(newCursorPos, newCursorPos);
+    activeElement.focus();
+  };
+
+  const insertText = (text: string) => {
+    const activeElement = document.activeElement as HTMLTextAreaElement;
+    if (!activeElement || activeElement.tagName !== 'TEXTAREA') return;
+
+    const start = activeElement.selectionStart;
+    const end = activeElement.selectionEnd;
+    const beforeText = activeElement.value.substring(0, start);
+    const afterText = activeElement.value.substring(end);
+    
+    const newText = beforeText + text + afterText;
+    activeElement.value = newText;
+    
+    // Trigger change event
+    const event = new Event('input', { bubbles: true });
+    activeElement.dispatchEvent(event);
+    
+    // Set cursor position
+    const newCursorPos = start + text.length;
+    activeElement.setSelectionRange(newCursorPos, newCursorPos);
+    activeElement.focus();
+  };
+
+  const handleBold = () => wrapSelectedText('**');
+  const handleItalic = () => wrapSelectedText('*');
+  const handleUnderline = () => wrapSelectedText('<u>', '</u>');
+  const handleStrikethrough = () => wrapSelectedText('~~');
+
   const handleHeading = (level: number) => {
-    execCommand('formatBlock', `h${level}`);
+    const prefix = '#'.repeat(level) + ' ';
+    const activeElement = document.activeElement as HTMLTextAreaElement;
+    if (!activeElement || activeElement.tagName !== 'TEXTAREA') return;
+
+    const start = activeElement.selectionStart;
+    const lines = activeElement.value.split('\n');
+    let currentLine = 0;
+    let charCount = 0;
+    
+    // Find which line the cursor is on
+    for (let i = 0; i < lines.length; i++) {
+      if (charCount + lines[i].length >= start) {
+        currentLine = i;
+        break;
+      }
+      charCount += lines[i].length + 1; // +1 for newline
+    }
+    
+    // Add heading prefix to current line
+    lines[currentLine] = prefix + lines[currentLine];
+    activeElement.value = lines.join('\n');
+    
+    // Trigger change event
+    const event = new Event('input', { bubbles: true });
+    activeElement.dispatchEvent(event);
+    
+    activeElement.focus();
   };
 
   const handleInsertList = (ordered: boolean = false) => {
-    execCommand(ordered ? 'insertOrderedList' : 'insertUnorderedList');
+    const activeElement = document.activeElement as HTMLTextAreaElement;
+    if (!activeElement || activeElement.tagName !== 'TEXTAREA') return;
+
+    const start = activeElement.selectionStart;
+    const selectedText = activeElement.value.substring(activeElement.selectionStart, activeElement.selectionEnd);
+    
+    if (selectedText) {
+      // Convert selected text to list
+      const lines = selectedText.split('\n');
+      const listItems = lines.map((line, index) => {
+        const prefix = ordered ? `${index + 1}. ` : '- ';
+        return prefix + line;
+      }).join('\n');
+      
+      const beforeText = activeElement.value.substring(0, activeElement.selectionStart);
+      const afterText = activeElement.value.substring(activeElement.selectionEnd);
+      activeElement.value = beforeText + listItems + afterText;
+    } else {
+      // Insert single list item
+      const prefix = ordered ? '1. ' : '- ';
+      insertText(prefix);
+    }
+    
+    // Trigger change event
+    const event = new Event('input', { bubbles: true });
+    activeElement.dispatchEvent(event);
+    
+    activeElement.focus();
   };
 
   const handleInsertLink = () => {
     const url = prompt('Enter URL:');
     if (url) {
-      execCommand('createLink', url);
+      const linkText = prompt('Enter link text:') || url;
+      insertText(`[${linkText}](${url})`);
     }
   };
 
   const handleBlockquote = () => {
-    execCommand('formatBlock', 'blockquote');
+    const activeElement = document.activeElement as HTMLTextAreaElement;
+    if (!activeElement || activeElement.tagName !== 'TEXTAREA') return;
+
+    const start = activeElement.selectionStart;
+    const lines = activeElement.value.split('\n');
+    let currentLine = 0;
+    let charCount = 0;
+    
+    // Find which line the cursor is on
+    for (let i = 0; i < lines.length; i++) {
+      if (charCount + lines[i].length >= start) {
+        currentLine = i;
+        break;
+      }
+      charCount += lines[i].length + 1;
+    }
+    
+    // Add blockquote prefix
+    lines[currentLine] = '> ' + lines[currentLine];
+    activeElement.value = lines.join('\n');
+    
+    // Trigger change event
+    const event = new Event('input', { bubbles: true });
+    activeElement.dispatchEvent(event);
+    
+    activeElement.focus();
   };
 
-  const handleCode = () => {
-    execCommand('formatBlock', 'pre');
-  };
+  const handleCode = () => wrapSelectedText('`');
 
   const handleInsertImage = () => {
     const url = prompt('Enter image URL:');
     if (url) {
-      execCommand('insertImage', url);
+      const altText = prompt('Enter alt text:') || 'Image';
+      insertText(`![${altText}](${url})`);
     }
   };
 
-  // Find & Replace functionality
+  // Find & Replace functionality for textarea
   const handleFind = (text: string, options: { caseSensitive: boolean; wholeWord: boolean }) => {
     if (!text.trim()) return;
     
-    try {
-      // Use the Selection API for finding text
-      const selection = window.getSelection();
-      if (selection) {
-        // Clear any existing selection
-        selection.removeAllRanges();
-        
-        // Use document.body to search through the content
-        const walker = document.createTreeWalker(
-          document.body,
-          NodeFilter.SHOW_TEXT,
-          null
-        );
-        
-        let node;
-        while (node = walker.nextNode()) {
-          const textContent = node.textContent || '';
-          let searchText = options.caseSensitive ? textContent : textContent.toLowerCase();
-          let findText = options.caseSensitive ? text : text.toLowerCase();
-          
-          if (options.wholeWord) {
-            const regex = new RegExp(`\\b${findText}\\b`, options.caseSensitive ? 'g' : 'gi');
-            if (regex.test(searchText)) {
-              const range = document.createRange();
-              const match = regex.exec(textContent);
-              if (match) {
-                range.setStart(node, match.index);
-                range.setEnd(node, match.index + match[0].length);
-                selection.addRange(range);
-                return;
-              }
-            }
-          } else {
-            const index = searchText.indexOf(findText);
-            if (index !== -1) {
-              const range = document.createRange();
-              range.setStart(node, index);
-              range.setEnd(node, index + text.length);
-              selection.addRange(range);
-              return;
-            }
-          }
-        }
+    const activeElement = document.activeElement as HTMLTextAreaElement;
+    if (!activeElement || activeElement.tagName !== 'TEXTAREA') return;
+    
+    const content = activeElement.value;
+    let searchText = options.caseSensitive ? content : content.toLowerCase();
+    let findText = options.caseSensitive ? text : text.toLowerCase();
+    
+    if (options.wholeWord) {
+      const regex = new RegExp(`\\b${findText.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`, options.caseSensitive ? 'g' : 'gi');
+      const match = regex.exec(content);
+      if (match) {
+        activeElement.setSelectionRange(match.index, match.index + match[0].length);
+        activeElement.focus();
       }
-    } catch (error) {
-      console.log('Find operation completed');
+    } else {
+      const index = searchText.indexOf(findText);
+      if (index !== -1) {
+        activeElement.setSelectionRange(index, index + text.length);
+        activeElement.focus();
+      }
     }
   };
 
   const handleReplace = (findText: string, replaceText: string, replaceAll: boolean) => {
-    const selection = window.getSelection();
-    if (selection && selection.toString() === findText) {
-      execCommand('insertText', replaceText);
-    }
+    const activeElement = document.activeElement as HTMLTextAreaElement;
+    if (!activeElement || activeElement.tagName !== 'TEXTAREA') return;
     
     if (replaceAll) {
-      // For replace all, we'd need a more sophisticated implementation
-      console.log('Replace all functionality would be implemented here');
+      const newContent = activeElement.value.replace(new RegExp(findText.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g'), replaceText);
+      activeElement.value = newContent;
+      
+      // Trigger change event
+      const event = new Event('input', { bubbles: true });
+      activeElement.dispatchEvent(event);
+    } else {
+      const selectedText = activeElement.value.substring(activeElement.selectionStart, activeElement.selectionEnd);
+      if (selectedText === findText) {
+        const start = activeElement.selectionStart;
+        const beforeText = activeElement.value.substring(0, start);
+        const afterText = activeElement.value.substring(activeElement.selectionEnd);
+        
+        activeElement.value = beforeText + replaceText + afterText;
+        
+        // Trigger change event
+        const event = new Event('input', { bubbles: true });
+        activeElement.dispatchEvent(event);
+        
+        activeElement.setSelectionRange(start + replaceText.length, start + replaceText.length);
+      }
     }
+    
+    activeElement.focus();
   };
 
-  // Font controls
+  // Font controls - these will apply to the whole textarea
   const handleFontFamilyChange = (fontFamily: string) => {
-    execCommand('fontName', fontFamily);
+    const activeElement = document.activeElement as HTMLTextAreaElement;
+    if (activeElement && activeElement.tagName === 'TEXTAREA') {
+      activeElement.style.fontFamily = fontFamily;
+    }
   };
 
   const handleFontSizeChange = (action: 'increase' | 'decrease' | 'set', size?: number) => {
+    const activeElement = document.activeElement as HTMLTextAreaElement;
+    if (!activeElement || activeElement.tagName !== 'TEXTAREA') return;
+    
+    const currentSize = parseFloat(window.getComputedStyle(activeElement).fontSize);
+    
     if (action === 'increase') {
-      execCommand('increaseFontSize', null);
+      activeElement.style.fontSize = `${currentSize + 2}px`;
     } else if (action === 'decrease') {
-      execCommand('decreaseFontSize', null);
+      activeElement.style.fontSize = `${Math.max(currentSize - 2, 10)}px`;
     } else if (action === 'set' && size) {
-      execCommand('fontSize', size.toString());
+      activeElement.style.fontSize = `${size}px`;
     }
   };
 
-  // Color controls
+  // Color controls - apply to textarea
   const handleColorChange = (color: string, type: 'text' | 'background') => {
-    if (type === 'text') {
-      execCommand('foreColor', color);
-    } else {
-      execCommand('backColor', color);
+    const activeElement = document.activeElement as HTMLTextAreaElement;
+    if (activeElement && activeElement.tagName === 'TEXTAREA') {
+      if (type === 'text') {
+        activeElement.style.color = color;
+      } else {
+        activeElement.style.backgroundColor = color;
+      }
     }
   };
 
   // Table insertion
   const handleInsertTable = (rows: number, cols: number, hasHeader: boolean) => {
-    let tableHTML = '<table border="1" style="border-collapse: collapse; width: 100%;">';
+    let tableMarkdown = '';
     
-    for (let r = 0; r < rows; r++) {
-      tableHTML += '<tr>';
-      for (let c = 0; c < cols; c++) {
-        const tag = hasHeader && r === 0 ? 'th' : 'td';
-        tableHTML += `<${tag} style="border: 1px solid #ccc; padding: 8px;">${hasHeader && r === 0 ? `Header ${c + 1}` : ''}</${tag}>`;
-      }
-      tableHTML += '</tr>';
+    // Create header row if requested
+    if (hasHeader) {
+      const headerCells = Array(cols).fill('Header').map((text, i) => `${text} ${i + 1}`);
+      tableMarkdown += '| ' + headerCells.join(' | ') + ' |\n';
+      tableMarkdown += '| ' + Array(cols).fill('---').join(' | ') + ' |\n';
+      rows--; // Reduce rows since header counts as one
     }
-    tableHTML += '</table>';
     
-    execCommand('insertHTML', tableHTML);
+    // Create data rows
+    for (let r = 0; r < rows; r++) {
+      const rowCells = Array(cols).fill('Cell');
+      tableMarkdown += '| ' + rowCells.join(' | ') + ' |\n';
+    }
+    
+    insertText(tableMarkdown);
   };
 
   return (
@@ -196,7 +333,7 @@ const ToolbarActions: React.FC<ToolbarActionsProps> = ({
         <Button
           variant="ghost"
           size="sm"
-          onClick={() => execCommand('bold', null)}
+          onClick={handleBold}
           className="text-slate-300 hover:text-white hover:bg-white/10 p-1.5 md:p-2"
           title="Bold (Ctrl+B)"
         >
@@ -206,7 +343,7 @@ const ToolbarActions: React.FC<ToolbarActionsProps> = ({
         <Button
           variant="ghost"
           size="sm"
-          onClick={() => execCommand('italic', null)}
+          onClick={handleItalic}
           className="text-slate-300 hover:text-white hover:bg-white/10 p-1.5 md:p-2"
           title="Italic (Ctrl+I)"
         >
@@ -216,7 +353,7 @@ const ToolbarActions: React.FC<ToolbarActionsProps> = ({
         <Button
           variant="ghost"
           size="sm"
-          onClick={() => execCommand('underline', null)}
+          onClick={handleUnderline}
           className="text-slate-300 hover:text-white hover:bg-white/10 p-1.5 md:p-2"
           title="Underline (Ctrl+U)"
         >
@@ -226,7 +363,7 @@ const ToolbarActions: React.FC<ToolbarActionsProps> = ({
         <Button
           variant="ghost"
           size="sm"
-          onClick={() => execCommand('strikeThrough', null)}
+          onClick={handleStrikethrough}
           className="text-slate-300 hover:text-white hover:bg-white/10 p-1.5 md:p-2"
           title="Strikethrough"
         >
@@ -334,16 +471,16 @@ const ToolbarActions: React.FC<ToolbarActionsProps> = ({
         <TableInsertDialog onInsertTable={handleInsertTable} />
       </div>
 
-      {/* Alignment buttons - hidden on mobile and small tablets */}
+      {/* Alignment buttons - Note: These don't work with textarea, so we'll hide them */}
       <div className="hidden xl:flex items-center gap-1">
         <Separator orientation="vertical" className="h-6 bg-white/10" />
 
         <Button
           variant="ghost"
           size="sm"
-          onClick={() => execCommand('justifyLeft', null)}
-          className="text-slate-300 hover:text-white hover:bg-white/10 p-1.5 md:p-2"
-          title="Align Left"
+          onClick={() => {}} // Disabled for textarea
+          className="text-slate-300 hover:text-white hover:bg-white/10 p-1.5 md:p-2 opacity-50 cursor-not-allowed"
+          title="Text alignment not available in plain text mode"
         >
           <AlignLeft className="h-4 w-4" />
         </Button>
@@ -351,9 +488,9 @@ const ToolbarActions: React.FC<ToolbarActionsProps> = ({
         <Button
           variant="ghost"
           size="sm"
-          onClick={() => execCommand('justifyCenter', null)}
-          className="text-slate-300 hover:text-white hover:bg-white/10 p-1.5 md:p-2"
-          title="Align Center"
+          onClick={() => {}} // Disabled for textarea
+          className="text-slate-300 hover:text-white hover:bg-white/10 p-1.5 md:p-2 opacity-50 cursor-not-allowed"
+          title="Text alignment not available in plain text mode"
         >
           <AlignCenter className="h-4 w-4" />
         </Button>
@@ -361,9 +498,9 @@ const ToolbarActions: React.FC<ToolbarActionsProps> = ({
         <Button
           variant="ghost"
           size="sm"
-          onClick={() => execCommand('justifyRight', null)}
-          className="text-slate-300 hover:text-white hover:bg-white/10 p-1.5 md:p-2"
-          title="Align Right"
+          onClick={() => {}} // Disabled for textarea
+          className="text-slate-300 hover:text-white hover:bg-white/10 p-1.5 md:p-2 opacity-50 cursor-not-allowed"
+          title="Text alignment not available in plain text mode"
         >
           <AlignRight className="h-4 w-4" />
         </Button>
@@ -373,9 +510,9 @@ const ToolbarActions: React.FC<ToolbarActionsProps> = ({
         <Button
           variant="ghost"
           size="sm"
-          onClick={() => execCommand('undo', null)}
-          className="text-slate-300 hover:text-white hover:bg-white/10 p-1.5 md:p-2"
-          title="Undo (Ctrl+Z)"
+          onClick={() => {}} // Disabled for textarea
+          className="text-slate-300 hover:text-white hover:bg-white/10 p-1.5 md:p-2 opacity-50 cursor-not-allowed"
+          title="Undo not available in plain text mode"
         >
           <Undo className="h-4 w-4" />
         </Button>
@@ -383,9 +520,9 @@ const ToolbarActions: React.FC<ToolbarActionsProps> = ({
         <Button
           variant="ghost"
           size="sm"
-          onClick={() => execCommand('redo', null)}
-          className="text-slate-300 hover:text-white hover:bg-white/10 p-1.5 md:p-2"
-          title="Redo (Ctrl+Y)"
+          onClick={() => {}} // Disabled for textarea
+          className="text-slate-300 hover:text-white hover:bg-white/10 p-1.5 md:p-2 opacity-50 cursor-not-allowed"
+          title="Redo not available in plain text mode"
         >
           <Redo className="h-4 w-4" />
         </Button>
