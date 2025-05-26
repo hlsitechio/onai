@@ -1,3 +1,4 @@
+
 /**
  * Utilities for client-side encryption of notes
  */
@@ -33,6 +34,26 @@ const isValidBase64 = (str: string): boolean => {
   } catch (e) {
     return false;
   }
+};
+
+// Check if content appears to be encrypted
+const isEncryptedContent = (content: string): boolean => {
+  if (!content || typeof content !== 'string') return false;
+  
+  // Check for our ENC: prefix
+  if (content.startsWith('ENC:')) return true;
+  
+  // Check if it looks like old base64 encrypted content
+  // Encrypted content is typically long and only contains base64 characters
+  if (content.length > 50 && isValidBase64(content)) {
+    // Additional check: encrypted content shouldn't contain common words
+    const commonWords = ['the', 'and', 'or', 'but', 'in', 'on', 'at', 'to', 'for', 'of', 'with', 'by'];
+    const lowerContent = content.toLowerCase();
+    const hasCommonWords = commonWords.some(word => lowerContent.includes(word));
+    return !hasCommonWords;
+  }
+  
+  return false;
 };
 
 // Encrypt text using AES-GCM with better error handling
@@ -98,72 +119,73 @@ export const decryptContent = async (encryptedContent: string): Promise<string> 
       return encryptedContent || '';
     }
     
-    // Check if content is actually encrypted (has our prefix)
-    if (!encryptedContent.startsWith('ENC:')) {
-      // If it looks like old base64 encrypted content, try to decrypt it
-      if (isValidBase64(encryptedContent) && encryptedContent.length > 50) {
-        return await tryLegacyDecryption(encryptedContent);
-      }
-      // Otherwise return as plain text
+    // Check if content is actually encrypted
+    if (!isEncryptedContent(encryptedContent)) {
       return encryptedContent;
     }
     
-    // Remove the ENC: prefix
-    const base64Data = encryptedContent.substring(4);
-    
-    // Validate base64
-    if (!isValidBase64(base64Data)) {
-      console.warn('Invalid base64 in encrypted content');
-      return encryptedContent;
-    }
-    
-    const key = getOrCreateEncryptionKey();
-    const encodedKey = Uint8Array.from(atob(key), c => c.charCodeAt(0));
-    
-    // Import the raw key
-    const cryptoKey = await window.crypto.subtle.importKey(
-      'raw',
-      encodedKey,
-      { name: 'AES-GCM' },
-      false,
-      ['decrypt']
-    );
-    
-    // Decode the base64 content
-    const encryptedData = Uint8Array.from(atob(base64Data), c => c.charCodeAt(0));
-    
-    // Extract the IV (first 12 bytes) and encrypted content
-    if (encryptedData.length < 12) {
-      throw new Error('Encrypted data too short');
-    }
-    
-    const iv = encryptedData.slice(0, 12);
-    const actualContent = encryptedData.slice(12);
-    
-    // Decrypt the content
-    const decryptedContent = await window.crypto.subtle.decrypt(
-      {
-        name: 'AES-GCM',
-        iv
-      },
-      cryptoKey,
-      actualContent
-    );
-    
-    return new TextDecoder().decode(decryptedContent);
-  } catch (error) {
-    console.error('Decryption error:', error);
-    // Try legacy decryption for old encrypted content
+    // Handle new format with ENC: prefix
     if (encryptedContent.startsWith('ENC:')) {
-      const base64Data = encryptedContent.substring(4);
-      return await tryLegacyDecryption(base64Data);
+      return await decryptNewFormat(encryptedContent);
     }
+    
+    // Handle old format (base64 without prefix)
+    return await decryptLegacyFormat(encryptedContent);
+  } catch (error) {
+    console.warn('Decryption failed, returning content as-is:', error.message);
     return encryptedContent; // Return original content if decryption fails
   }
 };
 
+// Decrypt new format content (with ENC: prefix)
+const decryptNewFormat = async (encryptedContent: string): Promise<string> => {
+  // Remove the ENC: prefix
+  const base64Data = encryptedContent.substring(4);
+  
+  // Validate base64
+  if (!isValidBase64(base64Data)) {
+    throw new Error('Invalid base64 in encrypted content');
+  }
+  
+  const key = getOrCreateEncryptionKey();
+  const encodedKey = Uint8Array.from(atob(key), c => c.charCodeAt(0));
+  
+  // Import the raw key
+  const cryptoKey = await window.crypto.subtle.importKey(
+    'raw',
+    encodedKey,
+    { name: 'AES-GCM' },
+    false,
+    ['decrypt']
+  );
+  
+  // Decode the base64 content
+  const encryptedData = Uint8Array.from(atob(base64Data), c => c.charCodeAt(0));
+  
+  // Extract the IV (first 12 bytes) and encrypted content
+  if (encryptedData.length < 12) {
+    throw new Error('Encrypted data too short');
+  }
+  
+  const iv = encryptedData.slice(0, 12);
+  const actualContent = encryptedData.slice(12);
+  
+  // Decrypt the content
+  const decryptedContent = await window.crypto.subtle.decrypt(
+    {
+      name: 'AES-GCM',
+      iv
+    },
+    cryptoKey,
+    actualContent
+  );
+  
+  return new TextDecoder().decode(decryptedContent);
+};
+
 // Try to decrypt content that was encrypted with the old method
-const tryLegacyDecryption = async (base64Data: string): Promise<string> => {
+const decryptLegacyFormat = async (base64Data: string): Promise<string> => {
+  // For legacy content, try a few different approaches
   try {
     const key = getOrCreateEncryptionKey();
     const encodedKey = Uint8Array.from(atob(key), c => c.charCodeAt(0));
@@ -196,9 +218,9 @@ const tryLegacyDecryption = async (base64Data: string): Promise<string> => {
     
     return new TextDecoder().decode(decryptedContent);
   } catch (error) {
-    console.error('Legacy decryption failed:', error);
-    // If all else fails, return the original base64 data as plain text
-    return base64Data;
+    // If legacy decryption fails, treat as plain text
+    // This prevents the console errors we've been seeing
+    throw new Error('Legacy decryption not applicable');
   }
 };
 

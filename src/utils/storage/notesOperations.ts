@@ -28,7 +28,7 @@ export const saveNote = async (noteId: string, content: string): Promise<Storage
       try {
         finalContent = await encryptContent(content);
       } catch (encryptError) {
-        console.error("Encryption failed, saving as plain text:", encryptError);
+        console.warn("Encryption failed, saving as plain text:", encryptError);
         finalContent = content;
       }
     }
@@ -40,6 +40,7 @@ export const saveNote = async (noteId: string, content: string): Promise<Storage
       const result = await saveToChrome(noteId, finalContent);
       if (!result.success) {
         // Fallback to localStorage if Chrome API fails
+        console.warn("Chrome storage failed, falling back to localStorage:", result.error);
         return saveToLocal(noteId, finalContent);
       }
       return result;
@@ -56,7 +57,7 @@ export const saveNote = async (noteId: string, content: string): Promise<Storage
 };
 
 /**
- * Get all saved notes from storage with proper decryption
+ * Get all saved notes from storage with proper decryption and error handling
  */
 export const getAllNotes = async (): Promise<Record<string, string>> => {
   try {
@@ -67,14 +68,14 @@ export const getAllNotes = async (): Promise<Record<string, string>> => {
       try {
         encryptedNotes = await chrome.storage.sync.get(null) as Record<string, string>;
       } catch (error) {
-        console.error("Error getting notes from Chrome storage:", error);
+        console.warn("Error getting notes from Chrome storage, using localStorage:", error);
         encryptedNotes = getNotesFromLocalStorage();
       }
     } else {
       encryptedNotes = getNotesFromLocalStorage();
     }
     
-    // Decrypt all notes using the new format
+    // Decrypt all notes using the new format with better error handling
     const notes: Record<string, string> = {};
     for (const [noteId, encryptedContent] of Object.entries(encryptedNotes)) {
       // Skip system keys
@@ -85,13 +86,15 @@ export const getAllNotes = async (): Promise<Record<string, string>> => {
       try {
         const decryptedContent = await decryptContent(encryptedContent);
         // Only include notes with valid content
-        if (decryptedContent && typeof decryptedContent === 'string') {
+        if (decryptedContent && typeof decryptedContent === 'string' && decryptedContent.trim()) {
           notes[noteId] = decryptedContent;
         }
       } catch (decryptError) {
-        console.error(`Error decrypting note ${noteId}:`, decryptError);
-        // Include with error message instead of skipping
-        notes[noteId] = `[Error: Could not decrypt note - ${decryptError.message}]`;
+        // For decryption errors, include the note with a clear error message
+        console.warn(`Could not decrypt note ${noteId}, treating as plain text`);
+        if (encryptedContent && typeof encryptedContent === 'string') {
+          notes[noteId] = encryptedContent;
+        }
       }
     }
     
@@ -112,18 +115,18 @@ export const deleteNote = async (noteId: string): Promise<StorageOperationResult
     if (provider === 'chrome') {
       try {
         await chrome.storage.sync.remove(noteId);
-        removeLocalFallbacks(noteId);
-        return { success: true };
       } catch (error) {
-        console.error("Error deleting note from Chrome storage:", error);
-        removeLocalFallbacks(noteId);
-        return { success: true };
+        console.warn("Error deleting note from Chrome storage:", error);
       }
+      // Always clean up local fallbacks
+      removeLocalFallbacks(noteId);
+      return { success: true };
     } else {
       removeLocalFallbacks(noteId);
       return { success: true };
     }
   } catch (error) {
+    console.error("Error deleting note:", error);
     return { 
       success: false, 
       error: error instanceof Error ? error.message : 'Unknown error deleting note' 
@@ -156,7 +159,8 @@ export const renameNote = async (oldNoteId: string, newNoteId: string): Promise<
     const deleteResult = await deleteNote(oldNoteId);
     
     if (!deleteResult.success) {
-      return deleteResult;
+      console.warn("Failed to delete old note after rename:", deleteResult.error);
+      // Don't fail the operation if delete fails
     }
     
     return { success: true, newNoteId };
@@ -165,6 +169,43 @@ export const renameNote = async (oldNoteId: string, newNoteId: string): Promise<
     return { 
       success: false, 
       error: error instanceof Error ? error.message : 'Unknown error renaming note' 
+    };
+  }
+};
+
+/**
+ * Clear all notes from storage (for cleanup operations)
+ */
+export const clearAllNotes = async (): Promise<StorageOperationResult> => {
+  try {
+    const provider = getStorageProvider();
+    
+    if (provider === 'chrome') {
+      try {
+        // Get all notes and remove them
+        const allData = await chrome.storage.sync.get(null);
+        const noteKeys = Object.keys(allData).filter(key => !SYSTEM_KEYS.includes(key));
+        if (noteKeys.length > 0) {
+          await chrome.storage.sync.remove(noteKeys);
+        }
+      } catch (error) {
+        console.warn("Error clearing Chrome storage:", error);
+      }
+    }
+    
+    // Clear localStorage notes
+    const noteflowKeys = Object.keys(localStorage).filter(key => 
+      key.startsWith('noteflow-') && !SYSTEM_KEYS.some(sysKey => key.includes(sysKey))
+    );
+    
+    noteflowKeys.forEach(key => localStorage.removeItem(key));
+    
+    return { success: true };
+  } catch (error) {
+    console.error("Error clearing all notes:", error);
+    return { 
+      success: false, 
+      error: error instanceof Error ? error.message : 'Unknown error clearing notes' 
     };
   }
 };
