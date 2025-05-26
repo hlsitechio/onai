@@ -1,4 +1,3 @@
-
 /**
  * Utilities for client-side encryption of notes
  */
@@ -19,9 +18,36 @@ export const getOrCreateEncryptionKey = (): string => {
   return key;
 };
 
-// Encrypt text using AES-GCM
+// Simple base64 validation
+const isValidBase64 = (str: string): boolean => {
+  try {
+    if (!str || typeof str !== 'string') return false;
+    // Check if it contains only valid base64 characters
+    if (!/^[A-Za-z0-9+/]*={0,2}$/.test(str)) {
+      return false;
+    }
+    // Try to decode it
+    const decoded = atob(str);
+    // Check if it can be encoded back to the same string
+    return btoa(decoded) === str;
+  } catch (e) {
+    return false;
+  }
+};
+
+// Encrypt text using AES-GCM with better error handling
 export const encryptContent = async (content: string): Promise<string> => {
   try {
+    // Return original content if empty or not a string
+    if (!content || typeof content !== 'string') {
+      return content || '';
+    }
+    
+    // For very short content, don't encrypt to avoid overhead
+    if (content.length < 10) {
+      return content;
+    }
+
     const key = getOrCreateEncryptionKey();
     const encodedKey = Uint8Array.from(atob(key), c => c.charCodeAt(0));
     
@@ -55,25 +81,39 @@ export const encryptContent = async (content: string): Promise<string> => {
     result.set(iv);
     result.set(new Uint8Array(encryptedContent), iv.length);
     
-    return btoa(String.fromCharCode.apply(null, [...result]));
+    // Add a prefix to identify encrypted content
+    const encrypted = 'ENC:' + btoa(String.fromCharCode.apply(null, [...result]));
+    return encrypted;
   } catch (error) {
     console.error('Encryption error:', error);
-    return content; // Fallback to unencrypted content in case of error
+    return content; // Fallback to unencrypted content
   }
 };
 
-// Decrypt text using AES-GCM
+// Decrypt text using AES-GCM with better error handling
 export const decryptContent = async (encryptedContent: string): Promise<string> => {
   try {
-    // If the content doesn't appear to be encrypted, return it as is
-    if (!encryptedContent || encryptedContent.length < 16) {
+    // Return original data if it's empty or null
+    if (!encryptedContent || typeof encryptedContent !== 'string') {
+      return encryptedContent || '';
+    }
+    
+    // Check if content is actually encrypted (has our prefix)
+    if (!encryptedContent.startsWith('ENC:')) {
+      // If it looks like old base64 encrypted content, try to decrypt it
+      if (isValidBase64(encryptedContent) && encryptedContent.length > 50) {
+        return await tryLegacyDecryption(encryptedContent);
+      }
+      // Otherwise return as plain text
       return encryptedContent;
     }
     
-    // Check if content is base64 encoded before trying to decode
-    const isBase64 = /^[A-Za-z0-9+/=]+$/.test(encryptedContent);
-    if (!isBase64) {
-      // Return unencoded content if it's not valid base64
+    // Remove the ENC: prefix
+    const base64Data = encryptedContent.substring(4);
+    
+    // Validate base64
+    if (!isValidBase64(base64Data)) {
+      console.warn('Invalid base64 in encrypted content');
       return encryptedContent;
     }
     
@@ -89,32 +129,76 @@ export const decryptContent = async (encryptedContent: string): Promise<string> 
       ['decrypt']
     );
     
-    try {
-      // Decode the base64 content
-      const encryptedData = Uint8Array.from(atob(encryptedContent), c => c.charCodeAt(0));
-      
-      // Extract the IV (first 12 bytes) and encrypted content
-      const iv = encryptedData.slice(0, 12);
-      const actualContent = encryptedData.slice(12);
-      
-      // Decrypt the content
-      const decryptedContent = await window.crypto.subtle.decrypt(
-        {
-          name: 'AES-GCM',
-          iv
-        },
-        cryptoKey,
-        actualContent
-      );
-      
-      return new TextDecoder().decode(decryptedContent);
-    } catch (decodeError) {
-      console.error('Base64 decoding or decryption error:', decodeError);
-      return encryptedContent; // Return original content if decryption fails
+    // Decode the base64 content
+    const encryptedData = Uint8Array.from(atob(base64Data), c => c.charCodeAt(0));
+    
+    // Extract the IV (first 12 bytes) and encrypted content
+    if (encryptedData.length < 12) {
+      throw new Error('Encrypted data too short');
     }
+    
+    const iv = encryptedData.slice(0, 12);
+    const actualContent = encryptedData.slice(12);
+    
+    // Decrypt the content
+    const decryptedContent = await window.crypto.subtle.decrypt(
+      {
+        name: 'AES-GCM',
+        iv
+      },
+      cryptoKey,
+      actualContent
+    );
+    
+    return new TextDecoder().decode(decryptedContent);
   } catch (error) {
-    console.error('Decryption process error:', error);
-    return encryptedContent; // Return encrypted content as fallback
+    console.error('Decryption error:', error);
+    // Try legacy decryption for old encrypted content
+    if (encryptedContent.startsWith('ENC:')) {
+      const base64Data = encryptedContent.substring(4);
+      return await tryLegacyDecryption(base64Data);
+    }
+    return encryptedContent; // Return original content if decryption fails
+  }
+};
+
+// Try to decrypt content that was encrypted with the old method
+const tryLegacyDecryption = async (base64Data: string): Promise<string> => {
+  try {
+    const key = getOrCreateEncryptionKey();
+    const encodedKey = Uint8Array.from(atob(key), c => c.charCodeAt(0));
+    
+    const cryptoKey = await window.crypto.subtle.importKey(
+      'raw',
+      encodedKey,
+      { name: 'AES-GCM' },
+      false,
+      ['decrypt']
+    );
+    
+    const encryptedData = Uint8Array.from(atob(base64Data), c => c.charCodeAt(0));
+    
+    if (encryptedData.length < 12) {
+      throw new Error('Data too short for legacy decryption');
+    }
+    
+    const iv = encryptedData.slice(0, 12);
+    const actualContent = encryptedData.slice(12);
+    
+    const decryptedContent = await window.crypto.subtle.decrypt(
+      {
+        name: 'AES-GCM',
+        iv
+      },
+      cryptoKey,
+      actualContent
+    );
+    
+    return new TextDecoder().decode(decryptedContent);
+  } catch (error) {
+    console.error('Legacy decryption failed:', error);
+    // If all else fails, return the original base64 data as plain text
+    return base64Data;
   }
 };
 
