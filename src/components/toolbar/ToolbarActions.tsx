@@ -1,5 +1,5 @@
 
-import React from "react";
+import React, { useEffect } from "react";
 import { 
   Bold, 
   Italic, 
@@ -24,7 +24,6 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import { useHotkeys } from 'react-hotkeys-hook';
 import DOMPurify from 'dompurify';
 import FindReplaceDialog from "./FindReplaceDialog";
 import FontControls from "./FontControls";
@@ -411,36 +410,54 @@ const ToolbarActions: React.FC<ToolbarActionsProps> = ({
     input.click();
   };
 
-  // Keyboard shortcuts
-  useHotkeys('ctrl+b, cmd+b', (e) => {
-    e.preventDefault();
-    handleBold();
-  });
+  // Keyboard shortcuts using native event listeners
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Only trigger if we have an active textarea
+      if (!getActiveTextarea()) return;
+      
+      // Check for Ctrl/Cmd key combinations
+      const isCtrlOrCmd = e.ctrlKey || e.metaKey;
+      
+      if (isCtrlOrCmd) {
+        switch (e.key.toLowerCase()) {
+          case 'b':
+            e.preventDefault();
+            handleBold();
+            break;
+          case 'i':
+            e.preventDefault();
+            handleItalic();
+            break;
+          case 'u':
+            e.preventDefault();
+            handleUnderline();
+            break;
+          case 'k':
+            e.preventDefault();
+            handleInsertLink();
+            break;
+        }
+        
+        // Check for Shift combinations
+        if (e.shiftKey) {
+          switch (e.key) {
+            case '!': // Ctrl+Shift+1
+              e.preventDefault();
+              handleHeading(1);
+              break;
+            case '@': // Ctrl+Shift+2
+              e.preventDefault();
+              handleHeading(2);
+              break;
+          }
+        }
+      }
+    };
 
-  useHotkeys('ctrl+i, cmd+i', (e) => {
-    e.preventDefault();
-    handleItalic();
-  });
-
-  useHotkeys('ctrl+u, cmd+u', (e) => {
-    e.preventDefault();
-    handleUnderline();
-  });
-
-  useHotkeys('ctrl+k, cmd+k', (e) => {
-    e.preventDefault();
-    handleInsertLink();
-  });
-
-  useHotkeys('ctrl+shift+1, cmd+shift+1', (e) => {
-    e.preventDefault();
-    handleHeading(1);
-  });
-
-  useHotkeys('ctrl+shift+2, cmd+shift+2', (e) => {
-    e.preventDefault();
-    handleHeading(2);
-  });
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, []);
 
   return (
     <div className="flex flex-wrap items-center gap-1 md:gap-2">
