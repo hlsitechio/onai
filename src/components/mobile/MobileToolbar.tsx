@@ -8,10 +8,20 @@ import {
   Menu,
   Focus,
   PanelLeft,
-  MoreHorizontal
+  MoreHorizontal,
+  List,
+  Quote,
+  Link
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { 
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+  DropdownMenuSeparator
+} from "@/components/ui/dropdown-menu";
 
 interface MobileToolbarProps {
   execCommand: (command: string, value?: string | null) => void;
@@ -36,6 +46,21 @@ const MobileToolbar: React.FC<MobileToolbarProps> = ({
   toggleFocusMode = () => {},
   onShowMore
 }) => {
+  const handleInsertList = () => {
+    execCommand('insertUnorderedList');
+  };
+
+  const handleBlockquote = () => {
+    execCommand('formatBlock', 'blockquote');
+  };
+
+  const handleInsertLink = () => {
+    const url = prompt('Enter URL:');
+    if (url) {
+      execCommand('createLink', url);
+    }
+  };
+
   return (
     <div className={cn(
       "flex items-center justify-between p-3 transition-all duration-300",
@@ -74,6 +99,73 @@ const MobileToolbar: React.FC<MobileToolbarProps> = ({
         >
           <Italic className="h-5 w-5" />
         </Button>
+
+        {/* More formatting options dropdown */}
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="text-slate-300 hover:text-white hover:bg-white/20 p-2 h-10 w-10"
+              title="More Formatting"
+            >
+              <MoreHorizontal className="h-5 w-5" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent 
+            className="w-48 bg-black/90 backdrop-blur-xl border border-white/10 text-white"
+            side="bottom"
+            align="start"
+          >
+            <DropdownMenuItem 
+              onClick={() => execCommand('underline', null)}
+              className="hover:bg-white/10 focus:bg-white/10"
+            >
+              Underline
+            </DropdownMenuItem>
+            <DropdownMenuItem 
+              onClick={() => execCommand('strikeThrough', null)}
+              className="hover:bg-white/10 focus:bg-white/10"
+            >
+              Strikethrough
+            </DropdownMenuItem>
+            <DropdownMenuSeparator className="bg-white/10" />
+            <DropdownMenuItem 
+              onClick={handleInsertList}
+              className="hover:bg-white/10 focus:bg-white/10"
+            >
+              <List className="h-4 w-4 mr-2" />
+              Bullet List
+            </DropdownMenuItem>
+            <DropdownMenuItem 
+              onClick={handleBlockquote}
+              className="hover:bg-white/10 focus:bg-white/10"
+            >
+              <Quote className="h-4 w-4 mr-2" />
+              Quote
+            </DropdownMenuItem>
+            <DropdownMenuItem 
+              onClick={handleInsertLink}
+              className="hover:bg-white/10 focus:bg-white/10"
+            >
+              <Link className="h-4 w-4 mr-2" />
+              Insert Link
+            </DropdownMenuItem>
+            <DropdownMenuSeparator className="bg-white/10" />
+            <DropdownMenuItem 
+              onClick={() => execCommand('formatBlock', 'h1')}
+              className="hover:bg-white/10 focus:bg-white/10"
+            >
+              Heading 1
+            </DropdownMenuItem>
+            <DropdownMenuItem 
+              onClick={() => execCommand('formatBlock', 'h2')}
+              className="hover:bg-white/10 focus:bg-white/10"
+            >
+              Heading 2
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
 
       {/* Right side - secondary actions */}

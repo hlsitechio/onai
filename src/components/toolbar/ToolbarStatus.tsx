@@ -1,6 +1,6 @@
 
 import React from "react";
-import { Save, Focus, Clock } from "lucide-react";
+import { Save, Focus, Clock, Palette, ZoomIn, ZoomOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn, formatDistanceToNow } from "@/lib/utils";
 
@@ -9,16 +9,49 @@ interface ToolbarStatusProps {
   lastSaved: Date | null;
   isFocusMode: boolean;
   toggleFocusMode: () => void;
+  onThemeToggle?: () => void;
+  onZoomIn?: () => void;
+  onZoomOut?: () => void;
+  wordCount?: number;
 }
 
 const ToolbarStatus: React.FC<ToolbarStatusProps> = ({
   handleSave,
   lastSaved,
   isFocusMode,
-  toggleFocusMode
+  toggleFocusMode,
+  onThemeToggle,
+  onZoomIn,
+  onZoomOut,
+  wordCount = 0
 }) => {
+  const handleThemeToggle = () => {
+    if (onThemeToggle) {
+      onThemeToggle();
+    }
+  };
+
+  const handleZoomIn = () => {
+    if (onZoomIn) {
+      onZoomIn();
+    }
+  };
+
+  const handleZoomOut = () => {
+    if (onZoomOut) {
+      onZoomOut();
+    }
+  };
+
   return (
     <div className="flex items-center gap-1 md:gap-2 ml-auto">
+      {/* Word count indicator */}
+      {wordCount > 0 && (
+        <div className="hidden lg:flex items-center text-xs text-slate-400 mr-2">
+          <span>{wordCount} words</span>
+        </div>
+      )}
+
       {/* Last saved indicator */}
       {lastSaved && (
         <div className="hidden md:flex items-center gap-1.5 text-xs text-slate-400 mr-2">
@@ -26,6 +59,39 @@ const ToolbarStatus: React.FC<ToolbarStatusProps> = ({
           <span>Saved {formatDistanceToNow(lastSaved, { addSuffix: true })}</span>
         </div>
       )}
+
+      {/* View Controls */}
+      <div className="hidden lg:flex items-center gap-1">
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={handleZoomOut}
+          className="text-slate-300 hover:text-white hover:bg-white/10 p-1.5 md:p-2"
+          title="Zoom Out"
+        >
+          <ZoomOut className="h-4 w-4" />
+        </Button>
+
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={handleZoomIn}
+          className="text-slate-300 hover:text-white hover:bg-white/10 p-1.5 md:p-2"
+          title="Zoom In"
+        >
+          <ZoomIn className="h-4 w-4" />
+        </Button>
+
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={handleThemeToggle}
+          className="text-slate-300 hover:text-white hover:bg-white/10 p-1.5 md:p-2"
+          title="Toggle Theme"
+        >
+          <Palette className="h-4 w-4" />
+        </Button>
+      </div>
 
       {/* Focus mode toggle */}
       <Button
