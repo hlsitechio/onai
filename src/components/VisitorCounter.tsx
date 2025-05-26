@@ -26,15 +26,14 @@ const VisitorCounter = () => {
 
         if (error) {
           console.error('Error tracking visit:', error);
-        } else {
-          console.log('Visit tracked successfully:', data);
         }
+        // Removed console.log for successful tracking
       } catch (error) {
         console.error('Error calling track-visit function:', error);
       }
     };
 
-    // Get visitor stats (for your internal tracking)
+    // Get visitor stats (for internal tracking only)
     const getStats = async () => {
       try {
         const { data, error } = await supabase
@@ -46,8 +45,7 @@ const VisitorCounter = () => {
           console.error('Error fetching stats:', error);
         } else {
           setStats(data);
-          // Log stats to console for your reference
-          console.log('Visitor Stats:', data);
+          // Removed console.log for visitor stats
         }
       } catch (error) {
         console.error('Error getting visitor stats:', error);
