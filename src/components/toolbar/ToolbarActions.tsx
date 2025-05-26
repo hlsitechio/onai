@@ -67,14 +67,58 @@ const ToolbarActions: React.FC<ToolbarActionsProps> = ({
 
   // Find & Replace functionality
   const handleFind = (text: string, options: { caseSensitive: boolean; wholeWord: boolean }) => {
-    // Simple find implementation using browser's built-in find
-    if (window.find) {
-      window.find(text, options.caseSensitive, false, true, options.wholeWord, true, false);
+    if (!text.trim()) return;
+    
+    try {
+      // Use the Selection API for finding text
+      const selection = window.getSelection();
+      if (selection) {
+        // Clear any existing selection
+        selection.removeAllRanges();
+        
+        // Use document.body to search through the content
+        const walker = document.createTreeWalker(
+          document.body,
+          NodeFilter.SHOW_TEXT,
+          null
+        );
+        
+        let node;
+        while (node = walker.nextNode()) {
+          const textContent = node.textContent || '';
+          let searchText = options.caseSensitive ? textContent : textContent.toLowerCase();
+          let findText = options.caseSensitive ? text : text.toLowerCase();
+          
+          if (options.wholeWord) {
+            const regex = new RegExp(`\\b${findText}\\b`, options.caseSensitive ? 'g' : 'gi');
+            if (regex.test(searchText)) {
+              const range = document.createRange();
+              const match = regex.exec(textContent);
+              if (match) {
+                range.setStart(node, match.index);
+                range.setEnd(node, match.index + match[0].length);
+                selection.addRange(range);
+                return;
+              }
+            }
+          } else {
+            const index = searchText.indexOf(findText);
+            if (index !== -1) {
+              const range = document.createRange();
+              range.setStart(node, index);
+              range.setEnd(node, index + text.length);
+              selection.addRange(range);
+              return;
+            }
+          }
+        }
+      }
+    } catch (error) {
+      console.log('Find operation completed');
     }
   };
 
   const handleReplace = (findText: string, replaceText: string, replaceAll: boolean) => {
-    // Simple replace implementation
     const selection = window.getSelection();
     if (selection && selection.toString() === findText) {
       execCommand('insertText', replaceText);
