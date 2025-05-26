@@ -55,7 +55,7 @@
 
     <!-- Ezoic Privacy Scripts - MUST be loaded before header script -->
     <script src="https://cmp.gatekeeperconsent.com/min.js" data-cfasync="false"></script>
-    <script src="https://the.gatekeeperconsent.com/cmp.min.js" data-cfasync="false"></script>
+    <script src="https://the.gatekeeperconsent.com/min.js" data-cfasync="false"></script>
 
     <!-- Ezoic Header Script with optimized loading -->
     <script>
@@ -94,11 +94,13 @@
     <!-- Resource Hints for actually needed resources -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://cdn.gpteng.co">
     <link rel="dns-prefetch" href="//www.googletagmanager.com">
     <link rel="dns-prefetch" href="//www.ezojs.com">
+    <link rel="dns-prefetch" href="//cdn.gpteng.co">
 
-    <!-- Enhanced Security Headers - Block ID5 and other trackers -->
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdn.gpteng.co https://www.ezojs.com https://*.ezoic.net https://*.ezstatic.com https://*.cloudflareinsights.com https://www.googletagmanager.com https://cmp.gatekeeperconsent.com https://the.gatekeeperconsent.com 'unsafe-inline' 'unsafe-eval'; style-src 'self' https://fonts.googleapis.com https://*.ezoic.net https://*.ezstatic.com 'unsafe-inline'; font-src 'self' https://fonts.gstatic.com https://*.ezoic.net data:; img-src 'self' data: https://lovable.dev https://*.ezoic.net https://*.ezstatic.com; connect-src 'self' https://*.ezoic.net https://*.ezstatic.com https://g.ezoic.net https://qrdulwzjgbfgaplazgsh.supabase.co wss://qrdulwzjgbfgaplazgsh.supabase.co https://privacy.gatekeeperconsent.com; frame-src 'self' https://*.ezoic.net https://*.ezstatic.com; fenced-frame-src 'self' https://*.ezoic.net https://*.ezstatic.com; object-src 'none'; base-uri 'self'; form-action 'self';">
+    <!-- Enhanced Security Headers - Updated CSP with proper domains -->
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdn.gpteng.co https://www.ezojs.com https://*.ezoic.net https://*.ezstatic.com https://*.cloudflareinsights.com https://www.googletagmanager.com https://cmp.gatekeeperconsent.com https://the.gatekeeperconsent.com 'unsafe-inline' 'unsafe-eval'; style-src 'self' https://fonts.googleapis.com https://*.ezoic.net https://*.ezstatic.com 'unsafe-inline'; font-src 'self' https://fonts.gstatic.com https://*.ezoic.net data:; img-src 'self' data: https://lovable.dev https://*.ezoic.net https://*.ezstatic.com; connect-src 'self' https://cdn.gpteng.co https://*.ezoic.net https://*.ezstatic.com https://g.ezoic.net https://qrdulwzjgbfgaplazgsh.supabase.co wss://qrdulwzjgbfgaplazgsh.supabase.co https://privacy.gatekeeperconsent.com; frame-src 'self' https://*.ezoic.net https://*.ezstatic.com; fenced-frame-src 'self' https://*.ezoic.net https://*.ezstatic.com; object-src 'none'; base-uri 'self'; form-action 'self';">
     <meta http-equiv="X-Content-Type-Options" content="nosniff">
     <meta http-equiv="Referrer-Policy" content="no-referrer-when-downgrade">
     <meta http-equiv="Permissions-Policy" content="geolocation=(), microphone=(), camera=(), payment=()">

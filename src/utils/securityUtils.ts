@@ -91,9 +91,32 @@ export const validateStorageIntegrity = (): boolean => {
   }
 };
 
+// Helper function to check if string is valid base64
+const isValidBase64 = (str: string): boolean => {
+  try {
+    // Check if it contains only valid base64 characters
+    if (!/^[A-Za-z0-9+/]*={0,2}$/.test(str)) {
+      return false;
+    }
+    
+    // Try to decode it
+    const decoded = atob(str);
+    
+    // Check if it can be encoded back to the same string
+    return btoa(decoded) === str;
+  } catch (e) {
+    return false;
+  }
+};
+
 // Encrypt data for storage (lightweight client-side encryption)
 export const encryptClientData = (data: string, key?: string): string => {
   try {
+    // Return original data if it's empty or null
+    if (!data || typeof data !== 'string') {
+      return data || '';
+    }
+    
     // Use provided key or generate one from browser fingerprint
     const encKey = key || generateBrowserFingerprint();
     
@@ -114,9 +137,14 @@ export const encryptClientData = (data: string, key?: string): string => {
 // Decrypt data from storage
 export const decryptClientData = (data: string, key?: string): string => {
   try {
-    // Check if data is base64 encoded
-    if (!/^[A-Za-z0-9+/=]+$/.test(data)) {
-      return data; // Not encrypted
+    // Return original data if it's empty or null
+    if (!data || typeof data !== 'string') {
+      return data || '';
+    }
+    
+    // Check if data looks like it's encrypted (base64 format)
+    if (!isValidBase64(data)) {
+      return data; // Not encrypted or invalid format
     }
     
     // Use provided key or generate one from browser fingerprint
@@ -133,7 +161,7 @@ export const decryptClientData = (data: string, key?: string): string => {
     
     return result;
   } catch (e) {
-    console.error('Decryption error:', e);
+    console.error('Base64 decoding or decryption error:', e);
     return data; // Return original data if decryption fails
   }
 };
