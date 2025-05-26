@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -19,6 +18,51 @@
       gtag('config', 'G-LFFQYK81C6');
     </script>
 
+    <!-- Block problematic ID5 requests before they start -->
+    <script>
+      // Override XMLHttpRequest to block ID5 sync requests
+      (function() {
+        const originalXHR = window.XMLHttpRequest;
+        const originalFetch = window.fetch;
+        
+        // Block XMLHttpRequest to ID5
+        window.XMLHttpRequest = function() {
+          const xhr = new originalXHR();
+          const originalOpen = xhr.open;
+          
+          xhr.open = function(method, url, ...args) {
+            if (typeof url === 'string' && url.includes('id5-sync.com')) {
+              console.warn('Blocked ID5 sync request:', url);
+              return;
+            }
+            return originalOpen.apply(this, [method, url, ...args]);
+          };
+          
+          return xhr;
+        };
+        
+        // Block fetch requests to ID5
+        window.fetch = function(input, init) {
+          const url = typeof input === 'string' ? input : input.url;
+          if (url && url.includes('id5-sync.com')) {
+            console.warn('Blocked ID5 sync fetch request:', url);
+            return Promise.resolve(new Response('', { status: 204 }));
+          }
+          return originalFetch.apply(this, arguments);
+        };
+        
+        // Filter console errors for ID5 CORS issues
+        const originalError = console.error;
+        console.error = function(...args) {
+          const message = args.join(' ');
+          if (message.includes('id5-sync.com') && message.includes('CORS')) {
+            return; // Suppress ID5 CORS errors
+          }
+          originalError.apply(console, args);
+        };
+      })();
+    </script>
+
     <!-- Ezoic Privacy Scripts - MUST be loaded before header script -->
     <script src="https://cmp.gatekeeperconsent.com/min.js" data-cfasync="false"></script>
     <script src="https://the.gatekeeperconsent.com/cmp.min.js" data-cfasync="false"></script>
@@ -30,12 +74,15 @@
       window.ezstandalone.cmd = window.ezstandalone.cmd || [];
       window.ezstandalone.siteId = '6eZm6eLkURwuc3wNp6XGJn8Mq5oDBa';
       
-      // Optimize Ezoic preload behavior
+      // Optimize Ezoic preload behavior and disable ID5 sync
       window.ezstandalone.preloadConfig = {
         aggressive: false,
         timeout: 2000,
         maxResources: 3
       };
+      
+      // Disable ID5 sync in Ezoic
+      window.ezstandalone.disableId5 = true;
       
       // Filter out Ezoic preload warnings from console
       const originalWarn = console.warn;
@@ -57,8 +104,8 @@
     <link rel="dns-prefetch" href="//www.googletagmanager.com">
     <link rel="dns-prefetch" href="//www.ezojs.com">
 
-    <!-- Security Headers - Relaxed for local development -->
-    <meta http-equiv="Content-Security-Policy" content="default-src * 'unsafe-inline' 'unsafe-eval' data: blob:; script-src * 'unsafe-inline' 'unsafe-eval'; style-src * 'unsafe-inline'; font-src * data:; img-src * data: blob:; connect-src *; frame-src *; object-src 'none'; base-uri 'self'; form-action 'self';">
+    <!-- Enhanced Security Headers - Block ID5 and other trackers -->
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdn.gpteng.co https://www.ezojs.com https://*.ezoic.net https://*.ezstatic.com https://www.googletagmanager.com https://cmp.gatekeeperconsent.com https://the.gatekeeperconsent.com 'unsafe-inline' 'unsafe-eval'; style-src 'self' https://fonts.googleapis.com https://*.ezoic.net https://*.ezstatic.com 'unsafe-inline'; font-src 'self' https://fonts.gstatic.com https://*.ezoic.net data:; img-src 'self' data: https://lovable.dev https://*.ezoic.net https://*.ezstatic.com; connect-src 'self' https://*.ezoic.net https://*.ezstatic.com https://qrdulwzjgbfgaplazgsh.supabase.co; frame-src 'self' https://*.ezoic.net https://*.ezstatic.com; fenced-frame-src 'self' https://*.ezoic.net https://*.ezstatic.com; object-src 'none'; base-uri 'self'; form-action 'self';">
     <meta http-equiv="X-Content-Type-Options" content="nosniff">
     <meta http-equiv="Referrer-Policy" content="no-referrer-when-downgrade">
     <meta http-equiv="Permissions-Policy" content="geolocation=(), microphone=(), camera=(), payment=()">
