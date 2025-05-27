@@ -27,17 +27,26 @@ const ToolbarActions: React.FC<ToolbarActionsProps> = ({
 
   return (
     <div className="flex flex-wrap items-center gap-1 md:gap-2">
-      {/* Find & Replace */}
-      <div className="hidden lg:flex items-center">
-        <FindReplaceDialog 
-          onFind={handleFind}
-          onReplace={handleReplace}
-        />
+      {/* Essential Formatting Group - Always visible */}
+      <FormattingButtons />
+      <Separator orientation="vertical" className="h-6 bg-white/10" />
+      
+      {/* Structure Group - Lists, tables, code blocks */}
+      <ContentButtons />
+      <Separator orientation="vertical" className="h-6 bg-white/10" />
+      
+      {/* Heading Group - Text hierarchy */}
+      <HeadingButtons />
+      <Separator orientation="vertical" className="h-6 bg-white/10" />
+      
+      {/* Color Controls - Visible on larger screens */}
+      <div className="hidden md:flex items-center">
+        <ColorPicker onColorChange={handleColorChange} />
         <Separator orientation="vertical" className="h-6 bg-white/10 mx-1" />
       </div>
 
-      {/* Font Controls */}
-      <div className="hidden xl:flex items-center">
+      {/* Font Controls - Typography settings */}
+      <div className="hidden lg:flex items-center">
         <FontControls
           onFontFamilyChange={handleFontFamilyChange}
           onFontSizeChange={handleFontSizeChange}
@@ -45,31 +54,16 @@ const ToolbarActions: React.FC<ToolbarActionsProps> = ({
         <Separator orientation="vertical" className="h-6 bg-white/10 mx-1" />
       </div>
 
-      {/* Import/Export */}
-      <FileOperationButtons />
-      <Separator orientation="vertical" className="h-6 bg-white/10 hidden lg:block" />
-
-      {/* Text Formatting Group */}
-      <FormattingButtons />
-
-      <Separator orientation="vertical" className="h-6 bg-white/10" />
-
-      {/* Color Controls */}
+      {/* Find & Replace - Utility function */}
       <div className="hidden lg:flex items-center">
-        <ColorPicker onColorChange={handleColorChange} />
+        <FindReplaceDialog 
+          onFind={handleFind}
+          onReplace={handleReplace}
+        />
       </div>
-
-      {/* Heading Group */}
-      <HeadingButtons />
-
-      <Separator orientation="vertical" className="h-6 bg-white/10 hidden lg:block" />
-
-      {/* List and Structure Group */}
-      <ContentButtons />
-
-      {/* Alignment buttons - disabled for textarea */}
-      <Separator orientation="vertical" className="h-6 bg-white/10 hidden xl:block" />
-      <DisabledButtons />
+      
+      {/* File Operations - Moved to ToolbarNavigation */}
+      {/* <FileOperationButtons /> */}
     </div>
   );
 };

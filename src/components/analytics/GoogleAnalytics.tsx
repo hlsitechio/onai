@@ -39,7 +39,10 @@ const GoogleAnalytics = () => {
     if (process.env.NODE_ENV === 'development') {
       console.log('Google Analytics initialized with Measurement ID: G-LFFQYK81C6');
     }
-  }, []);
+    
+    // Set initial path
+    lastPath.current = location.pathname;
+  }, [location.pathname]);
   
   // Track page views and refresh Ezoic ads when route changes
   useEffect(() => {
@@ -81,7 +84,7 @@ const GoogleAnalytics = () => {
         }
       }
     }
-  }, [location]);
+  }, [location.pathname]);
   
   // This component doesn't render anything
   return null;

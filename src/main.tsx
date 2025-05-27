@@ -1,9 +1,9 @@
 
 import { createRoot } from 'react-dom/client'
-import App from './App.tsx'
 import './index.css'
 import './styles/scrollbar.css' // Import custom scrollbar styling
 import Modal from 'react-modal'
+import AppRouter from './routes'
 
 // Wait for DOM to be ready before rendering
 const initializeApp = () => {
@@ -22,10 +22,10 @@ const initializeApp = () => {
     console.warn('Could not set Modal app element:', error);
   }
 
-  // Create and render the app
+  // Create and render the app with router
   try {
     const root = createRoot(rootElement);
-    root.render(<App />);
+    root.render(<AppRouter />);
   } catch (error) {
     console.error('Failed to render app:', error);
   }

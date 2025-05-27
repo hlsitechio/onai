@@ -7,6 +7,13 @@ import {
   getNotesFromLocalStorage, 
   removeLocalFallbacks 
 } from './storageProvider';
+import {
+  saveNoteToIndexedDB,
+  getAllNotesFromIndexedDB,
+  deleteNoteFromIndexedDB,
+  migrateFromLocalStorage,
+  getNoteById
+} from './indexedDBStorage';
 
 export interface StorageOperationResult {
   success: boolean;
@@ -20,22 +27,63 @@ const SYSTEM_KEYS = ['noteflow-encryption-key'];
 /**
  * Save a note to storage with encryption using new format
  */
+/**
+ * Initialize the storage system, migrating data from older storage methods if needed
+ */
+export const initializeStorage = async (): Promise<void> => {
+  try {
+    // Check if we need to migrate from localStorage to IndexedDB
+    const hasLocalStorageNotes = Object.keys(localStorage).some(key => key.startsWith('noteflow-'));
+    
+    if (hasLocalStorageNotes) {
+      await migrateFromLocalStorage();
+      console.log('Successfully migrated notes from localStorage to IndexedDB');
+    }
+  } catch (error) {
+    console.error('Error initializing storage:', error);
+  }
+};
+
+/**
+ * Save a note to storage with encryption using new format
+ * Prioritizes IndexedDB storage with fallbacks to Chrome and localStorage
+ */
 export const saveNote = async (noteId: string, content: string): Promise<StorageOperationResult> => {
   try {
     // Only encrypt if content is substantial
     let finalContent = content;
+    let isEncrypted = false;
+    
     if (content.trim() && content.length >= 10) {
       try {
         finalContent = await encryptContent(content);
+        isEncrypted = true;
       } catch (encryptError) {
         console.warn("Encryption failed, saving as plain text:", encryptError);
         finalContent = content;
+        isEncrypted = false;
       }
     }
     
+    // First try to save to IndexedDB (primary storage)
+    try {
+      // Generate a title from the content (first line or first few words)
+      const title = content
+        .split('\n')[0]
+        .substring(0, 50)
+        .trim() || 'Untitled Note';
+      
+      const result = await saveNoteToIndexedDB(noteId, content, isEncrypted, title);
+      if (result.success) {
+        return result;
+      }
+    } catch (indexedDBError) {
+      console.warn("IndexedDB storage failed, falling back to other storage:", indexedDBError);
+    }
+    
+    // Fall back to Chrome/localStorage if IndexedDB fails
     const provider = getStorageProvider();
     
-    // Save to appropriate storage
     if (provider === 'chrome') {
       const result = await saveToChrome(noteId, finalContent);
       if (!result.success) {
@@ -61,6 +109,17 @@ export const saveNote = async (noteId: string, content: string): Promise<Storage
  */
 export const getAllNotes = async (): Promise<Record<string, string>> => {
   try {
+    // First try IndexedDB (primary storage)
+    try {
+      const indexedDBNotes = await getAllNotesFromIndexedDB();
+      if (Object.keys(indexedDBNotes).length > 0) {
+        return indexedDBNotes;
+      }
+    } catch (indexedDBError) {
+      console.warn("Error getting notes from IndexedDB, falling back to other storage:", indexedDBError);
+    }
+    
+    // Fall back to Chrome/localStorage if IndexedDB fails or has no notes
     let encryptedNotes: Record<string, string> = {};
     const provider = getStorageProvider();
     
@@ -109,9 +168,30 @@ export const getAllNotes = async (): Promise<Record<string, string>> => {
  * Delete a note from storage
  */
 export const deleteNote = async (noteId: string): Promise<StorageOperationResult> => {
-  const provider = getStorageProvider();
-  
   try {
+    // First try to delete from IndexedDB (primary storage)
+    try {
+      const result = await deleteNoteFromIndexedDB(noteId);
+      if (result.success) {
+        // For consistency, also remove from fallback storage
+        const provider = getStorageProvider();
+        if (provider === 'chrome') {
+          try {
+            await chrome.storage.sync.remove(noteId);
+          } catch (error) {
+            console.warn("Error deleting note from Chrome storage:", error);
+          }
+        }
+        removeLocalFallbacks(noteId);
+        return result;
+      }
+    } catch (indexedDBError) {
+      console.warn("Error deleting note from IndexedDB, falling back to other storage:", indexedDBError);
+    }
+    
+    // Fall back to Chrome/localStorage if IndexedDB fails
+    const provider = getStorageProvider();
+    
     if (provider === 'chrome') {
       try {
         await chrome.storage.sync.remove(noteId);
@@ -178,8 +258,27 @@ export const renameNote = async (oldNoteId: string, newNoteId: string): Promise<
  */
 export const clearAllNotes = async (): Promise<StorageOperationResult> => {
   try {
-    const provider = getStorageProvider();
+    // Clear IndexedDB notes (primary storage)
+    try {
+      // Open a connection to IndexedDB
+      const dbRequest = indexedDB.open('oneai-notes', 1);
+      
+      dbRequest.onsuccess = (event) => {
+        const db = (event.target as IDBOpenDBRequest).result;
+        
+        // Create a transaction to clear the notes store
+        const transaction = db.transaction(['notes'], 'readwrite');
+        const notesStore = transaction.objectStore('notes');
+        notesStore.clear();
+        
+        db.close();
+      };
+    } catch (indexedDBError) {
+      console.warn("Error clearing IndexedDB storage:", indexedDBError);
+    }
     
+    // Clear Chrome storage
+    const provider = getStorageProvider();
     if (provider === 'chrome') {
       try {
         // Get all notes and remove them

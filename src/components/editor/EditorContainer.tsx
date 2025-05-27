@@ -10,8 +10,10 @@ interface EditorContainerProps {
   handleSave: () => void;
   toggleLeftSidebar: () => void;
   toggleAISidebar: () => void;
+  toggleGeminiPanel: () => void;
   isLeftSidebarOpen: boolean;
   isAISidebarOpen: boolean;
+  isGeminiPanelOpen: boolean;
   lastSaved: Date | null;
   isFocusMode: boolean;
   toggleFocusMode: () => void;
@@ -26,8 +28,10 @@ const EditorContainer: React.FC<EditorContainerProps> = ({
   handleSave,
   toggleLeftSidebar,
   toggleAISidebar,
+  toggleGeminiPanel,
   isLeftSidebarOpen,
   isAISidebarOpen,
+  isGeminiPanelOpen,
   lastSaved,
   isFocusMode,
   toggleFocusMode,
@@ -46,8 +50,10 @@ const EditorContainer: React.FC<EditorContainerProps> = ({
         handleSave={handleSave}
         toggleLeftSidebar={toggleLeftSidebar}
         toggleAISidebar={toggleAISidebar}
+        toggleGeminiPanel={toggleGeminiPanel}
         isLeftSidebarOpen={isLeftSidebarOpen}
         isAISidebarOpen={isAISidebarOpen}
+        isGeminiPanelOpen={isGeminiPanelOpen}
         lastSaved={lastSaved}
         isFocusMode={isFocusMode}
         toggleFocusMode={toggleFocusMode}

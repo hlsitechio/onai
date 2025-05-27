@@ -325,6 +325,46 @@ export function useSupabaseNotes() {
     });
   }, [toast]);
 
+  // Listen for cross-platform imported notes via our custom event
+  useEffect(() => {
+    const handleImportedNote = (event: Event) => {
+      const customEvent = event as CustomEvent<{content: string, title: string}>;
+      if (customEvent.detail && customEvent.detail.content) {
+        // Create a new note with the imported content
+        const noteId = uuidv4();
+        const noteContent = customEvent.detail.content;
+        
+        // Set the content and save it
+        setContent(noteContent);
+        setCurrentNoteId(noteId);
+        localStorage.setItem('onlinenote-content', noteContent);
+        localStorage.setItem('onlinenote-last-edited-id', noteId);
+        
+        // Also save to Supabase if available
+        if (isSupabaseReady) {
+          saveNoteToSupabase(noteId, noteContent, true).catch(error => {
+            console.error('Error saving imported note to Supabase:', error);
+          });
+        }
+        
+        toast({
+          title: 'Note imported',
+          description: customEvent.detail.title 
+            ? `"${customEvent.detail.title}" has been imported` 
+            : 'The note has been imported successfully',
+        });
+      }
+    };
+    
+    // Add event listener for our custom import event
+    document.addEventListener('oneai-note-import', handleImportedNote);
+    
+    // Clean up the event listener when the component unmounts
+    return () => {
+      document.removeEventListener('oneai-note-import', handleImportedNote);
+    };
+  }, [isSupabaseReady, toast]);
+
   // Import notes functionality
   const importNotes = useCallback(async (importedNotes: Record<string, string>) => {
     try {

@@ -1,8 +1,9 @@
 
-import React from "react";
-import { Save, Focus, Clock, Palette, ZoomIn, ZoomOut, Printer, FileDown } from "lucide-react";
+import React, { useState } from "react";
+import { Save, Focus, Clock, Palette, ZoomIn, ZoomOut, Printer, FileDown, Share2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn, formatDistanceToNow } from "@/lib/utils";
+import ShareOptionsDialog from "@/components/sharing/ShareOptionsDialog";
 
 interface ToolbarStatusProps {
   handleSave: () => void;
@@ -17,6 +18,8 @@ interface ToolbarStatusProps {
   wordCount?: number;
   charCount?: number;
   readingTime?: number;
+  content?: string;
+  title?: string;
 }
 
 const ToolbarStatus: React.FC<ToolbarStatusProps> = ({
@@ -31,8 +34,11 @@ const ToolbarStatus: React.FC<ToolbarStatusProps> = ({
   onExportPDF,
   wordCount = 0,
   charCount = 0,
-  readingTime = 0
+  readingTime = 0,
+  content = '',
+  title
 }) => {
+  const [isShareDialogOpen, setIsShareDialogOpen] = useState(false);
   const handleThemeToggle = () => {
     if (onThemeToggle) {
       onThemeToggle();
@@ -78,6 +84,25 @@ const ToolbarStatus: React.FC<ToolbarStatusProps> = ({
           {readingTime > 0 && <span>~{readingTime}min read</span>}
         </div>
       )}
+      
+      {/* Share Dialog */}
+      <ShareOptionsDialog
+        isOpen={isShareDialogOpen}
+        onClose={() => setIsShareDialogOpen(false)}
+        noteContent={content}
+        noteTitle={title}
+      />
+      
+      {/* Share Button */}
+      <Button
+        variant="ghost"
+        size="icon"
+        onClick={() => setIsShareDialogOpen(true)}
+        className="text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-100"
+        title="Share"
+      >
+        <Share2 className="h-5 w-5" />
+      </Button>
 
       {/* Last saved indicator */}
       {lastSaved && (
@@ -159,16 +184,7 @@ const ToolbarStatus: React.FC<ToolbarStatusProps> = ({
         <Focus className="h-4 w-4" />
       </Button>
 
-      {/* Save button */}
-      <Button
-        onClick={handleSave}
-        size="sm"
-        className="bg-noteflow-500 hover:bg-noteflow-600 text-white p-1.5 md:p-2 px-3 md:px-4"
-        title="Save Note (Ctrl+S)"
-      >
-        <Save className="h-4 w-4 mr-1" />
-        <span className="hidden sm:inline">Save</span>
-      </Button>
+      {/* Save button removed - already present in the Notes panel */}
     </div>
   );
 };

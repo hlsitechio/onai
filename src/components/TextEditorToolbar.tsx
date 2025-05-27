@@ -9,8 +9,10 @@ interface TextEditorToolbarProps {
   handleSave: () => void;
   toggleLeftSidebar: () => void;
   toggleAISidebar: () => void;
+  toggleGeminiPanel: () => void;
   isLeftSidebarOpen: boolean;
   isAISidebarOpen: boolean;
+  isGeminiPanelOpen: boolean;
   lastSaved: Date | null;
   isFocusMode: boolean;
   toggleFocusMode: () => void;
@@ -25,6 +27,11 @@ const TextEditorToolbar: React.FC<TextEditorToolbarProps> = ({
   execCommand,
   handleSave,
   toggleLeftSidebar,
+  toggleAISidebar,
+  toggleGeminiPanel,
+  isLeftSidebarOpen,
+  isAISidebarOpen,
+  isGeminiPanelOpen,
   lastSaved,
   isFocusMode,
   toggleFocusMode,
@@ -38,6 +45,11 @@ const TextEditorToolbar: React.FC<TextEditorToolbarProps> = ({
   const wordCount = content.trim() 
     ? content.trim().split(/\s+/).length 
     : 0;
+    
+  // Extract title from content (first line, removing markdown heading symbols)
+  const noteTitle = content.trim()
+    ? content.split('\n')[0].replace(/^#+ /, '').substring(0, 50)
+    : 'Untitled Note';
 
   const handleExportNote = () => {
     if (onExportNote) {
@@ -84,6 +96,10 @@ const TextEditorToolbar: React.FC<TextEditorToolbarProps> = ({
       {/* Navigation section */}
       <ToolbarNavigation
         toggleSidebar={toggleLeftSidebar}
+        toggleAISidebar={toggleAISidebar}
+        toggleGeminiPanel={toggleGeminiPanel}
+        isAISidebarOpen={isAISidebarOpen}
+        isGeminiPanelOpen={isGeminiPanelOpen}
         onSpeechTranscript={(transcript) => {
           // Handle speech transcript if needed
           const newContent = content + (content.endsWith('\n') || content === '' ? '' : '\n') + transcript + ' ';
@@ -110,6 +126,8 @@ const TextEditorToolbar: React.FC<TextEditorToolbarProps> = ({
         isFocusMode={isFocusMode}
         toggleFocusMode={toggleFocusMode}
         wordCount={wordCount}
+        content={content}
+        title={noteTitle}
       />
     </div>
   );

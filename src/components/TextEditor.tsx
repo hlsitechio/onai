@@ -11,12 +11,15 @@ import { cn } from "@/lib/utils";
 import { useFocusModeManager } from "@/hooks/useFocusModeManager";
 import { useKeyboardShortcuts } from "@/hooks/useKeyboardShortcuts";
 import { useSupabaseNotes } from "@/hooks/useSupabaseNotes";
+import Gemini25Panel from "./gemini/Gemini25Panel";
 
 const TextEditor = () => {
   const { toast } = useToast();
   const isMobileDevice = useIsMobileDevice();
   const [isLeftSidebarOpen, setIsLeftSidebarOpen] = useState(true);
-  const [isAISidebarOpen, setIsAISidebarOpen] = useState(true);
+  const [isAISidebarOpen, setIsAISidebarOpen] = useState(false);
+  const [isGeminiPanelOpen, setIsGeminiPanelOpen] = useState(false);
+  const [activeSidebar, setActiveSidebar] = useState<'ai' | 'gemini' | null>(null);
   
   // Focus mode management
   const { isFocusMode, setFocusMode, toggleFocusMode } = useFocusModeManager();
@@ -78,15 +81,38 @@ const TextEditor = () => {
   };
   
   const toggleAISidebar = () => {
-    setIsAISidebarOpen(!isAISidebarOpen);
+    const newState = !isAISidebarOpen;
+    setIsAISidebarOpen(newState);
+    
+    // If opening AI sidebar, close Gemini panel and set active sidebar
+    if (newState) {
+      setIsGeminiPanelOpen(false);
+      setActiveSidebar('ai');
+    } else {
+      setActiveSidebar(isGeminiPanelOpen ? 'gemini' : null);
+    }
+  };
+  
+  const toggleGeminiPanel = () => {
+    const newState = !isGeminiPanelOpen;
+    setIsGeminiPanelOpen(newState);
+    
+    // If opening Gemini panel, close AI sidebar and set active sidebar
+    if (newState) {
+      setIsAISidebarOpen(false);
+      setActiveSidebar('gemini');
+    } else {
+      setActiveSidebar(isAISidebarOpen ? 'ai' : null);
+    }
   };
   
   const handleToggleFocusMode = () => {
     toggleFocusMode();
-    // When entering focus mode, close both sidebars
+    // When entering focus mode, close all sidebars
     if (!isFocusMode) {
       setIsLeftSidebarOpen(false);
       setIsAISidebarOpen(false);
+      setIsGeminiPanelOpen(false);
     }
   };
   
@@ -116,12 +142,12 @@ const TextEditor = () => {
         "mx-auto px-1 sm:px-2 md:px-3 max-w-full relative h-full",
         isFocusMode ? "z-[101]" : "z-10"
       )}>
-        <div className="flex flex-col md:flex-row gap-1 lg:gap-2 justify-center w-full h-full">
+        <div className="flex flex-col md:flex-row gap-1 lg:gap-2 justify-between w-full h-full">
           {/* Left sidebar - equal width panel (1/3) with fixed height */}
           <div className={cn(
             "shrink-0 mb-4 md:mb-0 transition-all duration-300 ease-in-out",
             isLeftSidebarOpen && !isFocusMode 
-              ? "opacity-100 w-full md:w-1/3" 
+              ? "opacity-100 w-full md:w-[32%]" 
               : "opacity-0 w-0 overflow-hidden"
           )}>
             {isLeftSidebarOpen && !isFocusMode && (
@@ -143,10 +169,10 @@ const TextEditor = () => {
           {/* The editor container - equal width panel (1/3) when both sidebars open with fixed height */}
           <div className={cn(
             "transition-all duration-300 ease-in-out",
-            // When both sidebars are open, all panels take 1/3 width
-            isLeftSidebarOpen && isAISidebarOpen && !isFocusMode && "w-full md:w-1/3",
-            // When only one sidebar is open, editor takes 2/3 width  
-            ((isLeftSidebarOpen && !isAISidebarOpen) || (!isLeftSidebarOpen && isAISidebarOpen)) && !isFocusMode && "w-full md:w-2/3",
+            // When both sidebars are open, all panels take exactly 32% width (for equal distribution)
+            isLeftSidebarOpen && isAISidebarOpen && !isFocusMode && "w-full md:w-[32%]",
+            // When only one sidebar is open, editor takes 66% width  
+            ((isLeftSidebarOpen && !isAISidebarOpen) || (!isLeftSidebarOpen && isAISidebarOpen)) && !isFocusMode && "w-full md:w-[66%]",
             // When no sidebars are open or in focus mode, editor takes full width
             ((!isLeftSidebarOpen && !isAISidebarOpen) || isFocusMode) && "w-full"
           )}>
@@ -157,8 +183,10 @@ const TextEditor = () => {
               handleSave={handleSave}
               toggleLeftSidebar={toggleLeftSidebar}
               toggleAISidebar={toggleAISidebar}
+              toggleGeminiPanel={toggleGeminiPanel}
               isLeftSidebarOpen={isLeftSidebarOpen}
               isAISidebarOpen={isAISidebarOpen}
+              isGeminiPanelOpen={isGeminiPanelOpen}
               lastSaved={lastSaved}
               isFocusMode={isFocusMode}
               toggleFocusMode={handleToggleFocusMode}
@@ -170,16 +198,27 @@ const TextEditor = () => {
           {/* Right sidebar - equal width panel (1/3) with fixed height */}
           <div className={cn(
             "shrink-0 mb-4 md:mb-0 transition-all duration-300 ease-in-out",
-            isAISidebarOpen && !isFocusMode 
-              ? "opacity-100 w-full md:w-1/3" 
+            (isAISidebarOpen || isGeminiPanelOpen) && !isFocusMode 
+              ? "opacity-100 w-full md:w-[32%]" 
               : "opacity-0 w-0 overflow-hidden"
           )}>
+            {/* AI Sidebar */}
             {isAISidebarOpen && !isFocusMode && (
               <div className="animate-fadeIn h-full">
                 <AISidebar
                   content={content}
                   onApplyChanges={setContent}
                   editorHeight={0}
+                />
+              </div>
+            )}
+            
+            {/* Gemini 2.5 Flash Panel */}
+            {isGeminiPanelOpen && !isFocusMode && (
+              <div className="animate-fadeIn h-full">
+                <Gemini25Panel
+                  content={content}
+                  onApplyChanges={setContent}
                 />
               </div>
             )}

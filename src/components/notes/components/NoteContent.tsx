@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { FileEdit } from "lucide-react";
+import { FileEdit, Lock } from "lucide-react";
 
 interface NoteContentProps {
   title: string;
@@ -26,7 +26,11 @@ const NoteContent: React.FC<NoteContentProps> = ({
           {title}
         </button>
         <p className="text-xs text-slate-400 mt-1 line-clamp-2">
-          {content.substring(0, 80)}...
+          {content.startsWith('ENC:') || content.startsWith('[Encrypted note') ? (
+            <span className="flex items-center gap-1 text-amber-400">
+              <Lock className="h-3 w-3" /> Encrypted note
+            </span>
+          ) : content.length > 80 ? `${content.substring(0, 80)}...` : content}
         </p>
       </div>
     </div>

@@ -25,7 +25,7 @@ export const getOrCreateEncryptionKey = (): string => {
   }
 };
 
-// Enhanced base64 validation with better error handling
+// Enhanced base64 validation with better error handling and more lenient checks
 const isValidBase64 = (str: string): boolean => {
   if (!str || typeof str !== 'string' || str.length === 0) {
     return false;
@@ -35,16 +35,19 @@ const isValidBase64 = (str: string): boolean => {
     // Remove any whitespace
     const cleanStr = str.trim();
     
-    // Check if it contains only valid base64 characters
-    if (!/^[A-Za-z0-9+/]*={0,2}$/.test(cleanStr)) {
+    // Less strict check: just make sure it only contains valid base64 characters
+    // This is more lenient than requiring proper padding
+    if (!/^[A-Za-z0-9+/=]+$/.test(cleanStr)) {
       return false;
     }
     
-    // Try to decode it
-    const decoded = atob(cleanStr);
-    
-    // Check if it can be encoded back to the same string
-    return btoa(decoded) === cleanStr;
+    // Try to decode it - if this works, it's valid enough
+    try {
+      atob(cleanStr);
+      return true;
+    } catch (decodeError) {
+      return false;
+    }
   } catch (e) {
     return false;
   }
@@ -64,13 +67,21 @@ const isEncryptedContent = (content: string): boolean => {
     }
     
     // Check if it looks like old base64 encrypted content
-    // Encrypted content is typically long and only contains base64 characters
-    if (content.length > 50 && isValidBase64(content)) {
-      // Additional check: encrypted content shouldn't contain common words
-      const commonWords = ['the', 'and', 'or', 'but', 'in', 'on', 'at', 'to', 'for', 'of', 'with', 'by'];
-      const lowerContent = content.toLowerCase();
-      const hasCommonWords = commonWords.some(word => lowerContent.includes(word));
-      return !hasCommonWords;
+    // Encrypted content is typically long and contains only base64 characters
+    if (content.length > 30) {
+      // For legacy encryption format without prefix, we're more lenient with validation
+      // as we just want to attempt decryption for content that looks encrypted
+      try {
+        // Just check if it generally looks like base64
+        const containsOnlyBase64Chars = /^[A-Za-z0-9+/=]+$/.test(content.trim());
+        
+        if (containsOnlyBase64Chars) {
+          // If it looks like base64, it's probably encrypted
+          return true;
+        }
+      } catch (e) {
+        // Ignore errors in regex matching
+      }
     }
     
     return false;
@@ -165,13 +176,34 @@ export const decryptContent = async (encryptedContent: string): Promise<string> 
       return encryptedContent;
     }
     
-    // Handle new format with ENC: prefix
+    // Try different decryption approaches in sequence
+    let result = encryptedContent;
+    
+    // First try: Handle new format with ENC: prefix
     if (encryptedContent.startsWith('ENC:')) {
-      return await decryptNewFormat(encryptedContent);
+      try {
+        result = await decryptNewFormat(encryptedContent);
+        if (result !== encryptedContent) return result;
+      } catch (e) {
+        console.warn('New format decryption failed, trying alternative method');
+      }
     }
     
-    // Handle old format (base64 without prefix)
-    return await decryptLegacyFormat(encryptedContent);
+    // Second try: Handle old format (base64 without prefix)
+    try {
+      result = await decryptLegacyFormat(encryptedContent);
+      if (result !== encryptedContent) return result;
+    } catch (e) {
+      console.warn('Legacy decryption failed');
+    }
+    
+    // If all decryption attempts failed but the content looks like encrypted data,
+    // return a user-friendly message instead of the encrypted blob
+    if (encryptedContent.length > 40 && /^[A-Za-z0-9+/=]+$/.test(encryptedContent)) {
+      return '[Encrypted note - unable to decrypt. The encryption key may have changed.]';
+    }
+    
+    return encryptedContent; // Return original content if decryption fails
   } catch (error) {
     console.warn('Decryption failed, returning content as-is:', error.message);
     return encryptedContent; // Return original content if decryption fails
@@ -184,9 +216,10 @@ const decryptNewFormat = async (encryptedContent: string): Promise<string> => {
     // Remove the ENC: prefix
     const base64Data = encryptedContent.substring(4);
     
-    // Validate base64
+    // Attempt to validate base64, but continue with decryption even if not perfectly valid
+    // This helps with compatibility for edge cases
     if (!isValidBase64(base64Data)) {
-      throw new Error('Invalid base64 in encrypted content');
+      console.warn('Base64 validation failed but continuing with decryption attempt');
     }
     
     const key = getOrCreateEncryptionKey();

@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 
 export const useNoteItemState = (noteId: string, displayName?: string, content?: string) => {
   const [isRenaming, setIsRenaming] = useState(false);
@@ -7,9 +7,15 @@ export const useNoteItemState = (noteId: string, displayName?: string, content?:
   const [isHovered, setIsHovered] = useState(false);
   
   // Generate a clean title from content or use custom name
-  const getCleanTitle = () => {
+  const getCleanTitle = useCallback(() => {
+    // Use custom display name if available
     if (displayName && displayName.trim()) {
       return displayName;
+    }
+    
+    // Check if content is encrypted and return a standard label
+    if (content?.startsWith('ENC:') || content?.startsWith('[Encrypted note')) {
+      return 'Encrypted Note';
     }
     
     // Extract first meaningful line from content
@@ -20,12 +26,12 @@ export const useNoteItemState = (noteId: string, displayName?: string, content?:
     
     // Fallback to a simple "Note" with creation info
     return `Note ${new Date().toLocaleDateString()}`;
-  };
+  }, [displayName, content]);
   
   // Initialize with clean title
   useEffect(() => {
     setNewName(getCleanTitle());
-  }, [noteId, displayName, content]);
+  }, [noteId, displayName, content, getCleanTitle]);
 
   return {
     isRenaming,
