@@ -118,13 +118,73 @@
         });
       }
   
+      // Override document.write before any scripts load to prevent parser-blocking behavior
+      (function() {
+        // Store the original document.write
+        const originalDocWrite = document.write;
+        
+        // Override document.write with a safe alternative
+        document.write = function(...args) {
+          // Check if this is coming from Ezoic or related scripts
+          const stack = new Error().stack || '';
+          const isEzoicCall = stack.includes('ezoic') || stack.includes('gatekeeper');
+          
+          // For Ezoic calls, use DOM insertion instead
+          if (isEzoicCall) {
+            console.log('Intercepted document.write from Ezoic script');
+            const content = args[0] || '';
+            
+            // Check if it's a script tag
+            if (content.includes('<script')) {
+              // Extract src if it's an external script
+              const srcMatch = content.match(/src=['"]([^'"]*)['"]/);
+              if (srcMatch && srcMatch[1]) {
+                // Create and append script asynchronously
+                const script = document.createElement('script');
+                script.src = srcMatch[1];
+                script.async = true;
+                document.head.appendChild(script);
+              } else {
+                // Extract inline script content
+                const scriptContent = content.replace(/<script[^>]*>([\s\S]*?)<\/script>/gi, '$1');
+                if (scriptContent.trim()) {
+                  // Execute inline script safely
+                  setTimeout(() => {
+                    const script = document.createElement('script');
+                    script.textContent = scriptContent;
+                    document.head.appendChild(script);
+                  }, 0);
+                }
+              }
+            } else {
+              // For non-script content, append to body when it's ready
+              const appendContent = () => {
+                const div = document.createElement('div');
+                div.innerHTML = content;
+                document.body.appendChild(div);
+              };
+              
+              if (document.body) {
+                appendContent();
+              } else {
+                document.addEventListener('DOMContentLoaded', appendContent);
+              }
+            }
+          } else {
+            // For non-Ezoic calls, use the original (but warn in console)
+            console.warn('document.write called from non-Ezoic script:', stack);
+            originalDocWrite.apply(document, args);
+          }
+        };
+      })();
+      
       // Load third-party scripts asynchronously in the correct order
       window.addEventListener('DOMContentLoaded', () => {
         // Load consent management scripts
         loadScript('https://cmp.gatekeeperconsent.com/min.js', { 'data-cfasync': 'false' })
           .then(() => loadScript('https://the.gatekeeperconsent.com/min.js', { 'data-cfasync': 'false' }))
           .then(() => {
-            // Then load Ezoic scripts
+            // Then load Ezoic scripts with additional safeguards
             loadScript('https://www.ezojs.com/ezoic/sa.min.js');
             loadScript('https://www.ezojs.com/ezoic/ezoic.js', { defer: true });
           })
