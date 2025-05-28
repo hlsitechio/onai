@@ -12,6 +12,19 @@ import supabaseSecurity, { initSupabaseSecurity } from './supabaseSecurity';
 import geminiSecurity, { initGeminiSecurity } from './geminiSecurity';
 import uiSecurity, { initUISecurity } from './uiSecurity';
 
+// Import components from securityMiddleware
+import securityMiddleware, {
+  SecurityProvider,
+  useSecurity,
+  withSecurity,
+  SecureInput,
+  SecureLink,
+  SecureContent,
+  useGeminiSecurity,
+  useSupabaseSecurity,
+  useModalSecurity
+} from './securityMiddleware.tsx';
+
 // Create a dedicated logger for the security system
 const logger = createLogger('SecuritySystem');
 
@@ -58,6 +71,19 @@ export const Security = {
   
   // Initialize the entire security system
   init: initSecuritySystem
+};
+
+// Export SecurityMiddleware components
+export {
+  SecurityProvider,
+  useSecurity,
+  withSecurity,
+  SecureInput,
+  SecureLink,
+  SecureContent,
+  useGeminiSecurity,
+  useSupabaseSecurity,
+  useModalSecurity
 };
 
 export default Security;

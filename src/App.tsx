@@ -16,7 +16,7 @@ import { validateStorageIntegrity, purgeUserData } from "./utils/securityUtils";
 import { PerformanceDashboard } from "./components/performance/PerformanceDashboard";
 import { useParams, useLocation } from "react-router-dom";
 import { FocusModeProvider } from "./contexts";
-import { SecurityProvider } from "./utils/security/securityMiddleware";
+import { SecurityProvider } from "./utils/security/securityMiddleware.tsx";
 import { SubscriptionManager } from "./components/subscription/SubscriptionManager";
 import "./utils/gpuOptimizations"; // Import GPU optimization utilities
 import "./styles/focus-mode.css"; // Import focus mode styles
