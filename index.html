@@ -33,12 +33,12 @@
       (function() {
         const originalXHR = window.XMLHttpRequest;
         const originalFetch = window.fetch;
-    
+
         // Block XMLHttpRequest to ID5
         window.XMLHttpRequest = function() {
           const xhr = new originalXHR();
           const originalOpen = xhr.open;
-      
+  
           xhr.open = function(method, url, ...args) {
             if (typeof url === 'string' && url.includes('id5-sync.com')) {
               console.warn('Blocked ID5 sync request:', url);
@@ -46,10 +46,10 @@
             }
             return originalOpen.apply(this, [method, url, ...args]);
           };
-      
+  
           return xhr;
         };
-    
+
         // Block fetch requests to ID5
         window.fetch = function(input, init) {
           const url = typeof input === 'string' ? input : input.url;
@@ -62,43 +62,77 @@
       })();
     </script>
 
-    <!-- Ezoic Privacy Scripts - MUST be loaded before header script -->
-    <script src="https://cmp.gatekeeperconsent.com/min.js" data-cfasync="false"></script>
-    <script src="https://the.gatekeeperconsent.com/min.js" data-cfasync="false"></script>
+    <!-- Modern script loading approach for third-party scripts -->
+    <!-- Preload key third-party resources -->
+    <link rel="preconnect" href="https://cmp.gatekeeperconsent.com">
+    <link rel="preconnect" href="https://the.gatekeeperconsent.com">
+    <link rel="preconnect" href="https://www.ezojs.com">
 
-    <!-- Ezoic Header Script with optimized loading -->
+    <!-- Consent management platform scripts with async loading -->
     <script>
-      // Configure Ezoic before loading to reduce aggressive preloading
+      // Configure Ezoic settings before loading scripts
       window.ezstandalone = window.ezstandalone || {};
       window.ezstandalone.cmd = window.ezstandalone.cmd || [];
       window.ezstandalone.siteId = '6eZm6eLkURwuc3wNp6XGJn8Mq5oDBa';
   
-      // Optimize Ezoic preload behavior and disable ID5 sync
+      // Disable aggressive preloading
       window.ezstandalone.preloadConfig = {
         aggressive: false,
         timeout: 2000,
         maxResources: 3
       };
   
-      // Disable ID5 sync in Ezoic
+      // Explicitly disable ID5 tracking
       window.ezstandalone.disableId5 = true;
   
-      // Filter out Ezoic preload warnings from console (avoid duplicate declaration)
+      // Suppress console warnings
       if (!window.ezoicConsoleFiltered) {
         window.ezoicConsoleFiltered = true;
         const originalConsoleWarn = console.warn;
         console.warn = function(...args) {
           const message = args.join(' ');
-          if (message.includes('preloaded using link preload but not used') && 
-              (message.includes('ezojs.com') || message.includes('ezoic'))) {
-            return; // Suppress Ezoic preload warnings
+          if ((message.includes('preloaded using link preload but not used') && 
+               (message.includes('ezojs.com') || message.includes('ezoic'))) ||
+              (message.includes('parser-blocking'))) {
+            return; // Suppress preload and parser-blocking warnings
           }
           originalConsoleWarn.apply(console, args);
         };
       }
+  
+      // Modern async script loading function
+      function loadScript(src, attributes = {}) {
+        return new Promise((resolve, reject) => {
+          const script = document.createElement('script');
+          script.src = src;
+          script.async = true;
+      
+          // Add any additional attributes
+          Object.entries(attributes).forEach(([key, value]) => {
+            script.setAttribute(key, value);
+          });
+      
+          script.onload = resolve;
+          script.onerror = reject;
+          document.head.appendChild(script);
+        });
+      }
+  
+      // Load third-party scripts asynchronously in the correct order
+      window.addEventListener('DOMContentLoaded', () => {
+        // Load consent management scripts
+        loadScript('https://cmp.gatekeeperconsent.com/min.js', { 'data-cfasync': 'false' })
+          .then(() => loadScript('https://the.gatekeeperconsent.com/min.js', { 'data-cfasync': 'false' }))
+          .then(() => {
+            // Then load Ezoic scripts
+            loadScript('https://www.ezojs.com/ezoic/sa.min.js');
+            loadScript('https://www.ezojs.com/ezoic/ezoic.js', { defer: true });
+          })
+          .catch(error => {
+            console.error('Error loading third-party scripts:', error);
+          });
+      });
     </script>
-    <script async src="//www.ezojs.com/ezoic/sa.min.js"></script>
-    <script src="//www.ezojs.com/ezoic/ezoic.js" defer></script>
 
     <!-- Resource Hints for actually needed resources -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
