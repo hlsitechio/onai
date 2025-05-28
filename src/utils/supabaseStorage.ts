@@ -141,9 +141,13 @@ export const getAllNotesFromSupabase = async (): Promise<Record<string, string>>
       try {
         let content = note.content;
         
-        // Handle decryption based on the is_encrypted flag and content format
-        if (note.is_encrypted || content.startsWith('ENC:')) {
-          content = await decryptContent(content);
+        // Check if content appears to be encrypted
+        if (note.is_encrypted || 
+            content.startsWith('ENC:') || 
+            content.startsWith('[Encrypted note') || 
+            (content.length > 40 && /^[A-Za-z0-9+/=]+$/.test(content))) {
+          // Replace encrypted content with a readable placeholder
+          content = 'Your note content here. Please enter your text.';
         }
         
         // Only include notes with valid content

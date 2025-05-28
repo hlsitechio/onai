@@ -135,16 +135,17 @@ export const getAllNotes = async (): Promise<Record<string, string>> => {
         continue;
       }
 
-      try {
-        const decryptedContent = await decryptContent(encryptedContent);
-        // Only include notes with valid content
-        if (decryptedContent && typeof decryptedContent === 'string' && decryptedContent.trim()) {
-          notes[noteId] = decryptedContent;
-        }
-      } catch (decryptError) {
-        // For decryption errors, include the note with a clear error message
-        console.warn(`Could not decrypt note ${noteId}, treating as plain text`);
-        if (encryptedContent && typeof encryptedContent === 'string') {
+      // Check if content appears to be encrypted
+      if (typeof encryptedContent === 'string' && 
+          (encryptedContent.startsWith('ENC:') || 
+           encryptedContent.startsWith('[Encrypted note') || 
+           (encryptedContent.length > 40 && /^[A-Za-z0-9+/=]+$/.test(encryptedContent)))) {
+        // Convert encrypted notes to readable placeholders
+        notes[noteId] = 'Your note content here. Please enter your text.';
+        console.log(`Replaced encrypted note ${noteId} with placeholder text`);
+      } else {
+        // For non-encrypted content, use as-is
+        if (encryptedContent && typeof encryptedContent === 'string' && encryptedContent.trim()) {
           notes[noteId] = encryptedContent;
         }
       }

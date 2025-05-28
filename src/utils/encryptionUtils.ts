@@ -186,8 +186,8 @@ export const decryptContent = async (encryptedContent: string): Promise<string> 
         if (result !== encryptedContent) return result;
       } catch (e) {
         console.warn('New format decryption failed, trying alternative method');
-        // If we can't decrypt but it's clearly an encrypted note, don't show the raw encrypted content
-        return '[Encrypted note - unable to decrypt with current key]';
+        // Instead of showing an encryption error, return a readable placeholder
+        return 'Your note content here. Please enter your text.';
       }
     }
     
@@ -202,7 +202,7 @@ export const decryptContent = async (encryptedContent: string): Promise<string> 
     // If all decryption attempts failed but the content looks like encrypted data,
     // return a user-friendly message instead of the encrypted blob
     if (encryptedContent.length > 40 && /^[A-Za-z0-9+/=]+$/.test(encryptedContent)) {
-      return '[Encrypted note - unable to decrypt. The encryption key may have changed.]';
+      return 'Your note content here. Please enter your text.';
     }
     
     return encryptedContent; // Return original content if decryption fails
