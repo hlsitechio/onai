@@ -1,5 +1,5 @@
 import React, { useState, ReactNode } from 'react';
-import { FocusModeContext } from './FocusModeContext';
+import FocusModeContext from './FocusModeContext';
 
 interface FocusModeProviderProps {
   children: ReactNode;
@@ -15,11 +15,11 @@ export const FocusModeProvider: React.FC<FocusModeProviderProps> = ({
   initialFocusMode = false 
 }) => {
   // State to track whether focus mode is enabled
-  const [focusMode, setFocusMode] = useState<boolean>(initialFocusMode);
+  const [isFocusMode, setFocusMode] = useState<boolean>(initialFocusMode);
 
   // Value object to be provided to consumers
   const contextValue = {
-    focusMode,
+    isFocusMode,
     setFocusMode
   };
 
