@@ -3,10 +3,11 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 interface AnimatedPlaceholderProps {
-  isVisible: boolean;
+  isVisible?: boolean;
+  isFocusMode?: boolean;
 }
 
-const AnimatedPlaceholder: React.FC<AnimatedPlaceholderProps> = ({ isVisible }) => {
+const AnimatedPlaceholder: React.FC<AnimatedPlaceholderProps> = ({ isVisible = true, isFocusMode = false }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
   
   const writingIdeas = [

@@ -9,3 +9,6 @@ export { FocusModeContext };
 export * from './FocusModeTypes';
 export * from './focusModeUtils';
 export * from './FocusModeProvider';
+
+// Export subscription related items
+export * from './SubscriptionContext';

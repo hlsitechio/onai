@@ -1,0 +1,440 @@
+/**
+ * GitHub Roadmap Synchronization Utility
+ * 
+ * This module provides utilities to synchronize the OneAI roadmap with GitHub issues,
+ * allowing for seamless updates between the development workflow and user-facing roadmap.
+ */
+
+import { Octokit } from '@octokit/rest';
+import { RoadmapItem, RoadmapCategory, RoadmapPriority, RoadmapStatus } from '@/types/roadmap';
+
+// GitHub repository details
+const REPO_OWNER = 'hlsitechio';
+const REPO_NAME = 'oneai';
+const ROADMAP_LABEL = 'roadmap';
+const ROADMAP_CONFIG_PATH = 'roadmap-config.json';
+
+// Category and priority mapping from GitHub labels
+const CATEGORY_MAPPING: Record<string, RoadmapCategory> = {
+  'category:core': 'core',
+  'category:ai': 'ai',
+  'category:ui': 'ui',
+  'category:security': 'security',
+  'category:performance': 'performance'
+};
+
+const PRIORITY_MAPPING: Record<string, RoadmapPriority> = {
+  'priority:low': 'low',
+  'priority:medium': 'medium',
+  'priority:high': 'high',
+  'priority:critical': 'critical'
+};
+
+const STATUS_MAPPING: Record<string, RoadmapStatus> = {
+  'status:planned': 'planned',
+  'status:in-progress': 'in-progress',
+  'status:completed': 'completed',
+  'status:delayed': 'delayed'
+};
+
+/**
+ * Create an authenticated Octokit instance
+ */
+const createOctokit = (token: string) => {
+  return new Octokit({
+    auth: token
+  });
+};
+
+/**
+ * Extract estimated days from issue body
+ */
+const extractEstimatedDays = (body: string): number => {
+  const match = body.match(/estimated days: (\d+)/i);
+  return match ? parseInt(match[1], 10) : 0;
+};
+
+/**
+ * Extract completion percentage from issue body
+ */
+const extractCompletionPercentage = (body: string): number => {
+  const match = body.match(/completion: (\d+)%/i);
+  return match ? parseInt(match[1], 10) : 0;
+};
+
+/**
+ * Extract target date from issue body
+ */
+const extractTargetDate = (body: string): string => {
+  const match = body.match(/target date: (\d{4}-\d{2}-\d{2})/i);
+  return match ? match[1] : new Date().toISOString().split('T')[0];
+};
+
+/**
+ * Extract tags from issue body
+ */
+const extractTags = (body: string): string[] => {
+  const match = body.match(/tags: (.+)$/im);
+  if (!match) return [];
+  
+  return match[1].split(',').map(tag => tag.trim());
+};
+
+/**
+ * Fetch roadmap issues from GitHub
+ */
+export const fetchRoadmapFromGitHub = async (token: string): Promise<RoadmapItem[]> => {
+  try {
+    const octokit = createOctokit(token);
+    
+    // Fetch issues with the roadmap label
+    const { data: issues } = await octokit.issues.listForRepo({
+      owner: REPO_OWNER,
+      repo: REPO_NAME,
+      labels: ROADMAP_LABEL,
+      state: 'all',
+      per_page: 100
+    });
+    
+    // Transform issues to roadmap items
+    const roadmapItems = issues.map(issue => {
+      // Extract labels
+      const labels = issue.labels.map(label => 
+        typeof label === 'string' ? label : label.name || ''
+      );
+      
+      // Determine category from labels
+      const category = labels.reduce((cat, label) => {
+        return CATEGORY_MAPPING[label as string] || cat;
+      }, 'core' as RoadmapCategory) as RoadmapCategory;
+      
+      // Determine priority from labels
+      const priority = labels.reduce((prio, label) => {
+        return PRIORITY_MAPPING[label as string] || prio;
+      }, 'medium' as RoadmapPriority) as RoadmapPriority;
+      
+      // Determine status from labels
+      const status = issue.state === 'closed' ? ('completed' as RoadmapStatus) : labels.reduce((stat, label) => {
+        return STATUS_MAPPING[label as string] || stat;
+      }, 'planned' as RoadmapStatus) as RoadmapStatus;
+      
+      // Extract additional metadata from issue body
+      const body = issue.body || '';
+      const estimatedDays = extractEstimatedDays(body);
+      const completionPercentage = status === 'completed' ? 100 : extractCompletionPercentage(body);
+      const targetDate = extractTargetDate(body);
+      const tags = extractTags(body);
+      
+      // Build the roadmap item with explicit type casting
+      return {
+        id: `gh-${issue.number}`,
+        title: issue.title,
+        description: body.split('\n')[0] || issue.title,
+        targetDate,
+        estimatedDays,
+        status,
+        category,
+        priority,
+        completionPercentage,
+        tags,
+        githubIssue: {
+          number: issue.number,
+          url: issue.html_url,
+          createdAt: issue.created_at,
+          updatedAt: issue.updated_at,
+          closedAt: issue.closed_at || undefined
+        }
+      };
+    });
+    
+    return roadmapItems;
+  } catch (error) {
+    console.error('Error fetching roadmap from GitHub:', error);
+    return [] as RoadmapItem[];
+  }
+};
+
+/**
+ * Create a new GitHub issue for a roadmap item
+ */
+export const createRoadmapIssue = async (
+  token: string,
+  item: Omit<RoadmapItem, 'id' | 'githubIssue'>
+): Promise<RoadmapItem | null> => {
+  try {
+    const octokit = createOctokit(token);
+    
+    // Prepare labels
+    const labels = [
+      ROADMAP_LABEL,
+      `category:${item.category}`,
+      `priority:${item.priority}`,
+      `status:${item.status}`
+    ];
+    
+    // Create issue body with metadata
+    const body = `
+${item.description}
+
+---
+
+**Roadmap Item Metadata:**
+- Target Date: ${item.targetDate}
+- Estimated Days: ${item.estimatedDays}
+- Completion: ${item.completionPercentage}%
+- Tags: ${item.tags?.join(', ') || 'none'}
+
+*This issue was created automatically from the OneAI Roadmap.*
+    `.trim();
+    
+    // Create the issue
+    const { data: issue } = await octokit.issues.create({
+      owner: REPO_OWNER,
+      repo: REPO_NAME,
+      title: item.title,
+      body,
+      labels
+    });
+    
+    // Return the roadmap item with GitHub issue details
+    return {
+      ...item,
+      id: `gh-${issue.number}`,
+      githubIssue: {
+        number: issue.number,
+        url: issue.html_url,
+        createdAt: issue.created_at,
+        updatedAt: issue.updated_at
+      }
+    };
+  } catch (error) {
+    console.error('Error creating roadmap issue on GitHub:', error);
+    return null;
+  }
+};
+
+/**
+ * Update an existing GitHub issue for a roadmap item
+ */
+export const updateRoadmapIssue = async (
+  token: string,
+  item: RoadmapItem
+): Promise<boolean> => {
+  if (!item.githubIssue) {
+    console.error('Cannot update issue: missing GitHub issue reference');
+    return false;
+  }
+  
+  try {
+    const octokit = createOctokit(token);
+    const issueNumber = item.githubIssue.number;
+    
+    // Prepare labels
+    const labels = [
+      ROADMAP_LABEL,
+      `category:${item.category}`,
+      `priority:${item.priority}`,
+      `status:${item.status}`
+    ];
+    
+    // Create issue body with metadata
+    const body = `
+${item.description}
+
+---
+
+**Roadmap Item Metadata:**
+- Target Date: ${item.targetDate}
+- Estimated Days: ${item.estimatedDays}
+- Completion: ${item.completionPercentage}%
+- Tags: ${item.tags?.join(', ') || 'none'}
+
+*This issue was updated automatically from the OneAI Roadmap.*
+    `.trim();
+    
+    // Update the issue
+    await octokit.issues.update({
+      owner: REPO_OWNER,
+      repo: REPO_NAME,
+      issue_number: issueNumber,
+      title: item.title,
+      body,
+      labels,
+      state: item.status === 'completed' ? 'closed' : 'open'
+    });
+    
+    return true;
+  } catch (error) {
+    console.error('Error updating roadmap issue on GitHub:', error);
+    return false;
+  }
+};
+
+/**
+ * Synchronize the entire roadmap with GitHub
+ */
+export const syncRoadmapWithGitHub = async (
+  token: string,
+  roadmapItems: RoadmapItem[]
+): Promise<RoadmapItem[]> => {
+  try {
+    // Fetch current GitHub issues
+    const githubItems = await fetchRoadmapFromGitHub(token);
+    
+    // Map of existing GitHub issues by ID
+    const existingItemsMap = new Map<string, RoadmapItem>();
+    githubItems.forEach(item => {
+      existingItemsMap.set(item.id, item);
+    });
+    
+    // Process each roadmap item
+    const updatedItems: RoadmapItem[] = [];
+    
+    for (const item of roadmapItems) {
+      if (item.id.startsWith('gh-')) {
+        // Item already has a GitHub issue, update it
+        const success = await updateRoadmapIssue(token, item);
+        if (success) {
+          updatedItems.push(item);
+        } else {
+          updatedItems.push({
+            ...item,
+            syncError: 'Failed to update GitHub issue'
+          });
+        }
+      } else {
+        // New item, create GitHub issue
+        const newItem = await createRoadmapIssue(token, item);
+        if (newItem) {
+          updatedItems.push(newItem);
+        } else {
+          updatedItems.push({
+            ...item,
+            syncError: 'Failed to create GitHub issue'
+          });
+        }
+      }
+    }
+    
+    return updatedItems;
+  } catch (error) {
+    console.error('Error synchronizing roadmap with GitHub:', error);
+    return roadmapItems;
+  }
+};
+
+/**
+ * Store roadmap configuration in GitHub repository
+ */
+export interface RoadmapConfigData extends Record<string, unknown> {
+  lastSyncedAt?: string;
+  [key: string]: unknown;
+}
+
+export const storeRoadmapConfig = async (
+  token: string,
+  config: RoadmapConfigData
+): Promise<boolean> => {
+  try {
+    const octokit = createOctokit(token);
+    
+    // Check if file exists
+    let sha: string | undefined;
+    try {
+      const { data } = await octokit.repos.getContent({
+        owner: REPO_OWNER,
+        repo: REPO_NAME,
+        path: ROADMAP_CONFIG_PATH
+      });
+      
+      if ('sha' in data) {
+        sha = data.sha;
+      }
+    } catch (error) {
+      // File doesn't exist yet, that's okay
+    }
+    
+    // Create or update file
+    await octokit.repos.createOrUpdateFileContents({
+      owner: REPO_OWNER,
+      repo: REPO_NAME,
+      path: ROADMAP_CONFIG_PATH,
+      message: 'Update roadmap configuration',
+      content: Buffer.from(JSON.stringify(config, null, 2)).toString('base64'),
+      sha
+    });
+    
+    return true;
+  } catch (error) {
+    console.error('Error storing roadmap configuration in GitHub:', error);
+    return false;
+  }
+};
+
+/**
+ * Retrieve roadmap configuration from GitHub repository
+ */
+export const getRoadmapConfig = async (token: string): Promise<RoadmapConfigData | null> => {
+  try {
+    const octokit = createOctokit(token);
+    
+    const { data } = await octokit.repos.getContent({
+      owner: REPO_OWNER,
+      repo: REPO_NAME,
+      path: ROADMAP_CONFIG_PATH
+    });
+    
+    if ('content' in data && data.encoding === 'base64') {
+      const content = Buffer.from(data.content, 'base64').toString('utf-8');
+      return JSON.parse(content);
+    }
+    
+    return null;
+  } catch (error) {
+    console.error('Error retrieving roadmap configuration from GitHub:', error);
+    return null;
+  }
+};
+
+/**
+ * Set up a webhook for real-time roadmap updates
+ */
+export const setupRoadmapWebhook = async (
+  token: string,
+  webhookUrl: string
+): Promise<boolean> => {
+  try {
+    const octokit = createOctokit(token);
+    
+    // Check if webhook already exists
+    const { data: hooks } = await octokit.repos.listWebhooks({
+      owner: REPO_OWNER,
+      repo: REPO_NAME
+    });
+    
+    const existingHook = hooks.find(hook => 
+      hook.config && hook.config.url === webhookUrl
+    );
+    
+    if (existingHook) {
+      // Webhook already exists
+      return true;
+    }
+    
+    // Create webhook
+    await octokit.repos.createWebhook({
+      owner: REPO_OWNER,
+      repo: REPO_NAME,
+      config: {
+        url: webhookUrl,
+        content_type: 'json'
+      },
+      events: ['issues', 'issue_comment']
+    });
+    
+    return true;
+  } catch (error) {
+    console.error('Error setting up roadmap webhook:', error);
+    return false;
+  }
+};

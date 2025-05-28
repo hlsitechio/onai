@@ -17,9 +17,10 @@ const TextEditor = () => {
   const { toast } = useToast();
   const isMobileDevice = useIsMobileDevice();
   const [isLeftSidebarOpen, setIsLeftSidebarOpen] = useState(true);
-  const [isAISidebarOpen, setIsAISidebarOpen] = useState(false);
+  // Initialize AI sidebar to open by default
+  const [isAISidebarOpen, setIsAISidebarOpen] = useState(true);
   const [isGeminiPanelOpen, setIsGeminiPanelOpen] = useState(false);
-  const [activeSidebar, setActiveSidebar] = useState<'ai' | 'gemini' | null>(null);
+  const [activeSidebar, setActiveSidebar] = useState<'ai' | 'gemini' | null>('ai'); // Set AI as the active sidebar by default
   
   // Focus mode management
   const { isFocusMode, setFocusMode, toggleFocusMode } = useFocusModeManager();

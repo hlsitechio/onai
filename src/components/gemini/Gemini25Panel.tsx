@@ -4,9 +4,11 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Loader2, Sparkles, Brain, Image, FileText, Bot, Code, GitBranch } from 'lucide-react';
 import { useGemini25 } from '@/hooks/useGemini25';
-import ThinkingDisplay from './ThinkingDisplay';
-import StructuredDataDisplay from './StructuredDataDisplay';
-import ImageGenerationPanel from './ImageGenerationPanel';
+import ThinkingDisplay from '@/components/gemini/ThinkingDisplay';
+import StructuredDataDisplay from '@/components/gemini/StructuredDataDisplay';
+import ImageGenerationPanel from '@/components/gemini/ImageGenerationPanel';
+import { GeminiUsageWrapper } from '@/components/gemini/GeminiUsageWrapper';
+import { toast } from 'sonner';
 
 interface Gemini25PanelProps {
   content: string;
@@ -76,64 +78,59 @@ const Gemini25Panel: React.FC<Gemini25PanelProps> = ({ content, onApplyChanges }
 
   return (
     <div className="flex flex-col h-full bg-[#03010a] rounded-xl overflow-hidden border border-white/5 shadow-lg">
-      {/* Header */}
-      <div className="p-4 border-b border-white/10 bg-gradient-to-r from-blue-900/40 to-purple-900/40">
+      {/* Compact Header */}
+      <div className="py-2 px-3 border-b border-white/10 bg-gradient-to-r from-blue-900/40 to-purple-900/40">
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <Sparkles className="h-5 w-5 text-blue-400" />
-            <h2 className="text-lg font-medium text-white">Gemini 2.5 Flash AI</h2>
-          </div>
           <div className="flex items-center gap-1">
-            <span className="text-xs px-2 py-0.5 bg-green-500/20 text-green-400 rounded-full">
-              Active
-            </span>
+            <Sparkles className="h-4 w-4 text-blue-400" />
+            <h2 className="text-sm font-medium text-white">Gemini 2.5 Flash AI</h2>
           </div>
+          <span className="text-xs px-2 py-0.5 bg-green-500/20 text-green-400 rounded-full">
+            Active
+          </span>
         </div>
-        <p className="text-xs text-slate-400 mt-1">
-          Enhanced AI capabilities with thinking, multimodal processing, and more
-        </p>
       </div>
 
-      {/* Tabs & Content */}
+      {/* Tabs & Content - More compact layout */}
       <Tabs 
         defaultValue="smart-analysis" 
         className="flex-1 flex flex-col"
         value={selectedTab}
         onValueChange={setSelectedTab}
       >
-        <div className="p-2 bg-black/20">
-          <TabsList className="w-full grid grid-cols-5 bg-transparent">
-            <TabsTrigger value="smart-analysis" className="data-[state=active]:bg-purple-900/30">
-              <Brain className="h-4 w-4 mr-1" />
-              <span className="hidden sm:inline">Analysis</span>
+        <div className="py-1 px-2 bg-black/20">
+          <TabsList className="w-full grid grid-cols-5 bg-transparent h-8">
+            <TabsTrigger value="smart-analysis" className="data-[state=active]:bg-purple-900/30 px-2 h-7">
+              <Brain className="h-3 w-3" />
+              <span className="hidden sm:inline text-xs ml-1">Analysis</span>
             </TabsTrigger>
-            <TabsTrigger value="structured-data" className="data-[state=active]:bg-blue-900/30">
-              <Code className="h-4 w-4 mr-1" />
-              <span className="hidden sm:inline">Structure</span>
+            <TabsTrigger value="structured-data" className="data-[state=active]:bg-blue-900/30 px-2 h-7">
+              <Code className="h-3 w-3" />
+              <span className="hidden sm:inline text-xs ml-1">Structure</span>
             </TabsTrigger>
-            <TabsTrigger value="image-generation" className="data-[state=active]:bg-indigo-900/30">
-              <Image className="h-4 w-4 mr-1" />
-              <span className="hidden sm:inline">Images</span>
+            <TabsTrigger value="image-generation" className="data-[state=active]:bg-indigo-900/30 px-2 h-7">
+              <Image className="h-3 w-3" />
+              <span className="hidden sm:inline text-xs ml-1">Images</span>
             </TabsTrigger>
-            <TabsTrigger value="image-analysis" className="data-[state=active]:bg-teal-900/30">
-              <GitBranch className="h-4 w-4 mr-1" />
-              <span className="hidden sm:inline">Analyze</span>
+            <TabsTrigger value="image-analysis" className="data-[state=active]:bg-teal-900/30 px-2 h-7">
+              <GitBranch className="h-3 w-3" />
+              <span className="hidden sm:inline text-xs ml-1">Analyze</span>
             </TabsTrigger>
-            <TabsTrigger value="document-processing" className="data-[state=active]:bg-amber-900/30">
-              <FileText className="h-4 w-4 mr-1" />
-              <span className="hidden sm:inline">Document</span>
+            <TabsTrigger value="document-processing" className="data-[state=active]:bg-amber-900/30 px-2 h-7">
+              <FileText className="h-3 w-3" />
+              <span className="hidden sm:inline text-xs ml-1">Document</span>
             </TabsTrigger>
           </TabsList>
         </div>
 
-        <div className="flex-1 overflow-auto p-4">
-          {/* Custom prompt input (visible for all tabs) */}
-          <div className="mb-4">
+        <div className="flex-1 overflow-auto px-3 py-2">
+          {/* Custom prompt input - more compact */}
+          <div className="mb-2">
             <Input
               placeholder="Enter custom instructions (optional)"
               value={customPrompt}
               onChange={(e) => setCustomPrompt(e.target.value)}
-              className="bg-white/5 border-white/10 text-white"
+              className="bg-white/5 border-white/10 text-white h-8 text-xs"
             />
           </div>
 
@@ -166,14 +163,15 @@ const Gemini25Panel: React.FC<Gemini25PanelProps> = ({ content, onApplyChanges }
             </div>
 
             <div className="flex gap-2">
-              <Button 
-                onClick={handleSmartAnalysis} 
-                disabled={loading || !content} 
-                className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
-              >
-                {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Brain className="mr-2 h-4 w-4" />}
-                Analyze with Gemini
-              </Button>
+              <GeminiUsageWrapper featureId="ai-gemini" onUseFeature={handleSmartAnalysis}>
+                <Button 
+                  disabled={loading || !content} 
+                  className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
+                >
+                  {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Brain className="mr-2 h-4 w-4" />}
+                  Analyze with Gemini
+                </Button>
+              </GeminiUsageWrapper>
               
               {response?.result && (
                 <Button 
@@ -214,14 +212,15 @@ const Gemini25Panel: React.FC<Gemini25PanelProps> = ({ content, onApplyChanges }
             </div>
 
             <div className="flex gap-2">
-              <Button 
-                onClick={handleExtractData} 
-                disabled={loading || !content} 
-                className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
-              >
-                {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Code className="mr-2 h-4 w-4" />}
-                Extract Data
-              </Button>
+              <GeminiUsageWrapper featureId="ai-gemini" onUseFeature={handleExtractData}>
+                <Button 
+                  disabled={loading || !content} 
+                  className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
+                >
+                  {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Code className="mr-2 h-4 w-4" />}
+                  Extract Data
+                </Button>
+              </GeminiUsageWrapper>
             </div>
           </TabsContent>
 
@@ -230,7 +229,10 @@ const Gemini25Panel: React.FC<Gemini25PanelProps> = ({ content, onApplyChanges }
             <ImageGenerationPanel 
               textPrompt={content}
               customPrompt={customPrompt}
-              onGenerateImage={generateImage}
+              onGenerateImage={(prompt, style) => {
+                // This is just a wrapper that ensures type compatibility
+                return Promise.resolve(generateImage(prompt, style));
+              }}
               loading={loading}
               generatedImageUrl={response?.result}
               error={error}
@@ -310,14 +312,15 @@ const Gemini25Panel: React.FC<Gemini25PanelProps> = ({ content, onApplyChanges }
             </div>
 
             <div className="flex gap-2">
-              <Button 
-                onClick={handleImageAnalysis} 
-                disabled={loading || uploadedImages.length === 0} 
-                className="bg-gradient-to-r from-teal-600 to-blue-600 hover:from-teal-700 hover:to-blue-700"
-              >
-                {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <GitBranch className="mr-2 h-4 w-4" />}
-                Analyze Images
-              </Button>
+              <GeminiUsageWrapper featureId="ai-gemini" onUseFeature={handleImageAnalysis}>
+                <Button 
+                  disabled={loading || uploadedImages.length === 0} 
+                  className="bg-gradient-to-r from-teal-600 to-blue-600 hover:from-teal-700 hover:to-blue-700"
+                >
+                  {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <GitBranch className="mr-2 h-4 w-4" />}
+                  Analyze Images
+                </Button>
+              </GeminiUsageWrapper>
               
               {response?.result && (
                 <Button 
@@ -358,14 +361,15 @@ const Gemini25Panel: React.FC<Gemini25PanelProps> = ({ content, onApplyChanges }
             </div>
 
             <div className="flex gap-2">
-              <Button 
-                onClick={handleProcessDocument} 
-                disabled={loading || !content} 
-                className="bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-700 hover:to-orange-700"
-              >
-                {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <FileText className="mr-2 h-4 w-4" />}
-                Process Document
-              </Button>
+              <GeminiUsageWrapper featureId="ai-gemini" onUseFeature={handleProcessDocument}>
+                <Button 
+                  disabled={loading || !content} 
+                  className="bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-700 hover:to-orange-700"
+                >
+                  {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <FileText className="mr-2 h-4 w-4" />}
+                  Process Document
+                </Button>
+              </GeminiUsageWrapper>
               
               {response?.result && (
                 <Button 
@@ -381,15 +385,13 @@ const Gemini25Panel: React.FC<Gemini25PanelProps> = ({ content, onApplyChanges }
         </div>
       </Tabs>
 
-      {/* Footer */}
-      <div className="p-2 border-t border-white/10 bg-black/40 text-xs text-slate-500 flex items-center justify-between">
+      {/* Minimalist Footer */}
+      <div className="py-1 px-2 border-t border-white/10 bg-black/40 text-xs text-slate-500 flex items-center justify-between">
         <div className="flex items-center">
           <Bot className="h-3 w-3 mr-1" />
-          <span>Powered by Gemini 2.5 Flash</span>
+          <span className="text-xs">Gemini 2.5 Flash</span>
         </div>
-        <div>
-          <span className="text-xs">Privacy Protected</span>
-        </div>
+        <span className="text-xs">Privacy Protected</span>
       </div>
     </div>
   );

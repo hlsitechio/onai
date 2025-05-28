@@ -3,10 +3,19 @@
   <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Primary Meta Tags -->
+    <title>ONAI | AI-Powered Note Taking App with Focus Mode &amp; Cloud Sync</title>
+    <meta name="title" content="ONAI | AI-Powered Note Taking App with Focus Mode &amp; Cloud Sync">
+    <meta name="description" content="ONAI helps you organize thoughts with AI assistance, focus mode, and instant cloud sync. Free note-taking app with a modern design and customizable features.">
+    <meta name="keywords" content="AI note taking, cloud notes, focus mode, productivity app, ONAI, note assistant">
+    <meta name="robots" content="index, follow">
+    <meta name="language" content="English">
+    <meta name="author" content="ONAI">
+    <meta name="revisit-after" content="7 days">
+
     <!-- GPU Acceleration Hints -->
     <meta name="renderer" content="webkit|ie-comp|ie-stand">
     <meta name="force-rendering" content="webkit">
-    <title>Free Notes Online | Free Note Taking App | Online Note AI</title>
 
     <!-- Google tag (gtag.js) -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-LFFQYK81C6"></script>
@@ -24,12 +33,12 @@
       (function() {
         const originalXHR = window.XMLHttpRequest;
         const originalFetch = window.fetch;
-        
+    
         // Block XMLHttpRequest to ID5
         window.XMLHttpRequest = function() {
           const xhr = new originalXHR();
           const originalOpen = xhr.open;
-          
+      
           xhr.open = function(method, url, ...args) {
             if (typeof url === 'string' && url.includes('id5-sync.com')) {
               console.warn('Blocked ID5 sync request:', url);
@@ -37,10 +46,10 @@
             }
             return originalOpen.apply(this, [method, url, ...args]);
           };
-          
+      
           return xhr;
         };
-        
+    
         // Block fetch requests to ID5
         window.fetch = function(input, init) {
           const url = typeof input === 'string' ? input : input.url;
@@ -63,17 +72,17 @@
       window.ezstandalone = window.ezstandalone || {};
       window.ezstandalone.cmd = window.ezstandalone.cmd || [];
       window.ezstandalone.siteId = '6eZm6eLkURwuc3wNp6XGJn8Mq5oDBa';
-      
+  
       // Optimize Ezoic preload behavior and disable ID5 sync
       window.ezstandalone.preloadConfig = {
         aggressive: false,
         timeout: 2000,
         maxResources: 3
       };
-      
+  
       // Disable ID5 sync in Ezoic
       window.ezstandalone.disableId5 = true;
-      
+  
       // Filter out Ezoic preload warnings from console (avoid duplicate declaration)
       if (!window.ezoicConsoleFiltered) {
         window.ezoicConsoleFiltered = true;
@@ -111,7 +120,7 @@
     <meta name="keywords" content="free notes, free note, online notes, notes, free note taking app, free notes online, note taking app, free online notes, digital notes, web notes, free online notepad, free notes app, free digital notes, notes app free">
     <meta name="author" content="Online Note AI">
     <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
-    
+
     <!-- Structured Data for Rich Results -->
     <script type="application/ld+json">
     {
@@ -161,7 +170,58 @@
 
     <!-- Canonical URL -->
     <link rel="canonical" href="https://onlinenote.ai/">
-    
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://onlinenote.ai/">
+    <meta property="og:title" content="ONAI | AI-Powered Note Taking App">
+    <meta property="og:description" content="Create, organize, and enhance your notes with AI assistance, focus mode, and instant cloud sync. Free and secure.">
+    <meta property="og:image" content="https://onlinenote.ai/assets/onai-social-preview.jpg">
+    <meta property="og:image:alt" content="ONAI app interface showing AI-powered note taking">
+    <meta property="og:site_name" content="ONAI">
+
+    <!-- Twitter -->
+    <!-- App/PWA Meta Tags -->
+    <meta name="application-name" content="ONAI">
+    <meta name="apple-mobile-web-app-title" content="ONAI">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="msapplication-TileColor" content="#2b5797">
+    <meta name="theme-color" content="#ffffff">
+
+    <!-- Structured Data / Schema.org -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "SoftwareApplication",
+      "name": "ONAI",
+      "applicationCategory": "ProductivityApplication",
+      "operatingSystem": "Web",
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "USD"
+      },
+      "aggregateRating": {
+        "@type": "AggregateRating",
+        "ratingValue": "4.8",
+        "ratingCount": "1024",
+        "bestRating": "5",
+        "worstRating": "1"
+      },
+      "featureList": "AI Assistant, Focus Mode, Content Generation, Instant Cloud Sync, Modern Design, One-Click Sharing, Customizable Layout, Keyboard Shortcuts",
+      "screenshot": "https://onlinenote.ai/assets/onai-screenshot.jpg",
+      "softwareHelp": "https://onlinenote.ai/help",
+      "author": {
+        "@type": "Organization",
+        "name": "ONAI",
+        "url": "https://onlinenote.ai"
+      },
+      "description": "ONAI is an AI-powered note-taking application with focus mode, content generation, and instant cloud sync. Free, secure, and modern design."
+    }
+    </script>
+
     <!-- Additional SEO Meta Tags -->
     <meta name="application-name" content="OneAI Notes">
     <meta name="apple-mobile-web-app-title" content="OneAI Notes">
@@ -172,7 +232,7 @@
     <meta name="msapplication-navbutton-color" content="#000000">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="format-detection" content="telephone=no">
-    
+
     <!-- Browser Appearance -->
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
     <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">

@@ -186,6 +186,8 @@ export const decryptContent = async (encryptedContent: string): Promise<string> 
         if (result !== encryptedContent) return result;
       } catch (e) {
         console.warn('New format decryption failed, trying alternative method');
+        // If we can't decrypt but it's clearly an encrypted note, don't show the raw encrypted content
+        return '[Encrypted note - unable to decrypt with current key]';
       }
     }
     

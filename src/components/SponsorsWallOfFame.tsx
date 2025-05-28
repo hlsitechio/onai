@@ -12,7 +12,7 @@ const SponsorsWallOfFame = () => {
       name: "Alex Johnson",
       amount: "$50",
       message: "Love this note-taking app! Keep up the great work!",
-      avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop&crop=face",
+      avatar: "/assets/placeholders/avatars/avatar-placeholder.svg",
       platform: "buymeacoffee",
       tier: "gold"
     },
@@ -20,7 +20,7 @@ const SponsorsWallOfFame = () => {
       name: "Sarah Chen",
       amount: "$25",
       message: "Amazing tool for students like me. Thank you!",
-      avatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=100&h=100&fit=crop&crop=face",
+      avatar: "/assets/placeholders/avatars/avatar-placeholder.svg",
       platform: "buymeacoffee",
       tier: "silver"
     },
@@ -28,7 +28,7 @@ const SponsorsWallOfFame = () => {
       name: "Mike Rodriguez",
       amount: "$15",
       message: "Simple and effective. Exactly what I needed!",
-      avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop&crop=face",
+      avatar: "/assets/placeholders/avatars/avatar-placeholder.svg",
       platform: "buymeacoffee",
       tier: "bronze"
     },
@@ -36,31 +36,31 @@ const SponsorsWallOfFame = () => {
       name: "Emily Davis",
       amount: "$30",
       message: "Great for organizing my thoughts and ideas!",
-      avatar: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=100&h=100&fit=crop&crop=face",
+      avatar: "/assets/placeholders/avatars/avatar-placeholder.svg",
       platform: "buymeacoffee",
       tier: "silver"
     }
   ];
 
-  // Company sponsors with actual logos
+  // Company sponsors with local placeholder logos
   const companySponsors = [
     {
       name: "Google",
-      logo: "https://logos-world.net/wp-content/uploads/2020/09/Google-Logo.png",
+      logo: "/assets/placeholders/sponsors/company-placeholder.svg",
       website: "https://google.com",
       tier: "gold",
       sponsorshipLevel: "$250+"
     },
     {
       name: "Apple",
-      logo: "https://logos-world.net/wp-content/uploads/2020/04/Apple-Logo.png",
+      logo: "/assets/placeholders/sponsors/company-placeholder.svg",
       website: "https://apple.com",
       tier: "silver",
       sponsorshipLevel: "$100+"
     },
     {
       name: "Amazon",
-      logo: "https://logos-world.net/wp-content/uploads/2020/04/Amazon-Logo.png",
+      logo: "/assets/placeholders/sponsors/company-placeholder.svg",
       website: "https://amazon.com",
       tier: "silver",
       sponsorshipLevel: "$100+"

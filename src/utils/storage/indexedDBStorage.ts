@@ -24,56 +24,267 @@ export interface SyncMetadata {
 }
 
 /**
- * Initialize the IndexedDB database
+ * Initialize the IndexedDB database with improved error handling
  */
 export const initIndexedDB = (): Promise<IDBDatabase> => {
   return new Promise((resolve, reject) => {
     if (!window.indexedDB) {
+      console.error("IndexedDB not supported by this browser");
       reject(new Error("Your browser doesn't support IndexedDB"));
       return;
     }
 
-    const request = indexedDB.open(DB_NAME, DB_VERSION);
-
-    request.onerror = (event) => {
-      console.error("IndexedDB error:", event);
-      reject(new Error("Failed to open IndexedDB"));
-    };
-
-    request.onsuccess = (event) => {
-      const db = (event.target as IDBOpenDBRequest).result;
-      resolve(db);
-    };
-
-    request.onupgradeneeded = (event) => {
-      const db = (event.target as IDBOpenDBRequest).result;
+    // First try to open the database without specifying version
+    // This helps avoid version conflicts
+    const checkRequest = indexedDB.open(DB_NAME);
+    
+    checkRequest.onsuccess = (event) => {
+      const existingDb = (event.target as IDBOpenDBRequest).result;
+      const currentVersion = existingDb.version;
+      existingDb.close();
       
-      // Create notes store
-      if (!db.objectStoreNames.contains(NOTES_STORE)) {
-        const notesStore = db.createObjectStore(NOTES_STORE, { keyPath: 'id' });
-        notesStore.createIndex('by_updated', 'updated_at', { unique: false });
-        notesStore.createIndex('by_sync_status', 'is_synced', { unique: false });
-      }
-      
-      // Create sync metadata store
-      if (!db.objectStoreNames.contains(SYNC_STORE)) {
-        const syncStore = db.createObjectStore(SYNC_STORE, { keyPath: 'device_id' });
-        syncStore.createIndex('by_last_sync', 'last_sync', { unique: false });
-      }
+      // Now open with the correct version handling
+      const request = indexedDB.open(DB_NAME, DB_VERSION > currentVersion ? DB_VERSION : currentVersion);
+
+      request.onerror = (event) => {
+        console.error("IndexedDB error:", event);
+        // Don't reject immediately, try a recovery approach
+        attemptDatabaseRecovery()
+          .then(resolve)
+          .catch(() => reject(new Error("Failed to open IndexedDB")));
+      };
+
+      request.onsuccess = (event) => {
+        const db = (event.target as IDBOpenDBRequest).result;
+        resolve(db);
+      };
+
+      request.onupgradeneeded = (event) => {
+        const db = (event.target as IDBOpenDBRequest).result;
+        
+        try {
+          // Create notes store if it doesn't exist
+          if (!db.objectStoreNames.contains(NOTES_STORE)) {
+            const notesStore = db.createObjectStore(NOTES_STORE, { keyPath: 'id' });
+            notesStore.createIndex('by_updated', 'updated_at', { unique: false });
+            notesStore.createIndex('by_sync_status', 'is_synced', { unique: false });
+          }
+          
+          // Create sync metadata store if it doesn't exist
+          if (!db.objectStoreNames.contains(SYNC_STORE)) {
+            const syncStore = db.createObjectStore(SYNC_STORE, { keyPath: 'device_id' });
+            syncStore.createIndex('by_last_sync', 'last_sync', { unique: false });
+          }
+        } catch (err) {
+          console.error('Error during database upgrade:', err);
+          // We don't throw here to allow the transaction to complete
+        }
+      };
+    };
+    
+    checkRequest.onerror = (event) => {
+      console.error("Could not check database version:", event);
+      // Try the recovery method
+      attemptDatabaseRecovery()
+        .then(resolve)
+        .catch(() => reject(new Error("Failed to open IndexedDB")));
     };
   });
 };
 
 /**
- * Get a reference to the database
+ * Attempts to recover from database errors by deleting and recreating the database
+ * Only used as a last resort when normal initialization fails
  */
-export const getDB = async (): Promise<IDBDatabase> => {
+const attemptDatabaseRecovery = (): Promise<IDBDatabase> => {
+  return new Promise((resolve, reject) => {
+    console.warn('Attempting database recovery...');
+    
+    // Try to delete the database first
+    const deleteRequest = indexedDB.deleteDatabase(DB_NAME);
+    
+    deleteRequest.onsuccess = () => {
+      console.log('Successfully deleted database for recovery');
+      
+      // Now create a fresh database
+      const request = indexedDB.open(DB_NAME, DB_VERSION);
+      
+      request.onupgradeneeded = (event) => {
+        const db = (event.target as IDBOpenDBRequest).result;
+        
+        // Create fresh stores
+        try {
+          const notesStore = db.createObjectStore(NOTES_STORE, { keyPath: 'id' });
+          notesStore.createIndex('by_updated', 'updated_at', { unique: false });
+          notesStore.createIndex('by_sync_status', 'is_synced', { unique: false });
+          
+          const syncStore = db.createObjectStore(SYNC_STORE, { keyPath: 'device_id' });
+          syncStore.createIndex('by_last_sync', 'last_sync', { unique: false });
+          
+          console.log('Successfully recreated database stores');
+        } catch (err) {
+          console.error('Error recreating stores during recovery:', err);
+        }
+      };
+      
+      request.onsuccess = (event) => {
+        console.log('Database recovery successful');
+        resolve((event.target as IDBOpenDBRequest).result);
+      };
+      
+      request.onerror = (event) => {
+        console.error('Database recovery failed:', event);
+        reject(new Error('Database recovery failed'));
+      };
+    };
+    
+    deleteRequest.onerror = (event) => {
+      console.error('Failed to delete database during recovery:', event);
+      reject(new Error('Database recovery failed'));
+    };
+  });
+};
+
+// Track database instance to avoid repeatedly opening connections
+let dbInstance: IDBDatabase | null = null;
+
+/**
+ * Get a reference to the database with retry mechanism
+ */
+export const getDB = async (retryCount = 2): Promise<IDBDatabase> => {
   try {
-    return await initIndexedDB();
+    // Return cached instance if available
+    if (dbInstance && dbInstance.objectStoreNames.length > 0) {
+      return dbInstance;
+    }
+    
+    // Initialize new connection
+    const db = await initIndexedDB();
+    dbInstance = db;
+    return db;
   } catch (error) {
     console.error("Error getting IndexedDB:", error);
+    
+    // Retry logic with exponential backoff
+    if (retryCount > 0) {
+      const backoffTime = 300 * (3 - retryCount); // 300ms, 600ms
+      console.log(`Retrying database connection in ${backoffTime}ms... (${retryCount} attempts left)`);
+      
+      return new Promise((resolve, reject) => {
+        setTimeout(async () => {
+          try {
+            const db = await getDB(retryCount - 1);
+            resolve(db);
+          } catch (retryError) {
+            reject(retryError);
+          }
+        }, backoffTime);
+      });
+    }
+    
+    // Create a fallback in-memory implementation if all retries fail
+    if (retryCount === 0) {
+      console.warn("Creating fallback in-memory database after all retries failed");
+      return createFallbackInMemoryDB();
+    }
+    
     throw error;
   }
+};
+
+/**
+ * Creates a fallback in-memory database when IndexedDB is unavailable
+ * This allows the app to continue functioning, albeit with temporary storage
+ */
+const createFallbackInMemoryDB = (): IDBDatabase => {
+  // This is a simplified mock of IDBDatabase
+  // It won't persist data but allows the app to run without crashing
+  console.warn('Using in-memory fallback database - data will not persist!');
+  
+  // Define types for our store data
+  type NoteData = {
+    id: string;
+    content: string;
+    title: string;
+    created_at: string;
+    updated_at: string;
+    is_encrypted: boolean;
+    is_synced: boolean;
+    sync_hash?: string;
+  };
+  
+  type SyncData = {
+    device_id: string;
+    last_sync: string;
+  };
+  
+  // Use specific types for each store
+  const inMemoryData = new Map<string, Map<string, NoteData | SyncData>>();
+  inMemoryData.set(NOTES_STORE, new Map());
+  inMemoryData.set(SYNC_STORE, new Map());
+  
+  // Create minimal mock implementation
+  const mockDB = {
+    name: DB_NAME,
+    version: DB_VERSION,
+    objectStoreNames: {
+      contains: (name: string) => [NOTES_STORE, SYNC_STORE].includes(name),
+      length: 2,
+      item: (index: number) => [NOTES_STORE, SYNC_STORE][index],
+    },
+    transaction: (storeNames: string | string[], mode?: IDBTransactionMode) => {
+      const stores = typeof storeNames === 'string' ? [storeNames] : storeNames;
+      
+      return {
+        objectStore: (name: string) => {
+          const store = inMemoryData.get(name);
+          if (!store) throw new Error(`Store ${name} not found`);
+          
+          return {
+            put: (value: NoteData | SyncData) => ({
+              onsuccess: null,
+              onerror: null,
+              result: store.set(
+                // Use type guards to safely access properties
+                'id' in value ? value.id : ('device_id' in value ? value.device_id : ''), 
+                value
+              )
+            }),
+            get: (key: string) => ({
+              onsuccess: null,
+              onerror: null,
+              result: store.get(key)
+            }),
+            delete: (key: string) => ({
+              onsuccess: null,
+              onerror: null,
+              result: store.delete(key)
+            }),
+            getAll: () => ({
+              onsuccess: null,
+              onerror: null,
+              result: Array.from(store.values()) as (NoteData | SyncData)[]
+            }),
+            index: (indexName: string) => ({
+              getAll: () => ({
+                onsuccess: null,
+                onerror: null,
+                result: Array.from(store.values()) as (NoteData | SyncData)[]
+              })
+            })
+          };
+        },
+        oncomplete: null,
+        onerror: null,
+        onabort: null,
+      };
+    },
+    close: () => {
+      // No-op for mock
+    },
+  } as unknown as IDBDatabase;
+  
+  return mockDB;
 };
 
 /**

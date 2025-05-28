@@ -5,8 +5,10 @@ import { Menu, X, Settings, Mail, Home, Heart } from "lucide-react";
 import ContactForm from "./ContactForm";
 import SponsorDialog from "./SponsorDialog";
 import { trackPageView } from '../utils/analytics';
+import { Link, useNavigate } from 'react-router-dom';
 
 const Header = () => {
+  const navigate = useNavigate();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [contactDialogOpen, setContactDialogOpen] = useState(false);
   const [sponsorDialogOpen, setSponsorDialogOpen] = useState(false);
@@ -54,8 +56,8 @@ const Header = () => {
         <div className="container mx-auto px-4 py-3 flex items-center justify-between">
           {/* Logo */}
           <div className="flex items-center">
-            <a 
-              href="/" 
+            <Link 
+              to="/" 
               className="flex items-center group hover:opacity-80 transition-opacity"
               onClick={() => trackPageView('/', 'Home')}
             >
@@ -63,33 +65,49 @@ const Header = () => {
               <h1 className="text-lg md:text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-indigo-400 to-purple-500">
                 Online Note AI
               </h1>
-            </a>
+            </Link>
           </div>
 
           {/* Desktop navigation */}
           <div className="hidden md:flex items-center space-x-4">
-            <a 
-              href="/privacy-policy" 
+            <Link 
+              to="/roadmap" 
+              className="text-gray-300 hover:text-white text-sm transition-colors flex items-center gap-1"
+              onClick={() => trackPageView('/roadmap', 'Roadmap')}
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-git-branch-plus">
+                <path d="M6 3v12"/>
+                <path d="M18 9a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"/>
+                <path d="M6 9a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"/>
+                <path d="M18 9a9 9 0 0 1-9 9"/>
+                <path d="M18 22v-3"/>
+                <path d="M18 16v3h3"/>
+                <path d="M18 16v3h-3"/>
+              </svg>
+              Roadmap
+            </Link>
+            <Link 
+              to="/privacy-policy" 
               className="text-gray-300 hover:text-white text-sm transition-colors"
               onClick={() => trackPageView('/privacy-policy', 'Privacy Policy')}
             >
               Privacy Policy
-            </a>
-            <a 
-              href="/terms-of-use" 
+            </Link>
+            <Link 
+              to="/terms-of-use" 
               className="text-gray-300 hover:text-white text-sm transition-colors"
               onClick={() => trackPageView('/terms-of-use', 'Terms of Use')}
             >
               Terms of Use
-            </a>
-            <a 
-              href="/cookie-settings" 
+            </Link>
+            <Link 
+              to="/cookie-settings" 
               className="text-gray-300 hover:text-white text-sm transition-colors flex items-center gap-1"
               onClick={() => trackPageView('/cookie-settings', 'Cookie Settings')}
             >
               <Settings size={14} />
               Cookie Settings
-            </a>
+            </Link>
             <button
               onClick={handleOpenSponsorDialog}
               className="text-white text-sm transition-colors flex items-center gap-1 px-3 py-1.5 rounded-full bg-gradient-to-r from-purple-500 to-indigo-500 hover:from-purple-600 hover:to-indigo-600 shadow-md"
@@ -133,38 +151,72 @@ const Header = () => {
         <div className="absolute top-full left-0 w-full bg-black/95 backdrop-blur-lg md:hidden border-t border-white/10">
           <div className="container mx-auto px-4 py-4">
             {/* Get Started Button */}
-            <a 
-              href="#editor-section" 
+            <Link 
+              to="/" 
               className="block w-full mb-4 px-4 py-3 bg-gradient-to-r from-indigo-500 to-purple-600 text-white rounded-lg hover:from-indigo-600 hover:to-purple-700 transition-all duration-300 text-center font-medium shadow-lg"
-              onClick={() => setMobileMenuOpen(false)}
+              onClick={() => {
+                setMobileMenuOpen(false);
+                // Scroll to editor section after a short delay to ensure navigation completes
+                setTimeout(() => {
+                  document.getElementById('editor-section')?.scrollIntoView({ behavior: 'smooth' });
+                }, 100);
+              }}
             >
               Get Started
-            </a>
+            </Link>
             
             {/* Navigation Links */}
             <div className="space-y-1">
-              <a
-                href="/privacy-policy"
+              <Link
+                to="/roadmap"
+                className="flex items-center gap-2 px-4 py-3 text-gray-300 hover:text-white hover:bg-white/10 rounded-lg transition-all duration-200"
+                onClick={() => {
+                  setMobileMenuOpen(false);
+                  trackPageView('/roadmap', 'Roadmap');
+                }}
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-git-branch-plus">
+                  <path d="M6 3v12"/>
+                  <path d="M18 9a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"/>
+                  <path d="M6 9a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"/>
+                  <path d="M18 9a9 9 0 0 1-9 9"/>
+                  <path d="M18 22v-3"/>
+                  <path d="M18 16v3h3"/>
+                  <path d="M18 16v3h-3"/>
+                </svg>
+                Roadmap
+              </Link>
+              <Link
+                to="/privacy-policy"
                 className="block px-4 py-3 text-gray-300 hover:text-white hover:bg-white/10 rounded-lg transition-all duration-200"
-                onClick={() => setMobileMenuOpen(false)}
+                onClick={() => {
+                  setMobileMenuOpen(false);
+                  trackPageView('/privacy-policy', 'Privacy Policy');
+                }}
               >
                 Privacy Policy
-              </a>
-              <a 
-                href="/terms-of-use" 
+              </Link>
+              <Link 
+                to="/terms-of-use" 
                 className="block px-4 py-3 text-gray-300 hover:text-white hover:bg-white/10 rounded-lg transition-all duration-200"
-                onClick={() => setMobileMenuOpen(false)}
+                onClick={() => {
+                  setMobileMenuOpen(false);
+                  trackPageView('/terms-of-use', 'Terms of Use');
+                }}
               >
                 Terms of Use
-              </a>
-              <a
-                href="/cookie-settings"
+              </Link>
+              <Link
+                to="/cookie-settings"
                 className="flex items-center gap-2 px-4 py-3 text-gray-300 hover:text-white hover:bg-white/10 rounded-lg transition-all duration-200"
-                onClick={() => setMobileMenuOpen(false)}
+                onClick={() => {
+                  setMobileMenuOpen(false);
+                  trackPageView('/cookie-settings', 'Cookie Settings');
+                }}
               >
                 <Settings size={16} />
                 Cookie Settings
-              </a>
+              </Link>
               <button
                 className="flex items-center gap-2 w-full px-4 py-3 text-gray-300 hover:text-white hover:bg-white/10 rounded-lg transition-all duration-200 text-left"
                 onClick={() => {

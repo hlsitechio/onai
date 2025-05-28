@@ -16,6 +16,8 @@ import { validateStorageIntegrity, purgeUserData } from "./utils/securityUtils";
 import { PerformanceDashboard } from "./components/performance/PerformanceDashboard";
 import { useParams, useLocation } from "react-router-dom";
 import { FocusModeProvider } from "./contexts";
+import { SecurityProvider } from "./utils/security/securityMiddleware";
+import { SubscriptionManager } from "./components/subscription/SubscriptionManager";
 import "./utils/gpuOptimizations"; // Import GPU optimization utilities
 import "./styles/focus-mode.css"; // Import focus mode styles
 import "./styles/globals.css"; // Import global styles
@@ -26,6 +28,7 @@ import "./styles/horizontal-line-fix.css"; // Import horizontal line fix
 const PrivacyPolicy = lazy(() => import("./pages/privacy-policy"));
 const TermsOfUse = lazy(() => import("./pages/terms-of-use"));
 const CookieSettings = lazy(() => import("./pages/cookie-settings"));
+const Roadmap = lazy(() => import("./pages/Roadmap"));
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -183,45 +186,74 @@ const App = () => {
   return (
     <ErrorBoundary>
       <QueryClientProvider client={queryClient}>
-        <AppInitializer>
-          {/* Global dot grid background */}
-          <DotGridBackground />
-          
-          <TooltipProvider>
-            <Toaster />
-            <Sonner />
-            {/* Performance monitoring dashboard - outside router to avoid nesting issues */}
-            <PerformanceDashboard />
-            <div className={`transition-opacity duration-500 ${isAppLoaded ? 'opacity-100' : 'opacity-0'}`}>
-              <FocusModeProvider>
-                {/* Analytics component for tracking route changes */}
-                <GoogleAnalytics />
-                <Routes>
-                    <Route path="/" element={<Index />} />
-                    <Route path="/privacy-policy" element={
-                      <Suspense fallback={<PageLoader />}>
-                        <PrivacyPolicy />
-                      </Suspense>
-                    } />
-                    <Route path="/terms-of-use" element={
-                      <Suspense fallback={<PageLoader />}>
-                        <TermsOfUse />
-                      </Suspense>
-                    } />
-                    <Route path="/cookie-settings" element={
-                      <Suspense fallback={<PageLoader />}>
-                        <CookieSettings />
-                      </Suspense>
-                    } />
-                    {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-                    <Route path="*" element={<NotFound />} />
-                </Routes>
-                <CookieConsent />
-                <ScrollToTop />
-              </FocusModeProvider>
-            </div>
-          </TooltipProvider>
-        </AppInitializer>
+        <TooltipProvider>
+          <SecurityProvider>
+            <FocusModeProvider>
+              <ErrorBoundary>
+                <AppInitializer>
+                  {/* Global dot grid background */}
+                  <DotGridBackground />
+                  
+                  <Toaster />
+                  <Sonner />
+                  {/* Performance monitoring dashboard - outside router to avoid nesting issues */}
+                  <PerformanceDashboard />
+                  <div className={`transition-opacity duration-500 ${isAppLoaded ? 'opacity-100' : 'opacity-0'}`}>
+                    {/* Analytics component for tracking route changes */}
+                    <GoogleAnalytics />
+                    {/* Subscription manager button (hidden in focusMode) */}
+                    <div id="subscription-manager-trigger" className="fixed top-4 right-24 z-50 focus-mode-hidden">
+                      <SubscriptionManager />
+                    </div>
+                    <Routes>
+                      <Route path="/" element={<Index />} />
+                      <Route path="/roadmap" element={
+                        <Suspense fallback={<PageLoader />}>
+                          <Roadmap />
+                        </Suspense>
+                      } />
+                      {/* Support both kebab-case and PascalCase URLs for legal pages */}
+                      <Route path="/privacy-policy" element={
+                        <Suspense fallback={<PageLoader />}>
+                          <PrivacyPolicy />
+                        </Suspense>
+                      } />
+                      <Route path="/PrivacyPolicy" element={
+                        <Suspense fallback={<PageLoader />}>
+                          <PrivacyPolicy />
+                        </Suspense>
+                      } />
+                      <Route path="/terms-of-use" element={
+                        <Suspense fallback={<PageLoader />}>
+                          <TermsOfUse />
+                        </Suspense>
+                      } />
+                      <Route path="/TermsofUse" element={
+                        <Suspense fallback={<PageLoader />}>
+                          <TermsOfUse />
+                        </Suspense>
+                      } />
+                      <Route path="/cookie-settings" element={
+                        <Suspense fallback={<PageLoader />}>
+                          <CookieSettings />
+                        </Suspense>
+                      } />
+                      <Route path="/CookieSettings" element={
+                        <Suspense fallback={<PageLoader />}>
+                          <CookieSettings />
+                        </Suspense>
+                      } />
+                      {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+                      <Route path="*" element={<NotFound />} />
+                    </Routes>
+                    <CookieConsent />
+                    <ScrollToTop />
+                  </div>
+                </AppInitializer>
+              </ErrorBoundary>
+            </FocusModeProvider>
+          </SecurityProvider>
+        </TooltipProvider>
       </QueryClientProvider>
     </ErrorBoundary>
   );
