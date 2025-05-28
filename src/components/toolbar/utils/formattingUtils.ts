@@ -1,9 +1,17 @@
 
-import { getActiveEditor, wrapSelectedText, insertTextAtCursor } from './editorUtils';
+import { getActiveEditor, wrapSelectedText, insertTextAtCursor, getTiptapEditor } from './editorUtils';
 import DOMPurify from 'dompurify';
 
-// Enhanced formatting functions
+// Enhanced formatting functions that support both Tiptap and traditional editors
 export const handleBold = () => {
+  // First try to use Tiptap editor if available
+  const tiptapEditor = getTiptapEditor();
+  if (tiptapEditor) {
+    tiptapEditor.chain().focus().toggleBold().run();
+    return;
+  }
+
+  // Fallback to traditional approach
   const editor = getActiveEditor();
   if (editor && editor.contentEditable === 'true') {
     document.execCommand('bold', false);
@@ -15,6 +23,14 @@ export const handleBold = () => {
 };
 
 export const handleItalic = () => {
+  // First try to use Tiptap editor if available
+  const tiptapEditor = getTiptapEditor();
+  if (tiptapEditor) {
+    tiptapEditor.chain().focus().toggleItalic().run();
+    return;
+  }
+
+  // Fallback to traditional approach
   const editor = getActiveEditor();
   if (editor && editor.contentEditable === 'true') {
     document.execCommand('italic', false);
@@ -26,6 +42,14 @@ export const handleItalic = () => {
 };
 
 export const handleUnderline = () => {
+  // First try to use Tiptap editor if available
+  const tiptapEditor = getTiptapEditor();
+  if (tiptapEditor) {
+    tiptapEditor.chain().focus().toggleUnderline().run();
+    return;
+  }
+
+  // Fallback to traditional approach
   const editor = getActiveEditor();
   if (editor && editor.contentEditable === 'true') {
     document.execCommand('underline', false);
@@ -36,8 +60,27 @@ export const handleUnderline = () => {
   }
 };
 
-export const handleStrikethrough = () => wrapSelectedText('~~');
-export const handleCode = () => wrapSelectedText('`');
+export const handleStrikethrough = () => {
+  // First try to use Tiptap editor if available
+  const tiptapEditor = getTiptapEditor();
+  if (tiptapEditor) {
+    tiptapEditor.chain().focus().toggleStrike().run();
+    return;
+  }
+  
+  wrapSelectedText('~~');
+};
+
+export const handleCode = () => {
+  // First try to use Tiptap editor if available
+  const tiptapEditor = getTiptapEditor();
+  if (tiptapEditor) {
+    tiptapEditor.chain().focus().toggleCode().run();
+    return;
+  }
+  
+  wrapSelectedText('`');
+};
 
 export const handleHeading = (level: number) => {
   const editor = getActiveEditor();

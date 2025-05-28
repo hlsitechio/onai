@@ -1,8 +1,53 @@
 
 import DOMPurify from 'dompurify';
 
-// Get active editor element (either textarea or contentEditable div)
+// Define a type for the Tiptap editor instance
+interface TiptapEditor {
+  chain: () => {
+    focus: () => {
+      toggleBold: () => { run: () => void };
+      toggleItalic: () => { run: () => void };
+      toggleUnderline: () => { run: () => void };
+      toggleStrike: () => { run: () => void };
+      toggleCode: () => { run: () => void };
+      toggleHeading: (options: { level: number }) => { run: () => void };
+      toggleBulletList: () => { run: () => void };
+      toggleOrderedList: () => { run: () => void };
+      toggleCodeBlock: () => { run: () => void };
+      setLink: (options: { href: string }) => { run: () => void };
+    };
+  };
+  getHTML: () => string;
+  commands: {
+    setContent: (content: string) => void;
+  };
+}
+
+// Global variable to store Tiptap editor reference
+let tiptapEditorInstance: TiptapEditor | null = null;
+
+// Function to set the Tiptap editor instance
+export const setTiptapEditor = (editor: TiptapEditor) => {
+  tiptapEditorInstance = editor;
+};
+
+// Get the Tiptap editor instance
+export const getTiptapEditor = () => {
+  return tiptapEditorInstance;
+};
+
+// Get active editor element (either textarea, contentEditable div, or Tiptap editor)
 export const getActiveEditor = (): HTMLTextAreaElement | HTMLDivElement | null => {
+  // First check if we have a Tiptap editor instance
+  if (tiptapEditorInstance) {
+    // Return the DOM element for compatibility with existing code
+    const tiptapElement = document.querySelector('.ProseMirror');
+    if (tiptapElement) {
+      return tiptapElement as HTMLDivElement;
+    }
+  }
+  
+  // Fallback to traditional editor detection
   const activeElement = document.activeElement as HTMLTextAreaElement | HTMLDivElement;
   
   // Check for textarea first

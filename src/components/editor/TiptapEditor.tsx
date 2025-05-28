@@ -1,4 +1,4 @@
-import React, { useEffect, useCallback } from 'react'
+import React, { useEffect, useCallback, useRef } from 'react'
 import { useEditor, EditorContent, BubbleMenu } from '@tiptap/react'
 import StarterKit from '@tiptap/starter-kit'
 import Placeholder from '@tiptap/extension-placeholder'
@@ -8,6 +8,7 @@ import Underline from '@tiptap/extension-underline'
 import Link from '@tiptap/extension-link'
 import Image from '@tiptap/extension-image'
 import { cn } from '@/lib/utils'
+import { setTiptapEditor } from '../toolbar/utils/editorUtils'
 
 // Define toolbar button component
 const ToolbarButton = ({ 
@@ -95,6 +96,13 @@ const TiptapEditor: React.FC<TiptapEditorProps> = ({
       editor.commands.setContent(content || '')
     }
   }, [editor, content])
+  
+  // Register the editor instance with our utility functions
+  useEffect(() => {
+    if (editor) {
+      setTiptapEditor(editor)
+    }
+  }, [editor])
 
   // Handle Ctrl+S save shortcut
   const handleKeyDown = useCallback((event: KeyboardEvent) => {
