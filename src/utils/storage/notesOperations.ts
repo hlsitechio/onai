@@ -54,16 +54,9 @@ export const saveNote = async (noteId: string, content: string): Promise<Storage
     let finalContent = content;
     let isEncrypted = false;
     
-    if (content.trim() && content.length >= 10) {
-      try {
-        finalContent = await encryptContent(content);
-        isEncrypted = true;
-      } catch (encryptError) {
-        console.warn("Encryption failed, saving as plain text:", encryptError);
-        finalContent = content;
-        isEncrypted = false;
-      }
-    }
+    // Encryption disabled - always save as plain text
+    finalContent = content;
+    isEncrypted = false;
     
     // First try to save to IndexedDB (primary storage)
     try {

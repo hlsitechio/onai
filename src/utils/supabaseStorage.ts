@@ -64,19 +64,9 @@ export const saveNoteToSupabase = async (
     let finalContent = content;
     let actuallyEncrypted = false;
     
-    if (isEncrypted && content.trim() && content.length >= 10) {
-      try {
-        finalContent = await encryptContent(content);
-        actuallyEncrypted = true;
-      } catch (encryptError) {
-        console.error('Encryption failed, saving as plain text:', encryptError);
-        finalContent = content;
-        actuallyEncrypted = false;
-      }
-    } else {
-      finalContent = content;
-      actuallyEncrypted = false;
-    }
+    // Encryption permanently disabled - always save as plain text
+    finalContent = content;
+    actuallyEncrypted = false;
     
     // Check if the note already exists
     const { data: existingNote, error: checkError } = await supabase

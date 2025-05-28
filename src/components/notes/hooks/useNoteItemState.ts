@@ -13,10 +13,8 @@ export const useNoteItemState = (noteId: string, displayName?: string, content?:
       return displayName;
     }
     
-    // Check if content is encrypted and return a standard label
-    if (content?.startsWith('ENC:') || content?.startsWith('[Encrypted note')) {
-      return 'Encrypted Note';
-    }
+    // Encryption detection disabled
+    // Previously checked if content was encrypted, now we always show content
     
     // Extract first meaningful line from content
     const firstLine = content?.split('\n')[0].trim() || '';
