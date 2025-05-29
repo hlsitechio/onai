@@ -14,12 +14,17 @@ export enum SubscriptionPlan {
   ENTERPRISE = 'enterprise'
 }
 
+// Define payment status type
+export type PaymentStatus = 'active' | 'canceled' | 'failed';
+
 export interface SubscriptionData {
-  id: string;
+  id?: string;
   plan: SubscriptionPlan;
-  activatedAt: string;
-  expiresAt: string | null; // null means never expires
-  features: string[];
+  startDate?: string;
+  expiryDate?: string | null; // null means never expires
+  features?: string[];
+  paymentStatus?: PaymentStatus;
+  isTrial?: boolean;
 }
 
 export interface UsageRecord {
@@ -44,6 +49,13 @@ const DAILY_QUOTAS = {
     'ai-image-generation': 100
   }
 };
+
+// Import the Supabase sync functions
+import { 
+  syncSubscriptionWithSupabase, 
+  fetchSubscriptionFromSupabase,
+  trackAiUsageInSupabase
+} from './supabaseSubscriptionSync';
 
 /**
  * Initialize the subscription stores
@@ -169,19 +181,21 @@ export const ensureSubscription = async (): Promise<SubscriptionData> => {
       
       request.onsuccess = () => {
         if (request.result.length === 0) {
-          // No subscription found, create a free one
-          const freeSubscription: SubscriptionData = {
-            id: 'default',
+          // No subscription found, create a new subscription
+          const newSubscription: SubscriptionData = {
+            id: uuidv4(),
             plan: SubscriptionPlan.FREE,
-            activatedAt: new Date().toISOString(),
-            expiresAt: null,
-            features: ['ai-gemini', 'ai-image-generation']
+            startDate: new Date().toISOString(),
+            expiryDate: null,
+            features: Object.keys(DAILY_QUOTAS[SubscriptionPlan.FREE]),
+            paymentStatus: 'active',
+            isTrial: false
           };
           
-          const addRequest = store.add(freeSubscription);
+          const addRequest = store.add(newSubscription);
           
           addRequest.onsuccess = () => {
-            resolve(freeSubscription);
+            resolve(newSubscription);
           };
           
           addRequest.onerror = () => {
@@ -213,9 +227,36 @@ export const ensureSubscription = async (): Promise<SubscriptionData> => {
  */
 export const getCurrentSubscription = async (): Promise<SubscriptionData> => {
   try {
+    // First try to get from Supabase for the latest data
+    const supabaseSubscription = await fetchSubscriptionFromSupabase();
+    
+    if (supabaseSubscription) {
+      // Save the Supabase subscription locally
+      const db = await getDB();
+      const tx = db.transaction(SUBSCRIPTION_STORE, 'readwrite');
+      const store = tx.objectStore(SUBSCRIPTION_STORE);
+      
+      // Generate a local ID if not present
+      if (!supabaseSubscription.id) {
+        supabaseSubscription.id = uuidv4();
+      }
+      
+      const putRequest = store.put(supabaseSubscription);
+      
+      // Use a Promise to wait for transaction completion
+      await new Promise<void>((resolve, reject) => {
+        tx.oncomplete = () => resolve();
+        tx.onerror = () => reject(tx.error);
+        putRequest.onerror = () => reject(putRequest.error);
+      });
+      
+      return supabaseSubscription;
+    }
+    
+    // Fallback to local subscription
     return await ensureSubscription();
   } catch (error) {
-    console.error('Error getting current subscription:', error);
+    console.error('Error getting subscription:', error);
     throw createError(
       ErrorCode.SUBSCRIPTION_ERROR, 
       'Failed to get subscription details', 
@@ -267,16 +308,16 @@ export const upgradeSubscription = async (upgradeCode: string): Promise<Subscrip
         // Update the subscription
         const subscription = request.result[0];
         subscription.plan = newPlan;
-        subscription.activatedAt = new Date().toISOString();
+        subscription.startDate = new Date().toISOString();
         
         // For this demo, make pro plan expire after 30 days
         if (newPlan === SubscriptionPlan.PRO) {
           const expiryDate = new Date();
           expiryDate.setDate(expiryDate.getDate() + 30);
-          subscription.expiresAt = expiryDate.toISOString();
+          subscription.expiryDate = expiryDate.toISOString();
         } else if (newPlan === SubscriptionPlan.ENTERPRISE) {
           // Enterprise never expires in this demo
-          subscription.expiresAt = null;
+          subscription.expiryDate = null;
         }
         
         const updateRequest = store.put(subscription);
@@ -311,31 +352,32 @@ export const upgradeSubscription = async (upgradeCode: string): Promise<Subscrip
 export const trackFeatureUsage = async (feature: string): Promise<void> => {
   try {
     const db = await getDB();
+    const tx = db.transaction(USAGE_STORE, 'readwrite');
+    const store = tx.objectStore(USAGE_STORE);
+
+    const now = new Date();
+    const day = now.toISOString().split('T')[0]; // YYYY-MM-DD
+
+    const usageRecord: UsageRecord = {
+      id: uuidv4(),
+      feature,
+      timestamp: now.toISOString(),
+      day
+    };
+
+    const addRequest = store.add(usageRecord);
     
-    return new Promise((resolve, reject) => {
-      const transaction = db.transaction([USAGE_STORE], 'readwrite');
-      const store = transaction.objectStore(USAGE_STORE);
-      
-      const now = new Date();
-      const today = now.toISOString().split('T')[0]; // YYYY-MM-DD
-      
-      // Create a new usage record
-      const record: UsageRecord = {
-        id: uuidv4(),
-        feature,
-        timestamp: now.toISOString(),
-        day: today
-      };
-      
-      const request = store.add(record);
-      
-      request.onsuccess = () => {
-        resolve();
-      };
-      
-      request.onerror = () => {
-        reject(new Error('Failed to track feature usage'));
-      };
+    // Use a Promise to wait for transaction completion
+    await new Promise<void>((resolve, reject) => {
+      tx.oncomplete = () => resolve();
+      tx.onerror = () => reject(tx.error);
+      addRequest.onerror = () => reject(addRequest.error);
+    });
+    
+    // Also track in Supabase for analytics and sync
+    trackAiUsageInSupabase(feature).catch(err => {
+      console.warn('Failed to sync AI usage with Supabase:', err);
+      // Non-critical, continue execution
     });
   } catch (error) {
     console.error('Error tracking feature usage:', error);
@@ -362,14 +404,11 @@ export const canUseFeature = async (feature: string): Promise<boolean> => {
     }
     
     // Check for expiration
-    if (subscription.expiresAt) {
-      const expiryDate = new Date(subscription.expiresAt);
-      if (expiryDate < new Date()) {
-        // Subscription expired, downgrade to free
-        await downgradeToFree();
-        // Re-check with free plan
-        return await canUseFeature(feature);
-      }
+    if (subscription.expiryDate && new Date(subscription.expiryDate) > new Date()) {
+      // Subscription expired, downgrade to free
+      await downgradeToFree();
+      // Re-check with free plan
+      return await canUseFeature(feature);
     }
     
     // Get the quota for this feature based on subscription plan

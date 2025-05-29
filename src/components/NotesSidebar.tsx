@@ -114,7 +114,8 @@ const NotesSidebar: React.FC<NotesSidebarProps> = ({
   const getSortedAndFilteredNotesData = () => {
     return getSortedAndFilteredNotes(notes, searchQuery, sortOrder, filterType, customNoteNames, formatNoteId);
   };
-  return <div className="bg-gradient-to-b from-black/60 to-black/40 backdrop-blur-xl rounded-xl border border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.37)] flex flex-col text-white overflow-hidden animate-fadeIn h-[calc(100vh-200px)]">
+  return (
+    <div className="h-full md:h-[calc(100vh-4rem)] flex flex-col bg-gradient-to-b from-black/60 to-black/40 backdrop-blur-xl rounded-xl border border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.37)] overflow-hidden">
       <div className="p-3 sm:p-4 border-b border-white/10 bg-black/20">
         <NotesHeader onCreateNew={handleNewNote} isSearching={isSearching} onSearchToggle={() => setIsSearching(!isSearching)} onShowShortcuts={() => setIsShortcutsOpen(true)} onSortNotes={handleSortNotes} onFilterNotes={handleFilterNotes} onExportNotes={() => handleExportNotes(notes)} onImportNotes={handleImportNotesWithMerge} />
         
@@ -151,6 +152,7 @@ const NotesSidebar: React.FC<NotesSidebarProps> = ({
     }} content={selectedNoteId ? notes[selectedNoteId] : currentContent} title={selectedNoteId ? customNoteNames[selectedNoteId] || formatNoteId(selectedNoteId) : 'Current Note'} />
 
       <KeyboardShortcuts isOpen={isShortcutsOpen} onOpenChange={setIsShortcutsOpen} />
-    </div>;
+    </div>
+  );
 };
 export default NotesSidebar;

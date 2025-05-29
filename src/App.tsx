@@ -29,6 +29,7 @@ const PrivacyPolicy = lazy(() => import("./pages/privacy-policy"));
 const TermsOfUse = lazy(() => import("./pages/terms-of-use"));
 const CookieSettings = lazy(() => import("./pages/cookie-settings"));
 const Roadmap = lazy(() => import("./pages/Roadmap"));
+const Pricing = lazy(() => import("./pages/Pricing"));
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -201,10 +202,6 @@ const App = () => {
                   <div className={`transition-opacity duration-500 ${isAppLoaded ? 'opacity-100' : 'opacity-0'}`}>
                     {/* Analytics component for tracking route changes */}
                     <GoogleAnalytics />
-                    {/* Subscription manager button (hidden in focusMode) */}
-                    <div id="subscription-manager-trigger" className="fixed top-4 right-24 z-50 focus-mode-hidden">
-                      <SubscriptionManager />
-                    </div>
                     <Routes>
                       <Route path="/" element={<Index />} />
                       <Route path="/roadmap" element={
@@ -241,6 +238,11 @@ const App = () => {
                       <Route path="/CookieSettings" element={
                         <Suspense fallback={<PageLoader />}>
                           <CookieSettings />
+                        </Suspense>
+                      } />
+                      <Route path="/pricing" element={
+                        <Suspense fallback={<PageLoader />}>
+                          <Pricing />
                         </Suspense>
                       } />
                       {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}

@@ -1,7 +1,7 @@
 
 import React from 'react';
 import WallOfFameHeader from './sponsors/WallOfFameHeader';
-import CompanySponsorsSection from './sponsors/CompanySponsorsSection';
+import SimpleLogoCarousel from './sponsors/SimpleLogoCarousel';
 import IndividualSponsorsSection from './sponsors/IndividualSponsorsSection';
 import LocalDotGridBackground from './sponsors/LocalDotGridBackground';
 
@@ -75,7 +75,7 @@ const SponsorsWallOfFame = () => {
       {/* Content container with proper z-index */}
       <div className="container mx-auto max-w-6xl relative z-10">
         <WallOfFameHeader />
-        <CompanySponsorsSection sponsors={companySponsors} />
+        <SimpleLogoCarousel />
         <IndividualSponsorsSection sponsors={individualSponsors} />
       </div>
 

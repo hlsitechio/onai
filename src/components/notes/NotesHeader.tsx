@@ -1,7 +1,10 @@
 
 import React from 'react';
 import { Button } from "@/components/ui/button";
-import { Plus, Search, FolderOpen, Keyboard, SortAsc, Filter, MoreVertical, Download, Upload } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { Plus, Search, FolderOpen, Keyboard, SortAsc, Filter, MoreVertical, Download, Upload, Zap, Crown } from "lucide-react";
+import { useSubscription } from "@/hooks/useSubscription";
+import { SubscriptionPlan } from "@/utils/subscription/usageTracking";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -32,14 +35,42 @@ const NotesHeader: React.FC<NotesHeaderProps> = ({
   onExportNotes,
   onImportNotes
 }) => {
+  // Get subscription status
+  const { subscription, isLoading } = useSubscription();
   return (
     <div className="space-y-3">
       {/* Main header */}
       <div className="flex items-center justify-between animate-slideDown" style={{animationDelay: '0.1s'}}>
-        <h3 className="text-sm sm:text-base font-semibold text-white flex items-center">
-          <FolderOpen className="h-4 w-4 mr-2 text-noteflow-400" />
-          My Notes
-        </h3>
+        <div className="flex items-center space-x-2">
+          <h3 className="text-sm sm:text-base font-semibold text-white flex items-center">
+            <FolderOpen className="h-4 w-4 mr-2 text-noteflow-400" />
+            My Notes
+          </h3>
+          
+          {/* Subscription Badge */}
+          {!isLoading && (
+            <Badge 
+              variant="outline" 
+              className={`${subscription?.plan === SubscriptionPlan.FREE 
+                ? 'bg-yellow-500/10 text-yellow-300 border-yellow-500/30' 
+                : 'bg-purple-500/10 text-purple-300 border-purple-500/30'} text-xs px-2 py-0.5 h-5`}
+            >
+              <span className="flex items-center space-x-1">
+                {subscription?.plan === SubscriptionPlan.FREE ? (
+                  <>
+                    <Zap className="h-3 w-3 text-yellow-400" />
+                    <span>Free Plan</span>
+                  </>
+                ) : (
+                  <>
+                    <Crown className="h-3 w-3 text-purple-400" />
+                    <span>Premium</span>
+                  </>
+                )}
+              </span>
+            </Badge>
+          )}
+        </div>
         <div className="flex space-x-1">
           <Button 
             variant="ghost" 

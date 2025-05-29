@@ -152,17 +152,75 @@ const ShareOptionsDialog: React.FC<ShareOptionsDialogProps> = ({
     setIsSharing(true);
     
     try {
-      const options: ShareOptions = {
-        format: exportFormat,
-        title: noteTitle
-      };
-      
-      const result = await shareNote(noteContent, 'download', options);
-      
-      if (result.success) {
-        toast.success(`Note exported as ${exportFormat.toUpperCase()}!`);
+      // Handle PDF format specially by triggering browser print dialog
+      if (exportFormat === 'pdf') {
+        // Create a hidden print-optimized version of the content
+        const printWindow = window.open('', '_blank');
+        if (!printWindow) {
+          toast.error('Pop-up blocked. Please allow pop-ups for printing.');
+          return;
+        }
+        
+        printWindow.document.write(`
+          <!DOCTYPE html>
+          <html>
+          <head>
+            <title>${noteTitle || 'OneAI Note'}</title>
+            <style>
+              body {
+                font-family: Arial, sans-serif;
+                line-height: 1.6;
+                max-width: 800px;
+                margin: 0 auto;
+                padding: 20px;
+              }
+              h1, h2, h3 { margin-top: 1em; }
+              pre {
+                background-color: #f5f5f5;
+                padding: 10px;
+                border-radius: 4px;
+                overflow-x: auto;
+              }
+              @media print {
+                body { font-size: 12pt; }
+                a { text-decoration: none; color: #000; }
+              }
+            </style>
+          </head>
+          <body>
+            <h1>${noteTitle || 'OneAI Note'}</h1>
+            <div class="content">
+              ${noteContent.replace(/\n/g, '<br>').replace(/ {2}/g, '&nbsp;&nbsp;')}
+            </div>
+          </body>
+          </html>
+        `);
+        printWindow.document.close();
+        
+        // Wait for content to load then print
+        setTimeout(() => {
+          printWindow.print();
+          // Close window after printing (or if user cancels)
+          setTimeout(() => {
+            printWindow.close();
+          }, 500);
+        }, 250);
+        
+        toast.success('Print dialog opened');
       } else {
-        toast.error(result.error || 'Failed to export note');
+        // Handle other export formats normally
+        const options: ShareOptions = {
+          format: exportFormat,
+          title: noteTitle
+        };
+        
+        const result = await shareNote(noteContent, 'download', options);
+        
+        if (result.success) {
+          toast.success(`Note exported as ${exportFormat.toUpperCase()}!`);
+        } else {
+          toast.error(result.error || 'Failed to export note');
+        }
       }
     } catch (error) {
       console.error('Error exporting note:', error);
@@ -278,7 +336,7 @@ const ShareOptionsDialog: React.FC<ShareOptionsDialogProps> = ({
       isOpen={isOpen}
       onRequestClose={onClose}
       contentLabel="Share Options"
-      className="fixed top-24 left-1/2 transform -translate-x-1/2 bg-white dark:bg-gray-900 rounded-lg shadow-xl p-6 w-full max-w-2xl max-h-[80vh] overflow-y-auto"
+      className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white dark:bg-gray-900 rounded-lg shadow-xl p-6 w-full max-w-2xl max-h-[80vh] overflow-y-auto"
       overlayClassName="fixed inset-0 bg-black/50"
       closeTimeoutMS={300}
     >

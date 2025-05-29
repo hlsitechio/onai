@@ -1,11 +1,13 @@
 
 import { useState, useEffect } from "react";
 import { useFocusMode } from '@/contexts';
-import { Menu, X, Settings, Mail, Home, Heart } from "lucide-react";
+import { Menu, X, Settings, Mail, Home, Heart, Zap as ZapIcon } from "lucide-react";
 import ContactForm from "./ContactForm";
 import SponsorDialog from "./SponsorDialog";
 import { trackPageView } from '../utils/analytics';
 import { Link, useNavigate } from 'react-router-dom';
+import { useSubscription } from '@/hooks/useSubscription';
+import { SubscriptionPlan } from '@/utils/subscription/usageTracking';
 
 const Header = () => {
   const navigate = useNavigate();
@@ -15,6 +17,16 @@ const Header = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isHeaderVisible, setIsHeaderVisible] = useState(true);
   const [lastScrollY, setLastScrollY] = useState(0);
+  
+  // Get subscription data
+  const {
+    subscription,
+    isLoading,
+    featureUsage,
+    upgradeWithCode,
+    getPlanDisplayName,
+    getRemainingTime
+  } = useSubscription();
   
   const handleOpenContactDialog = () => {
     setContactDialogOpen(true);
@@ -108,6 +120,25 @@ const Header = () => {
               <Settings size={14} />
               Cookie Settings
             </Link>
+            {/* Subscription Button - Moved into the navigation */}
+            <div className="relative group">  
+              <Link
+                to="/pricing"
+                className="text-gray-300 hover:text-white text-sm transition-colors flex items-center gap-1 px-3 py-1.5 border border-yellow-500/30 rounded-full bg-gradient-to-r from-yellow-500/20 to-yellow-600/20 hover:from-yellow-500/30 hover:to-yellow-600/30"
+              >
+                <ZapIcon size={14} className="text-yellow-500" />
+                {isLoading ? 'Loading...' : subscription ? getPlanDisplayName(subscription.plan) : 'Free'}
+                {subscription?.plan === SubscriptionPlan.FREE && (
+                  <span className="absolute -right-1 -top-1 flex h-3 w-3">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-yellow-400 opacity-75"></span>
+                    <span className="relative inline-flex rounded-full h-3 w-3 bg-yellow-500"></span>
+                  </span>
+                )}
+                <span className="ml-1 text-xs text-yellow-300/80">$4.99</span>
+              </Link>
+            </div>
+            
+            {/* Sponsor Button */}
             <button
               onClick={handleOpenSponsorDialog}
               className="text-white text-sm transition-colors flex items-center gap-1 px-3 py-1.5 rounded-full bg-gradient-to-r from-purple-500 to-indigo-500 hover:from-purple-600 hover:to-indigo-600 shadow-md"
@@ -115,6 +146,8 @@ const Header = () => {
               <Heart size={14} className="text-white animate-pulse" />
               Sponsor
             </button>
+            
+            {/* Contact Button */}
             <button
               onClick={handleOpenContactDialog}
               className="text-gray-300 hover:text-white text-sm transition-colors flex items-center gap-1 px-3 py-1 rounded-full"

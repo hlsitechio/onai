@@ -17,10 +17,10 @@ const TextEditor = () => {
   const { toast } = useToast();
   const isMobileDevice = useIsMobileDevice();
   const [isLeftSidebarOpen, setIsLeftSidebarOpen] = useState(true);
-  // Initialize AI sidebar to open by default
-  const [isAISidebarOpen, setIsAISidebarOpen] = useState(true);
-  const [isGeminiPanelOpen, setIsGeminiPanelOpen] = useState(false);
-  const [activeSidebar, setActiveSidebar] = useState<'ai' | 'gemini' | null>('ai'); // Set AI as the active sidebar by default
+  // Initialize Gemini panel to open by default instead of the AI sidebar
+  const [isAISidebarOpen, setIsAISidebarOpen] = useState(false);
+  const [isGeminiPanelOpen, setIsGeminiPanelOpen] = useState(true);
+  const [activeSidebar, setActiveSidebar] = useState<'ai' | 'gemini' | null>('gemini'); // Set Gemini as the active sidebar by default
   
   // Focus mode management
   const { isFocusMode, setFocusMode, toggleFocusMode } = useFocusModeManager();
@@ -143,10 +143,10 @@ const TextEditor = () => {
         "mx-auto px-1 sm:px-2 md:px-3 max-w-full relative h-full",
         isFocusMode ? "z-[101]" : "z-10"
       )}>
-        <div className="flex flex-col md:flex-row gap-1 lg:gap-2 justify-between w-full h-full">
-          {/* Left sidebar - equal width panel (1/3) with fixed height */}
+        <div className="flex flex-col md:flex-row gap-1 lg:gap-2 justify-between w-full h-full md:min-h-[calc(100vh-4rem)]">
+          {/* Left sidebar - equal width panel (1/3) with consistent height */}
           <div className={cn(
-            "shrink-0 mb-4 md:mb-0 transition-all duration-300 ease-in-out",
+            "shrink-0 mb-4 md:mb-0 transition-all duration-300 ease-in-out md:h-[calc(100vh-4rem)]",
             isLeftSidebarOpen && !isFocusMode 
               ? "opacity-100 w-full md:w-[32%]" 
               : "opacity-0 w-0 overflow-hidden"
@@ -167,9 +167,9 @@ const TextEditor = () => {
             )}
           </div>
           
-          {/* The editor container - equal width panel (1/3) when both sidebars open with fixed height */}
+          {/* The editor container - equal width panel with consistent height */}
           <div className={cn(
-            "transition-all duration-300 ease-in-out",
+            "transition-all duration-300 ease-in-out md:h-[calc(100vh-4rem)]",
             // When both sidebars are open, all panels take exactly 32% width (for equal distribution)
             isLeftSidebarOpen && isAISidebarOpen && !isFocusMode && "w-full md:w-[32%]",
             // When only one sidebar is open, editor takes 66% width  
@@ -196,9 +196,9 @@ const TextEditor = () => {
             />
           </div>
           
-          {/* Right sidebar - equal width panel (1/3) with fixed height */}
+          {/* Right sidebar - equal width panel (1/3) with consistent height */}
           <div className={cn(
-            "shrink-0 mb-4 md:mb-0 transition-all duration-300 ease-in-out",
+            "shrink-0 mb-4 md:mb-0 transition-all duration-300 ease-in-out md:h-[calc(100vh-4rem)]",
             (isAISidebarOpen || isGeminiPanelOpen) && !isFocusMode 
               ? "opacity-100 w-full md:w-[32%]" 
               : "opacity-0 w-0 overflow-hidden"

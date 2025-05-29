@@ -94,7 +94,7 @@ export const SubscriptionManager: React.FC = () => {
         <Button 
           variant="outline" 
           size="sm" 
-          className="relative group bg-background hover:bg-gray-100 dark:bg-gray-800 dark:hover:bg-gray-700 flex items-center"
+          className="relative group bg-transparent hover:bg-white/10 text-white border-white/20 flex items-center h-9"
         >
           <div className="flex items-center space-x-1">
             <ZapIcon className="h-4 w-4 text-yellow-500" />
@@ -111,7 +111,10 @@ export const SubscriptionManager: React.FC = () => {
         </Button>
       </DialogTrigger>
       
-      <DialogContent className="sm:max-w-[500px] p-0 overflow-hidden bg-white dark:bg-gray-900">
+      <DialogContent 
+        className="sm:max-w-[500px] p-0 overflow-hidden bg-white dark:bg-gray-900 relative"
+        style={{ position: 'fixed', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', maxHeight: '85vh', overflowY: 'auto' }}
+      >
         <DialogHeader className="p-6 pb-2">
           <DialogTitle className="flex items-center gap-2 text-xl">
             <Sparkles className="h-5 w-5 text-yellow-500" />

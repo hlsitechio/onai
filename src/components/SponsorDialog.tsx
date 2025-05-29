@@ -25,8 +25,8 @@ const SponsorDialog: React.FC<SponsorDialogProps> = ({ open, onOpenChange }) => 
       isOpen={open}
       onRequestClose={() => onOpenChange(false)}
       contentLabel="Sponsor Dialog"
-      className="fixed left-1/2 top-24 transform -translate-x-1/2 max-w-md w-full bg-black/80 backdrop-blur-xl p-6 rounded-xl border border-white/10 shadow-2xl outline-none text-white z-50 max-h-[80vh] overflow-y-auto"
-      overlayClassName="fixed inset-0 bg-black/70 backdrop-blur-sm z-40"
+      className="fixed left-1/2 top-[10vh] transform -translate-x-1/2 max-w-md w-[95%] md:w-full bg-black/90 backdrop-blur-xl p-6 rounded-xl border border-white/10 shadow-2xl outline-none text-white z-50 max-h-[80vh] overflow-y-auto"
+      overlayClassName="fixed inset-0 bg-black/80 backdrop-blur-sm z-40"
     >
       {/* Header */}
       <div className="flex flex-col space-y-2 text-center">

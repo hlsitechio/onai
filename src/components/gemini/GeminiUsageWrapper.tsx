@@ -9,6 +9,7 @@ interface GeminiUsageWrapperProps {
   children: ReactNode;
   featureId: 'ai-gemini' | 'ai-image-generation';
   onUseFeature: () => void;
+  className?: string;
 }
 
 /**
@@ -18,7 +19,8 @@ interface GeminiUsageWrapperProps {
 export const GeminiUsageWrapper: React.FC<GeminiUsageWrapperProps> = ({
   children,
   featureId,
-  onUseFeature
+  onUseFeature,
+  className
 }) => {
   const { featureUsage, trackFeatureUse, subscription } = useSubscription();
   const [showLimitDialog, setShowLimitDialog] = useState(false);
@@ -46,7 +48,7 @@ export const GeminiUsageWrapper: React.FC<GeminiUsageWrapperProps> = ({
   return (
     <>
       {/* Wrap the children with our usage tracking */}
-      <div className="relative">
+      <div className={`relative ${className || ''}`}>
         {/* Usage indicator - only show if close to limit */}
         {featureUsage[featureId].percentUsed > 70 && (
           <div className="absolute -top-1 -right-1 z-10">

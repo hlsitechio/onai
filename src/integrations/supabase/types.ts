@@ -9,6 +9,90 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      user_subscriptions: {
+        Row: {
+          id: string
+          user_id: string
+          plan: string
+          starts_at: string
+          expires_at: string | null
+          payment_status: string
+          is_trial: boolean
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          plan: string
+          starts_at: string
+          expires_at?: string | null
+          payment_status?: string
+          is_trial?: boolean
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          plan?: string
+          starts_at?: string
+          expires_at?: string | null
+          payment_status?: string
+          is_trial?: boolean
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      subscription_events: {
+        Row: {
+          id: string
+          user_id: string
+          event_type: string
+          from_plan: string
+          to_plan: string
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          event_type: string
+          from_plan: string
+          to_plan: string
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          event_type?: string
+          from_plan?: string
+          to_plan?: string
+          created_at?: string
+        }
+        Relationships: []
+      }
+      ai_usage: {
+        Row: {
+          id: string
+          user_id: string
+          feature: string
+          used_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          feature: string
+          used_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          feature?: string
+          used_at?: string
+        }
+        Relationships: []
+      }
       ai_interactions: {
         Row: {
           created_at: string | null

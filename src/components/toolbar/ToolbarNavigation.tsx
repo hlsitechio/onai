@@ -101,23 +101,12 @@ const ToolbarNavigation: React.FC<ToolbarNavigationProps> = ({
             size="sm"
             onClick={toggleAISidebar}
             className={`p-1.5 md:p-2 text-slate-300 hover:text-white hover:bg-white/10 ${isAISidebarOpen ? 'bg-white/10 text-white' : ''}`}
-            title="Toggle AI Assistant"
+            title="Toggle Classic AI Assistant"
           >
             <Bot className="h-4 w-4" />
           </Button>
         )}
-        
-        {toggleGeminiPanel && (
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={toggleGeminiPanel}
-            className={`p-1.5 md:p-2 text-slate-300 hover:text-white hover:bg-white/10 ${isGeminiPanelOpen ? 'bg-white/10 text-white' : ''}`}
-            title="Toggle Gemini 2.5 Flash"
-          >
-            <Sparkles className="h-4 w-4" />
-          </Button>
-        )}
+        {/* Gemini panel is now shown by default */}
       </div>
 
       <div className="w-px h-6 bg-white/10"></div>
