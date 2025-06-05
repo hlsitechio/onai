@@ -8,7 +8,7 @@
     "packages/*"
   ],
   "scripts": {
-    "dev": "pnpm --filter oneai-notes dev",
+    "dev": "pnpm --filter onai-notes dev",
     "dev:all": "run-p dev:notes dev:marketing dev:payment",
     "dev:notes": "cd apps/notes-app && npm run dev",
     "dev:marketing": "cd apps/marketing-website && npm run dev",

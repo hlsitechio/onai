@@ -1,11 +1,11 @@
 {
-  "name": "oneai-notes",
+  "name": "onai-notes",
   "private": true,
   "version": "0.0.0",
   "type": "module",
   "homepage": "https://manusai.github.io/notes-app",
   "scripts": {
-    "dev": "vite",
+    "dev": "vite --config vite.config.js",
     "build": "vite build",
     "lint": "eslint .",
     "preview": "vite preview"
