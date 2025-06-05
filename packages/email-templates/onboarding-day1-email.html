@@ -1,0 +1,615 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Day 1: Your ONAI Journey Begins - Let's Create Your First Note!</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f8fafc;
+        }
+        
+        .email-container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+        }
+        
+        .header {
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
+            padding: 30px;
+            text-align: center;
+            border-bottom: 1px solid rgba(255,255,255,0.2);
+        }
+        
+        .logo {
+            font-size: 32px;
+            font-weight: bold;
+            color: white;
+            margin-bottom: 10px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        .tagline {
+            color: rgba(255,255,255,0.9);
+            font-size: 16px;
+            font-weight: 300;
+        }
+        
+        .progress-bar {
+            background: rgba(255,255,255,0.2);
+            height: 4px;
+            border-radius: 2px;
+            margin-top: 20px;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            background: white;
+            height: 100%;
+            width: 25%;
+            border-radius: 2px;
+            transition: width 0.3s ease;
+        }
+        
+        .content {
+            background: white;
+            padding: 40px 30px;
+        }
+        
+        .day-badge {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+            padding: 8px 20px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: bold;
+            display: inline-block;
+            margin-bottom: 20px;
+        }
+        
+        .welcome-icon {
+            text-align: center;
+            font-size: 64px;
+            margin-bottom: 20px;
+        }
+        
+        .title {
+            font-size: 28px;
+            font-weight: bold;
+            color: #1a202c;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        .subtitle {
+            font-size: 16px;
+            color: #4a5568;
+            margin-bottom: 30px;
+            text-align: center;
+            line-height: 1.8;
+        }
+        
+        .quick-start {
+            background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+            border: 2px solid #0ea5e9;
+            border-radius: 12px;
+            padding: 30px;
+            margin: 30px 0;
+        }
+        
+        .quick-start-title {
+            font-size: 20px;
+            font-weight: bold;
+            color: #0c4a6e;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        .quick-start-steps {
+            max-width: 400px;
+            margin: 0 auto;
+        }
+        
+        .step {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 20px;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+        
+        .step-number {
+            background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%);
+            color: white;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 14px;
+            margin-right: 15px;
+            flex-shrink: 0;
+        }
+        
+        .step-content {
+            flex: 1;
+        }
+        
+        .step-title {
+            font-weight: bold;
+            color: #1a202c;
+            margin-bottom: 5px;
+        }
+        
+        .step-description {
+            color: #6b7280;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+        
+        .cta-section {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            padding: 30px;
+            text-align: center;
+            margin: 30px 0;
+            border-radius: 12px;
+        }
+        
+        .cta-button {
+            display: inline-block;
+            background: white;
+            color: #10b981;
+            padding: 18px 40px;
+            text-decoration: none;
+            border-radius: 10px;
+            font-weight: bold;
+            font-size: 18px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .cta-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+        }
+        
+        .cta-text {
+            color: white;
+            font-size: 18px;
+            margin-bottom: 20px;
+            font-weight: 500;
+        }
+        
+        .tips-section {
+            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+            border: 2px solid #f59e0b;
+            border-radius: 12px;
+            padding: 30px;
+            margin: 30px 0;
+        }
+        
+        .tips-title {
+            font-size: 20px;
+            font-weight: bold;
+            color: #92400e;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        .tips-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+        
+        .tip-item {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+        
+        .tip-icon {
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+        
+        .tip-title {
+            font-size: 16px;
+            font-weight: bold;
+            color: #1a202c;
+            margin-bottom: 8px;
+        }
+        
+        .tip-description {
+            font-size: 14px;
+            color: #6b7280;
+            line-height: 1.6;
+        }
+        
+        .video-section {
+            background: #f8fafc;
+            border-radius: 12px;
+            padding: 30px;
+            margin: 30px 0;
+            text-align: center;
+        }
+        
+        .video-title {
+            font-size: 20px;
+            font-weight: bold;
+            color: #1a202c;
+            margin-bottom: 15px;
+        }
+        
+        .video-description {
+            color: #6b7280;
+            margin-bottom: 20px;
+        }
+        
+        .video-placeholder {
+            background: #e5e7eb;
+            border-radius: 8px;
+            padding: 60px 20px;
+            margin: 20px 0;
+            color: #6b7280;
+            font-size: 16px;
+        }
+        
+        .video-button {
+            display: inline-block;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px 30px;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: bold;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+        
+        .video-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+        }
+        
+        .coming-up {
+            background: linear-gradient(135deg, #f3e8ff 0%, #e9d5ff 100%);
+            border: 2px solid #a855f7;
+            border-radius: 12px;
+            padding: 25px;
+            margin: 30px 0;
+        }
+        
+        .coming-up-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: #7c2d12;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+        
+        .coming-up-text {
+            color: #6b21a8;
+            text-align: center;
+            margin-bottom: 20px;
+            line-height: 1.6;
+        }
+        
+        .coming-up-list {
+            max-width: 400px;
+            margin: 0 auto;
+        }
+        
+        .coming-up-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+            font-size: 14px;
+            color: #581c87;
+        }
+        
+        .coming-up-icon {
+            color: #a855f7;
+            margin-right: 10px;
+            font-weight: bold;
+        }
+        
+        .support-section {
+            background: #f1f5f9;
+            border-radius: 12px;
+            padding: 25px;
+            margin: 30px 0;
+            text-align: center;
+        }
+        
+        .support-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: #1a202c;
+            margin-bottom: 15px;
+        }
+        
+        .support-text {
+            color: #6b7280;
+            margin-bottom: 20px;
+            line-height: 1.6;
+        }
+        
+        .support-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+        }
+        
+        .support-button {
+            display: inline-block;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 12px 25px;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 500;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+        
+        .support-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+        }
+        
+        .footer {
+            background: #2d3748;
+            color: #a0aec0;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .footer-links {
+            margin: 20px 0;
+        }
+        
+        .footer-links a {
+            color: #81e6d9;
+            text-decoration: none;
+            margin: 0 15px;
+            font-size: 14px;
+        }
+        
+        .footer-links a:hover {
+            color: #4fd1c7;
+        }
+        
+        .unsubscribe {
+            font-size: 12px;
+            color: #718096;
+            margin-top: 20px;
+        }
+        
+        .unsubscribe a {
+            color: #81e6d9;
+            text-decoration: none;
+        }
+        
+        @media (max-width: 600px) {
+            .email-container {
+                margin: 10px;
+                border-radius: 8px;
+            }
+            
+            .content {
+                padding: 30px 20px;
+            }
+            
+            .title {
+                font-size: 24px;
+            }
+            
+            .tips-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .support-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="email-container">
+        <!-- Header -->
+        <div class="header">
+            <div class="logo">ONAI</div>
+            <div class="tagline">AI-Powered Note Taking</div>
+            <div class="progress-bar">
+                <div class="progress-fill"></div>
+            </div>
+        </div>
+        
+        <!-- Main Content -->
+        <div class="content">
+            <div class="day-badge">Day 1 of 7</div>
+            
+            <div class="welcome-icon">🎯</div>
+            
+            <h1 class="title">Let's Create Your First Note!</h1>
+            
+            <p class="subtitle">
+                Welcome to your ONAI journey, {{user_name}}! Today we'll help you create your first AI-powered note and discover how intelligent note-taking can transform your productivity.
+            </p>
+            
+            <!-- Quick Start Guide -->
+            <div class="quick-start">
+                <div class="quick-start-title">🚀 Your 5-Minute Quick Start</div>
+                <div class="quick-start-steps">
+                    <div class="step">
+                        <div class="step-number">1</div>
+                        <div class="step-content">
+                            <div class="step-title">Open ONAI</div>
+                            <div class="step-description">Launch your ONAI app and you'll see the clean, intuitive interface ready for your first note.</div>
+                        </div>
+                    </div>
+                    
+                    <div class="step">
+                        <div class="step-number">2</div>
+                        <div class="step-content">
+                            <div class="step-title">Create a New Note</div>
+                            <div class="step-description">Click the "New Note" button or use Ctrl+N (Cmd+N on Mac) to start your first note.</div>
+                        </div>
+                    </div>
+                    
+                    <div class="step">
+                        <div class="step-number">3</div>
+                        <div class="step-content">
+                            <div class="step-title">Start Writing</div>
+                            <div class="step-description">Begin typing anything - a meeting summary, project ideas, or daily thoughts. Watch as AI suggestions appear!</div>
+                        </div>
+                    </div>
+                    
+                    <div class="step">
+                        <div class="step-number">4</div>
+                        <div class="step-content">
+                            <div class="step-title">Explore AI Features</div>
+                            <div class="step-description">Try the AI suggestions, auto-formatting, and smart organization features as you write.</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Call to Action -->
+            <div class="cta-section">
+                <div class="cta-text">Ready to create your first intelligent note?</div>
+                <a href="{{app_url}}" class="cta-button">Start Writing Now</a>
+            </div>
+            
+            <!-- Pro Tips -->
+            <div class="tips-section">
+                <div class="tips-title">💡 Pro Tips for Day 1</div>
+                <div class="tips-grid">
+                    <div class="tip-item">
+                        <div class="tip-icon">✨</div>
+                        <div class="tip-title">Use AI Suggestions</div>
+                        <div class="tip-description">When you pause while writing, ONAI will suggest relevant content and completions. Press Tab to accept them!</div>
+                    </div>
+                    <div class="tip-item">
+                        <div class="tip-icon">🏷️</div>
+                        <div class="tip-title">Try Auto-Tagging</div>
+                        <div class="tip-description">ONAI automatically suggests tags based on your content. This helps organize your notes from day one.</div>
+                    </div>
+                    <div class="tip-item">
+                        <div class="tip-icon">⌨️</div>
+                        <div class="tip-title">Learn Shortcuts</div>
+                        <div class="tip-description">Press Ctrl+K (Cmd+K on Mac) to open the command palette and discover powerful shortcuts.</div>
+                    </div>
+                    <div class="tip-item">
+                        <div class="tip-icon">🎨</div>
+                        <div class="tip-title">Format with Ease</div>
+                        <div class="tip-description">Use markdown syntax or the toolbar to format your notes. ONAI makes beautiful formatting effortless.</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Video Tutorial -->
+            <div class="video-section">
+                <div class="video-title">📹 Watch: Creating Your First Note</div>
+                <div class="video-description">
+                    See how easy it is to get started with ONAI in this 3-minute tutorial video.
+                </div>
+                <div class="video-placeholder">
+                    🎬 "Getting Started with ONAI"<br>
+                    Tutorial Video (3 minutes)
+                </div>
+                <a href="{{tutorial_video_url}}" class="video-button">Watch Tutorial</a>
+            </div>
+            
+            <!-- Coming Up -->
+            <div class="coming-up">
+                <div class="coming-up-title">📅 Coming Up in Your Journey</div>
+                <div class="coming-up-text">
+                    Over the next 6 days, we'll guide you through ONAI's most powerful features:
+                </div>
+                <div class="coming-up-list">
+                    <div class="coming-up-item">
+                        <span class="coming-up-icon">📂</span>
+                        <span>Day 2: Organizing with Smart Folders</span>
+                    </div>
+                    <div class="coming-up-item">
+                        <span class="coming-up-icon">👥</span>
+                        <span>Day 3: Team Collaboration Features</span>
+                    </div>
+                    <div class="coming-up-item">
+                        <span class="coming-up-icon">🔄</span>
+                        <span>Day 4: Sync Across All Devices</span>
+                    </div>
+                    <div class="coming-up-item">
+                        <span class="coming-up-icon">🤖</span>
+                        <span>Day 5: Advanced AI Features</span>
+                    </div>
+                    <div class="coming-up-item">
+                        <span class="coming-up-icon">📊</span>
+                        <span>Day 6: Analytics & Insights</span>
+                    </div>
+                    <div class="coming-up-item">
+                        <span class="coming-up-icon">🚀</span>
+                        <span>Day 7: Power User Tips & Tricks</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Support Section -->
+            <div class="support-section">
+                <div class="support-title">🤝 Need Help Getting Started?</div>
+                <div class="support-text">
+                    We're here to help! If you have any questions or run into any issues while creating your first note, don't hesitate to reach out.
+                </div>
+                <div class="support-buttons">
+                    <a href="{{help_url}}" class="support-button">Help Center</a>
+                    <a href="{{chat_url}}" class="support-button">Live Chat</a>
+                    <a href="mailto:support@onlinenote.ai" class="support-button">Email Support</a>
+                </div>
+            </div>
+            
+            <p class="subtitle">
+                <strong>Tomorrow:</strong> We'll show you how to organize your notes with ONAI's intelligent folder system and smart tagging features. Get ready to take your organization to the next level!
+            </p>
+        </div>
+        
+        <!-- Footer -->
+        <div class="footer">
+            <div class="footer-links">
+                <a href="{{app_url}}/help">Help Center</a>
+                <a href="{{app_url}}/features">Features</a>
+                <a href="{{app_url}}/contact">Contact</a>
+            </div>
+            
+            <div class="unsubscribe">
+                <p>© 2025 ONAI. All rights reserved.</p>
+                <p><a href="{{unsubscribe_url}}">Unsubscribe</a> | <a href="{{app_url}}/privacy">Privacy Policy</a></p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
+

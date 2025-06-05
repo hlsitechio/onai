@@ -1,0 +1,598 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🚀 New Feature Alert: {{feature_name}} is Here! | ONAI</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f8fafc;
+        }
+        
+        .email-container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+        }
+        
+        .header {
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
+            padding: 30px;
+            text-align: center;
+            border-bottom: 1px solid rgba(255,255,255,0.2);
+        }
+        
+        .logo {
+            font-size: 32px;
+            font-weight: bold;
+            color: white;
+            margin-bottom: 10px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        .tagline {
+            color: rgba(255,255,255,0.9);
+            font-size: 16px;
+            font-weight: 300;
+        }
+        
+        .content {
+            background: white;
+            padding: 40px 30px;
+        }
+        
+        .announcement-icon {
+            text-align: center;
+            font-size: 64px;
+            margin-bottom: 20px;
+        }
+        
+        .title {
+            font-size: 28px;
+            font-weight: bold;
+            color: #1a202c;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        .subtitle {
+            font-size: 16px;
+            color: #4a5568;
+            margin-bottom: 30px;
+            text-align: center;
+            line-height: 1.8;
+        }
+        
+        .feature-hero {
+            background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+            border: 2px solid #0ea5e9;
+            border-radius: 12px;
+            padding: 30px;
+            margin: 30px 0;
+            text-align: center;
+        }
+        
+        .feature-name {
+            font-size: 24px;
+            font-weight: bold;
+            color: #0c4a6e;
+            margin-bottom: 15px;
+        }
+        
+        .feature-description {
+            color: #475569;
+            font-size: 16px;
+            line-height: 1.7;
+            margin-bottom: 25px;
+        }
+        
+        .feature-image {
+            background: #e2e8f0;
+            border-radius: 8px;
+            padding: 40px;
+            margin: 20px 0;
+            text-align: center;
+            color: #64748b;
+            font-size: 14px;
+        }
+        
+        .benefits-section {
+            background: linear-gradient(135deg, #f0fff4 0%, #dcfce7 100%);
+            border: 2px solid #10b981;
+            border-radius: 12px;
+            padding: 30px;
+            margin: 30px 0;
+        }
+        
+        .benefits-title {
+            font-size: 20px;
+            font-weight: bold;
+            color: #059669;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        .benefits-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+        
+        .benefit-item {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+        
+        .benefit-icon {
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+        
+        .benefit-title {
+            font-size: 16px;
+            font-weight: bold;
+            color: #1a202c;
+            margin-bottom: 8px;
+        }
+        
+        .benefit-description {
+            font-size: 14px;
+            color: #6b7280;
+            line-height: 1.6;
+        }
+        
+        .how-to-section {
+            background: #f8fafc;
+            border-radius: 12px;
+            padding: 30px;
+            margin: 30px 0;
+        }
+        
+        .how-to-title {
+            font-size: 20px;
+            font-weight: bold;
+            color: #1a202c;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        .steps-container {
+            max-width: 400px;
+            margin: 0 auto;
+        }
+        
+        .step {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 20px;
+        }
+        
+        .step-number {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 14px;
+            margin-right: 15px;
+            flex-shrink: 0;
+        }
+        
+        .step-content {
+            flex: 1;
+        }
+        
+        .step-title {
+            font-weight: bold;
+            color: #1a202c;
+            margin-bottom: 5px;
+        }
+        
+        .step-description {
+            color: #6b7280;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+        
+        .cta-section {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 30px;
+            text-align: center;
+            margin: 30px 0;
+            border-radius: 12px;
+        }
+        
+        .cta-button {
+            display: inline-block;
+            background: white;
+            color: #667eea;
+            padding: 18px 40px;
+            text-decoration: none;
+            border-radius: 10px;
+            font-weight: bold;
+            font-size: 18px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .cta-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+        }
+        
+        .cta-text {
+            color: white;
+            font-size: 18px;
+            margin-bottom: 20px;
+            font-weight: 500;
+        }
+        
+        .video-section {
+            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+            border: 2px solid #f59e0b;
+            border-radius: 12px;
+            padding: 30px;
+            margin: 30px 0;
+            text-align: center;
+        }
+        
+        .video-title {
+            font-size: 20px;
+            font-weight: bold;
+            color: #92400e;
+            margin-bottom: 15px;
+        }
+        
+        .video-description {
+            color: #78350f;
+            margin-bottom: 20px;
+        }
+        
+        .video-placeholder {
+            background: #e5e7eb;
+            border-radius: 8px;
+            padding: 60px 20px;
+            margin: 20px 0;
+            color: #6b7280;
+            font-size: 16px;
+        }
+        
+        .video-button {
+            display: inline-block;
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+            color: white;
+            padding: 15px 30px;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: bold;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+        
+        .video-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(245, 158, 11, 0.4);
+        }
+        
+        .feedback-section {
+            background: #f1f5f9;
+            border-radius: 12px;
+            padding: 25px;
+            margin: 30px 0;
+            text-align: center;
+        }
+        
+        .feedback-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: #1a202c;
+            margin-bottom: 15px;
+        }
+        
+        .feedback-text {
+            color: #6b7280;
+            margin-bottom: 20px;
+            line-height: 1.6;
+        }
+        
+        .feedback-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+        }
+        
+        .feedback-button {
+            display: inline-block;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 12px 25px;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 500;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+        
+        .feedback-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+        }
+        
+        .social-section {
+            background: linear-gradient(135deg, #f3e8ff 0%, #e9d5ff 100%);
+            border: 2px solid #a855f7;
+            border-radius: 12px;
+            padding: 25px;
+            margin: 30px 0;
+            text-align: center;
+        }
+        
+        .social-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: #7c2d12;
+            margin-bottom: 15px;
+        }
+        
+        .social-text {
+            color: #6b21a8;
+            margin-bottom: 20px;
+        }
+        
+        .social-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+        }
+        
+        .social-button {
+            display: inline-block;
+            background: white;
+            color: #a855f7;
+            padding: 10px 20px;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 500;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            border: 2px solid #a855f7;
+        }
+        
+        .social-button:hover {
+            background: #a855f7;
+            color: white;
+        }
+        
+        .footer {
+            background: #2d3748;
+            color: #a0aec0;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .footer-links {
+            margin: 20px 0;
+        }
+        
+        .footer-links a {
+            color: #81e6d9;
+            text-decoration: none;
+            margin: 0 15px;
+            font-size: 14px;
+        }
+        
+        .footer-links a:hover {
+            color: #4fd1c7;
+        }
+        
+        .unsubscribe {
+            font-size: 12px;
+            color: #718096;
+            margin-top: 20px;
+        }
+        
+        .unsubscribe a {
+            color: #81e6d9;
+            text-decoration: none;
+        }
+        
+        @media (max-width: 600px) {
+            .email-container {
+                margin: 10px;
+                border-radius: 8px;
+            }
+            
+            .content {
+                padding: 30px 20px;
+            }
+            
+            .title {
+                font-size: 24px;
+            }
+            
+            .benefits-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .feedback-buttons,
+            .social-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="email-container">
+        <!-- Header -->
+        <div class="header">
+            <div class="logo">ONAI</div>
+            <div class="tagline">AI-Powered Note Taking</div>
+        </div>
+        
+        <!-- Main Content -->
+        <div class="content">
+            <div class="announcement-icon">🚀</div>
+            
+            <h1 class="title">{{feature_name}} is Here!</h1>
+            
+            <p class="subtitle">
+                Hi {{user_name}}, we're excited to announce a powerful new feature that will take your ONAI experience to the next level. Get ready to boost your productivity like never before!
+            </p>
+            
+            <!-- Feature Hero -->
+            <div class="feature-hero">
+                <div class="feature-name">{{feature_name}}</div>
+                <div class="feature-description">
+                    {{feature_description}}
+                </div>
+                <div class="feature-image">
+                    [Feature Screenshot/Demo Image Here]<br>
+                    Visual preview of {{feature_name}} in action
+                </div>
+            </div>
+            
+            <!-- Benefits Section -->
+            <div class="benefits-section">
+                <div class="benefits-title">🌟 What This Means for You</div>
+                <div class="benefits-grid">
+                    <div class="benefit-item">
+                        <div class="benefit-icon">⚡</div>
+                        <div class="benefit-title">Increased Productivity</div>
+                        <div class="benefit-description">Save hours of work with intelligent automation and smart suggestions that understand your workflow.</div>
+                    </div>
+                    <div class="benefit-item">
+                        <div class="benefit-icon">🎯</div>
+                        <div class="benefit-title">Better Organization</div>
+                        <div class="benefit-description">Keep your notes perfectly structured with AI-powered categorization and tagging systems.</div>
+                    </div>
+                    <div class="benefit-item">
+                        <div class="benefit-icon">🤝</div>
+                        <div class="benefit-title">Enhanced Collaboration</div>
+                        <div class="benefit-description">Work seamlessly with your team using advanced sharing and real-time editing capabilities.</div>
+                    </div>
+                    <div class="benefit-item">
+                        <div class="benefit-icon">🔒</div>
+                        <div class="benefit-title">Improved Security</div>
+                        <div class="benefit-description">Your data remains protected with enhanced encryption and privacy controls.</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- How to Use -->
+            <div class="how-to-section">
+                <div class="how-to-title">🛠️ How to Get Started</div>
+                <div class="steps-container">
+                    <div class="step">
+                        <div class="step-number">1</div>
+                        <div class="step-content">
+                            <div class="step-title">Open ONAI</div>
+                            <div class="step-description">Launch your ONAI app and look for the new {{feature_name}} option in the main menu.</div>
+                        </div>
+                    </div>
+                    
+                    <div class="step">
+                        <div class="step-number">2</div>
+                        <div class="step-content">
+                            <div class="step-title">Explore the Feature</div>
+                            <div class="step-description">Click on {{feature_name}} to access the new functionality and see all available options.</div>
+                        </div>
+                    </div>
+                    
+                    <div class="step">
+                        <div class="step-number">3</div>
+                        <div class="step-content">
+                            <div class="step-title">Start Using</div>
+                            <div class="step-description">Begin incorporating {{feature_name}} into your workflow and experience the productivity boost!</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Call to Action -->
+            <div class="cta-section">
+                <div class="cta-text">Ready to try {{feature_name}}?</div>
+                <a href="{{app_url}}" class="cta-button">Try It Now</a>
+            </div>
+            
+            <!-- Video Section -->
+            <div class="video-section">
+                <div class="video-title">📹 See It in Action</div>
+                <div class="video-description">
+                    Watch our quick demo video to see how {{feature_name}} can transform your note-taking experience.
+                </div>
+                <div class="video-placeholder">
+                    🎬 {{feature_name}} Demo Video<br>
+                    (2 minutes)
+                </div>
+                <a href="{{demo_video_url}}" class="video-button">Watch Demo</a>
+            </div>
+            
+            <!-- Feedback Section -->
+            <div class="feedback-section">
+                <div class="feedback-title">💬 We Value Your Feedback</div>
+                <div class="feedback-text">
+                    Your input helps us make ONAI better. Let us know what you think about {{feature_name}} and how we can improve it further.
+                </div>
+                <div class="feedback-buttons">
+                    <a href="{{feedback_url}}" class="feedback-button">Share Feedback</a>
+                    <a href="{{support_url}}" class="feedback-button">Get Support</a>
+                </div>
+            </div>
+            
+            <!-- Social Section -->
+            <div class="social-section">
+                <div class="social-title">📢 Spread the Word</div>
+                <div class="social-text">
+                    Love the new {{feature_name}}? Share your experience with others and help them discover the power of AI-enhanced note-taking!
+                </div>
+                <div class="social-buttons">
+                    <a href="{{twitter_share_url}}" class="social-button">Share on Twitter</a>
+                    <a href="{{linkedin_share_url}}" class="social-button">Share on LinkedIn</a>
+                </div>
+            </div>
+            
+            <p class="subtitle">
+                <strong>Questions?</strong><br>
+                Our support team is here to help you make the most of {{feature_name}}. Contact us at <a href="mailto:support@onlinenote.ai" style="color: #667eea;">support@onlinenote.ai</a>
+            </p>
+        </div>
+        
+        <!-- Footer -->
+        <div class="footer">
+            <div class="footer-links">
+                <a href="{{app_url}}/features">All Features</a>
+                <a href="{{app_url}}/help">Help Center</a>
+                <a href="{{app_url}}/contact">Contact</a>
+            </div>
+            
+            <div class="unsubscribe">
+                <p>© 2025 ONAI. All rights reserved.</p>
+                <p><a href="{{unsubscribe_url}}">Unsubscribe</a> | <a href="{{app_url}}/privacy">Privacy Policy</a></p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
+

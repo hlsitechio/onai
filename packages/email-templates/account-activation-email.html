@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Activate Your ONAI Account - One Click Away!</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f8fafc;
+        }
+        
+        .email-container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+        }
+        
+        .header {
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
+            padding: 30px;
+            text-align: center;
+            border-bottom: 1px solid rgba(255,255,255,0.2);
+        }
+        
+        .logo {
+            font-size: 32px;
+            font-weight: bold;
+            color: white;
+            margin-bottom: 10px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        .tagline {
+            color: rgba(255,255,255,0.9);
+            font-size: 16px;
+            font-weight: 300;
+        }
+        
+        .content {
+            background: white;
+            padding: 40px 30px;
+        }
+        
+        .activation-icon {
+            text-align: center;
+            font-size: 64px;
+            margin-bottom: 20px;
+        }
+        
+        .title {
+            font-size: 28px;
+            font-weight: bold;
+            color: #1a202c;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        .subtitle {
+            font-size: 16px;
+            color: #4a5568;
+            margin-bottom: 30px;
+            text-align: center;
+            line-height: 1.8;
+        }
+        
+        .activation-section {
+            background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+            border: 2px solid #0ea5e9;
+            border-radius: 12px;
+            padding: 30px;
+            margin: 30px 0;
+            text-align: center;
+        }
+        
+        .activation-title {
+            font-size: 20px;
+            font-weight: bold;
+            color: #0c4a6e;
+            margin-bottom: 15px;
+        }
+        
+        .activation-text {
+            color: #475569;
+            margin-bottom: 25px;
+            line-height: 1.6;
+        }
+        
+        .activation-button {
+            display: inline-block;
+            background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%);
+            color: white;
+            padding: 18px 40px;
+            text-decoration: none;
+            border-radius: 10px;
+            font-weight: bold;
+            font-size: 18px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(14, 165, 233, 0.4);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .activation-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(14, 165, 233, 0.6);
+        }
+        
+        .security-notice {
+            background: #fef3c7;
+            border: 1px solid #f59e0b;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 25px 0;
+        }
+        
+        .security-icon {
+            color: #f59e0b;
+            font-size: 20px;
+            margin-right: 10px;
+        }
+        
+        .security-text {
+            color: #92400e;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+        
+        .alternative-section {
+            background: #f8fafc;
+            border-radius: 12px;
+            padding: 25px;
+            margin: 30px 0;
+        }
+        
+        .alternative-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: #1a202c;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+        
+        .alternative-text {
+            color: #6b7280;
+            text-align: center;
+            margin-bottom: 15px;
+            font-size: 14px;
+        }
+        
+        .activation-code {
+            background: #e5e7eb;
+            border: 2px dashed #9ca3af;
+            border-radius: 8px;
+            padding: 15px;
+            text-align: center;
+            font-family: 'Courier New', monospace;
+            font-size: 18px;
+            font-weight: bold;
+            color: #374151;
+            letter-spacing: 2px;
+            margin: 15px 0;
+        }
+        
+        .features-preview {
+            background: linear-gradient(135deg, #f0fff4 0%, #dcfce7 100%);
+            border: 2px solid #10b981;
+            border-radius: 12px;
+            padding: 30px;
+            margin: 30px 0;
+        }
+        
+        .features-title {
+            font-size: 20px;
+            font-weight: bold;
+            color: #059669;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+        
+        .feature-item {
+            display: flex;
+            align-items: center;
+            font-size: 14px;
+            color: #065f46;
+        }
+        
+        .feature-check {
+            color: #10b981;
+            margin-right: 10px;
+            font-weight: bold;
+        }
+        
+        .urgency-section {
+            background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%);
+            border: 2px solid #f87171;
+            border-radius: 12px;
+            padding: 25px;
+            margin: 30px 0;
+            text-align: center;
+        }
+        
+        .urgency-icon {
+            font-size: 32px;
+            margin-bottom: 15px;
+        }
+        
+        .urgency-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: #dc2626;
+            margin-bottom: 10px;
+        }
+        
+        .urgency-text {
+            color: #991b1b;
+            font-size: 14px;
+        }
+        
+        .footer {
+            background: #2d3748;
+            color: #a0aec0;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .footer-links {
+            margin: 20px 0;
+        }
+        
+        .footer-links a {
+            color: #81e6d9;
+            text-decoration: none;
+            margin: 0 15px;
+            font-size: 14px;
+        }
+        
+        .footer-links a:hover {
+            color: #4fd1c7;
+        }
+        
+        .unsubscribe {
+            font-size: 12px;
+            color: #718096;
+            margin-top: 20px;
+        }
+        
+        .unsubscribe a {
+            color: #81e6d9;
+            text-decoration: none;
+        }
+        
+        @media (max-width: 600px) {
+            .email-container {
+                margin: 10px;
+                border-radius: 8px;
+            }
+            
+            .content {
+                padding: 30px 20px;
+            }
+            
+            .title {
+                font-size: 24px;
+            }
+            
+            .activation-button {
+                padding: 15px 30px;
+                font-size: 16px;
+            }
+            
+            .features-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="email-container">
+        <!-- Header -->
+        <div class="header">
+            <div class="logo">ONAI</div>
+            <div class="tagline">AI-Powered Note Taking</div>
+        </div>
+        
+        <!-- Main Content -->
+        <div class="content">
+            <div class="activation-icon">🔐</div>
+            
+            <h1 class="title">Almost There!</h1>
+            
+            <p class="subtitle">
+                Welcome to ONAI, {{user_name}}! You're just one click away from unlocking the future of intelligent note-taking. Let's activate your account and get you started on your AI-powered journey.
+            </p>
+            
+            <!-- Activation Section -->
+            <div class="activation-section">
+                <div class="activation-title">🚀 Activate Your Account</div>
+                <div class="activation-text">
+                    Click the button below to verify your email address and activate your ONAI account. This ensures the security of your account and enables all features.
+                </div>
+                <a href="{{activation_url}}" class="activation-button">Activate My Account</a>
+            </div>
+            
+            <!-- Security Notice -->
+            <div class="security-notice">
+                <span class="security-icon">🛡️</span>
+                <span class="security-text">
+                    <strong>Security First:</strong> This activation link is valid for 24 hours and can only be used once. If you didn't create this account, please ignore this email.
+                </span>
+            </div>
+            
+            <!-- Alternative Activation -->
+            <div class="alternative-section">
+                <div class="alternative-title">Having Trouble with the Button?</div>
+                <div class="alternative-text">
+                    Copy and paste this activation code into the ONAI app:
+                </div>
+                <div class="activation-code">{{activation_code}}</div>
+                <div class="alternative-text">
+                    Or visit: <a href="{{activation_url}}" style="color: #667eea;">{{activation_url}}</a>
+                </div>
+            </div>
+            
+            <!-- Features Preview -->
+            <div class="features-preview">
+                <div class="features-title">🌟 What Awaits You</div>
+                <div class="features-grid">
+                    <div class="feature-item">
+                        <span class="feature-check">✨</span>
+                        <span>AI-powered note suggestions</span>
+                    </div>
+                    <div class="feature-item">
+                        <span class="feature-check">🔒</span>
+                        <span>End-to-end encryption</span>
+                    </div>
+                    <div class="feature-item">
+                        <span class="feature-check">🔄</span>
+                        <span>Real-time synchronization</span>
+                    </div>
+                    <div class="feature-item">
+                        <span class="feature-check">👥</span>
+                        <span>Team collaboration</span>
+                    </div>
+                    <div class="feature-item">
+                        <span class="feature-check">📱</span>
+                        <span>Cross-platform access</span>
+                    </div>
+                    <div class="feature-item">
+                        <span class="feature-check">🎨</span>
+                        <span>Rich text formatting</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Urgency Section -->
+            <div class="urgency-section">
+                <div class="urgency-icon">⏰</div>
+                <div class="urgency-title">Time-Sensitive Activation</div>
+                <div class="urgency-text">
+                    This activation link expires in 24 hours. Activate now to ensure uninterrupted access to your ONAI account.
+                </div>
+            </div>
+            
+            <p class="subtitle">
+                <strong>Need Help?</strong><br>
+                If you have any questions or need assistance, our support team is ready to help at <a href="mailto:support@onlinenote.ai" style="color: #667eea;">support@onlinenote.ai</a>
+            </p>
+        </div>
+        
+        <!-- Footer -->
+        <div class="footer">
+            <div class="footer-links">
+                <a href="{{app_url}}/help">Help Center</a>
+                <a href="{{app_url}}/features">Features</a>
+                <a href="{{app_url}}/contact">Contact</a>
+            </div>
+            
+            <div class="unsubscribe">
+                <p>© 2025 ONAI. All rights reserved.</p>
+                <p><a href="{{app_url}}/privacy">Privacy Policy</a> | <a href="{{app_url}}/terms">Terms of Service</a></p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
+

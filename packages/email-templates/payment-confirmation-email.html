@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payment Confirmed - Welcome to {{plan_name}} | ONAI</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f8fafc;
+        }
+        
+        .email-container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #059669 0%, #047857 100%);
+            padding: 30px;
+            text-align: center;
+            color: white;
+        }
+        
+        .logo {
+            font-size: 32px;
+            font-weight: bold;
+            margin-bottom: 10px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        .header-text {
+            font-size: 18px;
+            font-weight: 300;
+            opacity: 0.9;
+        }
+        
+        .content {
+            padding: 40px 30px;
+        }
+        
+        .success-icon {
+            text-align: center;
+            font-size: 64px;
+            margin-bottom: 20px;
+        }
+        
+        .title {
+            font-size: 28px;
+            font-weight: bold;
+            color: #1a202c;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        .subtitle {
+            font-size: 16px;
+            color: #4a5568;
+            margin-bottom: 30px;
+            text-align: center;
+            line-height: 1.8;
+        }
+        
+        .payment-summary {
+            background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+            border: 2px solid #10b981;
+            border-radius: 12px;
+            padding: 30px;
+            margin: 30px 0;
+        }
+        
+        .payment-title {
+            font-size: 20px;
+            font-weight: bold;
+            color: #059669;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        .payment-details {
+            display: grid;
+            gap: 15px;
+        }
+        
+        .payment-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        
+        .payment-row:last-child {
+            border-bottom: none;
+            font-weight: bold;
+            font-size: 18px;
+            color: #059669;
+        }
+        
+        .payment-label {
+            color: #6b7280;
+        }
+        
+        .payment-value {
+            color: #1a202c;
+            font-weight: 500;
+        }
+        
+        .invoice-section {
+            background: #f8fafc;
+            border-radius: 12px;
+            padding: 25px;
+            margin: 30px 0;
+            text-align: center;
+        }
+        
+        .invoice-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: #1a202c;
+            margin-bottom: 15px;
+        }
+        
+        .invoice-text {
+            color: #6b7280;
+            margin-bottom: 20px;
+        }
+        
+        .invoice-button {
+            display: inline-block;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 12px 25px;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 500;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+        
+        .invoice-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+        }
+        
+        .features-unlocked {
+            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+            border: 2px solid #f59e0b;
+            border-radius: 12px;
+            padding: 30px;
+            margin: 30px 0;
+        }
+        
+        .features-title {
+            font-size: 20px;
+            font-weight: bold;
+            color: #92400e;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+        
+        .feature-item {
+            display: flex;
+            align-items: center;
+            font-size: 14px;
+            color: #78350f;
+        }
+        
+        .feature-check {
+            color: #f59e0b;
+            margin-right: 10px;
+            font-weight: bold;
+        }
+        
+        .cta-section {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 30px;
+            text-align: center;
+            margin: 30px 0;
+            border-radius: 12px;
+        }
+        
+        .cta-button {
+            display: inline-block;
+            background: white;
+            color: #667eea;
+            padding: 15px 30px;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: bold;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+        
+        .cta-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+        }
+        
+        .cta-text {
+            color: white;
+            font-size: 18px;
+            margin-bottom: 20px;
+            font-weight: 500;
+        }
+        
+        .support-section {
+            background: #f1f5f9;
+            border-radius: 12px;
+            padding: 25px;
+            margin: 30px 0;
+            text-align: center;
+        }
+        
+        .support-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: #1a202c;
+            margin-bottom: 10px;
+        }
+        
+        .support-text {
+            color: #6b7280;
+            margin-bottom: 15px;
+        }
+        
+        .support-contact {
+            color: #667eea;
+            font-weight: 500;
+        }
+        
+        .footer {
+            background: #2d3748;
+            color: #a0aec0;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .footer-links {
+            margin: 20px 0;
+        }
+        
+        .footer-links a {
+            color: #81e6d9;
+            text-decoration: none;
+            margin: 0 15px;
+            font-size: 14px;
+        }
+        
+        .footer-links a:hover {
+            color: #4fd1c7;
+        }
+        
+        .unsubscribe {
+            font-size: 12px;
+            color: #718096;
+            margin-top: 20px;
+        }
+        
+        .unsubscribe a {
+            color: #81e6d9;
+            text-decoration: none;
+        }
+        
+        @media (max-width: 600px) {
+            .email-container {
+                margin: 10px;
+                border-radius: 8px;
+            }
+            
+            .content {
+                padding: 30px 20px;
+            }
+            
+            .title {
+                font-size: 24px;
+            }
+            
+            .features-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="email-container">
+        <!-- Header -->
+        <div class="header">
+            <div class="logo">ONAI</div>
+            <div class="header-text">Payment Confirmed</div>
+        </div>
+        
+        <!-- Main Content -->
+        <div class="content">
+            <div class="success-icon">🎉</div>
+            
+            <h1 class="title">Payment Successful!</h1>
+            
+            <p class="subtitle">
+                Thank you for your payment! Your <strong>{{plan_name}}</strong> plan is now active and all premium features have been unlocked. Welcome to the future of intelligent note-taking!
+            </p>
+            
+            <!-- Payment Summary -->
+            <div class="payment-summary">
+                <div class="payment-title">Payment Summary</div>
+                <div class="payment-details">
+                    <div class="payment-row">
+                        <span class="payment-label">Plan</span>
+                        <span class="payment-value">{{plan_name}}</span>
+                    </div>
+                    <div class="payment-row">
+                        <span class="payment-label">Billing Period</span>
+                        <span class="payment-value">{{billing_period}}</span>
+                    </div>
+                    <div class="payment-row">
+                        <span class="payment-label">Payment Method</span>
+                        <span class="payment-value">{{payment_method}}</span>
+                    </div>
+                    <div class="payment-row">
+                        <span class="payment-label">Transaction ID</span>
+                        <span class="payment-value">{{transaction_id}}</span>
+                    </div>
+                    <div class="payment-row">
+                        <span class="payment-label">Total Paid</span>
+                        <span class="payment-value">${{amount_paid}}</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Invoice Section -->
+            <div class="invoice-section">
+                <div class="invoice-title">📄 Invoice & Receipt</div>
+                <div class="invoice-text">
+                    Your invoice has been generated and is ready for download. Keep this for your records.
+                </div>
+                <a href="{{invoice_url}}" class="invoice-button">Download Invoice</a>
+            </div>
+            
+            <!-- Features Unlocked -->
+            <div class="features-unlocked">
+                <div class="features-title">🔓 Features Now Unlocked</div>
+                <div class="features-grid">
+                    {{#unlocked_features}}
+                    <div class="feature-item">
+                        <span class="feature-check">✨</span>
+                        <span>{{feature_name}}</span>
+                    </div>
+                    {{/unlocked_features}}
+                </div>
+            </div>
+            
+            <!-- Call to Action -->
+            <div class="cta-section">
+                <div class="cta-text">Ready to experience the full power of ONAI?</div>
+                <a href="{{app_url}}" class="cta-button">Start Using Premium Features →</a>
+            </div>
+            
+            <!-- Support Section -->
+            <div class="support-section">
+                <div class="support-title">🤝 Need Help Getting Started?</div>
+                <div class="support-text">
+                    Our team is here to help you make the most of your ONAI experience.
+                </div>
+                <div class="support-contact">
+                    📧 <a href="mailto:support@onlinenote.ai" style="color: #667eea;">support@onlinenote.ai</a><br>
+                    💬 <a href="{{app_url}}/help" style="color: #667eea;">Live Chat Support</a>
+                </div>
+            </div>
+            
+            <p class="subtitle">
+                <strong>Important:</strong> Your next billing date is <strong>{{next_billing_date}}</strong>. You can manage your subscription anytime from your account settings.
+            </p>
+        </div>
+        
+        <!-- Footer -->
+        <div class="footer">
+            <div class="footer-links">
+                <a href="{{app_url}}/account">Manage Account</a>
+                <a href="{{app_url}}/help">Help Center</a>
+                <a href="{{app_url}}/contact">Contact</a>
+            </div>
+            
+            <div class="unsubscribe">
+                <p>© 2025 ONAI. All rights reserved.</p>
+                <p><a href="{{unsubscribe_url}}">Unsubscribe</a> | <a href="{{app_url}}/privacy">Privacy Policy</a></p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
+
