@@ -8,33 +8,33 @@
     "packages/*"
   ],
   "scripts": {
-    "dev:all": "concurrently \"npm run dev:notes\" \"npm run dev:marketing\" \"npm run dev:payment\"",
+    "dev:all": "run-p dev:notes dev:marketing dev:payment",
     "dev:notes": "cd apps/notes-app && npm run dev",
     "dev:marketing": "cd apps/marketing-website && npm run dev",
     "dev:payment": "cd apps/payment-system && npm run dev",
-    
-    "build:all": "npm run build:notes && npm run build:marketing && npm run build:payment",
+    "build:all": "run-s build:notes build:marketing build:payment",
     "build:notes": "cd apps/notes-app && npm run build",
     "build:marketing": "cd apps/marketing-website && npm run build",
     "build:payment": "cd apps/payment-system && npm run build",
-    
     "install:all": "npm install && cd apps/notes-app && npm install && cd ../marketing-website && npm install && cd ../payment-system && npm install",
-    
-    "deploy:all": "npm run deploy:notes && npm run deploy:marketing && npm run deploy:payment",
+    "deploy:all": "run-s deploy:notes deploy:marketing deploy:payment",
     "deploy:notes": "cd apps/notes-app && npm run build && echo 'Notes app built - ready for deployment'",
     "deploy:marketing": "cd apps/marketing-website && npm run build && echo 'Marketing website built - ready for deployment'",
     "deploy:payment": "cd apps/payment-system && npm run build && echo 'Payment system built - ready for deployment'",
-    
-    "lint:all": "cd apps/notes-app && npm run lint && cd ../marketing-website && npm run lint && cd ../payment-system && npm run lint",
+    "lint:all": "run-s lint:notes lint:marketing lint:payment",
+    "lint:notes": "cd apps/notes-app && npm run lint",
+    "lint:marketing": "cd apps/marketing-website && npm run lint",
+    "lint:payment": "cd apps/payment-system && npm run lint",
     "test:all": "echo 'Running tests for all applications...'",
-    "clean": "rm -rf apps/*/dist apps/*/node_modules packages/*/node_modules node_modules",
-    
+    "start:all": "run-p start:notes start:marketing start:payment",
     "start:notes": "cd apps/notes-app && npm start",
     "start:marketing": "cd apps/marketing-website && npm run preview",
-    "start:payment": "cd apps/payment-system && npm run preview"
+    "start:payment": "cd apps/payment-system && npm run preview",
+    "clean": "rimraf apps/*/dist apps/*/node_modules packages/*/node_modules node_modules"
   },
   "devDependencies": {
-    "concurrently": "^8.2.2"
+    "npm-run-all": "^4.1.5",
+    "rimraf": "^5.0.10"
   },
   "keywords": [
     "onai",
@@ -69,10 +69,9 @@
     "creation_date": "2024-06-05",
     "applications": [
       "ONAI Notes App",
-      "Marketing Website", 
+      "Marketing Website",
       "Payment System",
       "Email Templates"
     ]
   }
 }
-

@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Link, useLocation, useNavigate } from 'react-router-dom';
+import CreateSampleNote from './components/CreateSampleNote';
+import CreateNoteButton from './components/CreateNoteButton';
 import { motion, AnimatePresence, useScroll, useTransform } from 'framer-motion';
 import { 
   Brain, Users, FileText, Search, Shield, RefreshCw, 
@@ -10,7 +12,7 @@ import {
   Lock, Database, Cloud, Cpu, Layers, Settings,
   Clock
 } from 'lucide-react';
-import onaiLogo from './assets/onai-logo.png';
+// Using logo from public directory
 import './App.css';
 
 // --- Layout Components ---
@@ -94,7 +96,9 @@ const Layout = ({ children }) => {
           <div className="flex justify-between items-center h-16">
             <div className="flex-shrink-0 flex items-center">
               <Link to="/" className="flex items-center space-x-2 group">
-                <img src={onaiLogo} alt="ONAI Logo" className="h-8 w-auto transition-transform duration-300 group-hover:scale-110" />
+                <div className="text-2xl font-bold bg-gradient-to-r from-purple-400 to-blue-500 bg-clip-text text-transparent">
+                  ONAI
+                </div>
               </Link>
             </div>
             <div className="hidden md:flex md:items-center md:space-x-6">
@@ -178,7 +182,9 @@ const Layout = ({ children }) => {
         <div className="max-w-7xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-8">
           <div className="col-span-2 md:col-span-1 mb-8 md:mb-0">
             <Link to="/" className="flex items-center space-x-3 mb-4 group">
-              <img src={onaiLogo} alt="ONAI Logo" className="h-10 w-auto transition-transform duration-300 group-hover:scale-110" />
+              <div className="text-3xl font-bold bg-gradient-to-r from-purple-400 to-blue-500 bg-clip-text text-transparent">
+                ONAI
+              </div>
             </Link>
             <p className="text-gray-400 text-sm leading-relaxed">
               AI-Powered Note Taking Reimagined. Experience the future of productivity.
@@ -255,7 +261,7 @@ const NavDropdown = ({ title, items }) => {
   );
 };
 
-// --- Page Components (Placeholders initially) ---
+// --- Page Components ---
 const HomePage = () => {
   const { scrollYProgress } = useScroll();
   const scale = useTransform(scrollYProgress, [0, 0.3], [1, 0.95]);
@@ -279,9 +285,13 @@ const HomePage = () => {
             transition={{ duration: 1, delay: 0.2 }}
           >
             <img 
-              src={onaiLogo} 
+              src="/onai-logo.png"
               alt="ONAI Logo" 
               className="h-20 md:h-28 w-auto filter drop-shadow-[0_0_30px_rgba(168,85,247,0.6)]"
+              onError={(e) => {
+                e.target.onerror = null;
+                e.target.src = '/vite.svg';
+              }}
             />
           </motion.div>
           
@@ -458,6 +468,24 @@ const HomePage = () => {
 };
 
 const PricingPage = () => {
+  const plans = [
+    {
+      name: 'Free', price: '$0', period: 'Forever', description: 'Essential features for individuals.', 
+      features: ['Up to 100 notes', 'Basic AI suggestions', 'Standard collaboration', 'Community support'],
+      buttonText: 'Get Started Free', isPopular: false
+    },
+    {
+      name: 'Pro', price: '$9', period: '/ month', description: 'Advanced features for power users and small teams.', 
+      features: ['Unlimited notes', 'Advanced AI assistant', 'Priority collaboration features', 'Premium templates', 'Priority email support'],
+      buttonText: 'Upgrade to Pro', isPopular: true
+    },
+    {
+      name: 'Enterprise', price: 'Custom', period: '', description: 'Tailored solutions for large organizations.', 
+      features: ['Everything in Pro', 'Dedicated account manager', 'Custom integrations', 'Advanced security & compliance', 'SLA & premium support'],
+      buttonText: 'Contact Sales', isPopular: false
+    },
+  ];
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-slate-900 to-black text-white py-20">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -470,9 +498,16 @@ const PricingPage = () => {
           </p>
         </div>
       </div>
-    </div>
-  );
-};
+      
+      <div className="py-20">
+        <div className="max-w-5xl mx-auto text-center mb-20">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.8 }}
+          >
+            <h2 className="text-3xl md:text-4xl font-bold mb-6 bg-gradient-to-r from-purple-400 to-blue-400 text-transparent bg-clip-text">
               Trusted by Thousands
             </h2>
           </motion.div>
@@ -493,16 +528,16 @@ const PricingPage = () => {
                 transition={{ duration: 0.6, delay: index * 0.1 }}
                 whileHover={{ scale: 1.05 }}
               >
-                <div className="text-4xl sm:text-5xl font-black bg-gradient-to-r from-purple-400 to-blue-400 text-transparent bg-clip-text mb-2">
+                <div className="text-4xl font-bold mb-2 bg-gradient-to-r from-purple-400 to-blue-400 text-transparent bg-clip-text">
                   {stat.value}
                 </div>
-                <div className="text-gray-400 font-medium">{stat.label}</div>
+                <div className="text-gray-300">{stat.label}</div>
               </motion.div>
             ))}
           </div>
         </div>
-      </section>
-
+      </div>
+      
       {/* CTA Section */}
       <section className="relative py-32 px-4 sm:px-6 lg:px-8">
         <div className="absolute inset-0 bg-gradient-to-br from-black via-purple-900/20 to-black"></div>
@@ -534,7 +569,7 @@ const PricingPage = () => {
           </motion.div>
         </div>
       </section>
-    </>
+    </div>
   );
 };
 
@@ -580,131 +615,6 @@ const FeaturesPage = () => {
   );
 };
 
-const PricingPage = () => {
-  return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-slate-900 to-black text-white py-20">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-16">
-          <h1 className="text-5xl sm:text-6xl font-bold mb-6 bg-gradient-to-r from-purple-400 to-blue-400 text-transparent bg-clip-text">
-            Simple, Transparent Pricing
-          </h1>
-          <p className="text-xl text-gray-400 max-w-3xl mx-auto">
-            Choose the plan that's right for you and start experiencing the future of note-taking.
-          </p>
-        </div>
-        
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto">
-          {/* Free Plan */}
-          <motion.div
-            className="p-8 bg-gradient-to-br from-gray-800/50 to-gray-900/50 rounded-2xl border border-white/10"
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-          >
-            <h3 className="text-xl font-bold mb-2">Free</h3>
-            <div className="text-3xl font-bold mb-6">$0<span className="text-lg text-gray-400 font-normal">/month</span></div>
-            <ul className="space-y-3 mb-8">
-              <li className="flex items-start">
-                <Check className="w-5 h-5 text-green-500 mr-2 mt-0.5" />
-                <span>Basic note-taking features</span>
-              </li>
-              <li className="flex items-start">
-                <Check className="w-5 h-5 text-green-500 mr-2 mt-0.5" />
-                <span>Up to 50 notes</span>
-              </li>
-              <li className="flex items-start">
-                <Check className="w-5 h-5 text-green-500 mr-2 mt-0.5" />
-                <span>Limited AI suggestions</span>
-              </li>
-            </ul>
-            <Link 
-              to="https://xvrihqrb.manus.space"
-              className="block w-full py-3 text-center rounded-xl border border-purple-500/50 text-purple-300 hover:bg-purple-500/10 transition-colors"
-            >
-              Get Started
-            </Link>
-          </motion.div>
-          
-          {/* Pro Plan */}
-          <motion.div
-            className="p-8 bg-gradient-to-br from-purple-900/30 to-blue-900/30 rounded-2xl border border-purple-500/30 shadow-xl relative"
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6, delay: 0.1 }}
-          >
-            <div className="absolute top-0 right-0 bg-gradient-to-r from-purple-500 to-blue-500 text-white text-xs font-bold px-3 py-1 rounded-bl-lg rounded-tr-lg">
-              POPULAR
-            </div>
-            <h3 className="text-xl font-bold mb-2">Pro</h3>
-            <div className="text-3xl font-bold mb-6">$9<span className="text-lg text-gray-400 font-normal">/month</span></div>
-            <ul className="space-y-3 mb-8">
-              <li className="flex items-start">
-                <Check className="w-5 h-5 text-green-500 mr-2 mt-0.5" />
-                <span>All Free features</span>
-              </li>
-              <li className="flex items-start">
-                <Check className="w-5 h-5 text-green-500 mr-2 mt-0.5" />
-                <span>Unlimited notes</span>
-              </li>
-              <li className="flex items-start">
-                <Check className="w-5 h-5 text-green-500 mr-2 mt-0.5" />
-                <span>Full AI capabilities</span>
-              </li>
-              <li className="flex items-start">
-                <Check className="w-5 h-5 text-green-500 mr-2 mt-0.5" />
-                <span>Real-time collaboration</span>
-              </li>
-            </ul>
-            <Link 
-              to="https://xvrihqrb.manus.space"
-              className="block w-full py-3 text-center rounded-xl bg-gradient-to-r from-purple-600 to-blue-600 text-white hover:shadow-lg hover:shadow-purple-500/25 transition-all"
-            >
-              Start Free Trial
-            </Link>
-          </motion.div>
-          
-          {/* Enterprise Plan */}
-          <motion.div
-            className="p-8 bg-gradient-to-br from-gray-800/50 to-gray-900/50 rounded-2xl border border-white/10"
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6, delay: 0.2 }}
-          >
-            <h3 className="text-xl font-bold mb-2">Enterprise</h3>
-            <div className="text-3xl font-bold mb-6">Custom</div>
-            <ul className="space-y-3 mb-8">
-              <li className="flex items-start">
-                <Check className="w-5 h-5 text-green-500 mr-2 mt-0.5" />
-                <span>All Pro features</span>
-              </li>
-              <li className="flex items-start">
-                <Check className="w-5 h-5 text-green-500 mr-2 mt-0.5" />
-                <span>SSO integration</span>
-              </li>
-              <li className="flex items-start">
-                <Check className="w-5 h-5 text-green-500 mr-2 mt-0.5" />
-                <span>Advanced security</span>
-              </li>
-              <li className="flex items-start">
-                <Check className="w-5 h-5 text-green-500 mr-2 mt-0.5" />
-                <span>Dedicated support</span>
-              </li>
-            </ul>
-            <Link 
-              to="/contact"
-              className="block w-full py-3 text-center rounded-xl border border-purple-500/50 text-purple-300 hover:bg-purple-500/10 transition-colors"
-            >
-              Contact Sales
-            </Link>
-          </motion.div>
-        </div>
-      </div>
-    </div>
-  );
-};
 
 const SecurityPage = () => {
   return (
@@ -837,465 +747,71 @@ const AboutPage = () => {
             ))}
           </div>
         </div>
-      </div>
-    </div>
-  );
-};
-
-          {/* Enhanced CTA Section */}
-          <motion.div
-            className="relative max-w-5xl mx-auto text-center bg-gradient-to-br from-indigo-900/80 via-purple-900/70 to-blue-900/80 rounded-3xl p-12 md:p-16 border border-white/20 shadow-2xl backdrop-blur-xl overflow-hidden"
-            initial={{ opacity: 0, y: 50 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, amount: 0.3 }}
-            transition={{ duration: 0.8 }}
-          >
-            {/* Animated Background Elements */}
-            <div className="absolute inset-0 opacity-20">
-              <div className="absolute top-0 left-0 w-32 h-32 bg-gradient-to-br from-purple-500 to-indigo-500 rounded-full blur-3xl"></div>
-              <div className="absolute bottom-0 right-0 w-40 h-40 bg-gradient-to-br from-blue-500 to-purple-500 rounded-full blur-3xl"></div>
-              <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-24 h-24 bg-gradient-to-br from-indigo-500 to-blue-500 rounded-full blur-2xl"></div>
-            </div>
-
-            <div className="relative z-10">
-              <motion.h2 
-                className="text-4xl sm:text-5xl lg:text-6xl font-extrabold mb-6 text-white leading-tight"
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, amount: 0.5 }}
-                transition={{ duration: 0.5 }}
-              >
-                Ready to Revolutionize Your Notes?
-              </motion.h2>
-              <motion.p 
-                className="text-xl text-gray-200 mb-10 max-w-3xl mx-auto leading-relaxed"
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, amount: 0.5 }}
-                transition={{ duration: 0.5, delay: 0.1 }}
-              >
-                Join thousands of users experiencing the future of productivity. Get started with ONAI for free today!
-              </motion.p>
-              <motion.div
-                className="flex flex-col sm:flex-row justify-center items-center space-y-4 sm:space-y-0 sm:space-x-6"
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, amount: 0.5 }}
-                transition={{ duration: 0.5, delay: 0.2 }}
-              >
-                <Link 
-                  to="https://xvrihqrb.manus.space"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="group relative inline-flex items-center justify-center px-10 py-4 text-lg font-bold text-white bg-gradient-to-r from-purple-600 to-indigo-600 rounded-full overflow-hidden transition-all duration-300 ease-in-out hover:from-purple-700 hover:to-indigo-700 hover:shadow-xl hover:shadow-purple-500/50 transform hover:scale-105"
-                >
-                  <span className="absolute left-0 top-0 w-full h-full bg-white opacity-0 transition-opacity duration-300 group-hover:opacity-10"></span>
-                  <Zap className="w-6 h-6 mr-3 transition-transform duration-300 group-hover:scale-110" />
-                  Try ONAI Free Now
-                </Link>
-                <div className="text-sm text-gray-300 flex items-center">
-                  <Check className="w-4 h-4 mr-2 text-green-400" />
-                  No credit card required
-                </div>
-              </motion.div>
-            </div>
-          </motion.div>
-        </div>
-      </section>
-    </>
-  );
-};
-
-const FeaturesPage = () => (
-  <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-    <motion.h1 
-      className="text-4xl sm:text-5xl font-extrabold text-center mb-6 bg-gradient-to-r from-purple-400 via-indigo-400 to-blue-400 text-transparent bg-clip-text"
-      initial={{ opacity: 0, y: -20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5 }}
-    >
-      Powerful Features
-    </motion.h1>
-    <motion.p 
-      className="text-lg text-gray-400 text-center mb-16 max-w-3xl mx-auto"
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ duration: 0.5, delay: 0.2 }}
-    >
-      Discover the comprehensive suite of AI-powered tools designed to revolutionize your note-taking experience.
-    </motion.p>
-    
-    {[ /* Feature sections content here - adapted from previous implementation */
-      { icon: Brain, title: 'AI-Powered Intelligence', details: 'Our advanced neural networks analyze your writing patterns and provide intelligent suggestions, auto-organization, and content generation with unprecedented accuracy.', points: ['Smart auto-completion', 'Content suggestions', 'Automatic categorization', 'Writing enhancement'] },
-      { icon: Users, title: 'Real-Time Collaboration', details: 'Seamless multi-user editing with live cursors, comments, and shared workspaces powered by enterprise-grade infrastructure.', points: ['Live collaborative editing', 'Real-time comments', 'Shared workspaces', 'Version control'] },
-      { icon: FileText, title: 'Rich Text Editing', details: 'A professional-grade editor offering advanced formatting options, multimedia embedding (images, videos, code blocks), and customizable templates.', points: ['Markdown support', 'Code syntax highlighting', 'Embeddable media', 'Custom templates'] },
-      { icon: Search, title: 'Intelligent Search', details: 'Go beyond keyword search. ONAI understands context, meaning, and relationships across all your notes for truly intelligent information retrieval.', points: ['Semantic search', 'Natural language queries', 'Cross-note linking', 'Tag-based filtering'] },
-      { icon: Shield, title: 'Enterprise Security', details: 'Protect your sensitive information with military-grade encryption, zero-trust architecture, and regular security audits.', points: ['End-to-end encryption', 'Role-based access control', 'Compliance certifications (SOC 2, ISO 27001)', 'Data residency options'] },
-      { icon: RefreshCw, title: 'Cross-Platform Sync', details: 'Access your notes anywhere, anytime. ONAI syncs instantly across web, desktop, and mobile apps, even when offline.', points: ['Real-time synchronization', 'Offline access', 'Conflict resolution', 'Native apps for all platforms'] },
-    ].map((feature, index) => (
-      <motion.div 
-        key={feature.title}
-        className="mb-16 p-8 bg-gradient-to-br from-gray-900/50 to-indigo-900/30 rounded-2xl border border-white/10 shadow-xl backdrop-blur-lg flex flex-col md:flex-row items-center gap-8"
-        initial={{ opacity: 0, x: index % 2 === 0 ? -50 : 50 }}
-        whileInView={{ opacity: 1, x: 0 }}
-        viewport={{ once: true, amount: 0.3 }}
-        transition={{ duration: 0.6, delay: index * 0.1 }}
-      >
-        <div className="flex-shrink-0 mb-6 md:mb-0">
-          <div className="p-4 rounded-xl bg-gradient-to-r from-indigo-500 to-purple-600 shadow-lg">
-            <feature.icon className="w-12 h-12 text-white" />
+        
+        {/* Enhanced CTA Section */}
+        <motion.div
+          className="relative max-w-5xl mx-auto text-center bg-gradient-to-br from-indigo-900/80 via-purple-900/70 to-blue-900/80 rounded-3xl p-12 md:p-16 border border-white/20 shadow-2xl backdrop-blur-xl overflow-hidden mt-16"
+          initial={{ opacity: 0, y: 50 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, amount: 0.3 }}
+          transition={{ duration: 0.8 }}
+        >
+          {/* Animated Background Elements */}
+          <div className="absolute inset-0 opacity-20">
+            <div className="absolute top-0 left-0 w-32 h-32 bg-gradient-to-br from-purple-500 to-indigo-500 rounded-full blur-3xl"></div>
+            <div className="absolute bottom-0 right-0 w-40 h-40 bg-gradient-to-br from-blue-500 to-purple-500 rounded-full blur-3xl"></div>
+            <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-24 h-24 bg-gradient-to-br from-indigo-500 to-blue-500 rounded-full blur-2xl"></div>
           </div>
-        </div>
-        <div className="flex-grow">
-          <h2 className="text-2xl font-semibold text-gray-100 mb-3">{feature.title}</h2>
-          <p className="text-gray-400 mb-4">{feature.details}</p>
-          <ul className="space-y-2">
-            {feature.points.map(point => (
-              <li key={point} className="flex items-center text-gray-300">
-                <Check className="w-4 h-4 mr-2 text-green-500 flex-shrink-0" />
-                {point}
-              </li>
-            ))}
-          </ul>
-        </div>
-      </motion.div>
-    ))}
-  </div>
-);
 
-const PricingPage = () => {
-  const plans = [
-    {
-      name: 'Free', price: '$0', period: 'Forever', description: 'Essential features for individuals.', 
-      features: ['Up to 100 notes', 'Basic AI suggestions', 'Standard collaboration', 'Community support'],
-      buttonText: 'Get Started Free', isPopular: false
-    },
-    {
-      name: 'Pro', price: '$9', period: '/ month', description: 'Advanced features for power users and small teams.', 
-      features: ['Unlimited notes', 'Advanced AI assistant', 'Priority collaboration features', 'Premium templates', 'Priority email support'],
-      buttonText: 'Upgrade to Pro', isPopular: true
-    },
-    {
-      name: 'Enterprise', price: 'Custom', period: '', description: 'Tailored solutions for large organizations.', 
-      features: ['Everything in Pro', 'Dedicated account manager', 'Custom integrations', 'Advanced security & compliance', 'SLA & premium support'],
-      buttonText: 'Contact Sales', isPopular: false
-    },
-  ];
-
-  return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-      <motion.h1 
-        className="text-4xl sm:text-5xl font-extrabold text-center mb-6 bg-gradient-to-r from-purple-400 via-indigo-400 to-blue-400 text-transparent bg-clip-text"
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-      >
-        Simple, Transparent Pricing
-      </motion.h1>
-      <motion.p 
-        className="text-lg text-gray-400 text-center mb-16 max-w-2xl mx-auto"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.5, delay: 0.2 }}
-      >
-        Choose the plan that fits your needs. Start free, upgrade anytime.
-      </motion.p>
-      
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-stretch">
-        {plans.map((plan, index) => (
-          <motion.div 
-            key={plan.name}
-            className={`relative p-8 rounded-3xl border shadow-xl backdrop-blur-lg flex flex-col ${plan.isPopular ? 'border-purple-500 bg-gradient-to-br from-indigo-900/70 to-purple-900/50 scale-105 z-10' : 'border-white/10 bg-gradient-to-br from-gray-900/50 to-indigo-900/30'}`}
-            initial={{ opacity: 0, y: 50 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, amount: 0.3 }}
-            transition={{ duration: 0.5, delay: index * 0.1 }}
-          >
-            {plan.isPopular && (
-              <div className="absolute top-0 -translate-y-1/2 left-1/2 -translate-x-1/2">
-                <span className="inline-flex items-center px-4 py-1 rounded-full text-sm font-semibold bg-gradient-to-r from-purple-500 to-indigo-500 text-white shadow-md">
-                  Most Popular
-                </span>
-              </div>
-            )}
-            <div className="flex-grow">
-              <h2 className={`text-2xl font-semibold mb-4 ${plan.isPopular ? 'text-white' : 'text-gray-100'}`}>{plan.name}</h2>
-              <p className={`text-4xl font-bold mb-1 ${plan.isPopular ? 'text-white' : 'text-gray-100'}`}>{plan.price}<span className="text-lg font-normal text-gray-400">{plan.period}</span></p>
-              <p className="text-sm text-gray-400 mb-6 h-10">{plan.description}</p>
-              <ul className="space-y-3 mb-8">
-                {plan.features.map(feature => (
-                  <li key={feature} className="flex items-start">
-                    <Check className={`w-5 h-5 mr-2 flex-shrink-0 ${plan.isPopular ? 'text-purple-400' : 'text-green-500'}`} />
-                    <span className="text-sm text-gray-300">{feature}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-            <Link 
-              to={plan.name === 'Enterprise' ? '/contact?subject=Enterprise Inquiry' : (plan.name === 'Pro' ? 'https://xvrihqrb.manus.space/upgrade' : 'https://xvrihqrb.manus.space')}
-              target={plan.name !== 'Enterprise' ? '_blank' : '_self'}
-              rel={plan.name !== 'Enterprise' ? 'noopener noreferrer' : ''}
-              className={`block w-full text-center px-6 py-3 rounded-full font-medium transition-all duration-300 ${plan.isPopular ? 'bg-gradient-to-r from-purple-600 to-indigo-600 text-white hover:from-purple-700 hover:to-indigo-700 shadow-lg hover:shadow-purple-500/50' : 'bg-indigo-600/50 text-indigo-300 hover:bg-indigo-600 hover:text-white border border-indigo-600'}`}
+          <div className="relative z-10">
+            <motion.h2 
+              className="text-4xl sm:text-5xl lg:text-6xl font-extrabold mb-6 text-white leading-tight"
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, amount: 0.5 }}
+              transition={{ duration: 0.5 }}
             >
-              {plan.buttonText}
-            </Link>
-          </motion.div>
-        ))}
+              Ready to Revolutionize Your Notes?
+            </motion.h2>
+            <motion.p 
+              className="text-xl text-gray-200 mb-10 max-w-3xl mx-auto leading-relaxed"
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, amount: 0.5 }}
+              transition={{ duration: 0.5, delay: 0.1 }}
+            >
+              Join thousands of users experiencing the future of productivity. Get started with ONAI for free today!
+            </motion.p>
+            <motion.div
+              className="flex flex-col sm:flex-row justify-center items-center space-y-4 sm:space-y-0 sm:space-x-6"
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, amount: 0.5 }}
+              transition={{ duration: 0.5, delay: 0.2 }}
+            >
+              <Link 
+                to="https://xvrihqrb.manus.space"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="group relative inline-flex items-center justify-center px-10 py-4 text-lg font-bold text-white bg-gradient-to-r from-purple-600 to-indigo-600 rounded-full overflow-hidden transition-all duration-300 ease-in-out hover:from-purple-700 hover:to-indigo-700 hover:shadow-xl hover:shadow-purple-500/50 transform hover:scale-105"
+              >
+                <span className="absolute left-0 top-0 w-full h-full bg-white opacity-0 transition-opacity duration-300 group-hover:opacity-10"></span>
+                <Zap className="w-6 h-6 mr-3 transition-transform duration-300 group-hover:scale-110" />
+                Try ONAI Free Now
+              </Link>
+              <div className="text-sm text-gray-300 flex items-center">
+                <Check className="w-4 h-4 mr-2 text-green-400" />
+                No credit card required
+              </div>
+            </motion.div>
+          </div>
+        </motion.div>
       </div>
     </div>
   );
 };
-
-const SecurityPage = () => (
-  <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-    <motion.h1 
-      className="text-4xl sm:text-5xl font-extrabold text-center mb-6 bg-gradient-to-r from-purple-400 via-indigo-400 to-blue-400 text-transparent bg-clip-text"
-      initial={{ opacity: 0, y: -20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5 }}
-    >
-      Enterprise-Grade Security
-    </motion.h1>
-    <motion.p 
-      className="text-lg text-gray-400 text-center mb-16 max-w-3xl mx-auto"
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ duration: 0.5, delay: 0.2 }}
-    >
-      Your data's safety is our top priority. We employ industry-leading security measures to protect your information.
-    </motion.p>
-
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center mb-16">
-      <motion.div
-        initial={{ opacity: 0, x: -50 }}
-        whileInView={{ opacity: 1, x: 0 }}
-        viewport={{ once: true, amount: 0.5 }}
-        transition={{ duration: 0.6 }}
-      >
-        <h2 className="text-3xl font-semibold text-gray-100 mb-4">Our Security Commitment</h2>
-        <p className="text-gray-400 leading-relaxed mb-6">
-          ONAI is built on a foundation of security. We utilize a multi-layered approach, combining advanced technology with strict protocols to ensure the confidentiality, integrity, and availability of your notes.
-        </p>
-        <ul className="space-y-3">
-          <li className="flex items-start"><Shield className="w-6 h-6 mr-3 text-blue-400 flex-shrink-0 mt-1" /><span>End-to-End Encryption (E2EE) for all note content.</span></li>
-          <li className="flex items-start"><Lock className="w-6 h-6 mr-3 text-blue-400 flex-shrink-0 mt-1" /><span>Zero-Trust Architecture implemented across our infrastructure.</span></li>
-          <li className="flex items-start"><Database className="w-6 h-6 mr-3 text-blue-400 flex-shrink-0 mt-1" /><span>Secure data storage with encryption at rest (AES-256).</span></li>
-          <li className="flex items-start"><Cloud className="w-6 h-6 mr-3 text-blue-400 flex-shrink-0 mt-1" /><span>Regular third-party security audits and penetration testing.</span></li>
-        </ul>
-      </motion.div>
-      <motion.div 
-        className="flex justify-center"
-        initial={{ opacity: 0, scale: 0.8 }}
-        whileInView={{ opacity: 1, scale: 1 }}
-        viewport={{ once: true, amount: 0.5 }}
-        transition={{ duration: 0.6, delay: 0.2 }}
-      >
-        <Shield className="w-48 h-48 text-indigo-500 filter drop-shadow-[0_0_20px_rgba(99,102,241,0.5)]" />
-      </motion.div>
-    </div>
-
-    <motion.h3 
-      className="text-2xl font-semibold text-center mb-8 text-gray-100"
-      initial={{ opacity: 0 }}
-      whileInView={{ opacity: 1 }}
-      viewport={{ once: true, amount: 0.5 }}
-      transition={{ duration: 0.5 }}
-    >
-      Key Security Features
-    </motion.h3>
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-      {[ /* Security features content */
-        { icon: Lock, title: 'End-to-End Encryption', description: 'Your note content is encrypted on your device before being sent to our servers.' },
-        { icon: Users, title: 'Role-Based Access Control', description: 'Fine-grained permissions for team collaboration and sharing.' },
-        { icon: Shield, title: 'Compliance Certifications', description: 'Adherence to SOC 2 Type II, ISO 27001, and GDPR standards.' },
-        { icon: Cpu, title: 'Intrusion Detection Systems', description: '24/7 monitoring for suspicious activities and potential threats.' },
-        { icon: Database, title: 'Data Backup & Recovery', description: 'Regular backups and disaster recovery plans to ensure data availability.' },
-        { icon: Settings, title: 'Advanced Security Settings', description: 'Options for session management, 2FA, and audit logs.' },
-      ].map((feature, index) => (
-        <motion.div
-          key={feature.title}
-          className="p-6 bg-gradient-to-br from-gray-900/50 to-indigo-900/30 rounded-2xl border border-white/10 shadow-lg backdrop-blur-lg"
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, amount: 0.3 }}
-          transition={{ duration: 0.5, delay: index * 0.1 }}
-        >
-          <div className="mb-4 inline-flex items-center justify-center p-3 rounded-xl bg-gradient-to-r from-blue-500 to-cyan-500 shadow-lg">
-            <feature.icon className="w-6 h-6 text-white" />
-          </div>
-          <h4 className="text-lg font-semibold text-gray-100 mb-2">{feature.title}</h4>
-          <p className="text-sm text-gray-400">{feature.description}</p>
-        </motion.div>
-      ))}
-    </div>
-    <motion.div 
-      className="mt-16 text-center"
-      initial={{ opacity: 0 }}
-      whileInView={{ opacity: 1 }}
-      viewport={{ once: true, amount: 0.5 }}
-      transition={{ duration: 0.5 }}
-    >
-      <p className="text-gray-400 mb-4">Have security questions or want to report a vulnerability?</p>
-      <Link 
-        to="/contact?subject=Security Inquiry"
-        className="inline-flex items-center px-6 py-3 rounded-full font-medium text-white bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 transition-all duration-300 shadow-lg hover:shadow-cyan-500/50"
-      >
-        Contact Security Team <ArrowRight className="w-4 h-4 ml-2" />
-      </Link>
-    </motion.div>
-  </div>
-);
-
-const IntegrationsPage = () => (
-  <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-    <motion.h1 
-      className="text-4xl sm:text-5xl font-extrabold text-center mb-6 bg-gradient-to-r from-purple-400 via-indigo-400 to-blue-400 text-transparent bg-clip-text"
-      initial={{ opacity: 0, y: -20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5 }}
-    >
-      Connect ONAI with Your Workflow
-    </motion.h1>
-    <motion.p 
-      className="text-lg text-gray-400 text-center mb-16 max-w-3xl mx-auto"
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ duration: 0.5, delay: 0.2 }}
-    >
-      Seamlessly integrate ONAI with the tools you already use to streamline your productivity and centralize your knowledge.
-    </motion.p>
-
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
-      {[ /* Integrations content */
-        { name: 'Google Drive', status: 'Available', description: 'Sync notes and attachments.' },
-        { name: 'Slack', status: 'Available', description: 'Share notes and receive updates.' },
-        { name: 'Zapier', status: 'Available', description: 'Connect with thousands of apps.' },
-        { name: 'Trello', status: 'Available', description: 'Link notes to Trello cards.' },
-        { name: 'GitHub', status: 'Coming Soon', description: 'Attach notes to issues and PRs.' },
-        { name: 'Jira', status: 'Coming Soon', description: 'Integrate notes with Jira tickets.' },
-        { name: 'Notion', status: 'Coming Soon', description: 'Import/Export notes.' },
-        { name: 'Figma', status: 'Coming Soon', description: 'Embed Figma designs in notes.' },
-        { name: 'Microsoft Teams', status: 'Coming Soon', description: 'Share and collaborate within Teams.' },
-        { name: 'Google Calendar', status: 'Coming Soon', description: 'Link notes to calendar events.' },
-        { name: 'Outlook', status: 'Coming Soon', description: 'Save emails as notes.' },
-        { name: 'Salesforce', status: 'Enterprise Only', description: 'Link notes to CRM records.' },
-      ].map((integration, index) => (
-        <motion.div
-          key={integration.name}
-          className="relative p-6 bg-gradient-to-br from-gray-900/50 to-indigo-900/30 rounded-2xl border border-white/10 shadow-lg backdrop-blur-lg flex flex-col justify-between"
-          initial={{ opacity: 0, scale: 0.9 }}
-          whileInView={{ opacity: 1, scale: 1 }}
-          viewport={{ once: true, amount: 0.3 }}
-          transition={{ duration: 0.4, delay: index * 0.05 }}
-        >
-          <div>
-            <h3 className="text-lg font-semibold text-gray-100 mb-2">{integration.name}</h3>
-            <p className="text-sm text-gray-400 mb-4 h-10">{integration.description}</p>
-          </div>
-          <span className={`inline-block px-3 py-1 text-xs font-medium rounded-full self-start ${integration.status === 'Available' ? 'bg-green-500/20 text-green-400' : (integration.status === 'Coming Soon' ? 'bg-yellow-500/20 text-yellow-400' : 'bg-blue-500/20 text-blue-400')}`}>
-            {integration.status}
-          </span>
-        </motion.div>
-      ))}
-    </div>
-    <motion.div 
-      className="mt-16 text-center"
-      initial={{ opacity: 0 }}
-      whileInView={{ opacity: 1 }}
-      viewport={{ once: true, amount: 0.5 }}
-      transition={{ duration: 0.5 }}
-    >
-      <p className="text-gray-400 mb-4">Don't see an integration you need?</p>
-      <Link 
-        to="/contact?subject=Integration Request"
-        className="inline-flex items-center px-6 py-3 rounded-full font-medium text-white bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 transition-all duration-300 shadow-lg hover:shadow-indigo-500/50"
-      >
-        Request Integration <ArrowRight className="w-4 h-4 ml-2" />
-      </Link>
-    </motion.div>
-  </div>
-);
-
-const AboutPage = () => (
-  <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-    <motion.h1 
-      className="text-4xl sm:text-5xl font-extrabold text-center mb-6 bg-gradient-to-r from-purple-400 via-indigo-400 to-blue-400 text-transparent bg-clip-text"
-      initial={{ opacity: 0, y: -20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5 }}
-    >
-      About ONAI
-    </motion.h1>
-    <motion.p 
-      className="text-lg text-gray-400 text-center mb-16 max-w-3xl mx-auto"
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ duration: 0.5, delay: 0.2 }}
-    >
-      Empowering individuals and teams to capture, organize, and unleash their collective intelligence through AI-powered note-taking.
-    </motion.p>
-
-    <motion.div 
-      className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center mb-20"
-      initial="hidden"
-      whileInView="visible"
-      viewport={{ once: true, amount: 0.3 }}
-      variants={{ visible: { transition: { staggerChildren: 0.2 } } }}
-    >
-      <motion.div variants={{ hidden: { opacity: 0, x: -50 }, visible: { opacity: 1, x: 0, transition: { duration: 0.6 } } }}>
-        <h2 className="text-3xl font-semibold text-gray-100 mb-4">Our Story</h2>
-        <p className="text-gray-400 leading-relaxed mb-4">
-          ONAI was founded in 2023 by a team of AI researchers and productivity enthusiasts frustrated with the limitations of traditional note-taking apps. We envisioned a future where notes weren't just static text, but dynamic knowledge hubs powered by artificial intelligence.
-        </p>
-        <p className="text-gray-400 leading-relaxed">
-          Our mission is to build the most intelligent, secure, and collaborative note-taking platform that adapts to your unique workflow and helps you achieve more.
-        </p>
-      </motion.div>
-      <motion.div 
-        className="flex justify-center"
-        variants={{ hidden: { opacity: 0, scale: 0.8 }, visible: { opacity: 1, scale: 1, transition: { duration: 0.6 } } }}
-      >
-        <img src={onaiLogo} alt="ONAI Logo Large" className="w-64 h-auto filter drop-shadow-[0_0_25px_rgba(168,85,247,0.4)]" />
-      </motion.div>
-    </motion.div>
-
-    <motion.h3 
-      className="text-2xl font-semibold text-center mb-8 text-gray-100"
-      initial={{ opacity: 0 }}
-      whileInView={{ opacity: 1 }}
-      viewport={{ once: true, amount: 0.5 }}
-      transition={{ duration: 0.5 }}
-    >
-      Our Values
-    </motion.h3>
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-      {[ /* Values content */
-        { icon: Brain, title: 'Innovation', description: 'Continuously pushing the boundaries of AI in productivity.' },
-        { icon: Shield, title: 'Security', description: 'Protecting user data with the highest standards.' },
-        { icon: Users, title: 'Collaboration', description: 'Building tools that enhance teamwork and knowledge sharing.' },
-        { icon: Heart, title: 'User-Centricity', description: 'Designing intuitive experiences focused on user needs.' },
-      ].map((value, index) => (
-        <motion.div
-          key={value.title}
-          className="p-6 bg-gradient-to-br from-gray-900/50 to-indigo-900/30 rounded-2xl border border-white/10 shadow-lg backdrop-blur-lg text-center"
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, amount: 0.3 }}
-          transition={{ duration: 0.5, delay: index * 0.1 }}
-        >
-          <div className="mb-4 inline-flex items-center justify-center p-3 rounded-xl bg-gradient-to-r from-indigo-500 to-purple-600 shadow-lg">
-            <value.icon className="w-6 h-6 text-white" />
-          </div>
-          <h4 className="text-lg font-semibold text-gray-100 mb-2">{value.title}</h4>
-          <p className="text-sm text-gray-400">{value.description}</p>
-        </motion.div>
-      ))}
-    </div>
-  </div>
-);
 
 const BlogPage = () => {
-  // Sample blog posts - replace with actual data fetching
   const posts = [
     { id: 1, title: 'The Future of AI in Note Taking', date: 'June 1, 2025', category: 'AI & Productivity', excerpt: 'Explore how artificial intelligence is transforming the way we capture and organize information...' },
     { id: 2, title: 'Mastering Real-Time Collaboration with ONAI', date: 'May 25, 2025', category: 'Collaboration', excerpt: 'Learn tips and tricks for seamless teamwork using ONAI shared workspaces and live editing features...' },
@@ -1727,6 +1243,7 @@ function App() {
   return (
     <Router>
       <Layout>
+        <CreateNoteButton />
         <Routes>
           <Route path="/" element={<HomePage />} />
           <Route path="/features" element={<FeaturesPage />} />
@@ -1741,6 +1258,7 @@ function App() {
           <Route path="/contact" element={<ContactPage />} />
           <Route path="/terms" element={<TermsPage />} />
           <Route path="/privacy" element={<PrivacyPage />} />
+          <Route path="/create-sample-note" element={<CreateSampleNote />} /> // Update route to include CreateSampleNote component
           {/* Add a 404 Not Found page component */}
           {/* <Route path="*" element={<NotFoundPage />} /> */}
         </Routes>

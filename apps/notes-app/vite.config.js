@@ -5,10 +5,24 @@ import path from 'path'
 
 // https://vite.dev/config/
 export default defineConfig({
-  plugins: [react(),tailwindcss()],
+  base: process.env.NODE_ENV === 'production' ? '/notes-app/' : '/',
+  plugins: [react(), tailwindcss()],
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
     },
+  },
+  server: {
+    port: 5173,
+    strictPort: true,
+  },
+  preview: {
+    port: 4173,
+    strictPort: true,
+  },
+  build: {
+    outDir: 'dist',
+    assetsDir: 'assets',
+    emptyOutDir: true,
   },
 })
