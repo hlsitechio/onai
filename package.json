@@ -8,6 +8,7 @@
     "packages/*"
   ],
   "scripts": {
+    "dev": "pnpm --filter oneai-notes dev",
     "dev:all": "run-p dev:notes dev:marketing dev:payment",
     "dev:notes": "cd apps/notes-app && npm run dev",
     "dev:marketing": "cd apps/marketing-website && npm run dev",
@@ -19,6 +20,7 @@
     "install:all": "npm install && cd apps/notes-app && npm install && cd ../marketing-website && npm install && cd ../payment-system && npm install",
     "deploy:all": "run-s deploy:notes deploy:marketing deploy:payment",
     "deploy:notes": "cd apps/notes-app && npm run build && echo 'Notes app built - ready for deployment'",
+    "start": "pnpm dev",
     "deploy:marketing": "cd apps/marketing-website && npm run build && echo 'Marketing website built - ready for deployment'",
     "deploy:payment": "cd apps/payment-system && npm run build && echo 'Payment system built - ready for deployment'",
     "lint:all": "run-s lint:notes lint:marketing lint:payment",
