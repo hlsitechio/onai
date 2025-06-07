@@ -1,0 +1,80 @@
+/* Direct fix for the red highlighted line in the screenshots */
+#editor-section {
+  border-top: none !important;
+  border: none !important;
+  margin-top: 0 !important;
+  box-shadow: none !important;
+  background-image: none !important;
+}
+
+/* The specific div that's showing the separation line - high priority fix */
+.min-h-screen.flex.flex-col.w-screen.max-w-\[100vw\].overflow-x-hidden > div#editor-section {
+  border-top: 0 !important;
+  outline: none !important;
+}
+
+/* Override any possible border styling */
+.min-h-screen > div:nth-child(2) {
+  border-top: 0 !important;
+  border-top-width: 0 !important;
+  border-top-color: transparent !important;
+}
+
+/* Target any potential divider between hero and editor */
+#editor-section::before,
+#editor-section::after {
+  display: none !important;
+  content: none !important;
+  border: none !important;
+  box-shadow: none !important;
+  background: none !important;
+}
+
+/* Ensure no separator between sections */
+.container + .container,
+section + section,
+section > div,
+#root > div > div {
+  border-top: none !important;
+  border-bottom: none !important;
+  box-shadow: none !important;
+}
+
+/* Ensure the editor container has no top border */
+.min-h-screen.flex.flex-col > div {
+  border-top: none !important;
+  box-shadow: none !important;
+}
+
+/* Directly target the red-highlighted section in the screenshot */
+.min-h-screen.flex.flex-col > div > div,
+.min-h-screen.flex.flex-col > div:after,
+.min-h-screen.flex.flex-col > div:before,
+.blur-in-focus-mode + div,
+.blur-in-focus-mode + div:before,
+.blur-in-focus-mode + div:after,
+#editor-section,
+#editor-section > div,
+#editor-section > div:before,
+#editor-section > div:after {
+  border-top: none !important;
+  border-bottom: none !important;
+  box-shadow: none !important;
+  border: none !important;
+  outline: none !important;
+  background-image: none !important;
+}
+
+/* More targeted approach for the specific separation line */
+.blur-in-focus-mode + div::before {
+  content: "" !important;
+  position: absolute !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  height: 1px !important;
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  z-index: 50 !important;
+}

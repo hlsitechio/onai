@@ -1,0 +1,60 @@
+
+/* Completely hide all visual separators throughout the page */
+
+/* Hide any separator lines between hero and editor sections */
+.blur-in-focus-mode + div::before,
+.blur-in-focus-mode + div::after {
+  display: none !important;
+  content: none !important;
+  border: none !important;
+  background: none !important;
+  box-shadow: none !important;
+}
+
+/* Hide separator before footer */
+.blur-in-focus-mode:last-of-type::before,
+footer::before {
+  display: none !important;
+  content: none !important;
+  border: none !important;
+  background: none !important;
+  box-shadow: none !important;
+}
+
+/* Remove any default borders or separators from main layout containers */
+.min-h-screen > div,
+.min-h-screen > div > div,
+#editor-section,
+footer {
+  border-top: none !important;
+  border-bottom: none !important;
+  box-shadow: none !important;
+  background-image: none !important;
+}
+
+/* Hide any pseudo-elements that might be creating lines */
+*::before,
+*::after {
+  border-top: none !important;
+  border-bottom: none !important;
+}
+
+/* Specifically target common separator patterns */
+.container::before,
+.container::after,
+section::before,
+section::after {
+  display: none !important;
+  content: none !important;
+}
+
+/* Override any Tailwind or component library separators */
+hr,
+.separator,
+[role="separator"] {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+  height: 0 !important;
+  border: none !important;
+}

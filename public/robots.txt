@@ -1,0 +1,55 @@
+
+# robots.txt for Online Note AI - 100% Free Forever Note Taking App
+User-agent: *
+Allow: /
+
+# Allow all search engines full access
+User-agent: Googlebot
+Allow: /
+
+User-agent: Bingbot
+Allow: /
+
+User-agent: Slurp
+Allow: /
+
+User-agent: DuckDuckBot
+Allow: /
+
+User-agent: Baiduspider
+Allow: /
+
+User-agent: Yandex
+Allow: /
+
+# Social Media Crawlers
+User-agent: Twitterbot
+Allow: /
+
+User-agent: facebookexternalhit
+Allow: /
+
+# Disallow certain technical files but ensure maximum content visibility
+User-agent: *
+Disallow: /*.js$
+Disallow: /*.css$
+Disallow: /api/
+
+# Explicitly allow important files
+Allow: /manifest.json
+Allow: /sitemap.xml
+
+# Allow AdSense crawlers specifically
+User-agent: Mediapartners-Google
+Allow: /
+
+# Sitemap location
+Sitemap: https://onlinenote.ai/sitemap.xml
+
+# Free Forever Notice (for archive.org and other text-based crawlers)
+# Online Note AI is 100% free forever with no login required
+# This is a free forever note-taking application with cloud storage and AI features
+
+# Crawl delay directive for general crawlers (optional)
+User-agent: *
+Crawl-delay: 1
