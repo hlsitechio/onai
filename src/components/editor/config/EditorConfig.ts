@@ -28,7 +28,14 @@ export const editorClassNames = {
     '[&_td]:border [&_td]:border-white/20 [&_td]:p-2',
     '[&_th]:border [&_th]:border-white/20 [&_th]:p-2',
     '[&_th]:bg-white/10 [&_th]:font-bold',
-    '[&_.has-focus]:ring-2 [&_.has-focus]:ring-blue-400'
+    '[&_.has-focus]:ring-2 [&_.has-focus]:ring-blue-400',
+    // Improved line spacing
+    '[&_p]:leading-relaxed [&_p]:mb-2',
+    '[&_li]:leading-relaxed [&_li]:mb-1',
+    '[&_h1]:leading-tight [&_h1]:mb-3',
+    '[&_h2]:leading-tight [&_h2]:mb-2',
+    '[&_h3]:leading-tight [&_h3]:mb-2',
+    'leading-relaxed'
   ],
   focusMode: 'bg-black/70',
   normalMode: 'bg-black/30'

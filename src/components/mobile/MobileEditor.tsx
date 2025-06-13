@@ -50,18 +50,18 @@ const MobileEditor: React.FC<MobileEditorProps> = ({
         onKeyDown={handleKeyDown}
         className={cn(
           "w-full h-full p-6 bg-transparent text-white resize-none border-none outline-none overflow-y-auto",
-          "text-base leading-relaxed",
+          "text-base leading-normal",
           "touch-manipulation",
-          "[&>h1]:text-2xl [&>h1]:font-bold [&>h1]:mb-4",
-          "[&>h2]:text-xl [&>h2]:font-bold [&>h2]:mb-3", 
-          "[&>h3]:text-lg [&>h3]:font-bold [&>h3]:mb-2",
-          "[&>p]:mb-4 [&>p]:leading-relaxed",
-          "[&>ul]:list-disc [&>ul]:pl-6 [&>ul]:mb-4",
-          "[&>ol]:list-decimal [&>ol]:pl-6 [&>ol]:mb-4",
-          "[&>li]:mb-1",
-          "[&>blockquote]:border-l-4 [&>blockquote]:border-noteflow-500 [&>blockquote]:pl-4 [&>blockquote]:italic [&>blockquote]:my-4",
+          "[&>h1]:text-2xl [&>h1]:font-bold [&>h1]:mb-3 [&>h1]:leading-tight",
+          "[&>h2]:text-xl [&>h2]:font-bold [&>h2]:mb-2 [&>h2]:leading-tight", 
+          "[&>h3]:text-lg [&>h3]:font-bold [&>h3]:mb-2 [&>h3]:leading-tight",
+          "[&>p]:mb-2 [&>p]:leading-normal",
+          "[&>ul]:list-disc [&>ul]:pl-6 [&>ul]:mb-3",
+          "[&>ol]:list-decimal [&>ol]:pl-6 [&>ol]:mb-3",
+          "[&>li]:mb-0.5 [&>li]:leading-normal",
+          "[&>blockquote]:border-l-4 [&>blockquote]:border-noteflow-500 [&>blockquote]:pl-4 [&>blockquote]:italic [&>blockquote]:my-3",
           "[&>code]:bg-white/10 [&>code]:px-2 [&>code]:py-1 [&>code]:rounded [&>code]:font-mono [&>code]:text-sm",
-          "[&>pre]:bg-white/5 [&>pre]:p-4 [&>pre]:rounded [&>pre]:my-4 [&>pre]:overflow-x-auto",
+          "[&>pre]:bg-white/5 [&>pre]:p-4 [&>pre]:rounded [&>pre]:my-3 [&>pre]:overflow-x-auto",
           "focus:bg-white/5 transition-colors duration-200",
           // Mobile-specific optimizations
           "select-text",
@@ -72,7 +72,8 @@ const MobileEditor: React.FC<MobileEditorProps> = ({
         style={{
           minHeight: isFocusMode ? 'calc(100vh - 120px)' : 'calc(100vh - 200px)',
           WebkitUserSelect: 'text',
-          userSelect: 'text'
+          userSelect: 'text',
+          lineHeight: '1.4'
         }}
         suppressContentEditableWarning={true}
       />
