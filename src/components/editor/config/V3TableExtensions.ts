@@ -16,30 +16,34 @@ export const getTableExtensions = () => {
       cellMinWidth: 100,
       allowTableNodeSelection: true,
       HTMLAttributes: {
-        class: 'border-collapse w-full table-auto my-6 bg-white/10 rounded-lg overflow-hidden border border-white/30 relative z-0',
-        role: 'table'
+        class: 'border-collapse w-full table-fixed my-6 bg-black/80 rounded-lg overflow-hidden border-2 border-white/50 backdrop-blur-sm isolate',
+        role: 'table',
+        style: 'position: relative; z-index: 1; contain: layout style paint;'
       }
     }),
 
     TableRow.configure({
       HTMLAttributes: {
-        class: 'border-b border-white/30 hover:bg-white/10 transition-colors relative',
-        role: 'row'
+        class: 'border-b border-white/50 hover:bg-white/20 transition-colors',
+        role: 'row',
+        style: 'position: relative; contain: layout;'
       }
     }),
 
     TableHeader.configure({
       HTMLAttributes: {
-        class: 'bg-white/20 font-bold p-3 border border-white/40 text-left text-white min-w-[120px] text-sm relative z-auto',
+        class: 'bg-white/30 font-bold p-4 border border-white/60 text-left text-white text-sm font-semibold',
         role: 'columnheader',
-        scope: 'col'
+        scope: 'col',
+        style: 'position: relative; contain: layout style;'
       }
     }),
 
     TableCell.configure({
       HTMLAttributes: {
-        class: 'p-3 border border-white/30 text-white min-w-[120px] bg-white/5 text-sm leading-normal relative z-auto overflow-hidden',
-        role: 'cell'
+        class: 'p-4 border border-white/50 text-white bg-black/60 text-sm leading-normal',
+        role: 'cell',
+        style: 'position: relative; contain: layout style; overflow: hidden; word-wrap: break-word;'
       }
     })
   ];
