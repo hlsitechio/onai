@@ -20,19 +20,74 @@ serve(async (req) => {
   }
 
   try {
+    // Initialize Supabase client
+    const supabase = createClient(
+      Deno.env.get('SUPABASE_URL') ?? '',
+      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
+    );
+
+    // Check rate limit for AI requests
+    const { data: rateLimitCheck } = await supabase.functions.invoke('security-monitor', {
+      body: JSON.stringify({
+        action: 'check_rate_limit',
+        endpoint: '/ai-content-processor',
+      }),
+    });
+
+    if (rateLimitCheck?.allowed === false) {
+      return new Response(
+        JSON.stringify({ error: 'Rate limit exceeded for AI requests' }),
+        {
+          status: 429,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        }
+      );
+    }
+
     const { content, operation, targetLanguage }: ContentRequest = await req.json();
 
     if (!content) {
       throw new Error('Content is required');
     }
 
-    console.log(`Processing ${operation} operation for content length: ${content.length}`);
+    // Moderate content before processing
+    const { data: moderationResult } = await supabase.functions.invoke('security-monitor', {
+      body: JSON.stringify({
+        action: 'moderate_content',
+        contentType: 'ai_input',
+        contentId: crypto.randomUUID(),
+        content,
+      }),
+    });
 
-    // Initialize Supabase client
-    const supabase = createClient(
-      Deno.env.get('SUPABASE_URL') ?? '',
-      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
-    );
+    if (!moderationResult?.approved) {
+      // Log security incident for rejected content
+      await supabase.functions.invoke('security-monitor', {
+        body: JSON.stringify({
+          action: 'log_incident',
+          incidentType: 'inappropriate_ai_content',
+          severity: 'medium',
+          details: {
+            operation,
+            flags: moderationResult?.flags,
+            content_preview: content.substring(0, 100),
+          },
+        }),
+      });
+
+      return new Response(
+        JSON.stringify({ 
+          error: 'Content flagged by moderation system',
+          flags: moderationResult?.flags 
+        }),
+        {
+          status: 400,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        }
+      );
+    }
+
+    console.log(`Processing ${operation} operation for content length: ${content.length}`);
 
     let prompt = '';
     switch (operation) {
@@ -62,10 +117,23 @@ serve(async (req) => {
     });
 
     if (aiError) {
+      // Log AI processing error as security incident
+      await supabase.functions.invoke('security-monitor', {
+        body: JSON.stringify({
+          action: 'log_incident',
+          incidentType: 'ai_processing_error',
+          severity: 'medium',
+          details: {
+            operation,
+            error_message: aiError.message,
+            content_length: content.length,
+          },
+        }),
+      });
       throw new Error(`AI processing failed: ${aiError.message}`);
     }
 
-    // Log the interaction
+    // Log the interaction with enhanced security tracking
     const { error: logError } = await supabase
       .from('ai_interactions')
       .insert({
@@ -83,6 +151,7 @@ serve(async (req) => {
         operation,
         result: aiResult.result,
         processedAt: new Date().toISOString(),
+        moderation_passed: true,
       }),
       {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -91,6 +160,25 @@ serve(async (req) => {
 
   } catch (error) {
     console.error('Error in ai-content-processor:', error);
+    
+    // Log critical errors
+    try {
+      const supabase = createClient(
+        Deno.env.get('SUPABASE_URL') ?? '',
+        Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
+      );
+      await supabase.functions.invoke('security-monitor', {
+        body: JSON.stringify({
+          action: 'log_incident',
+          incidentType: 'ai_processor_error',
+          severity: 'high',
+          details: { error_message: error.message },
+        }),
+      });
+    } catch (logError) {
+      console.error('Failed to log AI processor error:', logError);
+    }
+    
     return new Response(
       JSON.stringify({ error: error.message }),
       {

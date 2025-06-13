@@ -1,8 +1,10 @@
 
 /**
  * Security utilities for OneAI Notes
- * These functions enhance data protection and privacy
+ * Enhanced with server-side security monitoring
  */
+
+import { logSecurityIncident, trackSecurityEvent, sanitizeInput } from './securityMonitoring';
 
 // Helper for Content Security Policy implementation
 export const generateCSPNonce = (): string => {
@@ -33,8 +35,12 @@ export const secureWipe = (key: string): void => {
       sessionStorage.setItem(key, randomData);
       sessionStorage.removeItem(key);
     }
+
+    // Track secure wipe event
+    trackSecurityEvent('secure_data_wipe', { key_prefix: key.substring(0, 10) });
   } catch (e) {
     console.error('Error in secure wipe:', e);
+    logSecurityIncident('secure_wipe_failed', 'low', { error: e instanceof Error ? e.message : 'Unknown error' });
   }
 };
 
@@ -45,6 +51,7 @@ const initializeSecurityTokens = (): void => {
     if (!localStorage.getItem('onlinenote-security-token')) {
       const securityToken = generateCSPNonce();
       localStorage.setItem('onlinenote-security-token', securityToken);
+      trackSecurityEvent('security_token_initialized');
     }
     
     // Set initialization flag
@@ -58,10 +65,13 @@ const initializeSecurityTokens = (): void => {
     }
   } catch (e) {
     console.error('Error initializing security tokens:', e);
+    logSecurityIncident('token_initialization_failed', 'medium', { 
+      error: e instanceof Error ? e.message : 'Unknown error' 
+    });
   }
 };
 
-// Validate storage integrity to prevent tampering (less aggressive)
+// Enhanced storage integrity validation with security monitoring
 export const validateStorageIntegrity = (): boolean => {
   try {
     // Initialize tokens if they don't exist (normal for new users)
@@ -72,6 +82,7 @@ export const validateStorageIntegrity = (): boolean => {
     
     if (!securityToken) {
       console.warn('Security token missing after initialization - reinitializing');
+      logSecurityIncident('security_token_missing', 'medium');
       initializeSecurityTokens();
       return true; // Allow app to continue
     }
@@ -82,16 +93,20 @@ export const validateStorageIntegrity = (): boolean => {
     if (!hasValidStructure) {
       console.info('Initializing app for first time');
       initializeSecurityTokens();
+      trackSecurityEvent('first_time_initialization');
     }
     
     return true; // Always allow app to continue
   } catch (e) {
     console.error('Error validating storage integrity:', e);
+    logSecurityIncident('storage_validation_error', 'medium', { 
+      error: e instanceof Error ? e.message : 'Unknown error' 
+    });
     return true; // Allow app to continue even on error
   }
 };
 
-// Encrypt data for storage (lightweight client-side encryption)
+// Enhanced client-side encryption with security logging
 export const encryptClientData = (data: string, key?: string): string => {
   try {
     // Use provided key or generate one from browser fingerprint
@@ -107,11 +122,15 @@ export const encryptClientData = (data: string, key?: string): string => {
     return btoa(result);
   } catch (e) {
     console.error('Encryption error:', e);
+    logSecurityIncident('client_encryption_failed', 'low', { 
+      error: e instanceof Error ? e.message : 'Unknown error',
+      data_length: data.length 
+    });
     return data; // Fallback to unencrypted data
   }
 };
 
-// Decrypt data from storage
+// Enhanced decryption with security monitoring
 export const decryptClientData = (data: string, key?: string): string => {
   try {
     // Check if data is base64 encoded
@@ -134,6 +153,9 @@ export const decryptClientData = (data: string, key?: string): string => {
     return result;
   } catch (e) {
     console.error('Decryption error:', e);
+    logSecurityIncident('client_decryption_failed', 'low', { 
+      error: e instanceof Error ? e.message : 'Unknown error' 
+    });
     return data; // Return original data if decryption fails
   }
 };
@@ -154,7 +176,7 @@ const generateBrowserFingerprint = (): string => {
 // Type definition for analytics properties
 type AnalyticsProperty = string | number | boolean | null | undefined;
 
-// Privacy-friendly analytics function that respects user preferences
+// Enhanced privacy-friendly analytics with security focus
 export const trackPrivacyFriendlyEvent = (eventName: string, properties?: Record<string, AnalyticsProperty>): void => {
   // Only track events if user has consented
   if (localStorage.getItem('cookie-consent-given') !== 'true') {
@@ -173,30 +195,44 @@ export const trackPrivacyFriendlyEvent = (eventName: string, properties?: Record
     console.log('Analytics event:', eventName, sanitizedProps);
   }
   
-  // In production, this would call a privacy-friendly analytics service
+  // Track security-relevant events
+  if (eventName.includes('security') || eventName.includes('error')) {
+    trackSecurityEvent(eventName, sanitizedProps);
+  }
 };
 
-// Remove all user data on account deletion or end of 24-hour period
+// Enhanced user data purging with security logging
 export const purgeUserData = (): void => {
-  // Get a list of all storage keys
-  const keys = [];
-  for (let i = 0; i < localStorage.length; i++) {
-    const key = localStorage.key(i);
-    if (key) keys.push(key);
-  }
-  
-  // Securely wipe user data
-  keys.forEach(key => {
-    if (key.startsWith('noteflow-') || key.startsWith('onlinenote-')) {
-      secureWipe(key);
+  try {
+    // Get a list of all storage keys
+    const keys = [];
+    for (let i = 0; i < localStorage.length; i++) {
+      const key = localStorage.key(i);
+      if (key) keys.push(key);
     }
-  });
-  
-  // Reinitialize essential app settings
-  initializeSecurityTokens();
-  
-  // Set purge confirmation
-  localStorage.setItem('onlinenote-purged', new Date().toISOString());
-  
-  console.log('User data purged successfully');
+    
+    // Securely wipe user data
+    keys.forEach(key => {
+      if (key.startsWith('noteflow-') || key.startsWith('onlinenote-')) {
+        secureWipe(key);
+      }
+    });
+    
+    // Reinitialize essential app settings
+    initializeSecurityTokens();
+    
+    // Set purge confirmation
+    localStorage.setItem('onlinenote-purged', new Date().toISOString());
+    
+    console.log('User data purged successfully');
+    trackSecurityEvent('user_data_purged', { keys_count: keys.length });
+  } catch (error) {
+    console.error('Error purging user data:', error);
+    logSecurityIncident('data_purge_failed', 'medium', { 
+      error: error instanceof Error ? error.message : 'Unknown error' 
+    });
+  }
 };
+
+// Export sanitizeInput from security monitoring for convenience
+export { sanitizeInput };

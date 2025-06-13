@@ -39,6 +39,39 @@ export type Database = {
         }
         Relationships: []
       }
+      content_moderation: {
+        Row: {
+          content_id: string
+          content_type: string
+          created_at: string | null
+          flags: Json | null
+          id: string
+          moderation_status: string | null
+          moderator_notes: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          content_id: string
+          content_type: string
+          created_at?: string | null
+          flags?: Json | null
+          id?: string
+          moderation_status?: string | null
+          moderator_notes?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          content_id?: string
+          content_type?: string
+          created_at?: string | null
+          flags?: Json | null
+          id?: string
+          moderation_status?: string | null
+          moderator_notes?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       data: {
         Row: {
           created_at: string
@@ -114,6 +147,96 @@ export type Database = {
           referrer?: string | null
           user_agent?: string | null
           visited_at?: string
+        }
+        Relationships: []
+      }
+      rate_limits: {
+        Row: {
+          blocked_until: string | null
+          created_at: string | null
+          endpoint: string
+          id: string
+          ip_address: unknown
+          request_count: number | null
+          updated_at: string | null
+          window_start: string | null
+        }
+        Insert: {
+          blocked_until?: string | null
+          created_at?: string | null
+          endpoint: string
+          id?: string
+          ip_address: unknown
+          request_count?: number | null
+          updated_at?: string | null
+          window_start?: string | null
+        }
+        Update: {
+          blocked_until?: string | null
+          created_at?: string | null
+          endpoint?: string
+          id?: string
+          ip_address?: unknown
+          request_count?: number | null
+          updated_at?: string | null
+          window_start?: string | null
+        }
+        Relationships: []
+      }
+      security_incidents: {
+        Row: {
+          created_at: string | null
+          details: Json | null
+          id: string
+          incident_type: string
+          ip_address: unknown | null
+          resolved: boolean | null
+          severity: string
+          user_agent: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          details?: Json | null
+          id?: string
+          incident_type: string
+          ip_address?: unknown | null
+          resolved?: boolean | null
+          severity?: string
+          user_agent?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          details?: Json | null
+          id?: string
+          incident_type?: string
+          ip_address?: unknown | null
+          resolved?: boolean | null
+          severity?: string
+          user_agent?: string | null
+        }
+        Relationships: []
+      }
+      security_settings: {
+        Row: {
+          description: string | null
+          id: string
+          setting_name: string
+          setting_value: Json
+          updated_at: string | null
+        }
+        Insert: {
+          description?: string | null
+          id?: string
+          setting_name: string
+          setting_value: Json
+          updated_at?: string | null
+        }
+        Update: {
+          description?: string | null
+          id?: string
+          setting_name?: string
+          setting_value?: Json
+          updated_at?: string | null
         }
         Relationships: []
       }

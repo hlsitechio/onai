@@ -15,12 +15,62 @@ interface WebhookPayload {
   source: string;
 }
 
+// Security monitoring helper
+const logSecurityIncident = async (supabase: any, type: string, severity: string, req: Request, details: any) => {
+  try {
+    await supabase.functions.invoke('security-monitor', {
+      body: JSON.stringify({
+        action: 'log_incident',
+        incidentType: type,
+        severity,
+        details,
+      }),
+    });
+  } catch (error) {
+    console.error('Failed to log security incident:', error);
+  }
+};
+
+// Rate limiting helper
+const checkRateLimit = async (supabase: any, endpoint: string) => {
+  try {
+    const { data } = await supabase.functions.invoke('security-monitor', {
+      body: JSON.stringify({
+        action: 'check_rate_limit',
+        endpoint,
+      }),
+    });
+    return data?.allowed !== false;
+  } catch (error) {
+    console.error('Failed to check rate limit:', error);
+    return true; // Allow on error
+  }
+};
+
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
+    // Initialize Supabase client
+    const supabase = createClient(
+      Deno.env.get('SUPABASE_URL') ?? '',
+      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
+    );
+
+    // Check rate limit first
+    const rateLimitAllowed = await checkRateLimit(supabase, '/webhook-handler');
+    if (!rateLimitAllowed) {
+      return new Response(
+        JSON.stringify({ error: 'Rate limit exceeded' }),
+        {
+          status: 429,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        }
+      );
+    }
+
     const signature = req.headers.get('x-signature');
     const payload = await req.text();
     
@@ -35,6 +85,10 @@ serve(async (req) => {
           .digest('hex');
         
         if (signature !== `sha256=${expectedSignature}`) {
+          await logSecurityIncident(supabase, 'invalid_webhook_signature', 'high', req, {
+            provided_signature: signature,
+            payload_length: payload.length,
+          });
           throw new Error('Invalid webhook signature');
         }
       }
@@ -44,14 +98,11 @@ serve(async (req) => {
     try {
       webhookData = JSON.parse(payload);
     } catch {
+      await logSecurityIncident(supabase, 'invalid_webhook_payload', 'medium', req, {
+        payload_preview: payload.substring(0, 100),
+      });
       throw new Error('Invalid JSON payload');
     }
-
-    // Initialize Supabase client
-    const supabase = createClient(
-      Deno.env.get('SUPABASE_URL') ?? '',
-      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
-    );
 
     // Process different webhook events
     let result: any = {};
@@ -89,8 +140,7 @@ serve(async (req) => {
         
         console.log('Payment success:', paymentData);
         
-        // Here you would typically update user subscription status
-        // For now, just log the event
+        // Log the payment event
         const { error: logError } = await supabase
           .from('page_visits')
           .insert({
@@ -113,31 +163,54 @@ serve(async (req) => {
       }
 
       case 'data.sync': {
-        // Handle data synchronization
+        // Handle data synchronization with content moderation
         const syncData = webhookData.data;
         
-        // Process data sync (example: update notes from external source)
         if (syncData.notes && Array.isArray(syncData.notes)) {
-          const notesToInsert = syncData.notes.map((note: any) => ({
-            id: note.id || crypto.randomUUID(),
-            title: note.title || 'Synced Note',
-            content: note.content || '',
-            is_encrypted: false,
-            created_at: note.created_at || new Date().toISOString(),
-            updated_at: new Date().toISOString(),
-          }));
+          const notesToInsert = [];
+          
+          for (const note of syncData.notes) {
+            // Moderate content before syncing
+            const { data: moderationResult } = await supabase.functions.invoke('security-monitor', {
+              body: JSON.stringify({
+                action: 'moderate_content',
+                contentType: 'note',
+                contentId: note.id || crypto.randomUUID(),
+                content: note.content || '',
+              }),
+            });
 
-          const { error: syncError } = await supabase
-            .from('notes')
-            .upsert(notesToInsert);
+            if (moderationResult?.approved) {
+              notesToInsert.push({
+                id: note.id || crypto.randomUUID(),
+                title: note.title || 'Synced Note',
+                content: note.content || '',
+                is_encrypted: false,
+                created_at: note.created_at || new Date().toISOString(),
+                updated_at: new Date().toISOString(),
+              });
+            } else {
+              await logSecurityIncident(supabase, 'content_moderation_rejected', 'medium', req, {
+                note_id: note.id,
+                flags: moderationResult?.flags,
+              });
+            }
+          }
 
-          if (syncError) {
-            throw new Error(`Sync failed: ${syncError.message}`);
+          if (notesToInsert.length > 0) {
+            const { error: syncError } = await supabase
+              .from('notes')
+              .upsert(notesToInsert);
+
+            if (syncError) {
+              throw new Error(`Sync failed: ${syncError.message}`);
+            }
           }
 
           result = {
             message: 'Data sync completed',
             syncedNotes: notesToInsert.length,
+            rejectedNotes: syncData.notes.length - notesToInsert.length,
             processedAt: new Date().toISOString(),
           };
         } else {
@@ -156,10 +229,16 @@ serve(async (req) => {
           .select('id')
           .limit(1);
 
+        // Get security status
+        const { data: securityStatus } = await supabase.functions.invoke('security-monitor', {
+          body: JSON.stringify({ action: 'get_security_status' }),
+        });
+
         result = {
           message: 'Health check completed',
           status: 'healthy',
           database: dbCheck ? 'connected' : 'disconnected',
+          security: securityStatus?.security_status || {},
           timestamp: new Date().toISOString(),
         };
         break;
@@ -168,6 +247,11 @@ serve(async (req) => {
       default: {
         // Handle unknown events
         console.log('Unknown webhook event:', webhookData.event);
+        
+        await logSecurityIncident(supabase, 'unknown_webhook_event', 'low', req, {
+          event_type: webhookData.event,
+          source: webhookData.source,
+        });
         
         const { error: logError } = await supabase
           .from('page_visits')
@@ -202,6 +286,20 @@ serve(async (req) => {
 
   } catch (error) {
     console.error('Error in webhook-handler:', error);
+    
+    // Log critical errors as security incidents
+    try {
+      const supabase = createClient(
+        Deno.env.get('SUPABASE_URL') ?? '',
+        Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
+      );
+      await logSecurityIncident(supabase, 'webhook_processing_error', 'high', req, {
+        error_message: error.message,
+      });
+    } catch (logError) {
+      console.error('Failed to log webhook error:', logError);
+    }
+    
     return new Response(
       JSON.stringify({ 
         success: false,
