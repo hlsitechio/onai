@@ -38,9 +38,11 @@ const Index = () => {
         <Hero />
       </div>
       
-      {/* Sponsors Wall of Fame - New section after hero */}
-      <div className="blur-in-focus-mode relative z-10">
-        <SponsorsWallOfFame />
+      {/* Feature showcase section - Moved right after Hero */}
+      <div className="blur-in-focus-mode hidden md:block relative z-10">
+        <Suspense fallback={<FeatureShowcaseLoader />}>
+          <FeatureShowcase />
+        </Suspense>
       </div>
       
       {/* Main editor section with improved mobile spacing */}
@@ -60,6 +62,11 @@ const Index = () => {
             <TextEditor />
           </div>
         </div>
+      </div>
+      
+      {/* Sponsors Wall of Fame - Moved after the editor section */}
+      <div className="blur-in-focus-mode relative z-10">
+        <SponsorsWallOfFame />
       </div>
       
       {/* Completely hidden section separator - no visual space */}
@@ -84,14 +91,7 @@ const Index = () => {
         </div>
       </div>
       
-      {/* Feature showcase section - Lazy loaded and reduced top margin */}
-      <div className="blur-in-focus-mode hidden md:block relative z-10">
-        <Suspense fallback={<FeatureShowcaseLoader />}>
-          <FeatureShowcase />
-        </Suspense>
-      </div>
-      
-      {/* Join Our Wall of Fame section - Moved after Feature Showcase */}
+      {/* Join Our Wall of Fame section - After Sponsors Wall of Fame */}
       <div className="blur-in-focus-mode relative z-10">
         <JoinWallOfFame />
       </div>
