@@ -1,7 +1,4 @@
 
-# Ezoic ads.txt redirect
-Redirect 301 /ads.txt https://srv.adstxtmanager.com/19390/onlinenote.ai
-
 # Enable compression
 <IfModule mod_deflate.c>
     AddOutputFilterByType DEFLATE text/plain
