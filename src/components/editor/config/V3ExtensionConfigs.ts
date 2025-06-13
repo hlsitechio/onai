@@ -1,3 +1,4 @@
+
 import StarterKit from '@tiptap/starter-kit';
 import TextAlign from '@tiptap/extension-text-align';
 import Link from '@tiptap/extension-link';
@@ -138,24 +139,24 @@ export const getV3EnhancedExtensions = () => {
       ...baseConfig,
       resizable: true,
       handleWidth: 5,
-      cellMinWidth: 25,
+      cellMinWidth: 100,
       allowTableNodeSelection: true,
       HTMLAttributes: {
-        class: 'border-collapse w-full table-auto',
+        class: 'border-collapse w-full table-auto my-4 bg-white/5 rounded-lg overflow-hidden',
         role: 'table'
       }
     }),
 
     TableRow.configure({
       HTMLAttributes: {
-        class: 'border-b border-white/20',
+        class: 'border-b border-white/20 hover:bg-white/5 transition-colors',
         role: 'row'
       }
     }),
 
     TableHeader.configure({
       HTMLAttributes: {
-        class: 'bg-white/10 font-bold p-3 border border-white/20 text-left',
+        class: 'bg-white/10 font-bold p-4 border border-white/30 text-left text-white min-w-[120px]',
         role: 'columnheader',
         scope: 'col'
       }
@@ -163,7 +164,7 @@ export const getV3EnhancedExtensions = () => {
 
     TableCell.configure({
       HTMLAttributes: {
-        class: 'p-3 border border-white/20',
+        class: 'p-4 border border-white/20 text-white min-w-[120px] bg-white/5',
         role: 'cell'
       }
     }),
