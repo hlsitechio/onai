@@ -221,8 +221,8 @@ export const getV3EnhancedExtensions = () => {
       ...baseConfig,
       openDoubleQuote: '"',
       closeDoubleQuote: '"',
-      openSingleQuote: ''',
-      closeSingleQuote: ''',
+      openSingleQuote: '\'',
+      closeSingleQuote: '\'',
       ellipsis: '…',
       emDash: '—',
       enDash: '–'
