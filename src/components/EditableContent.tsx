@@ -1,9 +1,7 @@
 
 import React from "react";
-import InlineAIActions from "./ai-agent/InlineAIActions";
-import TextAreaEditor from "./editor/TextAreaEditor";
-import { useTextAreaOperations } from "@/hooks/useTextAreaOperations";
-import { useEditableContentAI } from "@/hooks/useEditableContentAI";
+import TiptapEditor from "./editor/TiptapEditor";
+import { cn } from "@/lib/utils";
 
 interface EditableContentProps {
   content: string;
@@ -18,51 +16,27 @@ const EditableContent: React.FC<EditableContentProps> = ({
   isFocusMode = false,
   onSpeechTranscript
 }) => {
-  const {
-    rawContent,
-    textareaRef,
-    handleTextReplace,
-    handleTextInsert,
-    handleContentChange,
-    handleSpeechTranscript
-  } = useTextAreaOperations({
-    content,
-    setContent,
-    onSpeechTranscript
-  });
-
-  const {
-    selectedText,
-    cursorPosition,
-    inlineActionsPosition,
-    isInlineActionsVisible,
-    handleTextAreaSelection,
-    handleCursorChange,
-    hideInlineActions
-  } = useEditableContentAI({
-    textareaRef,
-    rawContent
-  });
+  const handleSpeechTranscript = (transcript: string) => {
+    if (!transcript.trim()) return;
+    
+    // Insert transcript at the end of current content
+    const newContent = content + (content ? '<p>' + transcript + '</p>' : '<p>' + transcript + '</p>');
+    setContent(newContent);
+    
+    // Call the original handler if provided
+    onSpeechTranscript?.(transcript);
+  };
 
   return (
-    <div className="relative h-full w-full mx-auto bg-[#03010a]">
-      <TextAreaEditor
-        textareaRef={textareaRef}
-        rawContent={rawContent}
+    <div className={cn(
+      "relative h-full w-full mx-auto",
+      "bg-gradient-to-br from-[#03010a] to-[#0a0518]",
+      "rounded-lg border border-white/5"
+    )}>
+      <TiptapEditor
+        content={content}
+        setContent={setContent}
         isFocusMode={isFocusMode}
-        onContentChange={handleContentChange}
-        onTextAreaSelection={handleTextAreaSelection}
-        onCursorChange={handleCursorChange}
-      />
-
-      {/* Inline AI Actions */}
-      <InlineAIActions
-        selectedText={selectedText}
-        onTextReplace={handleTextReplace}
-        onTextInsert={handleTextInsert}
-        position={inlineActionsPosition}
-        isVisible={isInlineActionsVisible}
-        onClose={hideInlineActions}
       />
     </div>
   );
