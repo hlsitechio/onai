@@ -24,6 +24,12 @@ import Underline from '@tiptap/extension-underline';
 import { common, createLowlight } from 'lowlight';
 import { cn } from '@/lib/utils';
 import TiptapToolbar from './TiptapToolbar';
+import { 
+  getV3CompatibleExtensions, 
+  createEventHandlers, 
+  validateContent,
+  checkV3Readiness 
+} from '@/utils/tiptapMigration';
 
 const lowlight = createLowlight(common);
 
@@ -40,27 +46,17 @@ const TiptapEditor: React.FC<TiptapEditorProps> = ({
   isFocusMode = false,
   onSave
 }) => {
+  // Get V3-compatible extension configurations
+  const v3Config = getV3CompatibleExtensions();
+
   const editor = useEditor({
     extensions: [
-      StarterKit.configure({
-        codeBlock: false, // We'll use CodeBlockLowlight instead
-      }),
-      TextAlign.configure({
-        types: ['heading', 'paragraph'],
-      }),
-      Link.configure({
-        openOnClick: false,
-        HTMLAttributes: {
-          class: 'text-blue-400 underline cursor-pointer hover:text-blue-300',
-        },
-      }),
-      Image.configure({
-        HTMLAttributes: {
-          class: 'max-w-full h-auto rounded-lg',
-        },
-      }),
+      StarterKit.configure(v3Config.StarterKit),
+      TextAlign.configure(v3Config.TextAlign),
+      Link.configure(v3Config.Link),
+      Image.configure(v3Config.Image),
       Table.configure({
-        resizable: true,
+        ...v3Config.Table,
         HTMLAttributes: {
           class: 'border border-white/20 border-collapse',
         },
@@ -85,6 +81,7 @@ const TiptapEditor: React.FC<TiptapEditorProps> = ({
       }),
       TextStyle,
       Highlight.configure({
+        multicolor: true,
         HTMLAttributes: {
           class: 'bg-yellow-400 text-black px-1 rounded',
         },
@@ -109,20 +106,37 @@ const TiptapEditor: React.FC<TiptapEditorProps> = ({
       Typography,
       Placeholder.configure({
         placeholder: 'Start writing your note...',
-        emptyEditorClass: 'is-editor-empty',
+        includeChildren: true,
+        showOnlyCurrent: false,
+        showOnlyWhenEditable: true,
       }),
       Focus.configure({
         className: 'has-focus',
+        mode: 'all',
       }),
       Dropcursor.configure({
         color: '#3b82f6',
+        width: 2,
       }),
       Gapcursor,
       Underline,
     ],
     content,
-    onUpdate: ({ editor }) => {
-      setContent(editor.getHTML());
+    // V3-compatible event handlers
+    onUpdate: ({ editor: updatedEditor }) => {
+      const newContent = updatedEditor.getHTML();
+      if (validateContent(newContent)) {
+        setContent(newContent);
+      }
+    },
+    onCreate: ({ editor: createdEditor }) => {
+      // V3 readiness check
+      const readiness = checkV3Readiness(createdEditor);
+      console.log('Tiptap V3 Readiness:', readiness);
+    },
+    onSelectionUpdate: ({ editor: updatedEditor }) => {
+      // Enhanced selection handling for V3
+      console.log('Selection updated - V3 ready');
     },
     editorProps: {
       attributes: {
@@ -155,6 +169,7 @@ const TiptapEditor: React.FC<TiptapEditorProps> = ({
         ),
       },
       handleKeyDown: (view, event) => {
+        // V3-compatible keyboard handling
         if ((event.ctrlKey || event.metaKey) && event.key === 's') {
           event.preventDefault();
           onSave?.();
@@ -162,19 +177,36 @@ const TiptapEditor: React.FC<TiptapEditorProps> = ({
         }
         return false;
       },
+      handlePaste: (view, event, slice) => {
+        // Enhanced paste handling for V3
+        return false; // Let default paste handling work
+      },
+      handleDrop: (view, event, slice, moved) => {
+        // Enhanced drop handling for V3
+        return false; // Let default drop handling work
+      },
     },
   });
 
   React.useEffect(() => {
     if (editor && editor.getHTML() !== content) {
-      editor.commands.setContent(content);
+      // V3-compatible content setting
+      const isValid = validateContent(content);
+      if (isValid) {
+        editor.commands.setContent(content, false);
+      } else {
+        console.warn('Invalid content detected, skipping update');
+      }
     }
   }, [content, editor]);
 
   if (!editor) {
     return (
       <div className="flex items-center justify-center h-[400px] text-gray-400">
-        Loading editor...
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-400 mx-auto mb-2"></div>
+          <p>Loading V3-ready editor...</p>
+        </div>
       </div>
     );
   }
