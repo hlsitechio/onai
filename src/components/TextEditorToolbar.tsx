@@ -1,7 +1,6 @@
+
 import React from "react";
-import ToolbarNavigation from "./toolbar/ToolbarNavigation";
-import ToolbarActions from "./toolbar/ToolbarActions";
-import ToolbarStatus from "./toolbar/ToolbarStatus";
+
 interface TextEditorToolbarProps {
   execCommand: (command: string) => void;
   handleSave: () => void;
@@ -15,16 +14,11 @@ interface TextEditorToolbarProps {
   content: string;
   onApplyAIChanges: (newContent: string) => void;
 }
-const TextEditorToolbar: React.FC<TextEditorToolbarProps> = ({
-  execCommand,
-  handleSave,
-  toggleLeftSidebar,
-  lastSaved,
-  isFocusMode,
-  toggleFocusMode,
-  content,
-  onApplyAIChanges
-}) => {
-  return;
+
+const TextEditorToolbar: React.FC<TextEditorToolbarProps> = () => {
+  // This component is no longer needed as the toolbar is integrated directly into TiptapEditor
+  // Returning null to avoid breaking existing imports while maintaining compatibility
+  return null;
 };
+
 export default TextEditorToolbar;
