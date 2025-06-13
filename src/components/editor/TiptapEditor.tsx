@@ -26,7 +26,6 @@ import { cn } from '@/lib/utils';
 import TiptapToolbar from './TiptapToolbar';
 import { 
   getV3CompatibleExtensions, 
-  createEventHandlers, 
   validateContent,
   checkV3Readiness 
 } from '@/utils/tiptapMigration';
@@ -53,7 +52,7 @@ const TiptapEditor: React.FC<TiptapEditorProps> = ({
     extensions: [
       StarterKit.configure({
         ...v3Config.StarterKit,
-        codeBlock: false // Fix: Use false instead of boolean type
+        codeBlock: false
       }),
       TextAlign.configure(v3Config.TextAlign),
       Link.configure(v3Config.Link),
@@ -125,7 +124,6 @@ const TiptapEditor: React.FC<TiptapEditorProps> = ({
       Underline,
     ],
     content,
-    // V3-compatible event handlers
     onUpdate: ({ editor: updatedEditor }) => {
       const newContent = updatedEditor.getHTML();
       if (validateContent(newContent)) {
@@ -133,12 +131,10 @@ const TiptapEditor: React.FC<TiptapEditorProps> = ({
       }
     },
     onCreate: ({ editor: createdEditor }) => {
-      // V3 readiness check
       const readiness = checkV3Readiness(createdEditor);
       console.log('Tiptap V3 Readiness:', readiness);
     },
     onSelectionUpdate: ({ editor: updatedEditor }) => {
-      // Enhanced selection handling for V3
       console.log('Selection updated - V3 ready');
     },
     editorProps: {
@@ -172,7 +168,6 @@ const TiptapEditor: React.FC<TiptapEditorProps> = ({
         ),
       },
       handleKeyDown: (view, event) => {
-        // V3-compatible keyboard handling
         if ((event.ctrlKey || event.metaKey) && event.key === 's') {
           event.preventDefault();
           onSave?.();
@@ -181,19 +176,16 @@ const TiptapEditor: React.FC<TiptapEditorProps> = ({
         return false;
       },
       handlePaste: (view, event, slice) => {
-        // Enhanced paste handling for V3
-        return false; // Let default paste handling work
+        return false;
       },
       handleDrop: (view, event, slice, moved) => {
-        // Enhanced drop handling for V3
-        return false; // Let default drop handling work
+        return false;
       },
     },
   });
 
   React.useEffect(() => {
     if (editor && editor.getHTML() !== content) {
-      // V3-compatible content setting
       const isValid = validateContent(content);
       if (isValid) {
         editor.commands.setContent(content, false);
@@ -216,7 +208,7 @@ const TiptapEditor: React.FC<TiptapEditorProps> = ({
 
   return (
     <div className="flex flex-col h-full">
-      <TiptapToolbar editor={editor} />
+      <TiptapToolbar editor={editor} onSave={onSave} />
       <div className="flex-1 overflow-auto">
         <EditorContent 
           editor={editor} 
