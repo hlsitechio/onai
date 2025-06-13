@@ -1,100 +1,57 @@
 
-// Utilities for handling streaming AI responses
 export class StreamingTextRenderer {
-  private text: string = '';
+  private text: string;
   private onUpdate: (text: string) => void;
   private onComplete: () => void;
-  private intervalId: NodeJS.Timeout | null = null;
-  private currentIndex: number = 0;
   private speed: number;
+  private currentIndex: number = 0;
+  private intervalId: number | null = null;
+  private isRunning: boolean = false;
 
   constructor(
-    fullText: string, 
-    onUpdate: (text: string) => void, 
+    text: string,
+    onUpdate: (text: string) => void,
     onComplete: () => void,
-    speed: number = 30 // milliseconds between characters
+    speed: number = 30
   ) {
-    this.text = fullText;
+    this.text = text;
     this.onUpdate = onUpdate;
     this.onComplete = onComplete;
     this.speed = speed;
   }
 
-  start() {
+  start(): void {
+    if (this.isRunning) return;
+    
+    this.isRunning = true;
     this.currentIndex = 0;
-    this.intervalId = setInterval(() => {
-      if (this.currentIndex < this.text.length) {
-        this.onUpdate(this.text.substring(0, this.currentIndex + 1));
-        this.currentIndex++;
-      } else {
+    
+    this.intervalId = window.setInterval(() => {
+      if (this.currentIndex >= this.text.length) {
         this.stop();
         this.onComplete();
+        return;
       }
+      
+      // Add character(s) - sometimes add multiple for faster streaming
+      let charsToAdd = 1;
+      if (Math.random() > 0.7) charsToAdd = 2; // 30% chance to add 2 chars
+      if (Math.random() > 0.9) charsToAdd = 3; // 10% chance to add 3 chars
+      
+      this.currentIndex = Math.min(this.currentIndex + charsToAdd, this.text.length);
+      this.onUpdate(this.text.substring(0, this.currentIndex));
     }, this.speed);
   }
 
-  stop() {
+  stop(): void {
+    this.isRunning = false;
     if (this.intervalId) {
       clearInterval(this.intervalId);
       this.intervalId = null;
     }
   }
 
-  skipToEnd() {
-    this.stop();
-    this.onUpdate(this.text);
-    this.onComplete();
+  isActive(): boolean {
+    return this.isRunning;
   }
 }
-
-export const createTypingEffect = (
-  text: string,
-  callback: (displayText: string) => void,
-  onComplete?: () => void,
-  speed: number = 30
-): (() => void) => {
-  let index = 0;
-  let intervalId: NodeJS.Timeout;
-
-  const type = () => {
-    if (index < text.length) {
-      callback(text.substring(0, index + 1));
-      index++;
-    } else {
-      clearInterval(intervalId);
-      onComplete?.();
-    }
-  };
-
-  intervalId = setInterval(type, speed);
-
-  // Return cleanup function
-  return () => {
-    clearInterval(intervalId);
-    callback(text); // Show full text immediately
-    onComplete?.();
-  };
-};
-
-export const splitTextIntoChunks = (text: string, chunkSize: number = 50): string[] => {
-  const words = text.split(' ');
-  const chunks: string[] = [];
-  let currentChunk = '';
-
-  for (const word of words) {
-    if ((currentChunk + ' ' + word).length <= chunkSize) {
-      currentChunk += (currentChunk ? ' ' : '') + word;
-    } else {
-      if (currentChunk) {
-        chunks.push(currentChunk);
-      }
-      currentChunk = word;
-    }
-  }
-
-  if (currentChunk) {
-    chunks.push(currentChunk);
-  }
-
-  return chunks;
-};
