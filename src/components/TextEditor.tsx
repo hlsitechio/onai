@@ -100,6 +100,9 @@ const TextEditor = () => {
     setFocusMode
   });
 
+  // Convert lastSaved Date to string format for the toolbar
+  const lastSavedString = lastSaved ? lastSaved.toISOString() : undefined;
+
   // Use mobile layout for mobile devices
   if (isMobileDevice) {
     return <MobileLayout />;
@@ -159,7 +162,7 @@ const TextEditor = () => {
               toggleAISidebar={toggleAISidebar}
               isLeftSidebarOpen={isLeftSidebarOpen}
               isAISidebarOpen={isAISidebarOpen}
-              lastSaved={lastSaved}
+              lastSaved={lastSavedString}
               isFocusMode={isFocusMode}
               toggleFocusMode={handleToggleFocusMode}
               isAIDialogOpen={isAIDialogOpen}

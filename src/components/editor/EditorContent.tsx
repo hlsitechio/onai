@@ -7,14 +7,12 @@ interface EditorContentProps {
   content: string;
   setContent: (content: string) => void;
   isFocusMode: boolean;
-  onSave: () => void;
 }
 
 const EditorContent: React.FC<EditorContentProps> = ({
   content,
   setContent,
-  isFocusMode,
-  onSave
+  isFocusMode
 }) => {
   return (
     <div className={cn(
@@ -26,7 +24,6 @@ const EditorContent: React.FC<EditorContentProps> = ({
         content={content}
         setContent={setContent}
         isFocusMode={isFocusMode}
-        onSave={onSave}
       />
     </div>
   );
