@@ -1,7 +1,7 @@
 
 import React from 'react';
-import { X, RotateCw, ZoomIn, ZoomOut } from 'lucide-react';
 import { Button } from "@/components/ui/button";
+import { X, FileImage } from "lucide-react";
 
 interface OCRImagePreviewProps {
   imageUrl: string;
@@ -20,79 +20,35 @@ const OCRImagePreview: React.FC<OCRImagePreviewProps> = ({
   originalSize,
   processedSize
 }) => {
-  const [zoom, setZoom] = React.useState(1);
-  const [rotation, setRotation] = React.useState(0);
-
   return (
-    <div className="relative w-full h-64 bg-black/30 border border-white/20 rounded-lg overflow-hidden">
-      <img 
-        src={imageUrl} 
-        alt="OCR Preview" 
-        className="w-full h-full object-contain transition-transform duration-200"
-        style={{ 
-          transform: `scale(${zoom}) rotate(${rotation}deg)`,
-          transformOrigin: 'center'
-        }}
-      />
-      
-      {/* Controls overlay */}
-      <div className="absolute top-2 right-2 flex gap-1">
+    <div className="flex-1 bg-black/30 border border-white/10 rounded-lg overflow-hidden relative">
+      <div className="flex items-center justify-between p-3 border-b border-white/10">
+        <div className="flex items-center gap-2">
+          <FileImage className="h-4 w-4 text-noteflow-400" />
+          <span className="text-sm text-white/80 truncate">{imageName}</span>
+        </div>
         <Button
-          onClick={() => setZoom(zoom > 0.5 ? zoom - 0.25 : zoom)}
-          variant="outline"
+          variant="ghost"
           size="sm"
-          className="h-8 w-8 p-0 bg-black/50 border-white/20 hover:bg-black/70"
-          disabled={zoom <= 0.5}
-        >
-          <ZoomOut className="h-3 w-3 text-white" />
-        </Button>
-        
-        <Button
-          onClick={() => setZoom(zoom < 2 ? zoom + 0.25 : zoom)}
-          variant="outline"
-          size="sm"
-          className="h-8 w-8 p-0 bg-black/50 border-white/20 hover:bg-black/70"
-          disabled={zoom >= 2}
-        >
-          <ZoomIn className="h-3 w-3 text-white" />
-        </Button>
-        
-        <Button
-          onClick={() => setRotation((rotation + 90) % 360)}
-          variant="outline"
-          size="sm"
-          className="h-8 w-8 p-0 bg-black/50 border-white/20 hover:bg-black/70"
-        >
-          <RotateCw className="h-3 w-3 text-white" />
-        </Button>
-        
-        <Button
           onClick={onRemove}
-          variant="outline"
-          size="sm"
-          className="h-8 w-8 p-0 bg-red-500/50 border-red-400/20 hover:bg-red-500/70"
+          className="h-8 w-8 p-0 text-red-400 hover:text-red-300 hover:bg-red-500/20"
         >
-          <X className="h-3 w-3 text-white" />
+          <X className="h-4 w-4" />
         </Button>
       </div>
       
-      {/* Image info overlay */}
-      <div className="absolute bottom-2 left-2 bg-black/70 px-2 py-1 rounded text-xs text-white">
-        <div className="font-medium">{imageName}</div>
-        {quality && (
-          <div className="text-white/70">Quality: {quality}%</div>
-        )}
-        {originalSize && processedSize && (
-          <div className="text-white/70">
-            {originalSize.width}×{originalSize.height} → {processedSize.width}×{processedSize.height}
-          </div>
-        )}
+      <div className="p-4 h-full overflow-auto">
+        <img 
+          src={imageUrl} 
+          alt="Preview" 
+          className="max-w-full max-h-full object-contain mx-auto rounded"
+        />
       </div>
-      
-      {/* Zoom indicator */}
-      {zoom !== 1 && (
-        <div className="absolute top-2 left-2 bg-black/70 px-2 py-1 rounded text-xs text-white">
-          {Math.round(zoom * 100)}%
+
+      {(quality || originalSize || processedSize) && (
+        <div className="absolute bottom-2 left-2 bg-black/80 rounded px-2 py-1 text-xs text-white/70">
+          {quality && <span>Quality: {quality}%</span>}
+          {originalSize && <span className="ml-2">{originalSize.width}×{originalSize.height}</span>}
         </div>
       )}
     </div>
