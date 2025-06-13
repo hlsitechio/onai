@@ -3,3 +3,18 @@ project_id = "qrdulwzjgbfgaplazgsh"
 
 [functions.gemini-ai]
 verify_jwt = false
+
+[functions.ai-content-processor]
+verify_jwt = false
+
+[functions.advanced-analytics]
+verify_jwt = false
+
+[functions.data-validator]
+verify_jwt = false
+
+[functions.file-processor]
+verify_jwt = false
+
+[functions.webhook-handler]
+verify_jwt = false
