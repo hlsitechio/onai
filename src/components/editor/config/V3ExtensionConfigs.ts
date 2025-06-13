@@ -232,7 +232,7 @@ export const getV3EnhancedExtensions = () => {
       ...baseConfig,
       placeholder: ({ node }) => {
         if (node.type.name === 'heading') {
-          return 'What's the title?';
+          return 'What\'s the title?';
         }
         return 'Start writing your V3-ready note...';
       },
