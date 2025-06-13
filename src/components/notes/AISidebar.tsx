@@ -3,7 +3,7 @@ import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
-import { Sparkles, Loader2, InfoIcon, AlertTriangle, ShieldCheck, Square, FileImage, Bot, Wand2, FileText, MessageSquare, Lightbulb, TrendingUp, ChevronRight, Plus } from "lucide-react";
+import { Sparkles, Loader2, InfoIcon, AlertTriangle, ShieldCheck, Square, FileImage, Bot, Wand2, FileText, MessageSquare, Lightbulb, TrendingUp, ChevronRight, Plus, Clock } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import AIDisclaimer from "./AIDisclaimer";
 import AIActionSelector from "./AIActionSelector";
@@ -11,7 +11,7 @@ import ImageUploadArea from "./ImageUploadArea";
 import OCRButton from "../ocr/OCRButton";
 import OCRPopup from "../ocr/OCRPopup";
 import { useImageUpload } from "@/hooks/useImageUpload";
-import { useStreamingAI } from "@/hooks/useStreamingAI";
+import { useQueuedStreamingAI } from "@/hooks/useQueuedStreamingAI";
 import { getUsageStats, callGeminiAI } from "@/utils/aiUtils";
 
 interface AISidebarProps {
@@ -59,13 +59,14 @@ const AISidebar: React.FC<AISidebarProps> = ({
   const {
     isLoading,
     isStreaming,
+    queueSize,
     error,
     result,
     streamingResult,
     processStreamingAI,
     stopStreaming,
     clearResult
-  } = useStreamingAI();
+  } = useQueuedStreamingAI();
 
   // Generate AI suggestions
   const generateSuggestions = async () => {
@@ -234,6 +235,17 @@ const AISidebar: React.FC<AISidebarProps> = ({
             </div>
             <span className="text-xs text-slate-400">{usageStats.used} requests today</span>
           </div>
+          
+          {/* Queue status */}
+          {(isLoading || queueSize > 0) && (
+            <div className="flex items-center gap-1.5">
+              <Clock className="h-3 w-3 text-amber-400" />
+              <span className="text-xs text-amber-300/80">
+                {isLoading && queueSize === 0 ? 'Processing...' : `${queueSize} requests in queue`}
+              </span>
+            </div>
+          )}
+          
           <div className="flex items-center text-xs space-x-1.5">
             <AlertTriangle className="h-3 w-3 text-amber-400" />
             <span className="text-xs text-amber-300/80">AI may produce inaccurate content</span>
@@ -383,13 +395,13 @@ const AISidebar: React.FC<AISidebarProps> = ({
         <div className="flex gap-2">
           <Button 
             onClick={handleProcessAI} 
-            disabled={isLoading && !isStreaming} 
+            disabled={isLoading} 
             className="bg-noteflow-500 hover:bg-noteflow-600 text-white flex-1"
           >
-            {isLoading && !isStreaming ? (
+            {isLoading ? (
               <>
                 <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                Processing...
+                {queueSize > 0 ? `Queued (${queueSize})` : 'Processing...'}
               </>
             ) : (
               <>

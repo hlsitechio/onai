@@ -1,8 +1,9 @@
 
 import { useState, useCallback } from 'react';
-import { useToast } from '@/hooks/use-toast';
+import { Editor } from '@tiptap/react';
 import { callGeminiAI } from '@/utils/aiUtils';
-import type { Editor } from '@tiptap/react';
+import { useToast } from '@/hooks/use-toast';
+import { useAIRequestQueue } from './useAIRequestQueue';
 
 interface UseTiptapAIProps {
   editor: Editor | null;
@@ -11,60 +12,92 @@ interface UseTiptapAIProps {
 }
 
 export const useTiptapAI = ({ editor, selectedText, hideInlineActions }: UseTiptapAIProps) => {
-  const { toast } = useToast();
   const [isProcessingAI, setIsProcessingAI] = useState(false);
+  const { toast } = useToast();
+  const { enqueueRequest } = useAIRequestQueue();
 
-  const handleAITextReplace = useCallback((newText: string) => {
+  const handleAITextReplace = useCallback(async (newText: string) => {
     if (!editor || !selectedText) return;
-    
-    const { from, to } = editor.state.selection;
-    editor.chain().focus().deleteRange({ from, to }).insertContent(newText).run();
-    hideInlineActions();
-  }, [editor, selectedText, hideInlineActions]);
 
-  const handleAITextInsert = useCallback((text: string) => {
-    if (!editor) return;
-    
-    const { to } = editor.state.selection;
-    editor.chain().focus().insertContentAt(to, ` ${text}`).run();
-    hideInlineActions();
-  }, [editor, hideInlineActions]);
-
-  const handleQuickAI = async (action: 'enhance' | 'continue') => {
-    if (!selectedText || isProcessingAI) return;
-    
-    setIsProcessingAI(true);
     try {
-      let prompt = '';
-      if (action === 'enhance') {
-        prompt = `Enhance and improve this text while keeping the same meaning: "${selectedText}"`;
-      } else {
-        prompt = `Continue this thought naturally: "${selectedText}"`;
-      }
-      
-      const result = await callGeminiAI(prompt, selectedText, 'improve');
-      
-      if (action === 'enhance') {
-        handleAITextReplace(result);
-      } else {
-        handleAITextInsert(result);
-      }
+      const { from, to } = editor.state.selection;
+      editor.chain().focus().setTextSelection({ from, to }).insertContent(newText).run();
+      hideInlineActions();
       
       toast({
-        title: 'AI Enhancement Applied',
-        description: `Successfully ${action === 'enhance' ? 'enhanced' : 'continued'} your text.`,
+        title: 'Text replaced',
+        description: 'AI has successfully replaced the selected text.',
       });
     } catch (error) {
-      console.error('AI action failed:', error);
+      console.error('Error replacing text:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to replace text. Please try again.',
+        variant: 'destructive'
+      });
+    }
+  }, [editor, selectedText, hideInlineActions, toast]);
+
+  const handleAITextInsert = useCallback(async (text: string) => {
+    if (!editor) return;
+
+    try {
+      const { to } = editor.state.selection;
+      editor.chain().focus().setTextSelection(to).insertContent(` ${text}`).run();
+      hideInlineActions();
+      
+      toast({
+        title: 'Text inserted',
+        description: 'AI has successfully inserted new text.',
+      });
+    } catch (error) {
+      console.error('Error inserting text:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to insert text. Please try again.',
+        variant: 'destructive'
+      });
+    }
+  }, [editor, hideInlineActions, toast]);
+
+  const handleQuickAI = useCallback(async (action: 'enhance' | 'continue') => {
+    if (!editor) return;
+
+    setIsProcessingAI(true);
+    
+    try {
+      const content = editor.getHTML();
+      
+      await enqueueRequest(async () => {
+        let prompt = '';
+        if (action === 'enhance' && selectedText) {
+          prompt = `Enhance and improve this text while keeping the same meaning: "${selectedText}"`;
+        } else if (action === 'continue') {
+          const contextText = selectedText || content.slice(-200);
+          prompt = `Continue this thought naturally and logically: "${contextText}"`;
+        }
+        
+        if (!prompt) return;
+        
+        const result = await callGeminiAI(prompt, content, 'improve');
+        
+        if (action === 'enhance' && selectedText) {
+          await handleAITextReplace(result);
+        } else {
+          await handleAITextInsert(result);
+        }
+      });
+    } catch (error) {
+      console.error('Error in quick AI action:', error);
       toast({
         title: 'AI Action Failed',
-        description: 'Please try again or use the AI sidebar for more options.',
+        description: 'There was an error processing your request. Please try again.',
         variant: 'destructive'
       });
     } finally {
       setIsProcessingAI(false);
     }
-  };
+  }, [editor, selectedText, enqueueRequest, handleAITextReplace, handleAITextInsert, toast]);
 
   return {
     isProcessingAI,
