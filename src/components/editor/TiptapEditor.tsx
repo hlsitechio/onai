@@ -3,7 +3,7 @@ import React, { useEffect, useRef } from 'react';
 import { useEditor, EditorContent } from '@tiptap/react';
 import { validateContent } from '@/utils/tiptapMigration';
 import { createContentValidator } from '@/utils/v3ContentValidation';
-import { createV3PerformanceOptimizer } from '@/utils/v3PerformanceOptimizations';
+import { optimizeEditorForV3 } from '@/utils/v3PerformanceOptimizations';
 import TiptapToolbar from './TiptapToolbar';
 import { createEditorExtensions } from './config/EditorExtensions';
 import { createEditorEventHandlers } from './handlers/EditorEventHandlers';
@@ -26,7 +26,7 @@ const TiptapEditor: React.FC<TiptapEditorProps> = ({
   const extensions = createEditorExtensions();
   const eventHandlers = createEditorEventHandlers(setContent, onSave);
   const editorProps = createEditorProps(isFocusMode, onSave);
-  const performanceOptimizerRef = useRef<(() => void) | null>(null);
+  const performanceOptimizerCleanupRef = useRef<(() => void) | null>(null);
 
   const editor = useEditor({
     extensions,
@@ -35,8 +35,8 @@ const TiptapEditor: React.FC<TiptapEditorProps> = ({
     editorProps,
     onCreate: ({ editor: createdEditor }) => {
       // Initialize V3 performance optimizations
-      const cleanup = createV3PerformanceOptimizer(createdEditor);
-      performanceOptimizerRef.current = cleanup;
+      const cleanup = optimizeEditorForV3(createdEditor);
+      performanceOptimizerCleanupRef.current = cleanup;
       
       // Initialize content validator
       const validator = createContentValidator(createdEditor);
@@ -70,8 +70,8 @@ const TiptapEditor: React.FC<TiptapEditorProps> = ({
   // Cleanup performance optimizer on unmount
   useEffect(() => {
     return () => {
-      if (performanceOptimizerRef.current) {
-        performanceOptimizerRef.current();
+      if (performanceOptimizerCleanupRef.current) {
+        performanceOptimizerCleanupRef.current();
       }
     };
   }, []);

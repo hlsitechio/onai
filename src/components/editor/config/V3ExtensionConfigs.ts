@@ -1,4 +1,3 @@
-
 import StarterKit from '@tiptap/starter-kit';
 import TextAlign from '@tiptap/extension-text-align';
 import Link from '@tiptap/extension-link';
@@ -66,8 +65,7 @@ export const getV3EnhancedExtensions = () => {
       ...baseConfig,
       history: {
         depth: 100,
-        newGroupDelay: 500,
-        preserveItems: true
+        newGroupDelay: 500
       },
       codeBlock: false,
       bulletList: {
@@ -171,8 +169,7 @@ export const getV3EnhancedExtensions = () => {
     }),
 
     Color.configure({
-      types: ['textStyle'],
-      keepMarks: true
+      types: ['textStyle']
     }),
 
     TextStyle.configure({
@@ -224,8 +221,7 @@ export const getV3EnhancedExtensions = () => {
       openSingleQuote: '\'',
       closeSingleQuote: '\'',
       ellipsis: '…',
-      emDash: '—',
-      enDash: '–'
+      emDash: '—'
     }),
 
     Placeholder.configure({

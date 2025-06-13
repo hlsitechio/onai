@@ -150,10 +150,10 @@ class V3PerformanceOptimizer {
     const originalUpdate = this.editor.options.onUpdate;
     if (originalUpdate) {
       this.editor.setOptions({
-        onUpdate: ({ editor }) => {
+        onUpdate: (props) => {
           clearTimeout(updateTimeout);
           updateTimeout = setTimeout(() => {
-            originalUpdate({ editor });
+            originalUpdate(props);
           }, this.settings.throttleDelay);
         }
       });

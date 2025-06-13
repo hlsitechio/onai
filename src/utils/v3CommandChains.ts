@@ -234,10 +234,10 @@ export const createV3CommandChain = (editor: Editor, options: V3CommandOptions =
 
 export const validateCommand = (editor: Editor, command: string): boolean => {
   try {
+    // Use type assertion to access dynamic can methods
+    const canMethods = editor.can() as any;
     const canMethod = `can${command.charAt(0).toUpperCase() + command.slice(1)}`;
-    return typeof editor.can()[canMethod as keyof typeof editor.can] === 'function' 
-      ? editor.can()[canMethod as keyof typeof editor.can]() 
-      : false;
+    return typeof canMethods[canMethod] === 'function' ? canMethods[canMethod]() : false;
   } catch (error) {
     console.warn(`Command validation failed for ${command}:`, error);
     return false;
