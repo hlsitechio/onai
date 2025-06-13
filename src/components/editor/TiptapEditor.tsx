@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { useEditor, EditorContent } from '@tiptap/react';
+import { useEditor, EditorContent, type Editor } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import TextAlign from '@tiptap/extension-text-align';
 import Link from '@tiptap/extension-link';
@@ -20,9 +20,12 @@ import Placeholder from '@tiptap/extension-placeholder';
 import Focus from '@tiptap/extension-focus';
 import Dropcursor from '@tiptap/extension-dropcursor';
 import Gapcursor from '@tiptap/extension-gapcursor';
-import { lowlight } from 'lowlight';
+import Underline from '@tiptap/extension-underline';
+import { common, createLowlight } from 'lowlight';
 import { cn } from '@/lib/utils';
 import TiptapToolbar from './TiptapToolbar';
+
+const lowlight = createLowlight(common);
 
 interface TiptapEditorProps {
   content: string;
@@ -115,6 +118,7 @@ const TiptapEditor: React.FC<TiptapEditorProps> = ({
         color: '#3b82f6',
       }),
       Gapcursor,
+      Underline,
     ],
     content,
     onUpdate: ({ editor }) => {
