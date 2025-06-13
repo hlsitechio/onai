@@ -57,7 +57,14 @@ export const createCommandChain = (editor: Editor) => {
       setTextAlign: (alignment: string) => editor.chain().focus().setTextAlign(alignment),
       insertTable: () => editor.chain().focus().insertTable({ rows: 3, cols: 3, withHeaderRow: true }),
       setColor: (color: string) => editor.chain().focus().setColor(color),
-      setHighlight: (color?: string) => editor.chain().focus().setHighlight(color ? { color } : {}),
+      setHighlight: (color?: string) => {
+        // Fix: Properly handle optional color parameter
+        if (color) {
+          return editor.chain().focus().setHighlight({ color });
+        } else {
+          return editor.chain().focus().setHighlight();
+        }
+      },
       setLink: (href: string) => editor.chain().focus().setLink({ href }),
       insertImage: (src: string) => editor.chain().focus().setImage({ src }),
       run: () => editor.chain().focus().run()
@@ -111,8 +118,7 @@ export const getV3CompatibleExtensions = () => {
       history: {
         depth: 100,
         newGroupDelay: 500
-      },
-      codeBlock: false // We'll use CodeBlockLowlight instead
+      }
     },
     TextAlign: {
       types: ['heading', 'paragraph'],
@@ -158,7 +164,7 @@ export const checkV3Readiness = (editor: Editor) => {
   const readinessScore = Object.values(checks).filter(Boolean).length / Object.keys(checks).length;
   
   return {
-    ready: readinessScore === 1,
+    isReady: readinessScore === 1, // Fix: Use isReady instead of ready
     score: readinessScore,
     checks,
     recommendations: readinessScore < 1 ? [

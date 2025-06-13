@@ -51,7 +51,10 @@ const TiptapEditor: React.FC<TiptapEditorProps> = ({
 
   const editor = useEditor({
     extensions: [
-      StarterKit.configure(v3Config.StarterKit),
+      StarterKit.configure({
+        ...v3Config.StarterKit,
+        codeBlock: false // Fix: Use false instead of boolean type
+      }),
       TextAlign.configure(v3Config.TextAlign),
       Link.configure(v3Config.Link),
       Image.configure(v3Config.Image),

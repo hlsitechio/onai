@@ -29,7 +29,7 @@ export const useTiptapV3Migration = (editor: Editor | null) => {
       await new Promise(resolve => setTimeout(resolve, 1000));
       
       const status = checkV3Readiness(editor);
-      setMigrationStatus(status);
+      setMigrationStatus(status); // Fix: This now returns the correct shape with isReady
     } catch (error) {
       console.error('Migration check failed:', error);
       setMigrationStatus({
