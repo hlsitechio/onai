@@ -15,13 +15,13 @@ const EditorLayout: React.FC<EditorLayoutProps> = ({
 }) => {
   return (
     <section id="editor-section" className={cn(
-      "pt-0 pb-4 sm:pb-6 px-3 relative transition-all duration-500 min-h-screen w-full overflow-hidden border-0"
+      "pt-0 pb-4 sm:pb-6 px-3 relative transition-all duration-500 w-full overflow-hidden border-0"
     )}>
       {/* Enhanced focus mode overlay */}
       <FocusModeOverlay isFocusMode={isFocusMode} />
       
       <div className={cn(
-        "mx-auto px-1 sm:px-2 md:px-3 w-full relative h-full",
+        "mx-auto px-1 sm:px-2 md:px-3 w-full relative",
         isFocusMode ? "z-[101]" : "z-10"
       )}>
         {/* Rotating border container with proper positioning */}
@@ -40,9 +40,9 @@ const EditorLayout: React.FC<EditorLayoutProps> = ({
             "rotating-border-container relative w-full",
             isFocusMode && "focus-mode"
           )}>
-            {/* Inner content with proper background */}
+            {/* Inner content with proper background - Fixed height for resizable panels */}
             <div className="rotating-border-inner w-full">
-              <div className="w-full h-[80vh] md:h-[85vh] lg:h-[90vh] p-1">
+              <div className="w-full h-[calc(100vh-120px)] p-1">
                 {children}
               </div>
             </div>

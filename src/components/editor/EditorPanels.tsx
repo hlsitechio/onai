@@ -53,94 +53,96 @@ const EditorPanels: React.FC<EditorPanelsProps> = ({
   setIsAIDialogOpen
 }) => {
   return (
-    <ResizablePanelGroup 
-      direction="horizontal" 
-      className="h-full w-full"
-      autoSaveId="editor-layout"
-    >
-      {/* Left sidebar - Notes */}
-      {isLeftSidebarOpen && !isFocusMode && (
-        <>
-          <ResizablePanel 
-            id="notes-sidebar"
-            order={1}
-            defaultSize={25} 
-            minSize={15} 
-            maxSize={45} 
-            className="min-w-[200px]"
-          >
-            <SidebarPanel>
-              <NotesSidebar 
-                currentContent={content} 
-                onLoadNote={handleNoteLoad}
-                onSave={handleSave}
-                onDeleteNote={handleDeleteNote}
-                editorHeight={0}
-                allNotes={allNotes}
-                onCreateNew={createNewNote}
-                onImportNotes={handleImportNotes}
-              />
-            </SidebarPanel>
-          </ResizablePanel>
-          <ResizableHandle 
-            withHandle={true}
-            className="z-50"
-          />
-        </>
-      )}
-      
-      {/* The editor container - center panel */}
-      <ResizablePanel 
-        id="editor-main"
-        order={2}
-        defaultSize={isLeftSidebarOpen && isAISidebarOpen && !isFocusMode ? 50 : 
-                   (isLeftSidebarOpen || isAISidebarOpen) && !isFocusMode ? 75 : 100}
-        minSize={30}
-        className="relative"
+    <div className="h-full w-full">
+      <ResizablePanelGroup 
+        direction="horizontal" 
+        className="h-full w-full"
+        autoSaveId="editor-layout-v2"
       >
-        <EditorContainer
-          content={content}
-          setContent={setContent}
-          execCommand={execCommand}
-          handleSave={handleSave}
-          toggleLeftSidebar={toggleLeftSidebar}
-          toggleAISidebar={toggleAISidebar}
-          isLeftSidebarOpen={isLeftSidebarOpen}
-          isAISidebarOpen={isAISidebarOpen}
-          lastSaved={lastSavedString}
-          isFocusMode={isFocusMode}
-          toggleFocusMode={handleToggleFocusMode}
-          isAIDialogOpen={isAIDialogOpen}
-          setIsAIDialogOpen={setIsAIDialogOpen}
-        />
-      </ResizablePanel>
-      
-      {/* Right sidebar - AI Assistant */}
-      {isAISidebarOpen && !isFocusMode && (
-        <>
-          <ResizableHandle 
-            withHandle={true}
-            className="z-50"
+        {/* Left sidebar - Notes */}
+        {isLeftSidebarOpen && !isFocusMode && (
+          <>
+            <ResizablePanel 
+              id="notes-sidebar"
+              order={1}
+              defaultSize={20} 
+              minSize={15} 
+              maxSize={40} 
+              className="min-w-[250px]"
+            >
+              <SidebarPanel>
+                <NotesSidebar 
+                  currentContent={content} 
+                  onLoadNote={handleNoteLoad}
+                  onSave={handleSave}
+                  onDeleteNote={handleDeleteNote}
+                  editorHeight={0}
+                  allNotes={allNotes}
+                  onCreateNew={createNewNote}
+                  onImportNotes={handleImportNotes}
+                />
+              </SidebarPanel>
+            </ResizablePanel>
+            <ResizableHandle 
+              withHandle={true}
+              className="z-50 hover:bg-purple-500/30"
+            />
+          </>
+        )}
+        
+        {/* The editor container - center panel */}
+        <ResizablePanel 
+          id="editor-main"
+          order={2}
+          defaultSize={isLeftSidebarOpen && isAISidebarOpen && !isFocusMode ? 60 : 
+                     (isLeftSidebarOpen || isAISidebarOpen) && !isFocusMode ? 80 : 100}
+          minSize={30}
+          className="relative"
+        >
+          <EditorContainer
+            content={content}
+            setContent={setContent}
+            execCommand={execCommand}
+            handleSave={handleSave}
+            toggleLeftSidebar={toggleLeftSidebar}
+            toggleAISidebar={toggleAISidebar}
+            isLeftSidebarOpen={isLeftSidebarOpen}
+            isAISidebarOpen={isAISidebarOpen}
+            lastSaved={lastSavedString}
+            isFocusMode={isFocusMode}
+            toggleFocusMode={handleToggleFocusMode}
+            isAIDialogOpen={isAIDialogOpen}
+            setIsAIDialogOpen={setIsAIDialogOpen}
           />
-          <ResizablePanel 
-            id="ai-sidebar"
-            order={3}
-            defaultSize={25} 
-            minSize={15} 
-            maxSize={45} 
-            className="min-w-[200px]"
-          >
-            <SidebarPanel>
-              <AISidebar
-                content={content}
-                onApplyChanges={setContent}
-                editorHeight={0}
-              />
-            </SidebarPanel>
-          </ResizablePanel>
-        </>
-      )}
-    </ResizablePanelGroup>
+        </ResizablePanel>
+        
+        {/* Right sidebar - AI Assistant */}
+        {isAISidebarOpen && !isFocusMode && (
+          <>
+            <ResizableHandle 
+              withHandle={true}
+              className="z-50 hover:bg-purple-500/30"
+            />
+            <ResizablePanel 
+              id="ai-sidebar"
+              order={3}
+              defaultSize={20} 
+              minSize={15} 
+              maxSize={40} 
+              className="min-w-[250px]"
+            >
+              <SidebarPanel>
+                <AISidebar
+                  content={content}
+                  onApplyChanges={setContent}
+                  editorHeight={0}
+                />
+              </SidebarPanel>
+            </ResizablePanel>
+          </>
+        )}
+      </ResizablePanelGroup>
+    </div>
   );
 };
 
