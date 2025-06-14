@@ -2,7 +2,6 @@
 import React, { useState } from 'react';
 import { useNotesManager } from "@/hooks/useNotesManager";
 import { useNotesImportExport } from "@/utils/notesImportExport";
-import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from './ui/resizable';
 import ShareNoteDrawer from './notes/ShareNoteDrawer';
 import KeyboardShortcuts from './notes/KeyboardShortcuts';
 import NotesActions from './notes/NotesActions';
@@ -136,56 +135,24 @@ const NotesSidebar: React.FC<NotesSidebarProps> = ({
         onSearchChange={setSearchQuery}
       />
 
-      <div className="flex-1 overflow-hidden bg-[#03010a]">
-        <ResizablePanelGroup 
-          direction="vertical" 
-          className="h-full w-full"
-          autoSaveId="notes-sidebar-vertical-layout"
-        >
-          {/* Save Notes Section - Fixed at top */}
-          <ResizablePanel 
-            id="save-notes-section"
-            defaultSize={15}
-            minSize={10}
-            maxSize={25}
-            className="min-h-0"
-          >
-            <div className="h-full overflow-hidden">
-              <SaveNotesSection onSave={onSave} />
-            </div>
-          </ResizablePanel>
-          
-          {/* Vertical Resize Handle */}
-          <ResizableHandle 
-            withHandle={true}
-            className="h-2 hover:h-3 transition-all duration-200 z-30 cursor-row-resize bg-white/5 hover:bg-purple-500/30"
+      <div className="flex-1 overflow-auto custom-scrollbar bg-[#03010a]">
+        <SaveNotesSection onSave={onSave} />
+        
+        <div className="px-4 pb-4">
+          <NotesContent
+            notes={notes}
+            searchQuery={searchQuery}
+            sortOrder={sortOrder}
+            filterType={filterType}
+            customNoteNames={customNoteNames}
+            formatNoteId={formatNoteId}
+            activeNoteId={activeNoteId}
+            onLoadNote={handleLoadNote}
+            onDeleteNote={handleDeleteNote}
+            onOpenShare={handleOpenShare}
+            onRenameNote={handleRenameNote}
           />
-          
-          {/* Notes Content - Resizable main area */}
-          <ResizablePanel 
-            id="notes-content-area"
-            defaultSize={85}
-            minSize={50}
-            maxSize={90}
-            className="min-h-0"
-          >
-            <div className="h-full overflow-auto custom-scrollbar px-4 pb-4">
-              <NotesContent
-                notes={notes}
-                searchQuery={searchQuery}
-                sortOrder={sortOrder}
-                filterType={filterType}
-                customNoteNames={customNoteNames}
-                formatNoteId={formatNoteId}
-                activeNoteId={activeNoteId}
-                onLoadNote={handleLoadNote}
-                onDeleteNote={handleDeleteNote}
-                onOpenShare={handleOpenShare}
-                onRenameNote={handleRenameNote}
-              />
-            </div>
-          </ResizablePanel>
-        </ResizablePanelGroup>
+        </div>
       </div>
 
       <NotesActions 
