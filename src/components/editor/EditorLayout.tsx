@@ -2,6 +2,7 @@
 import React from "react";
 import { cn } from "@/lib/utils";
 import FocusModeOverlay from "./FocusModeOverlay";
+import "../../styles/rotating-border.css";
 
 interface EditorLayoutProps {
   isFocusMode: boolean;
@@ -23,12 +24,12 @@ const EditorLayout: React.FC<EditorLayoutProps> = ({
         "mx-auto px-1 sm:px-2 md:px-3 w-full relative h-full",
         isFocusMode ? "z-[101]" : "z-10"
       )}>
-        {/* Rotating border container - only contains the glow and border */}
+        {/* Rotating border container with proper positioning */}
         <div className={cn(
-          "relative w-full", // Position for glow and full width
+          "relative w-full", 
           isFocusMode && "focus-mode"
         )}>
-          {/* Glow effect positioned behind */}
+          {/* Multiple glow layers for enhanced effect */}
           <div className={cn(
             "rotating-border-glow rotating-border-pulse",
             isFocusMode && "focus-mode"
@@ -39,9 +40,9 @@ const EditorLayout: React.FC<EditorLayoutProps> = ({
             "rotating-border-container relative w-full",
             isFocusMode && "focus-mode"
           )}>
-            {/* Inner content - this prevents border from covering content */}
+            {/* Inner content with proper background */}
             <div className="rotating-border-inner w-full">
-              <div className="w-full h-[80vh] md:h-[85vh] lg:h-[90vh] p-3 md:p-4 lg:p-6">
+              <div className="w-full h-[80vh] md:h-[85vh] lg:h-[90vh] p-1">
                 {children}
               </div>
             </div>

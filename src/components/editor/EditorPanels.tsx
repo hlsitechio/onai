@@ -55,7 +55,7 @@ const EditorPanels: React.FC<EditorPanelsProps> = ({
   return (
     <ResizablePanelGroup 
       direction="horizontal" 
-      className="h-full rounded-lg border border-white/10"
+      className="h-full w-full"
       autoSaveId="editor-layout"
     >
       {/* Left sidebar - Notes */}
@@ -68,8 +68,6 @@ const EditorPanels: React.FC<EditorPanelsProps> = ({
             minSize={15} 
             maxSize={45} 
             className="min-w-[200px]"
-            collapsible={true}
-            collapsedSize={0}
           >
             <SidebarPanel>
               <NotesSidebar 
@@ -86,7 +84,7 @@ const EditorPanels: React.FC<EditorPanelsProps> = ({
           </ResizablePanel>
           <ResizableHandle 
             withHandle={true}
-            className="mx-0.5 z-50"
+            className="z-50"
           />
         </>
       )}
@@ -122,7 +120,7 @@ const EditorPanels: React.FC<EditorPanelsProps> = ({
         <>
           <ResizableHandle 
             withHandle={true}
-            className="mx-0.5 z-50"
+            className="z-50"
           />
           <ResizablePanel 
             id="ai-sidebar"
@@ -131,8 +129,6 @@ const EditorPanels: React.FC<EditorPanelsProps> = ({
             minSize={15} 
             maxSize={45} 
             className="min-w-[200px]"
-            collapsible={true}
-            collapsedSize={0}
           >
             <SidebarPanel>
               <AISidebar
