@@ -90,71 +90,27 @@ const EditorPanels: React.FC<EditorPanelsProps> = ({
           </>
         )}
         
-        {/* The editor container - center panel with vertical resizing */}
+        {/* The editor container - center panel */}
         <ResizablePanel 
           id="editor-panel"
           minSize={30}
           className="flex flex-col min-w-0"
         >
-          <ResizablePanelGroup 
-            direction="vertical" 
-            className="h-full w-full"
-            autoSaveId="noteflow-editor-vertical-layout"
-          >
-            {/* Main Editor Area - Top Panel */}
-            <ResizablePanel 
-              id="editor-content-panel"
-              defaultSize={70}
-              minSize={40}
-              maxSize={90}
-              className="min-h-0"
-            >
-              <EditorContainer
-                content={content}
-                setContent={setContent}
-                execCommand={execCommand}
-                handleSave={handleSave}
-                toggleLeftSidebar={toggleLeftSidebar}
-                toggleAISidebar={toggleAISidebar}
-                isLeftSidebarOpen={isLeftSidebarOpen}
-                isAISidebarOpen={isAISidebarOpen}
-                lastSaved={lastSavedString}
-                isFocusMode={isFocusMode}
-                toggleFocusMode={handleToggleFocusMode}
-                isAIDialogOpen={isAIDialogOpen}
-                setIsAIDialogOpen={setIsAIDialogOpen}
-              />
-            </ResizablePanel>
-            
-            {/* Vertical Resize Handle */}
-            <ResizableHandle 
-              withHandle={true}
-              className="h-2 hover:h-3 transition-all duration-200 z-30"
-            />
-            
-            {/* Bottom Panel - Additional space for future features */}
-            <ResizablePanel 
-              id="editor-bottom-panel"
-              defaultSize={30}
-              minSize={10}
-              maxSize={60}
-              className="min-h-0"
-            >
-              <div className="h-full w-full bg-gradient-to-br from-[#03010a] to-[#0a0518] rounded-lg border border-white/5 p-4">
-                <div className="text-center text-slate-400 flex items-center justify-center h-full">
-                  <div>
-                    <div className="mb-2 opacity-60">
-                      <div className="w-12 h-12 mx-auto mb-2 rounded-full bg-gradient-to-br from-noteflow-400 to-noteflow-600 flex items-center justify-center">
-                        <span className="text-lg">📝</span>
-                      </div>
-                    </div>
-                    <p className="text-sm">Additional workspace area</p>
-                    <p className="text-xs text-slate-500 mt-1">Future features will appear here</p>
-                  </div>
-                </div>
-              </div>
-            </ResizablePanel>
-          </ResizablePanelGroup>
+          <EditorContainer
+            content={content}
+            setContent={setContent}
+            execCommand={execCommand}
+            handleSave={handleSave}
+            toggleLeftSidebar={toggleLeftSidebar}
+            toggleAISidebar={toggleAISidebar}
+            isLeftSidebarOpen={isLeftSidebarOpen}
+            isAISidebarOpen={isAISidebarOpen}
+            lastSaved={lastSavedString}
+            isFocusMode={isFocusMode}
+            toggleFocusMode={handleToggleFocusMode}
+            isAIDialogOpen={isAIDialogOpen}
+            setIsAIDialogOpen={setIsAIDialogOpen}
+          />
         </ResizablePanel>
         
         {/* Right sidebar - AI Assistant */}
