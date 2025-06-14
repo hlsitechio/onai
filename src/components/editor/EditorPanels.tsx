@@ -1,0 +1,161 @@
+
+import React from "react";
+import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from "../ui/resizable";
+import SidebarPanel from "./SidebarPanel";
+import NotesSidebar from "../NotesSidebar";
+import AISidebar from "../notes/AISidebar";
+import EditorContainer from "./EditorContainer";
+
+interface EditorPanelsProps {
+  // Sidebar visibility
+  isLeftSidebarOpen: boolean;
+  isAISidebarOpen: boolean;
+  isFocusMode: boolean;
+  
+  // Notes sidebar props
+  content: string;
+  setContent: (content: string) => void;
+  handleNoteLoad: (content: string) => void;
+  handleSave: () => void;
+  handleDeleteNote: (noteId: string) => Promise<boolean>;
+  allNotes: Record<string, string>;
+  createNewNote: () => void;
+  handleImportNotes: (importedNotes: Record<string, string>) => Promise<boolean>;
+  
+  // Editor container props
+  execCommand: (command: string, value?: string | null) => void;
+  toggleLeftSidebar: () => void;
+  toggleAISidebar: () => void;
+  lastSavedString?: string;
+  handleToggleFocusMode: () => void;
+  isAIDialogOpen: boolean;
+  setIsAIDialogOpen: (open: boolean) => void;
+}
+
+const EditorPanels: React.FC<EditorPanelsProps> = ({
+  isLeftSidebarOpen,
+  isAISidebarOpen,
+  isFocusMode,
+  content,
+  setContent,
+  handleNoteLoad,
+  handleSave,
+  handleDeleteNote,
+  allNotes,
+  createNewNote,
+  handleImportNotes,
+  execCommand,
+  toggleLeftSidebar,
+  toggleAISidebar,
+  lastSavedString,
+  handleToggleFocusMode,
+  isAIDialogOpen,
+  setIsAIDialogOpen
+}) => {
+  // Calculate panel sizes based on sidebar visibility
+  const getLeftPanelSize = () => {
+    if (isFocusMode || !isLeftSidebarOpen) return 0;
+    return 25;
+  };
+
+  const getRightPanelSize = () => {
+    if (isFocusMode || !isAISidebarOpen) return 0;
+    return 25;
+  };
+
+  const getEditorPanelSize = () => {
+    const leftSize = getLeftPanelSize();
+    const rightSize = getRightPanelSize();
+    return 100 - leftSize - rightSize;
+  };
+
+  return (
+    <ResizablePanelGroup 
+      direction="horizontal" 
+      className="h-full rounded-lg border border-white/10"
+    >
+      {/* Left sidebar - Notes */}
+      {isLeftSidebarOpen && !isFocusMode && (
+        <>
+          <ResizablePanel 
+            id="notes-sidebar"
+            order={1}
+            defaultSize={getLeftPanelSize()} 
+            minSize={15} 
+            maxSize={45} 
+            className="min-w-[200px]"
+          >
+            <SidebarPanel>
+              <NotesSidebar 
+                currentContent={content} 
+                onLoadNote={handleNoteLoad}
+                onSave={handleSave}
+                onDeleteNote={handleDeleteNote}
+                editorHeight={0}
+                allNotes={allNotes}
+                onCreateNew={createNewNote}
+                onImportNotes={handleImportNotes}
+              />
+            </SidebarPanel>
+          </ResizablePanel>
+          <ResizableHandle 
+            withHandle={true}
+            className="border-l border-r border-white/5"
+          />
+        </>
+      )}
+      
+      {/* The editor container - center panel */}
+      <ResizablePanel 
+        id="editor-main"
+        order={2}
+        defaultSize={getEditorPanelSize()}
+        minSize={30}
+      >
+        <EditorContainer
+          content={content}
+          setContent={setContent}
+          execCommand={execCommand}
+          handleSave={handleSave}
+          toggleLeftSidebar={toggleLeftSidebar}
+          toggleAISidebar={toggleAISidebar}
+          isLeftSidebarOpen={isLeftSidebarOpen}
+          isAISidebarOpen={isAISidebarOpen}
+          lastSaved={lastSavedString}
+          isFocusMode={isFocusMode}
+          toggleFocusMode={handleToggleFocusMode}
+          isAIDialogOpen={isAIDialogOpen}
+          setIsAIDialogOpen={setIsAIDialogOpen}
+        />
+      </ResizablePanel>
+      
+      {/* Right sidebar - AI Assistant */}
+      {isAISidebarOpen && !isFocusMode && (
+        <>
+          <ResizableHandle 
+            withHandle={true}
+            className="border-l border-r border-white/5"
+          />
+          <ResizablePanel 
+            id="ai-sidebar"
+            order={3}
+            defaultSize={getRightPanelSize()} 
+            minSize={15} 
+            maxSize={45} 
+            className="min-w-[200px]"
+          >
+            <SidebarPanel>
+              <AISidebar
+                content={content}
+                onApplyChanges={setContent}
+                editorHeight={0}
+              />
+            </SidebarPanel>
+          </ResizablePanel>
+        </>
+      )}
+    </ResizablePanelGroup>
+  );
+};
+
+export default EditorPanels;

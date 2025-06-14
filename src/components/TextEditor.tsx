@@ -3,16 +3,11 @@ import React, { useState, useCallback } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { useIsMobileDevice } from "@/hooks/useIsMobileDevice";
 import MobileLayout from "./mobile/MobileLayout";
-import NotesSidebar from "./NotesSidebar";
-import AISidebar from "./notes/AISidebar";
-import EditorContainer from "./editor/EditorContainer";
-import FocusModeOverlay from "./editor/FocusModeOverlay";
-import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from "./ui/resizable";
-import { cn } from "@/lib/utils";
+import EditorLayout from "./editor/EditorLayout";
+import EditorPanels from "./editor/EditorPanels";
 import { useFocusModeManager } from "@/hooks/useFocusModeManager";
 import { useKeyboardShortcuts } from "@/hooks/useKeyboardShortcuts";
 import { useSupabaseNotes } from "@/hooks/useSupabaseNotes";
-import "../styles/rotating-border.css";
 
 const TextEditor = () => {
   const { toast } = useToast();
@@ -109,146 +104,30 @@ const TextEditor = () => {
   if (isMobileDevice) {
     return <MobileLayout />;
   }
-
-  // Calculate panel sizes based on sidebar visibility
-  const getLeftPanelSize = () => {
-    if (isFocusMode || !isLeftSidebarOpen) return 0;
-    return 25;
-  };
-
-  const getRightPanelSize = () => {
-    if (isFocusMode || !isAISidebarOpen) return 0;
-    return 25;
-  };
-
-  const getEditorPanelSize = () => {
-    const leftSize = getLeftPanelSize();
-    const rightSize = getRightPanelSize();
-    return 100 - leftSize - rightSize;
-  };
   
   return (
-    <section id="editor-section" className={cn(
-      "pt-0 pb-4 sm:pb-6 px-3 relative transition-all duration-500 min-h-screen w-full overflow-hidden border-0"
-    )}>
-      {/* Enhanced focus mode overlay */}
-      <FocusModeOverlay isFocusMode={isFocusMode} />
-      
-      <div className={cn(
-        "mx-auto px-1 sm:px-2 md:px-3 w-full relative h-full",
-        isFocusMode ? "z-[101]" : "z-10"
-      )}>
-        {/* Rotating border container - only contains the glow and border */}
-        <div className={cn(
-          "relative w-full", // Position for glow and full width
-          isFocusMode && "focus-mode"
-        )}>
-          {/* Glow effect positioned behind */}
-          <div className={cn(
-            "rotating-border-glow rotating-border-pulse",
-            isFocusMode && "focus-mode"
-          )}></div>
-          
-          {/* Main container with rotating border */}
-          <div className={cn(
-            "rotating-border-container relative w-full",
-            isFocusMode && "focus-mode"
-          )}>
-            {/* Inner content - this prevents border from covering content */}
-            <div className="rotating-border-inner w-full">
-              <div className="w-full h-[80vh] md:h-[85vh] lg:h-[90vh] p-3 md:p-4 lg:p-6">
-                {/* Resizable Panel Group with enhanced handles */}
-                <ResizablePanelGroup 
-                  direction="horizontal" 
-                  className="h-full rounded-lg border border-white/10"
-                >
-                  {/* Left sidebar - Notes */}
-                  {isLeftSidebarOpen && !isFocusMode && (
-                    <>
-                      <ResizablePanel 
-                        id="notes-sidebar"
-                        order={1}
-                        defaultSize={getLeftPanelSize()} 
-                        minSize={15} 
-                        maxSize={45} 
-                        className="min-w-[200px]"
-                      >
-                        <div className="h-full animate-fadeIn">
-                          <NotesSidebar 
-                            currentContent={content} 
-                            onLoadNote={handleNoteLoad}
-                            onSave={handleSave}
-                            onDeleteNote={handleDeleteNote}
-                            editorHeight={0}
-                            allNotes={allNotes}
-                            onCreateNew={createNewNote}
-                            onImportNotes={handleImportNotes}
-                          />
-                        </div>
-                      </ResizablePanel>
-                      <ResizableHandle 
-                        withHandle={true}
-                        className="border-l border-r border-white/5"
-                      />
-                    </>
-                  )}
-                  
-                  {/* The editor container - center panel */}
-                  <ResizablePanel 
-                    id="editor-main"
-                    order={2}
-                    defaultSize={getEditorPanelSize()}
-                    minSize={30}
-                  >
-                    <EditorContainer
-                      content={content}
-                      setContent={setContent}
-                      execCommand={execCommand}
-                      handleSave={handleSave}
-                      toggleLeftSidebar={toggleLeftSidebar}
-                      toggleAISidebar={toggleAISidebar}
-                      isLeftSidebarOpen={isLeftSidebarOpen}
-                      isAISidebarOpen={isAISidebarOpen}
-                      lastSaved={lastSavedString}
-                      isFocusMode={isFocusMode}
-                      toggleFocusMode={handleToggleFocusMode}
-                      isAIDialogOpen={isAIDialogOpen}
-                      setIsAIDialogOpen={setIsAIDialogOpen}
-                    />
-                  </ResizablePanel>
-                  
-                  {/* Right sidebar - AI Assistant */}
-                  {isAISidebarOpen && !isFocusMode && (
-                    <>
-                      <ResizableHandle 
-                        withHandle={true}
-                        className="border-l border-r border-white/5"
-                      />
-                      <ResizablePanel 
-                        id="ai-sidebar"
-                        order={3}
-                        defaultSize={getRightPanelSize()} 
-                        minSize={15} 
-                        maxSize={45} 
-                        className="min-w-[200px]"
-                      >
-                        <div className="h-full animate-fadeIn">
-                          <AISidebar
-                            content={content}
-                            onApplyChanges={setContent}
-                            editorHeight={0}
-                          />
-                        </div>
-                      </ResizablePanel>
-                    </>
-                  )}
-                </ResizablePanelGroup>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
+    <EditorLayout isFocusMode={isFocusMode}>
+      <EditorPanels
+        isLeftSidebarOpen={isLeftSidebarOpen}
+        isAISidebarOpen={isAISidebarOpen}
+        isFocusMode={isFocusMode}
+        content={content}
+        setContent={setContent}
+        handleNoteLoad={handleNoteLoad}
+        handleSave={handleSave}
+        handleDeleteNote={handleDeleteNote}
+        allNotes={allNotes}
+        createNewNote={createNewNote}
+        handleImportNotes={handleImportNotes}
+        execCommand={execCommand}
+        toggleLeftSidebar={toggleLeftSidebar}
+        toggleAISidebar={toggleAISidebar}
+        lastSavedString={lastSavedString}
+        handleToggleFocusMode={handleToggleFocusMode}
+        isAIDialogOpen={isAIDialogOpen}
+        setIsAIDialogOpen={setIsAIDialogOpen}
+      />
+    </EditorLayout>
   );
 };
 
