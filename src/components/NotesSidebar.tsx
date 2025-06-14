@@ -1,17 +1,14 @@
 
 import React, { useState } from 'react';
-import { Button } from "@/components/ui/button";
-import { Save, Clock } from "lucide-react";
 import { useNotesManager } from "@/hooks/useNotesManager";
 import { useNotesImportExport } from "@/utils/notesImportExport";
-import { getSortedAndFilteredNotes } from "@/utils/notesFiltering";
-import NotesList from './notes/NotesList';
 import ShareNoteDrawer from './notes/ShareNoteDrawer';
 import KeyboardShortcuts from './notes/KeyboardShortcuts';
-import NotesHeader from './notes/NotesHeader';
-import SearchBar from './notes/SearchBar';
 import NotesActions from './notes/NotesActions';
-import NotesStats from './notes/NotesStats';
+import NotesSidebarContainer from './notes/NotesSidebarContainer';
+import SidebarHeader from './notes/SidebarHeader';
+import SaveNotesSection from './notes/SaveNotesSection';
+import NotesContent from './notes/NotesContent';
 
 interface NotesSidebarProps {
   currentContent: string;
@@ -123,69 +120,37 @@ const NotesSidebar: React.FC<NotesSidebarProps> = ({
     });
   };
 
-  const getSortedAndFilteredNotesData = () => {
-    return getSortedAndFilteredNotes(notes, searchQuery, sortOrder, filterType, customNoteNames, formatNoteId);
-  };
-
   return (
-    <div className="bg-gradient-to-b from-black/60 to-black/40 backdrop-blur-xl rounded-xl border border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.37)] flex flex-col text-white overflow-hidden animate-fadeIn h-full">
-      <div className="p-3 sm:p-4 border-b border-white/10 bg-black/20">
-        <NotesHeader 
-          onCreateNew={handleNewNote} 
-          isSearching={isSearching} 
-          onSearchToggle={() => setIsSearching(!isSearching)} 
-          onShowShortcuts={() => setIsShortcutsOpen(true)} 
-          onSortNotes={handleSortNotes} 
-          onFilterNotes={handleFilterNotes} 
-          onExportNotes={() => handleExportNotes(notes)} 
-          onImportNotes={handleImportNotesWithMerge} 
-        />
-        
-        <SearchBar 
-          isSearching={isSearching} 
-          searchQuery={searchQuery} 
-          onSearchToggle={() => setIsSearching(!isSearching)} 
-          onSearchChange={setSearchQuery} 
-        />
-      </div>
+    <NotesSidebarContainer>
+      <SidebarHeader
+        onCreateNew={handleNewNote}
+        isSearching={isSearching}
+        onSearchToggle={() => setIsSearching(!isSearching)}
+        onShowShortcuts={() => setIsShortcutsOpen(true)}
+        onSortNotes={handleSortNotes}
+        onFilterNotes={handleFilterNotes}
+        onExportNotes={() => handleExportNotes(notes)}
+        onImportNotes={handleImportNotesWithMerge}
+        searchQuery={searchQuery}
+        onSearchChange={setSearchQuery}
+      />
 
       <div className="flex-1 overflow-auto custom-scrollbar bg-[#03010a]">
-        <div className="p-4 animate-slideDown" style={{
-          animationDelay: '0.3s'
-        }}>
-          <Button 
-            variant="default" 
-            size="sm" 
-            onClick={onSave} 
-            className="w-full mb-3 sm:mb-5 bg-gradient-to-r from-noteflow-600 to-noteflow-400 hover:from-noteflow-500 hover:to-noteflow-300 text-white border-none shadow-md hover:shadow-lg transition-all duration-300 group text-xs sm:text-sm relative overflow-hidden"
-          >
-            <div className="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300 group-hover:animate-pulse-light"></div>
-            <Save className="h-4 w-4 mr-2 group-hover:scale-110 transition-transform duration-300" /> 
-            Save Current Note
-          </Button>
-
-          <div className="flex items-center justify-between mb-3">
-            <h4 className="text-xs uppercase text-noteflow-200 font-medium tracking-wider flex items-center">
-              <Clock className="h-3 w-3 mr-1.5 text-noteflow-400/70" />
-              Saved Notes
-            </h4>
-            <NotesStats 
-              notesCount={Object.keys(notes).length} 
-              sortOrder={sortOrder} 
-              notes={notes} 
-              customNoteNames={customNoteNames} 
-            />
-          </div>
-          
-          <NotesList 
-            notes={getSortedAndFilteredNotesData()} 
-            activeNoteId={activeNoteId} 
-            onLoadNote={handleLoadNote} 
-            onDeleteNote={handleDeleteNote} 
-            onOpenShare={handleOpenShare} 
-            onRenameNote={handleRenameNote} 
-            formatNoteId={formatNoteId} 
-            customNoteNames={customNoteNames} 
+        <SaveNotesSection onSave={onSave} />
+        
+        <div className="px-4 pb-4">
+          <NotesContent
+            notes={notes}
+            searchQuery={searchQuery}
+            sortOrder={sortOrder}
+            filterType={filterType}
+            customNoteNames={customNoteNames}
+            formatNoteId={formatNoteId}
+            activeNoteId={activeNoteId}
+            onLoadNote={handleLoadNote}
+            onDeleteNote={handleDeleteNote}
+            onOpenShare={handleOpenShare}
+            onRenameNote={handleRenameNote}
           />
         </div>
       </div>
@@ -210,7 +175,7 @@ const NotesSidebar: React.FC<NotesSidebarProps> = ({
         isOpen={isShortcutsOpen} 
         onOpenChange={setIsShortcutsOpen} 
       />
-    </div>
+    </NotesSidebarContainer>
   );
 };
 
