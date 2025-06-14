@@ -52,23 +52,6 @@ const EditorPanels: React.FC<EditorPanelsProps> = ({
   isAIDialogOpen,
   setIsAIDialogOpen
 }) => {
-  // Calculate panel sizes based on sidebar visibility
-  const getLeftPanelSize = () => {
-    if (isFocusMode || !isLeftSidebarOpen) return 0;
-    return 25;
-  };
-
-  const getRightPanelSize = () => {
-    if (isFocusMode || !isAISidebarOpen) return 0;
-    return 25;
-  };
-
-  const getEditorPanelSize = () => {
-    const leftSize = getLeftPanelSize();
-    const rightSize = getRightPanelSize();
-    return 100 - leftSize - rightSize;
-  };
-
   return (
     <ResizablePanelGroup 
       direction="horizontal" 
@@ -80,10 +63,10 @@ const EditorPanels: React.FC<EditorPanelsProps> = ({
           <ResizablePanel 
             id="notes-sidebar"
             order={1}
-            defaultSize={getLeftPanelSize()} 
-            minSize={15} 
-            maxSize={45} 
-            className="min-w-[200px]"
+            defaultSize={25} 
+            minSize={20} 
+            maxSize={40} 
+            className="min-w-[250px]"
           >
             <SidebarPanel>
               <NotesSidebar 
@@ -100,7 +83,7 @@ const EditorPanels: React.FC<EditorPanelsProps> = ({
           </ResizablePanel>
           <ResizableHandle 
             withHandle={true}
-            className="border-l border-r border-white/5"
+            className="mx-1"
           />
         </>
       )}
@@ -109,8 +92,9 @@ const EditorPanels: React.FC<EditorPanelsProps> = ({
       <ResizablePanel 
         id="editor-main"
         order={2}
-        defaultSize={getEditorPanelSize()}
-        minSize={30}
+        defaultSize={isLeftSidebarOpen && isAISidebarOpen && !isFocusMode ? 50 : 
+                   (isLeftSidebarOpen || isAISidebarOpen) && !isFocusMode ? 75 : 100}
+        minSize={35}
       >
         <EditorContainer
           content={content}
@@ -134,15 +118,15 @@ const EditorPanels: React.FC<EditorPanelsProps> = ({
         <>
           <ResizableHandle 
             withHandle={true}
-            className="border-l border-r border-white/5"
+            className="mx-1"
           />
           <ResizablePanel 
             id="ai-sidebar"
             order={3}
-            defaultSize={getRightPanelSize()} 
-            minSize={15} 
-            maxSize={45} 
-            className="min-w-[200px]"
+            defaultSize={25} 
+            minSize={20} 
+            maxSize={40} 
+            className="min-w-[250px]"
           >
             <SidebarPanel>
               <AISidebar
