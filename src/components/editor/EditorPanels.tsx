@@ -53,7 +53,7 @@ const EditorPanels: React.FC<EditorPanelsProps> = ({
   setIsAIDialogOpen
 }) => {
   return (
-    <div className="h-full w-full flex">
+    <div className="h-full w-full">
       <ResizablePanelGroup 
         direction="horizontal" 
         className="h-full w-full"
@@ -65,10 +65,10 @@ const EditorPanels: React.FC<EditorPanelsProps> = ({
             <ResizablePanel 
               id="notes-sidebar"
               defaultSize={25} 
-              minSize={20} 
-              maxSize={50}
-              collapsible={true}
-              className="flex"
+              minSize={15} 
+              maxSize={45}
+              collapsible={false}
+              className="min-w-0"
             >
               <SidebarPanel>
                 <NotesSidebar 
@@ -85,7 +85,7 @@ const EditorPanels: React.FC<EditorPanelsProps> = ({
             </ResizablePanel>
             <ResizableHandle 
               withHandle={true}
-              className="w-2 bg-white/5 hover:bg-purple-500/20 transition-colors"
+              className="w-1 bg-white/10 hover:bg-purple-500/50 transition-all duration-200 hover:w-2 active:w-2 active:bg-purple-500/70 z-10"
             />
           </>
         )}
@@ -93,8 +93,8 @@ const EditorPanels: React.FC<EditorPanelsProps> = ({
         {/* The editor container - center panel */}
         <ResizablePanel 
           id="editor-main"
-          minSize={30}
-          className="flex flex-col"
+          minSize={35}
+          className="flex flex-col min-w-0"
         >
           <EditorContainer
             content={content}
@@ -118,15 +118,15 @@ const EditorPanels: React.FC<EditorPanelsProps> = ({
           <>
             <ResizableHandle 
               withHandle={true}
-              className="w-2 bg-white/5 hover:bg-purple-500/20 transition-colors"
+              className="w-1 bg-white/10 hover:bg-purple-500/50 transition-all duration-200 hover:w-2 active:w-2 active:bg-purple-500/70 z-10"
             />
             <ResizablePanel 
               id="ai-sidebar"
               defaultSize={25} 
-              minSize={20} 
-              maxSize={50}
-              collapsible={true}
-              className="flex"
+              minSize={15} 
+              maxSize={45}
+              collapsible={false}
+              className="min-w-0"
             >
               <SidebarPanel>
                 <AISidebar
