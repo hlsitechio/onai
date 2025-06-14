@@ -140,7 +140,7 @@ const TextEditor = () => {
             {/* Inner content - this prevents border from covering content */}
             <div className="rotating-border-inner w-full">
               <div className="w-full h-[80vh] md:h-[85vh] lg:h-[90vh] p-3 md:p-4 lg:p-6">
-                {/* Resizable Panel Group */}
+                {/* Resizable Panel Group with enhanced handles */}
                 <ResizablePanelGroup 
                   direction="horizontal" 
                   className="h-full rounded-lg border border-white/10"
@@ -148,7 +148,7 @@ const TextEditor = () => {
                   {/* Left sidebar - Notes */}
                   {isLeftSidebarOpen && !isFocusMode && (
                     <>
-                      <ResizablePanel defaultSize={25} minSize={20} maxSize={40} className="min-w-[250px]">
+                      <ResizablePanel defaultSize={25} minSize={15} maxSize={45} className="min-w-[200px]">
                         <div className="h-full animate-fadeIn">
                           <NotesSidebar 
                             currentContent={content} 
@@ -162,14 +162,17 @@ const TextEditor = () => {
                           />
                         </div>
                       </ResizablePanel>
-                      <ResizableHandle withHandle />
+                      <ResizableHandle 
+                        withHandle 
+                        className="w-2 bg-white/5 hover:bg-white/10 transition-colors border-l border-r border-white/10 group"
+                      />
                     </>
                   )}
                   
                   {/* The editor container - center panel */}
                   <ResizablePanel 
                     defaultSize={isFocusMode || (!isLeftSidebarOpen && !isAISidebarOpen) ? 100 : 50}
-                    minSize={30}
+                    minSize={25}
                   >
                     <EditorContainer
                       content={content}
@@ -191,8 +194,11 @@ const TextEditor = () => {
                   {/* Right sidebar - AI Assistant */}
                   {isAISidebarOpen && !isFocusMode && (
                     <>
-                      <ResizableHandle withHandle />
-                      <ResizablePanel defaultSize={25} minSize={20} maxSize={40} className="min-w-[250px]">
+                      <ResizableHandle 
+                        withHandle 
+                        className="w-2 bg-white/5 hover:bg-white/10 transition-colors border-l border-r border-white/10 group"
+                      />
+                      <ResizablePanel defaultSize={25} minSize={15} maxSize={45} className="min-w-[200px]">
                         <div className="h-full animate-fadeIn">
                           <AISidebar
                             content={content}
