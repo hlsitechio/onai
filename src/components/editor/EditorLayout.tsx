@@ -21,12 +21,12 @@ const EditorLayout: React.FC<EditorLayoutProps> = ({
       <FocusModeOverlay isFocusMode={isFocusMode} />
       
       <div className={cn(
-        "mx-auto px-1 sm:px-2 md:px-3 w-full relative",
+        "mx-auto px-1 sm:px-2 md:px-3 w-full relative h-full",
         isFocusMode ? "z-[101]" : "z-10"
       )}>
         {/* Rotating border container with proper positioning */}
         <div className={cn(
-          "relative w-full min-h-[80vh] md:min-h-[85vh] lg:min-h-[90vh]", 
+          "relative w-full", 
           isFocusMode && "focus-mode"
         )}>
           {/* Multiple glow layers for enhanced effect */}
@@ -37,12 +37,12 @@ const EditorLayout: React.FC<EditorLayoutProps> = ({
           
           {/* Main container with rotating border */}
           <div className={cn(
-            "rotating-border-container relative w-full h-full",
+            "rotating-border-container relative w-full",
             isFocusMode && "focus-mode"
           )}>
-            {/* Inner content with proper background and full height */}
-            <div className="rotating-border-inner w-full h-full">
-              <div className="w-full h-full p-1">
+            {/* Inner content with proper background */}
+            <div className="rotating-border-inner w-full">
+              <div className="w-full h-[80vh] md:h-[85vh] lg:h-[90vh] p-1">
                 {children}
               </div>
             </div>
