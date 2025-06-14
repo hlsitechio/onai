@@ -33,7 +33,9 @@ const CompanySponsorsSection: React.FC<CompanySponsorsSectionProps> = ({ sponsor
             {sponsors.map((sponsor, index) => (
               <div key={index} className="flex-shrink-0">
                 <div className="block group cursor-default">
-                  <div className="w-40 h-20 flex items-center justify-center p-4 group-hover:scale-105 transition-all duration-300">
+                  <div className={`flex items-center justify-center p-4 group-hover:scale-105 transition-all duration-300 ${
+                    sponsor.name === 'Vercel' ? 'w-52 h-24' : 'w-40 h-20'
+                  }`}>
                     <img 
                       src={sponsor.logo} 
                       alt={`${sponsor.name} logo`}
@@ -59,7 +61,9 @@ const CompanySponsorsSection: React.FC<CompanySponsorsSectionProps> = ({ sponsor
             {displaySponsors.map((sponsor, index) => (
               <div key={index} className="flex-shrink-0 mx-8">
                 <div className="block group cursor-default">
-                  <div className="w-40 h-20 flex items-center justify-center p-4 group-hover:scale-105 transition-all duration-300">
+                  <div className={`flex items-center justify-center p-4 group-hover:scale-105 transition-all duration-300 ${
+                    sponsor.name === 'Vercel' ? 'w-52 h-24' : 'w-40 h-20'
+                  }`}>
                     <img 
                       src={sponsor.logo} 
                       alt={`${sponsor.name} logo`}
@@ -75,13 +79,6 @@ const CompanySponsorsSection: React.FC<CompanySponsorsSectionProps> = ({ sponsor
             ))}
           </div>
         )}
-        
-        {/* Disclaimer in bottom right corner */}
-        <div className="absolute bottom-2 right-4">
-          <p className="text-gray-500 text-xs italic">
-            *These are example logos only - Real sponsors will appear here once we have partnerships
-          </p>
-        </div>
       </div>
     </div>
   );
