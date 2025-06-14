@@ -53,22 +53,22 @@ const EditorPanels: React.FC<EditorPanelsProps> = ({
   setIsAIDialogOpen
 }) => {
   return (
-    <div className="h-full w-full">
+    <div className="h-full w-full flex">
       <ResizablePanelGroup 
         direction="horizontal" 
         className="h-full w-full"
-        autoSaveId="editor-layout-v2"
+        autoSaveId="noteflow-editor-panels"
       >
         {/* Left sidebar - Notes */}
         {isLeftSidebarOpen && !isFocusMode && (
           <>
             <ResizablePanel 
               id="notes-sidebar"
-              order={1}
-              defaultSize={20} 
-              minSize={15} 
-              maxSize={40} 
-              className="min-w-[250px]"
+              defaultSize={25} 
+              minSize={20} 
+              maxSize={50}
+              collapsible={true}
+              className="flex"
             >
               <SidebarPanel>
                 <NotesSidebar 
@@ -85,7 +85,7 @@ const EditorPanels: React.FC<EditorPanelsProps> = ({
             </ResizablePanel>
             <ResizableHandle 
               withHandle={true}
-              className="z-50 hover:bg-purple-500/30"
+              className="w-2 bg-white/5 hover:bg-purple-500/20 transition-colors"
             />
           </>
         )}
@@ -93,11 +93,8 @@ const EditorPanels: React.FC<EditorPanelsProps> = ({
         {/* The editor container - center panel */}
         <ResizablePanel 
           id="editor-main"
-          order={2}
-          defaultSize={isLeftSidebarOpen && isAISidebarOpen && !isFocusMode ? 60 : 
-                     (isLeftSidebarOpen || isAISidebarOpen) && !isFocusMode ? 80 : 100}
           minSize={30}
-          className="relative"
+          className="flex flex-col"
         >
           <EditorContainer
             content={content}
@@ -121,15 +118,15 @@ const EditorPanels: React.FC<EditorPanelsProps> = ({
           <>
             <ResizableHandle 
               withHandle={true}
-              className="z-50 hover:bg-purple-500/30"
+              className="w-2 bg-white/5 hover:bg-purple-500/20 transition-colors"
             />
             <ResizablePanel 
               id="ai-sidebar"
-              order={3}
-              defaultSize={20} 
-              minSize={15} 
-              maxSize={40} 
-              className="min-w-[250px]"
+              defaultSize={25} 
+              minSize={20} 
+              maxSize={50}
+              collapsible={true}
+              className="flex"
             >
               <SidebarPanel>
                 <AISidebar

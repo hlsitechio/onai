@@ -40,9 +40,9 @@ const EditorLayout: React.FC<EditorLayoutProps> = ({
             "rotating-border-container relative w-full",
             isFocusMode && "focus-mode"
           )}>
-            {/* Inner content with proper background - Fixed height for resizable panels */}
+            {/* Inner content with proper background - FLEXIBLE height for resizable panels */}
             <div className="rotating-border-inner w-full">
-              <div className="w-full h-[calc(100vh-120px)] p-1">
+              <div className="w-full h-[calc(100vh-120px)] min-h-[500px] p-1 flex">
                 {children}
               </div>
             </div>
