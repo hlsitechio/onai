@@ -139,11 +139,11 @@ const TextEditor = () => {
             {/* Inner content - this prevents border from covering content */}
             <div className="rotating-border-inner w-full">
               <div className="flex flex-col md:flex-row gap-1 lg:gap-2 justify-center w-full h-[80vh] md:h-[85vh] lg:h-[90vh] p-3 md:p-4 lg:p-6">
-                {/* Left sidebar - equal width panel (1/3) with fixed height */}
+                {/* Left sidebar - smaller width (1/4) with fixed height */}
                 <div className={cn(
                   "shrink-0 mb-4 md:mb-0 transition-all duration-300 ease-in-out",
                   isLeftSidebarOpen && !isFocusMode 
-                    ? "opacity-100 w-full md:w-1/3" 
+                    ? "opacity-100 w-full md:w-1/4" 
                     : "opacity-0 w-0 overflow-hidden"
                 )}>
                   {isLeftSidebarOpen && !isFocusMode && (
@@ -162,13 +162,15 @@ const TextEditor = () => {
                   )}
                 </div>
                 
-                {/* The editor container - equal width panel (1/3) when both sidebars open with fixed height */}
+                {/* The editor container - larger width (1/2) when both sidebars open with fixed height */}
                 <div className={cn(
                   "transition-all duration-300 ease-in-out",
-                  // When both sidebars are open, all panels take 1/3 width
-                  isLeftSidebarOpen && isAISidebarOpen && !isFocusMode && "w-full md:w-1/3",
-                  // When only one sidebar is open, editor takes 2/3 width  
-                  ((isLeftSidebarOpen && !isAISidebarOpen) || (!isLeftSidebarOpen && isAISidebarOpen)) && !isFocusMode && "w-full md:w-2/3",
+                  // When both sidebars are open, editor takes 1/2 width, sidebars take 1/4 each
+                  isLeftSidebarOpen && isAISidebarOpen && !isFocusMode && "w-full md:w-1/2",
+                  // When only left sidebar is open, editor takes 3/4 width  
+                  isLeftSidebarOpen && !isAISidebarOpen && !isFocusMode && "w-full md:w-3/4",
+                  // When only right sidebar is open, editor takes 3/4 width
+                  !isLeftSidebarOpen && isAISidebarOpen && !isFocusMode && "w-full md:w-3/4",
                   // When no sidebars are open or in focus mode, editor takes full width
                   ((!isLeftSidebarOpen && !isAISidebarOpen) || isFocusMode) && "w-full"
                 )}>
@@ -189,11 +191,11 @@ const TextEditor = () => {
                   />
                 </div>
                 
-                {/* Right sidebar - equal width panel (1/3) with fixed height */}
+                {/* Right sidebar - smaller width (1/4) with fixed height */}
                 <div className={cn(
                   "shrink-0 mb-4 md:mb-0 transition-all duration-300 ease-in-out",
                   isAISidebarOpen && !isFocusMode 
-                    ? "opacity-100 w-full md:w-1/3" 
+                    ? "opacity-100 w-full md:w-1/4" 
                     : "opacity-0 w-0 overflow-hidden"
                 )}>
                   {isAISidebarOpen && !isFocusMode && (
