@@ -117,12 +117,12 @@ const TextEditor = () => {
       <FocusModeOverlay isFocusMode={isFocusMode} />
       
       <div className={cn(
-        "mx-auto px-1 sm:px-2 md:px-3 max-w-full relative h-full",
+        "mx-auto px-1 sm:px-2 md:px-3 w-full relative h-full",
         isFocusMode ? "z-[101]" : "z-10"
       )}>
         {/* Rotating border container - only contains the glow and border */}
         <div className={cn(
-          "relative", // Position for glow
+          "relative w-full", // Position for glow and full width
           isFocusMode && "focus-mode"
         )}>
           {/* Glow effect positioned behind */}
@@ -133,12 +133,12 @@ const TextEditor = () => {
           
           {/* Main container with rotating border */}
           <div className={cn(
-            "rotating-border-container relative",
+            "rotating-border-container relative w-full",
             isFocusMode && "focus-mode"
           )}>
             {/* Inner content - this prevents border from covering content */}
-            <div className="rotating-border-inner">
-              <div className="flex flex-col md:flex-row gap-1 lg:gap-2 justify-center w-full h-full p-2">
+            <div className="rotating-border-inner w-full">
+              <div className="flex flex-col md:flex-row gap-1 lg:gap-2 justify-center w-full h-[80vh] md:h-[85vh] lg:h-[90vh] p-3 md:p-4 lg:p-6">
                 {/* Left sidebar - equal width panel (1/3) with fixed height */}
                 <div className={cn(
                   "shrink-0 mb-4 md:mb-0 transition-all duration-300 ease-in-out",

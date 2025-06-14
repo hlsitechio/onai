@@ -34,7 +34,7 @@ const AISidebar: React.FC<AISidebarProps> = ({
   };
 
   return (
-    <div className="w-full md:w-80 lg:w-96 glass-panel-dark rounded-xl overflow-hidden flex flex-col shadow-[0_8px_30px_rgb(0,0,0,0.4)] border border-white/5 h-[calc(100vh-200px)]">
+    <div className="w-full glass-panel-dark rounded-xl overflow-hidden flex flex-col shadow-[0_8px_30px_rgb(0,0,0,0.4)] border border-white/5 h-full">
       <div className="p-3 border-b border-white/5 flex items-center justify-between bg-[#03010a]">
         <div className="flex items-center gap-2">
           <Sparkles className="h-5 w-5 text-noteflow-400" />
