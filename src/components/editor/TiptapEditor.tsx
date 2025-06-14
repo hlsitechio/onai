@@ -7,10 +7,8 @@ import { getUtilityExtensions } from './config/V3UtilityExtensions';
 import { getFormattingExtensions } from './config/V3FormattingExtensions';
 import { getTableExtensions } from './config/V3TableExtensions';
 import { editorClassNames, loadingComponent } from './config/EditorConfig';
-import AIAgent from '../ai-agent/AIAgent';
-import InlineAIActions from '../ai-agent/InlineAIActions';
+import AICommandCenter from '../ai-command-center/AICommandCenter';
 import { useAIAgent } from '@/hooks/useAIAgent';
-import { useTiptapAI } from '@/hooks/useTiptapAI';
 import TiptapMainToolbar from './TiptapMainToolbar';
 import TiptapBubbleMenu from './TiptapBubbleMenu';
 import TiptapEmptyState from './TiptapEmptyState';
@@ -30,20 +28,6 @@ const TiptapEditor: React.FC<TiptapEditorProps> = ({
   const [isLoading, setIsLoading] = useState(true);
   const [selectedText, setSelectedText] = useState('');
   
-  const {
-    isAIAgentVisible,
-    cursorPosition,
-    inlineActionsPosition,
-    isInlineActionsVisible,
-    showAIAgent,
-    hideAIAgent,
-    toggleAIAgent,
-    handleTextSelection,
-    showInlineActions,
-    hideInlineActions,
-    updateCursorPosition
-  } = useAIAgent();
-
   const editor = useEditor({
     extensions: [
       StarterKit.configure({
@@ -76,16 +60,11 @@ const TiptapEditor: React.FC<TiptapEditorProps> = ({
       updateCursorPosition(from);
       
       if (text.trim()) {
-        const coords = editor.view.coordsAtPos(from);
-        showInlineActions(coords.left, coords.top - 40);
-        
         handleTextSelection({
           text,
           start: from,
           end: to
         });
-      } else {
-        hideInlineActions();
       }
     },
     editorProps: {
@@ -99,15 +78,14 @@ const TiptapEditor: React.FC<TiptapEditorProps> = ({
   });
 
   const {
-    isProcessingAI,
-    handleAITextReplace,
-    handleAITextInsert,
-    handleQuickAI
-  } = useTiptapAI({
-    editor,
-    selectedText,
-    hideInlineActions
-  });
+    isAIAgentVisible,
+    aiPosition,
+    showAIAgent,
+    hideAIAgent,
+    toggleAIAgent,
+    handleTextSelection,
+    updateCursorPosition
+  } = useAIAgent(editor);
 
   // Handle keyboard shortcuts
   useEffect(() => {
@@ -119,13 +97,12 @@ const TiptapEditor: React.FC<TiptapEditorProps> = ({
       
       if (event.key === 'Escape') {
         hideAIAgent();
-        hideInlineActions();
       }
     };
 
     document.addEventListener('keydown', handleKeyDown);
     return () => document.removeEventListener('keydown', handleKeyDown);
-  }, [toggleAIAgent, hideAIAgent, hideInlineActions]);
+  }, [toggleAIAgent, hideAIAgent]);
 
   // Simulate loading state
   useEffect(() => {
@@ -166,8 +143,8 @@ const TiptapEditor: React.FC<TiptapEditorProps> = ({
       <TiptapBubbleMenu
         editor={editor}
         selectedText={selectedText}
-        isProcessingAI={isProcessingAI}
-        onQuickAI={handleQuickAI}
+        isProcessingAI={false}
+        onQuickAI={() => {}}
         onShowAIAgent={showAIAgent}
       />
 
@@ -178,26 +155,19 @@ const TiptapEditor: React.FC<TiptapEditorProps> = ({
           className="h-full overflow-y-auto focus-within:outline-none p-4"
         />
 
-        {/* AI Agent */}
-        <AIAgent
+        {/* Unified AI Command Center */}
+        <AICommandCenter
           content={content}
           onContentChange={handleContentChange}
-          cursorPosition={cursorPosition}
-          isVisible={isAIAgentVisible}
-        />
-
-        {/* Inline AI Actions */}
-        <InlineAIActions
           selectedText={selectedText}
-          onTextReplace={handleAITextReplace}
-          onTextInsert={handleAITextInsert}
-          position={inlineActionsPosition}
-          isVisible={isInlineActionsVisible}
-          onClose={hideInlineActions}
+          cursorPosition={editor?.state.selection.from || 0}
+          isVisible={isAIAgentVisible}
+          onClose={hideAIAgent}
+          position={aiPosition}
         />
 
         {/* Floating AI hint */}
-        {!isAIAgentVisible && !isInlineActionsVisible && content.length > 50 && (
+        {!isAIAgentVisible && content.length > 50 && (
           <TiptapFloatingHint onShowAIAgent={showAIAgent} />
         )}
 

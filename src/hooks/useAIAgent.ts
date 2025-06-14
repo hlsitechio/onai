@@ -1,5 +1,6 @@
 
-import { useState, useCallback, useRef } from 'react';
+import { useState, useCallback } from 'react';
+import { useSmartAIPositioning } from './useSmartAIPositioning';
 
 interface TextSelection {
   text: string;
@@ -11,58 +12,33 @@ interface AIAgentHook {
   isAIAgentVisible: boolean;
   selectedText: string;
   cursorPosition: number;
-  inlineActionsPosition: { x: number; y: number };
-  isInlineActionsVisible: boolean;
+  aiPosition: { x: number; y: number };
   showAIAgent: () => void;
   hideAIAgent: () => void;
   toggleAIAgent: () => void;
   handleTextSelection: (selection: TextSelection) => void;
-  showInlineActions: (x: number, y: number) => void;
-  hideInlineActions: () => void;
   updateCursorPosition: (position: number) => void;
 }
 
-export const useAIAgent = (): AIAgentHook => {
-  const [isAIAgentVisible, setIsAIAgentVisible] = useState(false);
+export const useAIAgent = (editor?: any): AIAgentHook => {
   const [selectedText, setSelectedText] = useState('');
   const [cursorPosition, setCursorPosition] = useState(0);
-  const [inlineActionsPosition, setInlineActionsPosition] = useState({ x: 0, y: 0 });
-  const [isInlineActionsVisible, setIsInlineActionsVisible] = useState(false);
 
-  const showAIAgent = useCallback(() => {
-    setIsAIAgentVisible(true);
-  }, []);
-
-  const hideAIAgent = useCallback(() => {
-    setIsAIAgentVisible(false);
-  }, []);
-
-  const toggleAIAgent = useCallback(() => {
-    setIsAIAgentVisible(prev => !prev);
-  }, []);
+  const {
+    position: aiPosition,
+    isVisible: isAIAgentVisible,
+    showAI: showAIAgent,
+    hideAI: hideAIAgent,
+    toggleAI: toggleAIAgent
+  } = useSmartAIPositioning({
+    selectedText,
+    cursorPosition,
+    editor
+  });
 
   const handleTextSelection = useCallback((selection: TextSelection) => {
     setSelectedText(selection.text);
     setCursorPosition(selection.start);
-    
-    if (selection.text.trim()) {
-      // Show inline actions for selected text
-      const rect = window.getSelection()?.getRangeAt(0)?.getBoundingClientRect();
-      if (rect) {
-        showInlineActions(rect.right + 10, rect.top);
-      }
-    } else {
-      hideInlineActions();
-    }
-  }, []);
-
-  const showInlineActions = useCallback((x: number, y: number) => {
-    setInlineActionsPosition({ x, y });
-    setIsInlineActionsVisible(true);
-  }, []);
-
-  const hideInlineActions = useCallback(() => {
-    setIsInlineActionsVisible(false);
   }, []);
 
   const updateCursorPosition = useCallback((position: number) => {
@@ -73,14 +49,11 @@ export const useAIAgent = (): AIAgentHook => {
     isAIAgentVisible,
     selectedText,
     cursorPosition,
-    inlineActionsPosition,
-    isInlineActionsVisible,
+    aiPosition,
     showAIAgent,
     hideAIAgent,
     toggleAIAgent,
     handleTextSelection,
-    showInlineActions,
-    hideInlineActions,
     updateCursorPosition
   };
 };
