@@ -53,20 +53,20 @@ const EditorPanels: React.FC<EditorPanelsProps> = ({
   setIsAIDialogOpen
 }) => {
   return (
-    <div className="h-full w-full">
+    <div className="h-full w-full relative">
       <ResizablePanelGroup 
         direction="horizontal" 
         className="h-full w-full"
-        autoSaveId="noteflow-editor-panels"
+        autoSaveId="noteflow-main-layout"
       >
         {/* Left sidebar - Notes */}
         {isLeftSidebarOpen && !isFocusMode && (
           <>
             <ResizablePanel 
-              id="notes-sidebar"
+              id="notes-panel"
               defaultSize={25} 
-              minSize={15} 
-              maxSize={45}
+              minSize={20} 
+              maxSize={40}
               collapsible={false}
               className="min-w-0"
             >
@@ -85,15 +85,15 @@ const EditorPanels: React.FC<EditorPanelsProps> = ({
             </ResizablePanel>
             <ResizableHandle 
               withHandle={true}
-              className="w-1 bg-white/10 hover:bg-purple-500/50 transition-all duration-200 hover:w-2 active:w-2 active:bg-purple-500/70 z-10"
+              className="w-2 bg-transparent hover:bg-purple-500/30 transition-all duration-200 cursor-col-resize z-20"
             />
           </>
         )}
         
         {/* The editor container - center panel */}
         <ResizablePanel 
-          id="editor-main"
-          minSize={35}
+          id="editor-panel"
+          minSize={30}
           className="flex flex-col min-w-0"
         >
           <EditorContainer
@@ -118,13 +118,13 @@ const EditorPanels: React.FC<EditorPanelsProps> = ({
           <>
             <ResizableHandle 
               withHandle={true}
-              className="w-1 bg-white/10 hover:bg-purple-500/50 transition-all duration-200 hover:w-2 active:w-2 active:bg-purple-500/70 z-10"
+              className="w-2 bg-transparent hover:bg-purple-500/30 transition-all duration-200 cursor-col-resize z-20"
             />
             <ResizablePanel 
-              id="ai-sidebar"
+              id="ai-panel"
               defaultSize={25} 
-              minSize={15} 
-              maxSize={45}
+              minSize={20} 
+              maxSize={40}
               collapsible={false}
               className="min-w-0"
             >

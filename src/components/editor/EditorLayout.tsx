@@ -42,7 +42,7 @@ const EditorLayout: React.FC<EditorLayoutProps> = ({
           )}>
             {/* Inner content with proper background and height */}
             <div className="rotating-border-inner w-full">
-              <div className="w-full h-[calc(100vh-120px)] min-h-[500px] p-1 overflow-hidden">
+              <div className="w-full h-[calc(100vh-120px)] min-h-[500px] p-1 overflow-hidden relative">
                 {children}
               </div>
             </div>
