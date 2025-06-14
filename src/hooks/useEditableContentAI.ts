@@ -14,10 +14,10 @@ export const useEditableContentAI = ({
   const {
     selectedText,
     cursorPosition,
-    inlineActionsPosition,
-    isInlineActionsVisible,
+    aiPosition,
+    isAIAgentVisible,
     handleTextSelection,
-    hideInlineActions,
+    hideAIAgent,
     updateCursorPosition
   } = useAIAgent();
 
@@ -74,10 +74,10 @@ export const useEditableContentAI = ({
   return {
     selectedText,
     cursorPosition,
-    inlineActionsPosition,
-    isInlineActionsVisible,
+    inlineActionsPosition: aiPosition, // Map to the correct property
+    isInlineActionsVisible: isAIAgentVisible, // Map to the correct property
     handleTextAreaSelection,
     handleCursorChange,
-    hideInlineActions
+    hideInlineActions: hideAIAgent // Map to the correct property
   };
 };
