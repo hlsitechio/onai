@@ -2,7 +2,6 @@
 import React from "react";
 import { cn } from "@/lib/utils";
 import FocusModeOverlay from "./FocusModeOverlay";
-import "../styles/rotating-border.css";
 
 interface EditorLayoutProps {
   isFocusMode: boolean;
