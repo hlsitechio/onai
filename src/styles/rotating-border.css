@@ -21,11 +21,11 @@
   }
 }
 
-/* Main container with rotating border */
+/* Main container with rotating border - only border, no overlay */
 .rotating-border-container {
   position: relative;
   border-radius: 12px;
-  padding: 3px;
+  padding: 2px; /* Thin border */
   background: linear-gradient(
     45deg,
     #ff6b35,
@@ -41,76 +41,51 @@
   animation: rotate-border 4s ease-in-out infinite;
 }
 
-.rotating-border-container::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  border-radius: 12px;
-  padding: 2px;
-  background: linear-gradient(
-    -45deg,
-    rgba(255, 107, 53, 0.3),
-    rgba(247, 147, 30, 0.3),
-    rgba(255, 215, 0, 0.3),
-    rgba(50, 205, 50, 0.3),
-    rgba(0, 191, 255, 0.3),
-    rgba(138, 43, 226, 0.3),
-    rgba(255, 20, 147, 0.3),
-    rgba(255, 107, 53, 0.3)
-  );
-  background-size: 400% 400%;
-  animation: rotate-border 6s ease-in-out infinite reverse;
-  z-index: -1;
-  filter: blur(8px);
-}
-
-/* Inner content area */
+/* Inner content area - this is what prevents the border from covering content */
 .rotating-border-inner {
   background: linear-gradient(135deg, #03010a 0%, #0a0518 100%);
-  border-radius: 9px;
+  border-radius: 10px; /* Slightly smaller than container */
   height: 100%;
   width: 100%;
   position: relative;
   overflow: hidden;
+  /* Remove any blur or overlay effects that cover content */
 }
 
-/* Enhanced glow effect */
+/* Subtle glow effect - positioned behind everything */
 .rotating-border-glow {
   position: absolute;
-  top: -4px;
-  left: -4px;
-  right: -4px;
-  bottom: -4px;
-  border-radius: 16px;
+  top: -6px;
+  left: -6px;
+  right: -6px;
+  bottom: -6px;
+  border-radius: 18px;
   background: linear-gradient(
     45deg,
-    rgba(255, 107, 53, 0.2),
-    rgba(247, 147, 30, 0.2),
-    rgba(255, 215, 0, 0.2),
-    rgba(50, 205, 50, 0.2),
-    rgba(0, 191, 255, 0.2),
-    rgba(138, 43, 226, 0.2),
-    rgba(255, 20, 147, 0.2)
+    rgba(255, 107, 53, 0.15),
+    rgba(247, 147, 30, 0.15),
+    rgba(255, 215, 0, 0.15),
+    rgba(50, 205, 50, 0.15),
+    rgba(0, 191, 255, 0.15),
+    rgba(138, 43, 226, 0.15),
+    rgba(255, 20, 147, 0.15)
   );
   background-size: 400% 400%;
   animation: rotate-border 8s ease-in-out infinite;
-  filter: blur(20px);
-  z-index: -2;
-  opacity: 0.6;
+  filter: blur(15px);
+  z-index: -1;
+  opacity: 0.4;
 }
 
 /* Pulsing effect for extra visual appeal */
 @keyframes pulse-glow {
   0%, 100% {
-    opacity: 0.4;
+    opacity: 0.3;
     transform: scale(1);
   }
   50% {
-    opacity: 0.8;
-    transform: scale(1.02);
+    opacity: 0.6;
+    transform: scale(1.01);
   }
 }
 
@@ -133,16 +108,16 @@
   background-size: 400% 400%;
 }
 
-.focus-mode .rotating-border-container::before {
+.focus-mode .rotating-border-glow {
   background: linear-gradient(
     -45deg,
-    rgba(102, 126, 234, 0.3),
-    rgba(118, 75, 162, 0.3),
-    rgba(240, 147, 251, 0.3),
-    rgba(245, 87, 108, 0.3),
-    rgba(79, 172, 254, 0.3),
-    rgba(0, 242, 254, 0.3),
-    rgba(102, 126, 234, 0.3)
+    rgba(102, 126, 234, 0.15),
+    rgba(118, 75, 162, 0.15),
+    rgba(240, 147, 251, 0.15),
+    rgba(245, 87, 108, 0.15),
+    rgba(79, 172, 254, 0.15),
+    rgba(0, 242, 254, 0.15),
+    rgba(102, 126, 234, 0.15)
   );
   background-size: 400% 400%;
 }
@@ -150,14 +125,14 @@
 /* Mobile optimizations */
 @media (max-width: 768px) {
   .rotating-border-container {
-    padding: 2px;
+    padding: 1.5px;
   }
   
   .rotating-border-glow {
-    top: -2px;
-    left: -2px;
-    right: -2px;
-    bottom: -2px;
-    filter: blur(10px);
+    top: -4px;
+    left: -4px;
+    right: -4px;
+    bottom: -4px;
+    filter: blur(8px);
   }
 }

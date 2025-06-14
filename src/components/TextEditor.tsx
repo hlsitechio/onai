@@ -120,15 +120,23 @@ const TextEditor = () => {
         "mx-auto px-1 sm:px-2 md:px-3 max-w-full relative h-full",
         isFocusMode ? "z-[101]" : "z-10"
       )}>
-        {/* Rotating border container with glow effect */}
+        {/* Rotating border container - only contains the glow and border */}
         <div className={cn(
-          "rotating-border-glow rotating-border-pulse",
+          "relative", // Position for glow
           isFocusMode && "focus-mode"
         )}>
+          {/* Glow effect positioned behind */}
           <div className={cn(
-            "rotating-border-container",
+            "rotating-border-glow rotating-border-pulse",
+            isFocusMode && "focus-mode"
+          )}></div>
+          
+          {/* Main container with rotating border */}
+          <div className={cn(
+            "rotating-border-container relative",
             isFocusMode && "focus-mode"
           )}>
+            {/* Inner content - this prevents border from covering content */}
             <div className="rotating-border-inner">
               <div className="flex flex-col md:flex-row gap-1 lg:gap-2 justify-center w-full h-full p-2">
                 {/* Left sidebar - equal width panel (1/3) with fixed height */}
