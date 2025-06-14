@@ -65,8 +65,8 @@ const EditorPanels: React.FC<EditorPanelsProps> = ({
             <ResizablePanel 
               id="notes-panel"
               defaultSize={25} 
-              minSize={20} 
-              maxSize={40}
+              minSize={15} 
+              maxSize={45}
               collapsible={false}
               className="min-w-0"
             >
@@ -85,7 +85,7 @@ const EditorPanels: React.FC<EditorPanelsProps> = ({
             </ResizablePanel>
             <ResizableHandle 
               withHandle={true}
-              className="w-2 bg-transparent hover:bg-purple-500/30 transition-all duration-200 cursor-col-resize z-20"
+              className="w-2 hover:w-3 transition-all duration-200 z-30"
             />
           </>
         )}
@@ -118,13 +118,13 @@ const EditorPanels: React.FC<EditorPanelsProps> = ({
           <>
             <ResizableHandle 
               withHandle={true}
-              className="w-2 bg-transparent hover:bg-purple-500/30 transition-all duration-200 cursor-col-resize z-20"
+              className="w-2 hover:w-3 transition-all duration-200 z-30"
             />
             <ResizablePanel 
               id="ai-panel"
               defaultSize={25} 
-              minSize={20} 
-              maxSize={40}
+              minSize={15} 
+              maxSize={45}
               collapsible={false}
               className="min-w-0"
             >
