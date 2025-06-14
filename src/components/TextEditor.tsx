@@ -109,6 +109,23 @@ const TextEditor = () => {
   if (isMobileDevice) {
     return <MobileLayout />;
   }
+
+  // Calculate panel sizes based on sidebar visibility
+  const getLeftPanelSize = () => {
+    if (isFocusMode || !isLeftSidebarOpen) return 0;
+    return 25;
+  };
+
+  const getRightPanelSize = () => {
+    if (isFocusMode || !isAISidebarOpen) return 0;
+    return 25;
+  };
+
+  const getEditorPanelSize = () => {
+    const leftSize = getLeftPanelSize();
+    const rightSize = getRightPanelSize();
+    return 100 - leftSize - rightSize;
+  };
   
   return (
     <section id="editor-section" className={cn(
@@ -148,7 +165,14 @@ const TextEditor = () => {
                   {/* Left sidebar - Notes */}
                   {isLeftSidebarOpen && !isFocusMode && (
                     <>
-                      <ResizablePanel defaultSize={25} minSize={15} maxSize={45} className="min-w-[200px]">
+                      <ResizablePanel 
+                        id="notes-sidebar"
+                        order={1}
+                        defaultSize={getLeftPanelSize()} 
+                        minSize={15} 
+                        maxSize={45} 
+                        className="min-w-[200px]"
+                      >
                         <div className="h-full animate-fadeIn">
                           <NotesSidebar 
                             currentContent={content} 
@@ -171,8 +195,10 @@ const TextEditor = () => {
                   
                   {/* The editor container - center panel */}
                   <ResizablePanel 
-                    defaultSize={isFocusMode || (!isLeftSidebarOpen && !isAISidebarOpen) ? 100 : 50}
-                    minSize={25}
+                    id="editor-main"
+                    order={2}
+                    defaultSize={getEditorPanelSize()}
+                    minSize={30}
                   >
                     <EditorContainer
                       content={content}
@@ -198,7 +224,14 @@ const TextEditor = () => {
                         withHandle 
                         className="w-2 bg-white/5 hover:bg-white/10 transition-colors border-l border-r border-white/10 group"
                       />
-                      <ResizablePanel defaultSize={25} minSize={15} maxSize={45} className="min-w-[200px]">
+                      <ResizablePanel 
+                        id="ai-sidebar"
+                        order={3}
+                        defaultSize={getRightPanelSize()} 
+                        minSize={15} 
+                        maxSize={45} 
+                        className="min-w-[200px]"
+                      >
                         <div className="h-full animate-fadeIn">
                           <AISidebar
                             content={content}
