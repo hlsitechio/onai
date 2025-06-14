@@ -53,94 +53,102 @@ const EditorPanels: React.FC<EditorPanelsProps> = ({
   setIsAIDialogOpen
 }) => {
   return (
-    <ResizablePanelGroup 
-      direction="horizontal" 
-      className="h-full w-full"
-      autoSaveId="editor-layout"
-    >
-      {/* Left sidebar - Notes */}
-      {isLeftSidebarOpen && !isFocusMode && (
-        <>
-          <ResizablePanel 
-            id="notes-sidebar"
-            order={1}
-            defaultSize={25} 
-            minSize={15} 
-            maxSize={45} 
-            className="min-w-[200px]"
-          >
-            <SidebarPanel>
-              <NotesSidebar 
-                currentContent={content} 
-                onLoadNote={handleNoteLoad}
-                onSave={handleSave}
-                onDeleteNote={handleDeleteNote}
-                editorHeight={0}
-                allNotes={allNotes}
-                onCreateNew={createNewNote}
-                onImportNotes={handleImportNotes}
-              />
-            </SidebarPanel>
-          </ResizablePanel>
-          <ResizableHandle 
-            withHandle={true}
-            className="z-50"
-          />
-        </>
-      )}
-      
-      {/* The editor container - center panel */}
-      <ResizablePanel 
-        id="editor-main"
-        order={2}
-        defaultSize={isLeftSidebarOpen && isAISidebarOpen && !isFocusMode ? 50 : 
-                   (isLeftSidebarOpen || isAISidebarOpen) && !isFocusMode ? 75 : 100}
-        minSize={30}
-        className="relative"
+    <div className="w-full h-full relative" style={{ pointerEvents: 'auto' }}>
+      <ResizablePanelGroup 
+        direction="horizontal" 
+        className="h-full w-full"
+        autoSaveId="noteflow-editor-layout"
+        style={{ pointerEvents: 'auto' }}
       >
-        <EditorContainer
-          content={content}
-          setContent={setContent}
-          execCommand={execCommand}
-          handleSave={handleSave}
-          toggleLeftSidebar={toggleLeftSidebar}
-          toggleAISidebar={toggleAISidebar}
-          isLeftSidebarOpen={isLeftSidebarOpen}
-          isAISidebarOpen={isAISidebarOpen}
-          lastSaved={lastSavedString}
-          isFocusMode={isFocusMode}
-          toggleFocusMode={handleToggleFocusMode}
-          isAIDialogOpen={isAIDialogOpen}
-          setIsAIDialogOpen={setIsAIDialogOpen}
-        />
-      </ResizablePanel>
-      
-      {/* Right sidebar - AI Assistant */}
-      {isAISidebarOpen && !isFocusMode && (
-        <>
-          <ResizableHandle 
-            withHandle={true}
-            className="z-50"
+        {/* Left sidebar - Notes */}
+        {isLeftSidebarOpen && !isFocusMode && (
+          <>
+            <ResizablePanel 
+              id="notes-sidebar-panel"
+              order={1}
+              defaultSize={22} 
+              minSize={18} 
+              maxSize={40} 
+              className="min-w-[250px] h-full"
+              style={{ pointerEvents: 'auto' }}
+            >
+              <SidebarPanel>
+                <NotesSidebar 
+                  currentContent={content} 
+                  onLoadNote={handleNoteLoad}
+                  onSave={handleSave}
+                  onDeleteNote={handleDeleteNote}
+                  editorHeight={0}
+                  allNotes={allNotes}
+                  onCreateNew={createNewNote}
+                  onImportNotes={handleImportNotes}
+                />
+              </SidebarPanel>
+            </ResizablePanel>
+            <ResizableHandle 
+              withHandle={true}
+              className="z-[200] resizable-handle-override"
+              style={{ pointerEvents: 'auto' }}
+            />
+          </>
+        )}
+        
+        {/* The editor container - center panel */}
+        <ResizablePanel 
+          id="editor-main-panel"
+          order={2}
+          defaultSize={isLeftSidebarOpen && isAISidebarOpen && !isFocusMode ? 56 : 
+                     (isLeftSidebarOpen || isAISidebarOpen) && !isFocusMode ? 78 : 100}
+          minSize={35}
+          className="relative h-full"
+          style={{ pointerEvents: 'auto' }}
+        >
+          <EditorContainer
+            content={content}
+            setContent={setContent}
+            execCommand={execCommand}
+            handleSave={handleSave}
+            toggleLeftSidebar={toggleLeftSidebar}
+            toggleAISidebar={toggleAISidebar}
+            isLeftSidebarOpen={isLeftSidebarOpen}
+            isAISidebarOpen={isAISidebarOpen}
+            lastSaved={lastSavedString}
+            isFocusMode={isFocusMode}
+            toggleFocusMode={handleToggleFocusMode}
+            isAIDialogOpen={isAIDialogOpen}
+            setIsAIDialogOpen={setIsAIDialogOpen}
           />
-          <ResizablePanel 
-            id="ai-sidebar"
-            order={3}
-            defaultSize={25} 
-            minSize={15} 
-            maxSize={45} 
-            className="min-w-[200px]"
-          >
-            <SidebarPanel>
-              <AISidebar
-                content={content}
-                onApplyChanges={setContent}
-                editorHeight={0}
-              />
-            </SidebarPanel>
-          </ResizablePanel>
-        </>
-      )}
-    </ResizablePanelGroup>
+        </ResizablePanel>
+        
+        {/* Right sidebar - AI Assistant */}
+        {isAISidebarOpen && !isFocusMode && (
+          <>
+            <ResizableHandle 
+              withHandle={true}
+              className="z-[200] resizable-handle-override"
+              style={{ pointerEvents: 'auto' }}
+            />
+            <ResizablePanel 
+              id="ai-sidebar-panel"
+              order={3}
+              defaultSize={22} 
+              minSize={18} 
+              maxSize={40} 
+              className="min-w-[250px] h-full"
+              style={{ pointerEvents: 'auto' }}
+            >
+              <SidebarPanel>
+                <AISidebar
+                  content={content}
+                  onApplyChanges={setContent}
+                  editorHeight={0}
+                />
+              </SidebarPanel>
+            </ResizablePanel>
+          </>
+        )}
+      </ResizablePanelGroup>
+    </div>
   );
 };
 

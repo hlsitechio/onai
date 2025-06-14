@@ -1,3 +1,4 @@
+
 /* Enhanced Rotating Border Animation Styles */
 @keyframes rotate-border {
   0% {
@@ -53,6 +54,30 @@
   width: 100%;
   position: relative;
   overflow: hidden;
+  /* Ensure resizable panels can work properly */
+  pointer-events: auto;
+}
+
+/* Critical fix: Ensure resizable handles work within rotating border container */
+.rotating-border-inner [data-panel-resize-handle-enabled] {
+  pointer-events: auto !important;
+  z-index: 200 !important;
+}
+
+.rotating-border-inner .resizable-handle-override {
+  pointer-events: auto !important;
+  z-index: 200 !important;
+  position: relative !important;
+}
+
+/* Ensure panel group containers don't interfere */
+.rotating-border-inner [data-panel-group] {
+  pointer-events: auto !important;
+  height: 100% !important;
+}
+
+.rotating-border-inner [data-panel] {
+  pointer-events: auto !important;
 }
 
 /* Enhanced multi-layered glow system */
@@ -88,6 +113,7 @@
   animation: rotate-border 4s ease-in-out infinite;
   filter: blur(25px);
   opacity: 1;
+  pointer-events: none;
 }
 
 /* Secondary outer glow layer */
@@ -114,6 +140,7 @@
   animation: rotate-border 6s ease-in-out infinite reverse;
   filter: blur(40px);
   opacity: 0.8;
+  pointer-events: none;
 }
 
 /* Tertiary distant glow layer */
@@ -135,6 +162,7 @@
   animation: pulse-glow 3s ease-in-out infinite;
   filter: blur(60px);
   z-index: -2;
+  pointer-events: none;
 }
 
 /* Enhanced pulsing effect */

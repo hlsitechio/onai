@@ -7,7 +7,7 @@ interface SidebarPanelProps {
 
 const SidebarPanel: React.FC<SidebarPanelProps> = ({ children }) => {
   return (
-    <div className="h-full animate-fadeIn">
+    <div className="h-full animate-fadeIn" style={{ pointerEvents: 'auto' }}>
       {children}
     </div>
   );
