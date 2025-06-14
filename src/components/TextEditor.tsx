@@ -11,6 +11,7 @@ import { cn } from "@/lib/utils";
 import { useFocusModeManager } from "@/hooks/useFocusModeManager";
 import { useKeyboardShortcuts } from "@/hooks/useKeyboardShortcuts";
 import { useSupabaseNotes } from "@/hooks/useSupabaseNotes";
+import "../styles/rotating-border.css";
 
 const TextEditor = () => {
   const { toast } = useToast();
@@ -119,73 +120,86 @@ const TextEditor = () => {
         "mx-auto px-1 sm:px-2 md:px-3 max-w-full relative h-full",
         isFocusMode ? "z-[101]" : "z-10"
       )}>
-        <div className="flex flex-col md:flex-row gap-1 lg:gap-2 justify-center w-full h-full">
-          {/* Left sidebar - equal width panel (1/3) with fixed height */}
+        {/* Rotating border container with glow effect */}
+        <div className={cn(
+          "rotating-border-glow rotating-border-pulse",
+          isFocusMode && "focus-mode"
+        )}>
           <div className={cn(
-            "shrink-0 mb-4 md:mb-0 transition-all duration-300 ease-in-out",
-            isLeftSidebarOpen && !isFocusMode 
-              ? "opacity-100 w-full md:w-1/3" 
-              : "opacity-0 w-0 overflow-hidden"
+            "rotating-border-container",
+            isFocusMode && "focus-mode"
           )}>
-            {isLeftSidebarOpen && !isFocusMode && (
-              <div className="animate-fadeIn h-full">
-                <NotesSidebar 
-                  currentContent={content} 
-                  onLoadNote={handleNoteLoad}
-                  onSave={handleSave}
-                  onDeleteNote={handleDeleteNote}
-                  editorHeight={0}
-                  allNotes={allNotes}
-                  onCreateNew={createNewNote}
-                  onImportNotes={handleImportNotes}
-                />
+            <div className="rotating-border-inner">
+              <div className="flex flex-col md:flex-row gap-1 lg:gap-2 justify-center w-full h-full p-2">
+                {/* Left sidebar - equal width panel (1/3) with fixed height */}
+                <div className={cn(
+                  "shrink-0 mb-4 md:mb-0 transition-all duration-300 ease-in-out",
+                  isLeftSidebarOpen && !isFocusMode 
+                    ? "opacity-100 w-full md:w-1/3" 
+                    : "opacity-0 w-0 overflow-hidden"
+                )}>
+                  {isLeftSidebarOpen && !isFocusMode && (
+                    <div className="animate-fadeIn h-full">
+                      <NotesSidebar 
+                        currentContent={content} 
+                        onLoadNote={handleNoteLoad}
+                        onSave={handleSave}
+                        onDeleteNote={handleDeleteNote}
+                        editorHeight={0}
+                        allNotes={allNotes}
+                        onCreateNew={createNewNote}
+                        onImportNotes={handleImportNotes}
+                      />
+                    </div>
+                  )}
+                </div>
+                
+                {/* The editor container - equal width panel (1/3) when both sidebars open with fixed height */}
+                <div className={cn(
+                  "transition-all duration-300 ease-in-out",
+                  // When both sidebars are open, all panels take 1/3 width
+                  isLeftSidebarOpen && isAISidebarOpen && !isFocusMode && "w-full md:w-1/3",
+                  // When only one sidebar is open, editor takes 2/3 width  
+                  ((isLeftSidebarOpen && !isAISidebarOpen) || (!isLeftSidebarOpen && isAISidebarOpen)) && !isFocusMode && "w-full md:w-2/3",
+                  // When no sidebars are open or in focus mode, editor takes full width
+                  ((!isLeftSidebarOpen && !isAISidebarOpen) || isFocusMode) && "w-full"
+                )}>
+                  <EditorContainer
+                    content={content}
+                    setContent={setContent}
+                    execCommand={execCommand}
+                    handleSave={handleSave}
+                    toggleLeftSidebar={toggleLeftSidebar}
+                    toggleAISidebar={toggleAISidebar}
+                    isLeftSidebarOpen={isLeftSidebarOpen}
+                    isAISidebarOpen={isAISidebarOpen}
+                    lastSaved={lastSavedString}
+                    isFocusMode={isFocusMode}
+                    toggleFocusMode={handleToggleFocusMode}
+                    isAIDialogOpen={isAIDialogOpen}
+                    setIsAIDialogOpen={setIsAIDialogOpen}
+                  />
+                </div>
+                
+                {/* Right sidebar - equal width panel (1/3) with fixed height */}
+                <div className={cn(
+                  "shrink-0 mb-4 md:mb-0 transition-all duration-300 ease-in-out",
+                  isAISidebarOpen && !isFocusMode 
+                    ? "opacity-100 w-full md:w-1/3" 
+                    : "opacity-0 w-0 overflow-hidden"
+                )}>
+                  {isAISidebarOpen && !isFocusMode && (
+                    <div className="animate-fadeIn h-full">
+                      <AISidebar
+                        content={content}
+                        onApplyChanges={setContent}
+                        editorHeight={0}
+                      />
+                    </div>
+                  )}
+                </div>
               </div>
-            )}
-          </div>
-          
-          {/* The editor container - equal width panel (1/3) when both sidebars open with fixed height */}
-          <div className={cn(
-            "transition-all duration-300 ease-in-out",
-            // When both sidebars are open, all panels take 1/3 width
-            isLeftSidebarOpen && isAISidebarOpen && !isFocusMode && "w-full md:w-1/3",
-            // When only one sidebar is open, editor takes 2/3 width  
-            ((isLeftSidebarOpen && !isAISidebarOpen) || (!isLeftSidebarOpen && isAISidebarOpen)) && !isFocusMode && "w-full md:w-2/3",
-            // When no sidebars are open or in focus mode, editor takes full width
-            ((!isLeftSidebarOpen && !isAISidebarOpen) || isFocusMode) && "w-full"
-          )}>
-            <EditorContainer
-              content={content}
-              setContent={setContent}
-              execCommand={execCommand}
-              handleSave={handleSave}
-              toggleLeftSidebar={toggleLeftSidebar}
-              toggleAISidebar={toggleAISidebar}
-              isLeftSidebarOpen={isLeftSidebarOpen}
-              isAISidebarOpen={isAISidebarOpen}
-              lastSaved={lastSavedString}
-              isFocusMode={isFocusMode}
-              toggleFocusMode={handleToggleFocusMode}
-              isAIDialogOpen={isAIDialogOpen}
-              setIsAIDialogOpen={setIsAIDialogOpen}
-            />
-          </div>
-          
-          {/* Right sidebar - equal width panel (1/3) with fixed height */}
-          <div className={cn(
-            "shrink-0 mb-4 md:mb-0 transition-all duration-300 ease-in-out",
-            isAISidebarOpen && !isFocusMode 
-              ? "opacity-100 w-full md:w-1/3" 
-              : "opacity-0 w-0 overflow-hidden"
-          )}>
-            {isAISidebarOpen && !isFocusMode && (
-              <div className="animate-fadeIn h-full">
-                <AISidebar
-                  content={content}
-                  onApplyChanges={setContent}
-                  editorHeight={0}
-                />
-              </div>
-            )}
+            </div>
           </div>
         </div>
       </div>

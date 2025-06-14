@@ -1,0 +1,163 @@
+
+/* Rotating Border Animation Styles */
+@keyframes rotate-border {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+@keyframes rotate-gradient {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+/* Main container with rotating border */
+.rotating-border-container {
+  position: relative;
+  border-radius: 12px;
+  padding: 3px;
+  background: linear-gradient(
+    45deg,
+    #ff6b35,
+    #f7931e,
+    #ffd700,
+    #32cd32,
+    #00bfff,
+    #8a2be2,
+    #ff1493,
+    #ff6b35
+  );
+  background-size: 400% 400%;
+  animation: rotate-border 4s ease-in-out infinite;
+}
+
+.rotating-border-container::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  border-radius: 12px;
+  padding: 2px;
+  background: linear-gradient(
+    -45deg,
+    rgba(255, 107, 53, 0.3),
+    rgba(247, 147, 30, 0.3),
+    rgba(255, 215, 0, 0.3),
+    rgba(50, 205, 50, 0.3),
+    rgba(0, 191, 255, 0.3),
+    rgba(138, 43, 226, 0.3),
+    rgba(255, 20, 147, 0.3),
+    rgba(255, 107, 53, 0.3)
+  );
+  background-size: 400% 400%;
+  animation: rotate-border 6s ease-in-out infinite reverse;
+  z-index: -1;
+  filter: blur(8px);
+}
+
+/* Inner content area */
+.rotating-border-inner {
+  background: linear-gradient(135deg, #03010a 0%, #0a0518 100%);
+  border-radius: 9px;
+  height: 100%;
+  width: 100%;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Enhanced glow effect */
+.rotating-border-glow {
+  position: absolute;
+  top: -4px;
+  left: -4px;
+  right: -4px;
+  bottom: -4px;
+  border-radius: 16px;
+  background: linear-gradient(
+    45deg,
+    rgba(255, 107, 53, 0.2),
+    rgba(247, 147, 30, 0.2),
+    rgba(255, 215, 0, 0.2),
+    rgba(50, 205, 50, 0.2),
+    rgba(0, 191, 255, 0.2),
+    rgba(138, 43, 226, 0.2),
+    rgba(255, 20, 147, 0.2)
+  );
+  background-size: 400% 400%;
+  animation: rotate-border 8s ease-in-out infinite;
+  filter: blur(20px);
+  z-index: -2;
+  opacity: 0.6;
+}
+
+/* Pulsing effect for extra visual appeal */
+@keyframes pulse-glow {
+  0%, 100% {
+    opacity: 0.4;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.8;
+    transform: scale(1.02);
+  }
+}
+
+.rotating-border-pulse {
+  animation: pulse-glow 3s ease-in-out infinite;
+}
+
+/* Focus mode adjustments */
+.focus-mode .rotating-border-container {
+  background: linear-gradient(
+    45deg,
+    #667eea,
+    #764ba2,
+    #f093fb,
+    #f5576c,
+    #4facfe,
+    #00f2fe,
+    #667eea
+  );
+  background-size: 400% 400%;
+}
+
+.focus-mode .rotating-border-container::before {
+  background: linear-gradient(
+    -45deg,
+    rgba(102, 126, 234, 0.3),
+    rgba(118, 75, 162, 0.3),
+    rgba(240, 147, 251, 0.3),
+    rgba(245, 87, 108, 0.3),
+    rgba(79, 172, 254, 0.3),
+    rgba(0, 242, 254, 0.3),
+    rgba(102, 126, 234, 0.3)
+  );
+  background-size: 400% 400%;
+}
+
+/* Mobile optimizations */
+@media (max-width: 768px) {
+  .rotating-border-container {
+    padding: 2px;
+  }
+  
+  .rotating-border-glow {
+    top: -2px;
+    left: -2px;
+    right: -2px;
+    bottom: -2px;
+    filter: blur(10px);
+  }
+}
