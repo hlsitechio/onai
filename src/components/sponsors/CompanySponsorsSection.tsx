@@ -29,12 +29,17 @@ const CompanySponsorsSection: React.FC<CompanySponsorsSectionProps> = ({ sponsor
       <div className="relative overflow-hidden py-8">
         {sponsors.length <= 3 ? (
           // Static centered layout for 3 or fewer sponsors
-          <div className="flex justify-center items-center gap-12">
+          <div className="flex justify-center items-center gap-16">
             {sponsors.map((sponsor, index) => (
               <div key={index} className="flex-shrink-0">
-                <div className="block group cursor-default">
-                  <div className={`flex items-center justify-center p-4 group-hover:scale-105 transition-all duration-300 ${
-                    sponsor.name === 'Vercel' ? 'w-52 h-24' : 'w-40 h-20'
+                <a 
+                  href={sponsor.website} 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="block group cursor-pointer"
+                >
+                  <div className={`flex items-center justify-center p-6 group-hover:scale-105 transition-all duration-300 ${
+                    sponsor.name === 'Vercel' ? 'w-64 h-32' : 'w-56 h-28'
                   }`}>
                     <img 
                       src={sponsor.logo} 
@@ -42,11 +47,11 @@ const CompanySponsorsSection: React.FC<CompanySponsorsSectionProps> = ({ sponsor
                       className="max-w-full max-h-full object-contain filter grayscale group-hover:grayscale-0 transition-all duration-300 opacity-70 group-hover:opacity-100"
                     />
                   </div>
-                  <div className="text-center mt-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                    <p className="text-white text-sm font-medium">{sponsor.name}</p>
-                    <p className="text-purple-400 text-xs">{sponsor.sponsorshipLevel}</p>
+                  <div className="text-center mt-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                    <p className="text-white text-base font-medium">{sponsor.name}</p>
+                    <p className="text-purple-400 text-sm">{sponsor.sponsorshipLevel}</p>
                   </div>
-                </div>
+                </a>
               </div>
             ))}
           </div>
@@ -59,10 +64,15 @@ const CompanySponsorsSection: React.FC<CompanySponsorsSectionProps> = ({ sponsor
             }}
           >
             {displaySponsors.map((sponsor, index) => (
-              <div key={index} className="flex-shrink-0 mx-8">
-                <div className="block group cursor-default">
-                  <div className={`flex items-center justify-center p-4 group-hover:scale-105 transition-all duration-300 ${
-                    sponsor.name === 'Vercel' ? 'w-52 h-24' : 'w-40 h-20'
+              <div key={index} className="flex-shrink-0 mx-10">
+                <a 
+                  href={sponsor.website} 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="block group cursor-pointer"
+                >
+                  <div className={`flex items-center justify-center p-6 group-hover:scale-105 transition-all duration-300 ${
+                    sponsor.name === 'Vercel' ? 'w-64 h-32' : 'w-56 h-28'
                   }`}>
                     <img 
                       src={sponsor.logo} 
@@ -70,11 +80,11 @@ const CompanySponsorsSection: React.FC<CompanySponsorsSectionProps> = ({ sponsor
                       className="max-w-full max-h-full object-contain filter grayscale group-hover:grayscale-0 transition-all duration-300 opacity-70 group-hover:opacity-100"
                     />
                   </div>
-                  <div className="text-center mt-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                    <p className="text-white text-sm font-medium">{sponsor.name}</p>
-                    <p className="text-purple-400 text-xs">{sponsor.sponsorshipLevel}</p>
+                  <div className="text-center mt-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                    <p className="text-white text-base font-medium">{sponsor.name}</p>
+                    <p className="text-purple-400 text-sm">{sponsor.sponsorshipLevel}</p>
                   </div>
-                </div>
+                </a>
               </div>
             ))}
           </div>
