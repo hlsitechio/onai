@@ -9,7 +9,7 @@ import { getTableExtensions } from './config/V3TableExtensions';
 import { editorClassNames, loadingComponent } from './config/EditorConfig';
 import AICommandCenter from '../ai-command-center/AICommandCenter';
 import { useAIAgent } from '@/hooks/useAIAgent';
-import TiptapMainToolbar from './TiptapMainToolbar';
+import TiptapEnhancedToolbar from './toolbar/TiptapEnhancedToolbar';
 import TiptapBubbleMenu from './TiptapBubbleMenu';
 import TiptapEmptyState from './TiptapEmptyState';
 import TiptapFloatingHint from './TiptapFloatingHint';
@@ -34,12 +34,32 @@ const TiptapEditor: React.FC<TiptapEditorProps> = ({
         heading: {
           levels: [1, 2, 3],
           HTMLAttributes: {
-            class: 'font-bold tracking-tight'
+            class: 'font-bold tracking-tight text-white'
           }
         },
         paragraph: {
           HTMLAttributes: {
-            class: 'leading-relaxed'
+            class: 'leading-relaxed text-gray-300'
+          }
+        },
+        blockquote: {
+          HTMLAttributes: {
+            class: 'border-l-4 border-noteflow-400 pl-4 italic text-gray-400'
+          }
+        },
+        codeBlock: {
+          HTMLAttributes: {
+            class: 'bg-black/60 rounded-lg p-4 font-mono text-sm text-gray-300 border border-white/10'
+          }
+        },
+        code: {
+          HTMLAttributes: {
+            class: 'bg-white/10 px-1.5 py-0.5 rounded text-noteflow-300 font-mono text-sm'
+          }
+        },
+        horizontalRule: {
+          HTMLAttributes: {
+            class: 'border-white/20 my-6'
           }
         }
       }),
@@ -71,7 +91,8 @@ const TiptapEditor: React.FC<TiptapEditorProps> = ({
       attributes: {
         class: cn(
           editorClassNames.base,
-          isFocusMode ? editorClassNames.focusMode : editorClassNames.normalMode
+          isFocusMode ? editorClassNames.focusMode : editorClassNames.normalMode,
+          'prose prose-invert max-w-none'
         )
       }
     }
@@ -133,11 +154,8 @@ const TiptapEditor: React.FC<TiptapEditorProps> = ({
 
   return (
     <div className="relative h-full flex flex-col">
-      {/* Main Toolbar */}
-      <TiptapMainToolbar 
-        editor={editor}
-        onShowAIAgent={showAIAgent}
-      />
+      {/* Enhanced Toolbar with all free Tiptap tools */}
+      <TiptapEnhancedToolbar editor={editor} />
 
       {/* Bubble Menu for text selection */}
       <TiptapBubbleMenu

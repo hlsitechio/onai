@@ -1,43 +1,88 @@
 
+import { Extension } from '@tiptap/core';
+import Image from '@tiptap/extension-image';
+import Link from '@tiptap/extension-link';
 import Placeholder from '@tiptap/extension-placeholder';
-import Focus from '@tiptap/extension-focus';
-import Dropcursor from '@tiptap/extension-dropcursor';
-import Gapcursor from '@tiptap/extension-gapcursor';
-import { getBaseConfig } from './V3BaseConfig';
+import Typography from '@tiptap/extension-typography';
+import TaskList from '@tiptap/extension-task-list';
+import TaskItem from '@tiptap/extension-task-item';
 
 export const getUtilityExtensions = () => {
-  const baseConfig = getBaseConfig();
-
   return [
+    // Image support
+    Image.configure({
+      inline: true,
+      allowBase64: true,
+      HTMLAttributes: {
+        class: 'rounded-lg max-w-full h-auto shadow-md',
+      },
+    }),
+
+    // Link support
+    Link.configure({
+      openOnClick: false,
+      HTMLAttributes: {
+        class: 'text-noteflow-400 hover:text-noteflow-300 underline cursor-pointer transition-colors',
+        rel: 'noopener noreferrer',
+        target: '_blank',
+      },
+    }),
+
+    // Task lists
+    TaskList.configure({
+      HTMLAttributes: {
+        class: 'task-list',
+      },
+    }),
+
+    TaskItem.configure({
+      nested: true,
+      HTMLAttributes: {
+        class: 'task-item',
+      },
+    }),
+
+    // Placeholder text
     Placeholder.configure({
-      ...baseConfig,
       placeholder: ({ node }) => {
         if (node.type.name === 'heading') {
-          return 'What\'s the title?';
+          return `Heading ${node.attrs.level}`;
         }
-        return 'Start writing your V3-ready note...';
+        if (node.type.name === 'taskItem') {
+          return 'Add a task...';
+        }
+        return 'Start writing your thoughts here...';
       },
       includeChildren: true,
-      showOnlyCurrent: false,
-      showOnlyWhenEditable: true,
-      emptyEditorClass: 'is-editor-empty'
     }),
 
-    Focus.configure({
-      ...baseConfig,
-      className: 'has-focus ring-2 ring-blue-400/50 rounded transition-all',
-      mode: 'all'
+    // Typography enhancements
+    Typography.configure({
+      // Enable smart quotes, em dashes, etc.
     }),
 
-    Dropcursor.configure({
-      ...baseConfig,
-      color: '#3b82f6',
-      width: 3,
-      class: 'drop-cursor-enhanced'
+    // Custom focus extension for better UX
+    Extension.create({
+      name: 'focusMode',
+      addGlobalAttributes() {
+        return [
+          {
+            types: ['paragraph', 'heading'],
+            attributes: {
+              class: {
+                default: null,
+                parseHTML: element => element.getAttribute('class'),
+                renderHTML: attributes => {
+                  if (!attributes.class) {
+                    return {};
+                  }
+                  return { class: attributes.class };
+                },
+              },
+            },
+          },
+        ];
+      },
     }),
-
-    Gapcursor.configure({
-      ...baseConfig
-    })
   ];
 };
