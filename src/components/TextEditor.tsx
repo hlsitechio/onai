@@ -187,8 +187,8 @@ const TextEditor = () => {
                         </div>
                       </ResizablePanel>
                       <ResizableHandle 
-                        withHandle 
-                        className="w-2 bg-white/5 hover:bg-white/10 transition-colors border-l border-r border-white/10 group"
+                        withHandle={true}
+                        className="border-l border-r border-white/5"
                       />
                     </>
                   )}
@@ -221,8 +221,8 @@ const TextEditor = () => {
                   {isAISidebarOpen && !isFocusMode && (
                     <>
                       <ResizableHandle 
-                        withHandle 
-                        className="w-2 bg-white/5 hover:bg-white/10 transition-colors border-l border-r border-white/10 group"
+                        withHandle={true}
+                        className="border-l border-r border-white/5"
                       />
                       <ResizablePanel 
                         id="ai-sidebar"
