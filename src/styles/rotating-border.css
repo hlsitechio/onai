@@ -1,4 +1,5 @@
 
+
 /* Enhanced Rotating Border Animation Styles - Glow Effects Only */
 @keyframes rotate-border {
   0% {
@@ -142,24 +143,9 @@
   }
 }
 
-/* Pixelated/dotted glow effect overlay - keep but make more subtle */
+/* Remove pixelated/dotted glow effect overlay completely */
 .rotating-border-container::before {
-  content: '';
-  position: absolute;
-  top: -8px;
-  left: -8px;
-  right: -8px;
-  bottom: -8px;
-  border-radius: 20px;
-  background: 
-    radial-gradient(circle at 20% 80%, rgba(0, 191, 255, 0.2) 0%, transparent 50%),
-    radial-gradient(circle at 80% 20%, rgba(255, 107, 53, 0.2) 0%, transparent 50%),
-    radial-gradient(circle at 40% 40%, rgba(138, 43, 226, 0.15) 0%, transparent 50%);
-  background-size: 60px 60px, 80px 80px, 40px 40px;
-  animation: rotate-gradient 12s linear infinite;
-  filter: blur(2px);
-  opacity: 0.3;
-  z-index: -1;
+  display: none;
 }
 
 /* Remove inner rim highlight completely */
@@ -247,3 +233,4 @@
   backface-visibility: hidden;
   transform: translateZ(0);
 }
+
