@@ -41,28 +41,28 @@ const SponsorsWallOfFame = () => {
     }
   ];
 
-  // Company sponsors with actual logos
+  // Company sponsors with the new uploaded logos
   const companySponsors = [
     {
-      name: "Google",
-      logo: "https://logos-world.net/wp-content/uploads/2020/09/Google-Logo.png",
-      website: "https://google.com",
+      name: "IONOS",
+      logo: "/lovable-uploads/8c8f3a45-abfe-48f9-8d06-b704e41be46c.png",
+      website: "https://ionos.com",
       tier: "gold",
       sponsorshipLevel: "$250+"
     },
     {
-      name: "Apple",
-      logo: "https://logos-world.net/wp-content/uploads/2020/04/Apple-Logo.png",
-      website: "https://apple.com",
-      tier: "silver",
-      sponsorshipLevel: "$100+"
+      name: "Vercel",
+      logo: "/lovable-uploads/a3e8be49-df57-474f-b816-358eeb923ca1.png",
+      website: "https://vercel.com",
+      tier: "gold",
+      sponsorshipLevel: "$250+"
     },
     {
-      name: "Amazon",
-      logo: "https://logos-world.net/wp-content/uploads/2020/04/Amazon-Logo.png",
-      website: "https://amazon.com",
-      tier: "silver",
-      sponsorshipLevel: "$100+"
+      name: "Google Gemini",
+      logo: "https://upload.wikimedia.org/wikipedia/commons/8/8a/Google_Gemini_logo.svg",
+      website: "https://gemini.google.com",
+      tier: "platinum",
+      sponsorshipLevel: "$500+"
     }
   ];
 
