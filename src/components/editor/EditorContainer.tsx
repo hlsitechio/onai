@@ -1,7 +1,7 @@
 
 import React from 'react';
-import EditableContent from '../EditableContent';
 import EditorToolbar from './EditorToolbar';
+import EditorContent from './EditorContent';
 import { cn } from '@/lib/utils';
 
 interface EditorContainerProps {
@@ -57,7 +57,7 @@ const EditorContainer: React.FC<EditorContainerProps> = ({
 
       {/* Main Editor Area */}
       <div className="flex-1 relative overflow-hidden">
-        <EditableContent
+        <EditorContent
           content={content}
           setContent={setContent}
           isFocusMode={isFocusMode}
