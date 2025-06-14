@@ -1,6 +1,5 @@
 
-
-/* Enhanced Rotating Border Animation Styles - Glow Effects Only */
+/* Enhanced Rotating Border Animation Styles */
 @keyframes rotate-border {
   0% {
     background-position: 0% 50%;
@@ -22,23 +21,35 @@
   }
 }
 
-/* Main container - no background, just positioning */
+/* Main container with proper border */
 .rotating-border-container {
   position: relative;
   border-radius: 12px;
-  padding: 0; /* Remove padding since no border */
-  background: transparent; /* Remove background */
-  filter: none; /* Remove filter effects */
+  padding: 2px;
+  background: linear-gradient(
+    45deg,
+    rgba(0, 191, 255, 0.3),
+    rgba(138, 43, 226, 0.2),
+    rgba(255, 20, 147, 0.3),
+    rgba(255, 107, 53, 0.4),
+    rgba(247, 147, 30, 0.3),
+    rgba(255, 215, 0, 0.2),
+    rgba(50, 205, 50, 0.2),
+    rgba(0, 191, 255, 0.3)
+  );
+  background-size: 400% 400%;
+  animation: rotate-border 6s ease-in-out infinite;
+  filter: drop-shadow(0 0 20px rgba(0, 191, 255, 0.3));
 }
 
-/* Inner content area - transparent */
+/* Inner content area */
 .rotating-border-inner {
-  background: transparent; /* Remove background */
+  background: #03010a;
   border-radius: 9px;
   height: 100%;
   width: 100%;
   position: relative;
-  overflow: visible; /* Allow glow to show */
+  overflow: hidden;
 }
 
 /* Enhanced multi-layered glow system */
@@ -143,20 +154,19 @@
   }
 }
 
-/* Remove pixelated/dotted glow effect overlay completely */
-.rotating-border-container::before {
-  display: none;
-}
-
-/* Remove inner rim highlight completely */
-.rotating-border-inner::before {
-  display: none;
-}
-
 /* Focus mode enhanced effects */
 .focus-mode .rotating-border-container {
-  background: transparent; /* Keep transparent in focus mode */
-  filter: none; /* Remove filter effects */
+  background: linear-gradient(
+    -45deg,
+    rgba(102, 126, 234, 0.4),
+    rgba(118, 75, 162, 0.3),
+    rgba(240, 147, 251, 0.4),
+    rgba(245, 87, 108, 0.3),
+    rgba(79, 172, 254, 0.4),
+    rgba(0, 242, 254, 0.3),
+    rgba(102, 126, 234, 0.4)
+  );
+  filter: drop-shadow(0 0 30px rgba(102, 126, 234, 0.5));
 }
 
 .focus-mode .rotating-border-glow::before {
@@ -192,7 +202,7 @@
 /* Mobile optimizations */
 @media (max-width: 768px) {
   .rotating-border-container {
-    padding: 0; /* Keep no padding on mobile */
+    padding: 1px;
   }
   
   .rotating-border-glow {
@@ -233,4 +243,3 @@
   backface-visibility: hidden;
   transform: translateZ(0);
 }
-
