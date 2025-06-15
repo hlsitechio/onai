@@ -9,13 +9,11 @@ import PWAInstallationAnalytics from './PWAInstallationAnalytics';
 import BackgroundSyncUI from './BackgroundSyncUI';
 import EnhancedShareIntegration from './EnhancedShareIntegration';
 import PWAPushNotifications from './PWAPushNotifications';
-import { PWAStatusDashboard } from './PWAStatusDashboard';
 import { 
   Settings, 
   RefreshCw, 
   Share, 
-  Bell, 
-  Smartphone,
+  Bell,
   Database,
   Wifi
 } from 'lucide-react';
@@ -52,7 +50,7 @@ const PWADashboard: React.FC = () => {
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="grid w-full grid-cols-5">
+        <TabsList className="grid w-full grid-cols-4">
           <TabsTrigger value="overview">
             <Settings className="h-4 w-4 mr-2" />
             Overview
@@ -68,10 +66,6 @@ const PWADashboard: React.FC = () => {
           <TabsTrigger value="notifications">
             <Bell className="h-4 w-4 mr-2" />
             Notifications
-          </TabsTrigger>
-          <TabsTrigger value="status">
-            <Smartphone className="h-4 w-4 mr-2" />
-            Status
           </TabsTrigger>
         </TabsList>
 
@@ -96,7 +90,7 @@ const PWADashboard: React.FC = () => {
             <Card>
               <CardHeader className="pb-3">
                 <CardTitle className="flex items-center gap-2 text-lg">
-                  <Smartphone className="h-5 w-5" />
+                  <Database className="h-5 w-5" />
                   Installation
                 </CardTitle>
               </CardHeader>
@@ -227,10 +221,6 @@ const PWADashboard: React.FC = () => {
 
         <TabsContent value="notifications">
           <PWAPushNotifications />
-        </TabsContent>
-
-        <TabsContent value="status">
-          <PWAStatusDashboard />
         </TabsContent>
       </Tabs>
     </div>
