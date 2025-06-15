@@ -1,46 +1,10 @@
+
 import React from 'react';
 import WallOfFameHeader from './sponsors/WallOfFameHeader';
 import CompanySponsorsSection from './sponsors/CompanySponsorsSection';
-import IndividualSponsorsSection from './sponsors/IndividualSponsorsSection';
 import DotGridBackground from './DotGridBackground';
 
 const SponsorsWallOfFame = () => {
-  // Individual sponsors from Buy Me a Coffee and other platforms
-  const individualSponsors = [
-    {
-      name: "Alex Johnson",
-      amount: "$50",
-      message: "Love this note-taking app! Keep up the great work!",
-      avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop&crop=face",
-      platform: "buymeacoffee",
-      tier: "gold"
-    },
-    {
-      name: "Sarah Chen",
-      amount: "$25",
-      message: "Amazing tool for students like me. Thank you!",
-      avatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=100&h=100&fit=crop&crop=face",
-      platform: "buymeacoffee",
-      tier: "silver"
-    },
-    {
-      name: "Mike Rodriguez",
-      amount: "$15",
-      message: "Simple and effective. Exactly what I needed!",
-      avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop&crop=face",
-      platform: "buymeacoffee",
-      tier: "bronze"
-    },
-    {
-      name: "Emily Davis",
-      amount: "$30",
-      message: "Great for organizing my thoughts and ideas!",
-      avatar: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=100&h=100&fit=crop&crop=face",
-      platform: "buymeacoffee",
-      tier: "silver"
-    }
-  ];
-
   // Company sponsors with updated list - removed Next.js and Framer, added Framer Motion
   const companySponsors = [
     {
@@ -79,9 +43,7 @@ const SponsorsWallOfFame = () => {
       <DotGridBackground />
       
       <div className="container mx-auto max-w-6xl relative z-10">
-        <WallOfFameHeader />
         <CompanySponsorsSection sponsors={companySponsors} />
-        <IndividualSponsorsSection sponsors={individualSponsors} />
       </div>
     </section>
   );

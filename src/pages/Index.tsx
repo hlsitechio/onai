@@ -5,6 +5,7 @@ import Hero from "@/components/Hero";
 import Features from "@/components/Features";
 import EditorManager from "@/components/editor/EditorManager";
 import SponsorsWallOfFame from "@/components/SponsorsWallOfFame";
+import IndividualSupportersSection from "@/components/IndividualSupportersSection";
 import SitemapSection from "@/components/SitemapSection";
 import Footer from "@/components/Footer";
 import CookieConsent from "@/components/CookieConsent";
@@ -47,6 +48,11 @@ const Index = () => {
       {/* Features Section */}
       <div className="relative z-10">
         <Features />
+      </div>
+      
+      {/* Individual Supporters Section - Moved below Features */}
+      <div className="relative z-10">
+        <IndividualSupportersSection />
       </div>
       
       {/* Sitemap Section */}
