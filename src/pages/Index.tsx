@@ -13,7 +13,6 @@ import DotGridBackground from "@/components/DotGridBackground";
 import PWAInstaller from "@/components/pwa/PWAInstaller";
 import IOSInstallPrompt from "@/components/pwa/iOSInstallPrompt";
 import OfflineIndicator from "@/components/pwa/OfflineIndicator";
-import { PWAStatusDashboard } from "@/components/pwa/PWAStatusDashboard";
 import PWADashboard from "@/components/pwa/PWADashboard";
 
 const Index = () => {
@@ -26,11 +25,6 @@ const Index = () => {
       <PWAInstaller />
       <IOSInstallPrompt />
       <OfflineIndicator />
-      
-      {/* PWA Status Dashboard - Fixed position for easy access */}
-      <div className="fixed bottom-4 right-4 z-50 hidden lg:block">
-        <PWAStatusDashboard />
-      </div>
       
       {/* Header */}
       <Header />
