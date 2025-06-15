@@ -1,7 +1,7 @@
 
 import React from "react";
 import TextEditorToolbar from "../TextEditorToolbar";
-import EditableContent from "../EditableContent";
+import TiptapEditor from "./TiptapEditor";
 import AIDialog from "../notes/AIDialog";
 
 interface EditorContainerContentProps {
@@ -56,7 +56,7 @@ const EditorContainerContent: React.FC<EditorContainerContentProps> = ({
 
       {/* Editor content */}
       <div className="flex-1 relative">
-        <EditableContent
+        <TiptapEditor
           content={content}
           setContent={setContent}
           isFocusMode={isFocusMode}
