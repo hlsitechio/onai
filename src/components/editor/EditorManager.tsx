@@ -149,6 +149,9 @@ const EditorManager: React.FC = () => {
 
   const lastSavedString = lastSaved ? lastSaved.toISOString() : undefined;
 
+  // Check if content is empty (only contains empty paragraph tags or is truly empty)
+  const isContentEmpty = !content || content === '<p></p>' || content.trim() === '';
+
   return (
     <div className={cn(
       "min-h-screen w-full relative",
@@ -240,26 +243,35 @@ const EditorManager: React.FC = () => {
                     />
                   </div>
                   
-                  {/* AI Usage Hint - Only show when content is empty */}
-                  {content.length === 0 && (
+                  {/* Centralized Empty State - Only show when content is truly empty */}
+                  {isContentEmpty && (
                     <div className="absolute inset-0 pointer-events-none">
                       <div className="flex items-center justify-center h-full">
                         <div className="text-center max-w-md px-6">
-                          <div className="mb-4 opacity-60">
+                          <div className="mb-6 opacity-60">
                             <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-gradient-to-br from-noteflow-400 to-noteflow-600 flex items-center justify-center">
                               <span className="text-2xl">✨</span>
                             </div>
                           </div>
-                          <h3 className="text-lg font-medium text-white mb-2">
+                          <h3 className="text-xl font-medium text-white mb-3">
                             Start writing with AI assistance
                           </h3>
-                          <p className="text-sm text-slate-400 mb-4">
+                          <p className="text-sm text-slate-400 mb-6 leading-relaxed">
                             Type your thoughts, select text for AI enhancements, or use keyboard shortcuts for quick actions.
                           </p>
-                          <div className="text-xs text-slate-500 space-y-1">
-                            <div>• Select text to see AI options</div>
-                            <div>• Press <kbd className="bg-white/10 px-1 rounded">Ctrl+Shift+A</kbd> for AI Agent</div>
-                            <div>• Use the AI sidebar for advanced features</div>
+                          <div className="text-xs text-slate-500 space-y-2">
+                            <div className="flex items-center justify-center gap-2">
+                              <span>•</span>
+                              <span>Select text to see AI options</span>
+                            </div>
+                            <div className="flex items-center justify-center gap-2">
+                              <span>•</span>
+                              <span>Press <kbd className="bg-white/10 px-1.5 py-0.5 rounded text-noteflow-200">Ctrl+Shift+A</kbd> for AI Agent</span>
+                            </div>
+                            <div className="flex items-center justify-center gap-2">
+                              <span>•</span>
+                              <span>Use formatting buttons in the toolbar</span>
+                            </div>
                           </div>
                         </div>
                       </div>

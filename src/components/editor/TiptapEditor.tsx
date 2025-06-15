@@ -11,7 +11,6 @@ import AICommandCenter from '../ai-command-center/AICommandCenter';
 import { useAIAgent } from '@/hooks/useAIAgent';
 import TiptapEnhancedToolbar from './toolbar/TiptapEnhancedToolbar';
 import TiptapBubbleMenu from './TiptapBubbleMenu';
-import TiptapEmptyState from './TiptapEmptyState';
 import TiptapFloatingHint from './TiptapFloatingHint';
 
 interface TiptapEditorProps {
@@ -139,6 +138,9 @@ const TiptapEditor: React.FC<TiptapEditorProps> = ({
     }
   }, [editor]);
 
+  // Check if content is empty (only contains empty paragraph tags or is truly empty)
+  const isContentEmpty = !content || content === '<p></p>' || content.trim() === '';
+
   if (isLoading) {
     return (
       <div className={loadingComponent.containerClass}>
@@ -188,13 +190,10 @@ const TiptapEditor: React.FC<TiptapEditorProps> = ({
           position={aiPosition}
         />
 
-        {/* Floating AI hint */}
-        {!isAIAgentVisible && content.length > 50 && !isFocusMode && (
+        {/* Floating AI hint - only show when content exists and AI agent is not visible */}
+        {!isAIAgentVisible && !isContentEmpty && !isFocusMode && (
           <TiptapFloatingHint onShowAIAgent={showAIAgent} />
         )}
-
-        {/* Empty state hint */}
-        {content.length === 0 && <TiptapEmptyState />}
       </div>
     </div>
   );
