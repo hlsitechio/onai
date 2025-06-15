@@ -1,9 +1,8 @@
-
-// OneAI Notes Service Worker
-const CACHE_NAME = 'oneai-notes-v1.2.0';
-const STATIC_CACHE = 'oneai-static-v1.2.0';
-const DYNAMIC_CACHE = 'oneai-dynamic-v1.2.0';
-const NOTES_CACHE = 'oneai-notes-data-v1.2.0';
+// OneAI Notes Service Worker - Enhanced PWA Features
+const CACHE_NAME = 'oneai-notes-v1.3.0';
+const STATIC_CACHE = 'oneai-static-v1.3.0';
+const DYNAMIC_CACHE = 'oneai-dynamic-v1.3.0';
+const NOTES_CACHE = 'oneai-notes-data-v1.3.0';
 
 // Assets to cache immediately
 const STATIC_ASSETS = [
@@ -70,52 +69,78 @@ self.addEventListener('fetch', (event) => {
   // Handle different types of requests with appropriate strategies
   if (request.method === 'GET') {
     if (isStaticAsset(url)) {
-      // Cache first for static assets
       event.respondWith(cacheFirst(request, STATIC_CACHE));
     } else if (isAPIRequest(url)) {
-      // Network first for API calls with cache fallback
       event.respondWith(networkFirst(request, DYNAMIC_CACHE));
     } else if (isNavigationRequest(request)) {
-      // Network first for navigation with offline page fallback
       event.respondWith(handleNavigation(request));
     } else {
-      // Stale while revalidate for other resources
       event.respondWith(staleWhileRevalidate(request, DYNAMIC_CACHE));
     }
   } else if (request.method === 'POST' && isNotesAPI(url)) {
-    // Handle notes saving with background sync
     event.respondWith(handleNotesSave(request));
   }
 });
 
-// Background sync for offline notes
+// Enhanced background sync with better queue management
 self.addEventListener('sync', (event) => {
   console.log('Background sync triggered:', event.tag);
   
   if (event.tag === 'sync-notes') {
     event.waitUntil(syncOfflineNotes());
+  } else if (event.tag === 'connectivity-restored') {
+    event.waitUntil(handleConnectivityRestored());
   }
 });
 
-// Push notification handler
+// Enhanced push notification handler
 self.addEventListener('push', (event) => {
   console.log('Push notification received');
   
+  let payload = {};
+  try {
+    payload = event.data ? JSON.parse(event.data.text()) : {};
+  } catch (error) {
+    console.error('Error parsing push payload:', error);
+  }
+
   const options = {
-    body: event.data ? event.data.text() : 'New update available!',
+    body: payload.body || 'New update available in OneAI Notes!',
     icon: '/lovable-uploads/8a54ca4d-f005-4821-b9d8-3fd2958d340b.png',
     badge: '/lovable-uploads/8a54ca4d-f005-4821-b9d8-3fd2958d340b.png',
     vibrate: [200, 100, 200],
-    data: event.data ? JSON.parse(event.data.text()) : {},
+    data: payload,
     actions: [
       { action: 'open', title: 'Open App' },
       { action: 'dismiss', title: 'Dismiss' }
-    ]
+    ],
+    tag: payload.tag || 'general',
+    requireInteraction: payload.requireInteraction || false,
   };
 
   event.waitUntil(
-    self.registration.showNotification('OneAI Notes', options)
+    self.registration.showNotification(payload.title || 'OneAI Notes', options)
   );
+});
+
+// Handle notification clicks
+self.addEventListener('notificationclick', (event) => {
+  console.log('Notification clicked:', event.notification.tag);
+  
+  event.notification.close();
+  
+  if (event.action === 'open' || !event.action) {
+    event.waitUntil(
+      clients.openWindow('/')
+    );
+  }
+});
+
+// Handle skip waiting messages
+self.addEventListener('message', (event) => {
+  if (event.data?.type === 'SKIP_WAITING') {
+    self.skipWaiting();
+  }
 });
 
 // Helper functions
@@ -266,6 +291,7 @@ async function syncOfflineNotes() {
     const notes = await store.getAll();
     
     const unsyncedNotes = notes.filter(note => !note.synced);
+    let syncCount = 0;
     
     for (const note of unsyncedNotes) {
       try {
@@ -276,19 +302,46 @@ async function syncOfflineNotes() {
         });
         
         if (response.ok) {
-          // Mark as synced
           const updateTransaction = db.transaction(['offline_notes'], 'readwrite');
           const updateStore = updateTransaction.objectStore('offline_notes');
           note.synced = true;
           await updateStore.put(note);
+          syncCount++;
         }
       } catch (error) {
         console.error('Failed to sync note:', error);
       }
     }
+    
+    // Notify clients about sync completion
+    if (syncCount > 0) {
+      const allClients = await clients.matchAll();
+      allClients.forEach(client => {
+        client.postMessage({
+          type: 'SYNC_COMPLETED',
+          count: syncCount
+        });
+      });
+    }
   } catch (error) {
     console.error('Background sync failed:', error);
   }
+}
+
+async function handleConnectivityRestored() {
+  console.log('Handling connectivity restored');
+  
+  // Notify all clients about connectivity restoration
+  const allClients = await clients.matchAll();
+  allClients.forEach(client => {
+    client.postMessage({
+      type: 'CONNECTIVITY_RESTORED',
+      timestamp: Date.now()
+    });
+  });
+  
+  // Trigger sync
+  await syncOfflineNotes();
 }
 
 function openOfflineDB() {

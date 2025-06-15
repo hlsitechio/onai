@@ -1,12 +1,14 @@
-
 import React, { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Switch } from '@/components/ui/switch';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Settings, Palette, Shield, Database, Zap } from 'lucide-react';
-import { useToast } from '@/hooks/use-toast';
+import { Settings, Palette, Shield, Database, Zap, Smartphone } from 'lucide-react';
+import { toast } from 'sonner';
+import PWACacheManager from '@/components/pwa/PWACacheManager';
+import PWABackgroundSync from '@/components/pwa/PWABackgroundSync';
+import PWAPushNotifications from '@/components/pwa/PWAPushNotifications';
 
 interface AppSettings {
   theme: 'light' | 'dark' | 'system';
@@ -31,8 +33,6 @@ const SettingsDialog: React.FC = () => {
     wordWrap: true,
   });
   
-  const { toast } = useToast();
-
   useEffect(() => {
     // Load settings from localStorage
     const savedSettings = localStorage.getItem('oneai-settings');
@@ -51,8 +51,7 @@ const SettingsDialog: React.FC = () => {
     setSettings(updatedSettings);
     localStorage.setItem('oneai-settings', JSON.stringify(updatedSettings));
     
-    toast({
-      title: 'Settings saved',
+    toast.success('Settings saved', {
       description: 'Your preferences have been updated.',
     });
   };
@@ -72,8 +71,7 @@ const SettingsDialog: React.FC = () => {
     setSettings(defaultSettings);
     localStorage.setItem('oneai-settings', JSON.stringify(defaultSettings));
     
-    toast({
-      title: 'Settings reset',
+    toast.success('Settings reset', {
       description: 'All settings have been restored to defaults.',
     });
   };
@@ -86,17 +84,18 @@ const SettingsDialog: React.FC = () => {
           Settings
         </Button>
       </DialogTrigger>
-      <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+      <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Application Settings</DialogTitle>
         </DialogHeader>
         
         <Tabs defaultValue="general" className="space-y-4">
-          <TabsList className="grid w-full grid-cols-4">
+          <TabsList className="grid w-full grid-cols-5">
             <TabsTrigger value="general">General</TabsTrigger>
             <TabsTrigger value="appearance">Appearance</TabsTrigger>
             <TabsTrigger value="ai">AI & Features</TabsTrigger>
             <TabsTrigger value="privacy">Privacy</TabsTrigger>
+            <TabsTrigger value="pwa">PWA</TabsTrigger>
           </TabsList>
           
           <TabsContent value="general" className="space-y-6">
@@ -224,6 +223,31 @@ const SettingsDialog: React.FC = () => {
                   checked={settings.encryptNotes}
                   onCheckedChange={(checked) => saveSettings({ encryptNotes: checked })}
                 />
+              </div>
+              
+              <div className="space-y-2">
+                <Button 
+                  variant="outline" 
+                  onClick={handleReset}
+                  className="w-full"
+                >
+                  Reset All Settings
+                </Button>
+              </div>
+            </div>
+          </TabsContent>
+          
+          <TabsContent value="pwa" className="space-y-6">
+            <div className="space-y-4">
+              <h3 className="text-lg font-semibold flex items-center">
+                <Smartphone className="h-5 w-5 mr-2" />
+                Progressive Web App
+              </h3>
+              
+              <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+                <PWACacheManager />
+                <PWABackgroundSync />
+                <PWAPushNotifications />
               </div>
               
               <div className="space-y-2">
