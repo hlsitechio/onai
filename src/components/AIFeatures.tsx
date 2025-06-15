@@ -1,109 +1,121 @@
+
 import React from 'react';
-import { useFocusMode } from '@/contexts';
-import { Sparkles, Zap, BrainCircuit, Lightbulb, PenSquare, Stars } from 'lucide-react';
-import { Button } from "@/components/ui/button";
+import { motion } from "framer-motion";
+import { Brain, Wand2, MessageSquare, Lightbulb, FileText, Zap } from 'lucide-react';
 
 const AIFeatures = () => {
-  // Use focus mode context to determine visibility
-  const { isFocusMode } = useFocusMode();
-  
-  // Don't render anything when focus mode is active
-  if (isFocusMode) return null;
   const features = [
     {
-      icon: <Lightbulb className="h-10 w-10 text-amber-400" />,
-      title: "Smart Suggestions",
-      description: "Get intelligent recommendations to improve your writing in real-time",
-      color: "from-amber-500/20 to-amber-700/20 border-amber-500/30",
-      textColor: "text-amber-400",
-      buttonColor: "bg-amber-500/20 hover:bg-amber-500/30 text-amber-300"
+      icon: Brain,
+      title: "Smart Writing Assistant",
+      description: "AI helps improve your writing style, grammar, and clarity in real-time.",
+      color: "from-blue-400 to-cyan-500"
     },
     {
-      icon: <BrainCircuit className="h-10 w-10 text-purple-400" />,
-      title: "AI-Powered Summaries",
-      description: "Quickly generate concise summaries of your lengthy notes with a single click",
-      color: "from-purple-500/20 to-purple-700/20 border-purple-500/30",
-      textColor: "text-purple-400",
-      buttonColor: "bg-purple-500/20 hover:bg-purple-500/30 text-purple-300"
+      icon: Wand2,
+      title: "Content Enhancement",
+      description: "Transform basic notes into polished content with AI-powered suggestions.",
+      color: "from-purple-400 to-pink-500"
     },
     {
-      icon: <PenSquare className="h-10 w-10 text-blue-400" />,
-      title: "Content Generation",
-      description: "Create drafts, outlines, and complete sections based on your initial ideas",
-      color: "from-blue-500/20 to-blue-700/20 border-blue-500/30",
-      textColor: "text-blue-400",
-      buttonColor: "bg-blue-500/20 hover:bg-blue-500/30 text-blue-300"
+      icon: MessageSquare,
+      title: "Conversational AI",
+      description: "Chat with AI about your notes to get insights, summaries, and ideas.",
+      color: "from-green-400 to-emerald-500"
     },
     {
-      icon: <Stars className="h-10 w-10 text-indigo-400" />,
-      title: "Style Enhancement",
-      description: "Transform your writing with different tones and styles to match your audience",
-      color: "from-indigo-500/20 to-indigo-700/20 border-indigo-500/30",
-      textColor: "text-indigo-400",
-      buttonColor: "bg-indigo-500/20 hover:bg-indigo-500/30 text-indigo-300"
+      icon: Lightbulb,
+      title: "Idea Generation",
+      description: "Stuck? AI generates creative ideas and helps overcome writer's block.",
+      color: "from-yellow-400 to-orange-500"
+    },
+    {
+      icon: FileText,
+      title: "Auto-Formatting",
+      description: "Smart formatting that adapts to your content type and writing style.",
+      color: "from-rose-400 to-red-500"
+    },
+    {
+      icon: Zap,
+      title: "Instant Processing",
+      description: "Lightning-fast AI responses that don't interrupt your writing flow.",
+      color: "from-indigo-400 to-purple-500"
     }
   ];
 
   return (
     <section className="py-20 px-4 relative overflow-hidden">
-      {/* Background image with overlay */}
-      <div className="absolute inset-0 opacity-10 bg-blend-overlay">
-        <img 
-          src="/lovable-uploads/background.png" 
-          alt="AI Background" 
-          className="object-cover w-full h-full"
-        />
-      </div>
-      
-      {/* Gradient overlays for depth */}
-      <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-transparent to-black/70 pointer-events-none"></div>
-      
       <div className="container mx-auto max-w-6xl relative z-10">
-        <div className="text-center mb-12">
-          <div className="inline-flex items-center justify-center space-x-2 mb-3 bg-gradient-to-r from-purple-500/20 to-blue-500/20 rounded-full px-4 py-1 border border-purple-500/30">
-            <Sparkles className="h-4 w-4 text-purple-400" />
-            <span className="text-sm font-medium text-blue-300">Powered by Google Gemini 2.5 Flash</span>
-          </div>
-          
-          <h2 className="text-4xl md:text-5xl font-bold mb-4 bg-clip-text text-transparent bg-gradient-to-r from-purple-400 via-blue-400 to-indigo-400">
-            AI-Enhanced Note Taking
+        <motion.div 
+          className="text-center mb-16"
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6 }}
+        >
+          <h2 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-white to-noteflow-200 bg-clip-text text-transparent mb-6">
+            AI-Powered Features
           </h2>
-          
-          <p className="text-gray-300 max-w-2xl mx-auto text-lg">
-            Experience the power of advanced artificial intelligence to transform your note-taking experience.
+          <p className="text-xl text-gray-300 max-w-3xl mx-auto">
+            Experience the future of note-taking with intelligent AI features that enhance your productivity and creativity.
           </p>
-        </div>
-        
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
+        </motion.div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {features.map((feature, index) => (
-            <div 
-              key={index} 
-              className="glass-panel-dark rounded-xl p-6 border border-white/5 relative group overflow-hidden"
+            <motion.div
+              key={index}
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6, delay: index * 0.1 }}
+              className="group relative"
             >
-              {/* Gradient background */}
-              <div className={`absolute inset-0 bg-gradient-to-br ${feature.color} opacity-20 group-hover:opacity-30 transition-opacity duration-500`}></div>
-              
-              <div className="relative z-10 flex flex-col h-full">
-                <div className="p-3 mb-4 rounded-lg bg-black/30 w-max">
-                  {feature.icon}
+              <div className="relative p-8 rounded-2xl bg-black/40 backdrop-blur-sm border border-white/10 hover:border-noteflow-400/50 transition-all duration-300 h-full overflow-hidden">
+                {/* Animated background gradient */}
+                <div className={`absolute inset-0 bg-gradient-to-r ${feature.color} opacity-0 group-hover:opacity-10 transition-opacity duration-500`} />
+                
+                {/* Icon */}
+                <div className={`w-14 h-14 rounded-xl bg-gradient-to-r ${feature.color} p-0.5 mb-6 group-hover:scale-110 transition-transform duration-300`}>
+                  <div className="w-full h-full bg-black/90 rounded-xl flex items-center justify-center">
+                    <feature.icon className="h-7 w-7 text-white" />
+                  </div>
                 </div>
                 
-                <h3 className={`text-2xl font-bold mb-2 ${feature.textColor}`}>{feature.title}</h3>
-                <p className="text-gray-300 mb-6 flex-grow">{feature.description}</p>
+                <h3 className="text-xl font-bold text-white mb-4 group-hover:text-noteflow-300 transition-colors">
+                  {feature.title}
+                </h3>
                 
-                <Button variant="outline" className={`mt-auto w-full justify-center ${feature.buttonColor} border-white/10`}>
-                  Try It Now <Zap className="ml-2 h-4 w-4" />
-                </Button>
+                <p className="text-gray-400 leading-relaxed">
+                  {feature.description}
+                </p>
+
+                {/* Subtle glow effect */}
+                <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-noteflow-400/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
               </div>
-            </div>
+            </motion.div>
           ))}
         </div>
-        
-        <div className="flex justify-center">
-          <Button className="gradient-button text-white font-medium px-8 py-6 rounded-xl text-lg">
-            <Sparkles className="mr-2 h-5 w-5" /> Upgrade to Pro for All AI Features
-          </Button>
-        </div>
+
+        {/* Call to action */}
+        <motion.div 
+          className="text-center mt-16"
+          initial={{ opacity: 0 }}
+          whileInView={{ opacity: 1 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6, delay: 0.3 }}
+        >
+          <p className="text-lg text-gray-300 mb-6">
+            Ready to experience AI-enhanced note-taking?
+          </p>
+          <a 
+            href="#editor-section"
+            className="inline-flex items-center gap-2 bg-gradient-to-r from-noteflow-600 to-purple-600 hover:from-noteflow-500 hover:to-purple-500 text-white px-8 py-4 rounded-xl font-medium transition-all duration-300 shadow-lg hover:shadow-noteflow-500/25"
+          >
+            Try It Now - Free
+            <Zap className="h-5 w-5" />
+          </a>
+        </motion.div>
       </div>
     </section>
   );

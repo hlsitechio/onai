@@ -1,68 +1,114 @@
+
 import React from 'react';
-import { useFocusMode } from '@/contexts';
-import { PenLine, Save, Share2, Sparkles } from 'lucide-react';
+import { motion } from "framer-motion";
+import { MousePointer, Type, Sparkles, Save } from 'lucide-react';
 
 const HowItWorks = () => {
-  // Use focus mode context to determine visibility
-  const { isFocusMode } = useFocusMode();
-  
-  // Don't render anything when focus mode is active
-  if (isFocusMode) return null;
   const steps = [
     {
-      icon: <PenLine className="h-6 w-6 text-blue-400" />,
-      title: "Create Notes",
-      description: "Start typing your thoughts in our beautiful editor with support for rich formatting and markdown."
+      icon: MousePointer,
+      title: "Open & Start",
+      description: "Simply open the app and start typing. No registration, no setup required.",
+      step: "01"
     },
     {
-      icon: <Sparkles className="h-6 w-6 text-purple-400" />,
+      icon: Type,
+      title: "Write Naturally",
+      description: "Type your thoughts naturally. The editor adapts to your writing style.",
+      step: "02"
+    },
+    {
+      icon: Sparkles,
       title: "AI Enhancement",
-      description: "Use our AI features to improve your writing, get suggestions, or generate content based on your input."
+      description: "Select text for AI suggestions, improvements, and smart formatting.",
+      step: "03"
     },
     {
-      icon: <Save className="h-6 w-6 text-green-400" />,
+      icon: Save,
       title: "Auto-Save",
-      description: "Your notes are automatically saved as you type, so you never have to worry about losing your work."
-    },
-    {
-      icon: <Share2 className="h-6 w-6 text-amber-400" />,
-      title: "Share Instantly",
-      description: "Share your notes with anyone using a simple link - no sign-up required for your recipients."
+      description: "Your work is automatically saved locally and synced if you choose.",
+      step: "04"
     }
   ];
 
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.2
+      }
+    }
+  };
+
+  const itemVariants = {
+    hidden: { x: -50, opacity: 0 },
+    visible: { 
+      x: 0, 
+      opacity: 1,
+      transition: { type: 'spring', stiffness: 100 }
+    }
+  };
+
   return (
-    <section className="py-16 px-4 relative">
-      <div className="absolute inset-0 bg-gradient-to-b from-black/0 via-indigo-950/5 to-black/0 pointer-events-none"></div>
-      
+    <section className="py-20 px-4 bg-gradient-to-b from-[#0a0518] to-[#050510] relative overflow-hidden">
       <div className="container mx-auto max-w-6xl relative z-10">
-        <h2 className="text-3xl md:text-4xl font-bold text-center mb-3 text-white">
-          How It Works
-        </h2>
-        <p className="text-gray-400 text-center mb-12 max-w-2xl mx-auto">
-          Our platform makes note-taking effortless with these simple steps
-        </p>
-        
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+        <motion.div 
+          className="text-center mb-16"
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6 }}
+        >
+          <h2 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-white to-noteflow-200 bg-clip-text text-transparent mb-6">
+            How It Works
+          </h2>
+          <p className="text-xl text-gray-300 max-w-3xl mx-auto">
+            Get started in seconds. Our streamlined process makes note-taking effortless and productive.
+          </p>
+        </motion.div>
+
+        <motion.div 
+          className="space-y-12"
+          variants={containerVariants}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true }}
+        >
           {steps.map((step, index) => (
-            <div 
-              key={index} 
-              className="glass-panel-dark p-6 rounded-xl text-center relative group"
+            <motion.div
+              key={index}
+              variants={itemVariants}
+              className="flex flex-col md:flex-row items-center gap-8 group"
             >
-              <div className="absolute -inset-0.5 bg-gradient-to-r from-blue-500/20 to-purple-500/20 rounded-xl blur opacity-0 group-hover:opacity-100 transition duration-700"></div>
-              <div className="relative h-full flex flex-col items-center">
-                <div className="w-16 h-16 rounded-full bg-black/50 flex items-center justify-center mb-4 border border-white/10">
-                  {step.icon}
-                </div>
-                <h3 className="text-xl font-semibold text-white mb-3">{step.title}</h3>
-                <p className="text-gray-400">{step.description}</p>
-                <div className="absolute -top-2 -right-2 w-8 h-8 rounded-full bg-gradient-to-r from-blue-500 to-purple-500 flex items-center justify-center text-white font-bold">
-                  {index + 1}
-                </div>
+              {/* Step Number */}
+              <div className="flex-shrink-0 w-20 h-20 rounded-full bg-gradient-to-r from-noteflow-400 to-purple-500 flex items-center justify-center text-2xl font-bold text-white shadow-lg">
+                {step.step}
               </div>
-            </div>
+
+              {/* Icon */}
+              <div className="flex-shrink-0 w-16 h-16 rounded-xl bg-gradient-to-r from-noteflow-600/20 to-purple-600/20 border border-noteflow-400/30 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                <step.icon className="h-8 w-8 text-noteflow-300" />
+              </div>
+
+              {/* Content */}
+              <div className="flex-1 text-center md:text-left">
+                <h3 className="text-2xl font-bold text-white mb-3 group-hover:text-noteflow-300 transition-colors">
+                  {step.title}
+                </h3>
+                <p className="text-gray-400 text-lg leading-relaxed max-w-2xl">
+                  {step.description}
+                </p>
+              </div>
+
+              {/* Connecting Line (except for last item) */}
+              {index < steps.length - 1 && (
+                <div className="hidden md:block absolute left-10 top-20 w-0.5 h-12 bg-gradient-to-b from-noteflow-400 to-transparent opacity-30" 
+                     style={{ transform: `translateY(${80 + index * 120}px)` }} />
+              )}
+            </motion.div>
           ))}
-        </div>
+        </motion.div>
       </div>
     </section>
   );

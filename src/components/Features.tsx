@@ -1,74 +1,121 @@
 
-import { CheckCircle } from "lucide-react";
+import React from 'react';
+import { motion } from "framer-motion";
+import { Zap, Brain, Shield, Smartphone, Globe, Sparkles } from 'lucide-react';
 
 const Features = () => {
-  const features = [{
-    title: "Rich Text Editing",
-    description: "Format your notes with bold, italic, lists, headings and more"
-  }, {
-    title: "Auto Saving",
-    description: "Your notes are automatically saved to your browser's local storage"
-  }, {
-    title: "No Account Needed",
-    description: "Start taking notes immediately without signing up"
-  }, {
-    title: "Export Options",
-    description: "Download your notes as text files whenever you need"
-  }, {
-    title: "Responsive Design",
-    description: "Use on any device - mobile, tablet, or desktop"
-  }, {
-    title: "Free Forever",
-    description: "All core features are completely free to use"
-  }];
-  
+  const features = [
+    {
+      icon: Zap,
+      title: "Lightning Fast",
+      description: "Start writing instantly. No loading screens, no delays. Your thoughts flow directly to the page.",
+      gradient: "from-yellow-400 to-orange-500"
+    },
+    {
+      icon: Brain,
+      title: "AI-Powered",
+      description: "Smart suggestions, grammar fixes, and content enhancement powered by advanced AI technology.",
+      gradient: "from-noteflow-400 to-purple-500"
+    },
+    {
+      icon: Shield,
+      title: "Privacy First", 
+      description: "Your notes stay private. Local storage with optional cloud sync that you control completely.",
+      gradient: "from-green-400 to-blue-500"
+    },
+    {
+      icon: Smartphone,
+      title: "Mobile Ready",
+      description: "Perfect experience on any device. Write on your phone, continue on your laptop seamlessly.",
+      gradient: "from-pink-400 to-red-500"
+    },
+    {
+      icon: Globe,
+      title: "Always Available",
+      description: "Works offline, syncs online. Your notes are accessible wherever you are, whenever you need them.",
+      gradient: "from-blue-400 to-cyan-500"
+    },
+    {
+      icon: Sparkles,
+      title: "Zero Setup",
+      description: "No accounts, no configuration. Open and start writing. It's that simple and powerful.",
+      gradient: "from-purple-400 to-pink-500"
+    }
+  ];
+
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.1
+      }
+    }
+  };
+
+  const itemVariants = {
+    hidden: { y: 20, opacity: 0 },
+    visible: { 
+      y: 0, 
+      opacity: 1,
+      transition: { type: 'spring', stiffness: 100 }
+    }
+  };
+
   return (
-    <section id="features" className="py-16 px-4 bg-black/95">
-      <div className="container mx-auto max-w-6xl">
-        <h2 className="text-3xl md:text-4xl font-poppins font-bold text-center mb-12 text-gray-200">Why Choose Online Note AI?</h2>
-        
-        {/* Removed manual ad placement - Ezoic will auto-insert */}
-        
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {features.map((feature, index) => (
-            <div key={index} className="bg-black/40 backdrop-blur-lg p-6 rounded-lg border border-white/10 hover:border-noteflow-400/50 transition-all hover:shadow-[0_0_15px_rgba(14,165,233,0.15)]">
-              <div className="flex items-start gap-3 mb-3">
-                <CheckCircle className="text-noteflow-400 h-6 w-6 mt-1 flex-shrink-0" />
-                <h3 className="text-xl font-medium text-white">{feature.title}</h3>
-              </div>
-              <p className="text-gray-400 ml-9">{feature.description}</p>
-            </div>
-          ))}
-        </div>
-        
-        {/* Removed manual ad placement - Ezoic will auto-insert */}
-        
-        {/* Pricing section anchor */}
-        <div id="pricing" className="mt-20">
-          <h2 className="text-3xl md:text-4xl font-poppins font-bold text-center mb-6 text-gray-200">Pricing</h2>
-          <p className="text-center text-gray-300 max-w-2xl mx-auto mb-8">
-            Enjoy our core features for free. Premium features coming soon!
+    <section className="py-20 px-4 relative overflow-hidden">
+      <div className="container mx-auto max-w-6xl relative z-10">
+        <motion.div 
+          className="text-center mb-16"
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6 }}
+        >
+          <h2 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-white to-noteflow-200 bg-clip-text text-transparent mb-6">
+            Why Choose Online Note AI?
+          </h2>
+          <p className="text-xl text-gray-300 max-w-3xl mx-auto">
+            Everything you need for productive note-taking, nothing you don't. 
+            Simple by design, powerful by nature.
           </p>
-          <div className="flex justify-center">
-            <div className="bg-gradient-to-br from-noteflow-600 to-noteflow-800 p-8 rounded-xl shadow-lg max-w-md w-full">
-              <h3 className="text-2xl font-bold text-white mb-4 text-center">Free Forever</h3>
-              <ul className="space-y-2 mb-6">
-                <li className="flex items-center gap-2">
-                  <CheckCircle className="text-white h-5 w-5 flex-shrink-0" />
-                  <span className="text-white">All basic note-taking features</span>
-                </li>
-                <li className="flex items-center gap-2">
-                  <CheckCircle className="text-white h-5 w-5 flex-shrink-0" />
-                  <span className="text-white">Local storage saving</span>
-                </li>
-                <li className="flex items-center gap-2">
-                  <CheckCircle className="text-white h-5 w-5 flex-shrink-0" />
-                  <span className="text-white">Export to plain text</span>
-                </li>
-              </ul>
-            </div>
-          </div>
-        </div>
+        </motion.div>
+
+        <motion.div 
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
+          variants={containerVariants}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true }}
+        >
+          {features.map((feature, index) => (
+            <motion.div
+              key={index}
+              variants={itemVariants}
+              className="group relative"
+            >
+              <div className="relative p-8 rounded-2xl bg-black/40 backdrop-blur-sm border border-white/10 hover:border-noteflow-400/50 transition-all duration-300 h-full hover:shadow-[0_0_30px_rgba(120,60,255,0.15)]">
+                {/* Icon with gradient background */}
+                <div className={`w-16 h-16 rounded-xl bg-gradient-to-r ${feature.gradient} p-0.5 mb-6 group-hover:scale-110 transition-transform duration-300`}>
+                  <div className="w-full h-full bg-black/90 rounded-xl flex items-center justify-center">
+                    <feature.icon className="h-8 w-8 text-white" />
+                  </div>
+                </div>
+                
+                <h3 className="text-xl font-bold text-white mb-4 group-hover:text-noteflow-300 transition-colors">
+                  {feature.title}
+                </h3>
+                
+                <p className="text-gray-400 leading-relaxed">
+                  {feature.description}
+                </p>
+
+                {/* Hover effect */}
+                <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-noteflow-600/10 to-purple-600/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
+              </div>
+            </motion.div>
+          ))}
+        </motion.div>
       </div>
     </section>
   );
