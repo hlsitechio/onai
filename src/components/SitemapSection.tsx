@@ -11,7 +11,7 @@ const SitemapSection = () => {
       links: [
         { name: "Home", href: "/", description: "Main landing page with editor" },
         { name: "Features", href: "/#features", description: "Learn about our AI-powered features" },
-        { name: "Wall of Fame", href: "/#sponsors", description: "Meet our amazing sponsors" }
+        { name: "Our Technologies", href: "/#sponsors", description: "Technologies powering our platform" }
       ]
     },
     {
