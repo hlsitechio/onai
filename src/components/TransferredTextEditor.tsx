@@ -19,8 +19,8 @@ const TransferredTextEditor: React.FC = () => {
   
   const {
     allNotes,
-    saveNote,
-    deleteNote,
+    handleSave: saveNote,
+    handleDeleteNote: deleteNote,
     importNotes
   } = useSupabaseNotes();
 
