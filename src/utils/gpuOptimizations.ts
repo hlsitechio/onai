@@ -1,3 +1,4 @@
+
 /**
  * GPU Optimization Utilities
  * 
@@ -36,14 +37,19 @@ if (typeof window !== 'undefined') {
 
 // Export default configuration
 export default {
-  // Enable advanced visual features based on device capability
+  // Enable advanced visual effects based on device capability
   enableAdvancedEffects: () => {
     const canvas = document.createElement('canvas');
     let isWebGLSupported = false;
     
     try {
-      isWebGLSupported = !!(window.WebGLRenderingContext && 
-        (canvas.getContext('webgl') || canvas.getContext('experimental-webgl')));
+      // Get WebGL context with proper typing
+      const webglContext = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
+      
+      if (webglContext && typeof webglContext.getExtension === 'function') {
+        // Check for WebGL support by testing context methods
+        isWebGLSupported = true;
+      }
     } catch (e) {
       isWebGLSupported = false;
     }
