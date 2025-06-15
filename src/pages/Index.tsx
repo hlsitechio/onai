@@ -3,15 +3,8 @@ import React from "react";
 import Header from "@/components/Header";
 import Hero from "@/components/Hero";
 import Features from "@/components/Features";
-import HowItWorks from "@/components/HowItWorks";
-import AIFeatures from "@/components/AIFeatures";
-import FeatureShowcase from "@/components/FeatureShowcase";
-import Testimonials from "@/components/Testimonials";
-import SponsorsWallOfFame from "@/components/SponsorsWallOfFame";
-import JoinWallOfFame from "@/components/JoinWallOfFame";
-import NewsletterSection from "@/components/NewsletterSection";
-import Footer from "@/components/Footer";
 import EditorManager from "@/components/editor/EditorManager";
+import Footer from "@/components/Footer";
 import CookieConsent from "@/components/CookieConsent";
 import DotGridBackground from "@/components/DotGridBackground";
 
@@ -24,33 +17,30 @@ const Index = () => {
       {/* Header */}
       <Header />
       
-      {/* Landing Page Sections */}
+      {/* Hero Section - Simplified */}
       <div className="relative z-10">
         <Hero />
-        <Features />
-        <HowItWorks />
-        <AIFeatures />
-        <FeatureShowcase />
-        <Testimonials />
-        <SponsorsWallOfFame />
-        <JoinWallOfFame />
-        <NewsletterSection />
       </div>
       
-      {/* Editor Section */}
-      <section id="editor-section" className="relative z-10 min-h-screen">
-        <div className="container mx-auto px-4 py-8">
-          <div className="text-center mb-8">
-            <h2 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-noteflow-400 to-purple-400 bg-clip-text text-transparent mb-4">
+      {/* Main Editor Section - Centralized and Prominent */}
+      <section id="editor-section" className="relative z-10 min-h-screen flex items-center justify-center py-8">
+        <div className="container mx-auto px-4 max-w-7xl">
+          <div className="text-center mb-6">
+            <h2 className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-noteflow-400 to-purple-400 bg-clip-text text-transparent mb-3">
               Start Writing Now
             </h2>
-            <p className="text-xl text-gray-300 max-w-2xl mx-auto">
-              Experience the power of AI-enhanced note-taking. No signup required, start immediately.
+            <p className="text-lg text-gray-300 max-w-xl mx-auto">
+              AI-powered notes. No signup required.
             </p>
           </div>
           <EditorManager />
         </div>
       </section>
+      
+      {/* Simplified Features Section */}
+      <div className="relative z-10">
+        <Features />
+      </div>
       
       {/* Footer */}
       <Footer />
