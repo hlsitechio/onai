@@ -12,8 +12,8 @@ import DotGridBackground from "@/components/DotGridBackground";
 
 const Index = () => {
   return (
-    <div className="min-h-screen w-full overflow-hidden bg-gradient-to-br from-[#050510] to-[#0a0518] relative">
-      {/* Background */}
+    <div className="min-h-screen w-full overflow-hidden bg-black relative">
+      {/* Enhanced Dark Background */}
       <DotGridBackground />
       
       {/* Header */}
