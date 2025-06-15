@@ -37,6 +37,36 @@ const EditorManager: React.FC = () => {
     }
   }, [content]);
 
+  // PWA shortcuts handling
+  useEffect(() => {
+    const handlePWAShortcuts = (event: CustomEvent) => {
+      switch (event.type) {
+        case 'pwa:new-note':
+          createNewNote();
+          toast({
+            title: 'New Note',
+            description: 'Started a new note from app shortcut.',
+          });
+          break;
+        case 'pwa:open-ai':
+          setIsAIDialogOpen(true);
+          toast({
+            title: 'AI Assistant',
+            description: 'AI assistant opened from app shortcut.',
+          });
+          break;
+      }
+    };
+
+    window.addEventListener('pwa:new-note', handlePWAShortcuts as EventListener);
+    window.addEventListener('pwa:open-ai', handlePWAShortcuts as EventListener);
+
+    return () => {
+      window.removeEventListener('pwa:new-note', handlePWAShortcuts as EventListener);
+      window.removeEventListener('pwa:open-ai', handlePWAShortcuts as EventListener);
+    };
+  }, []);
+
   // Keyboard shortcuts
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {

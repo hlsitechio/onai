@@ -70,3 +70,17 @@ self.addEventListener('message', (event) => {
     self.skipWaiting();
   }
 });
+
+// Expose sync functionality to window
+self.addEventListener('message', (event) => {
+  if (event.data?.type === 'ADD_TO_SYNC_QUEUE') {
+    const { syncType, data } = event.data;
+    
+    // Register background sync
+    if ('sync' in self.registration) {
+      self.registration.sync.register('sync-notes').then(() => {
+        console.log('Background sync registered for:', syncType);
+      });
+    }
+  }
+});

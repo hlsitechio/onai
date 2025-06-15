@@ -12,6 +12,7 @@ import CookieConsent from "@/components/CookieConsent";
 import DotGridBackground from "@/components/DotGridBackground";
 import PWAInstaller from "@/components/pwa/PWAInstaller";
 import OfflineIndicator from "@/components/pwa/OfflineIndicator";
+import { PWAStatusDashboard } from "@/components/pwa/PWAStatusDashboard";
 
 const Index = () => {
   return (
@@ -22,6 +23,11 @@ const Index = () => {
       {/* PWA Components */}
       <PWAInstaller />
       <OfflineIndicator />
+      
+      {/* PWA Status Dashboard - Fixed position for easy access */}
+      <div className="fixed bottom-4 right-4 z-50 hidden lg:block">
+        <PWAStatusDashboard />
+      </div>
       
       {/* Header */}
       <Header />
