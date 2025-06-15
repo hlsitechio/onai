@@ -39,6 +39,56 @@ export type Database = {
         }
         Relationships: []
       }
+      ai_interactions_v2: {
+        Row: {
+          created_at: string | null
+          feedback_rating: number | null
+          id: string
+          interaction_type: string
+          model_used: string | null
+          note_id: string | null
+          processing_time: number | null
+          prompt: string | null
+          response: string | null
+          tokens_used: number | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          feedback_rating?: number | null
+          id?: string
+          interaction_type: string
+          model_used?: string | null
+          note_id?: string | null
+          processing_time?: number | null
+          prompt?: string | null
+          response?: string | null
+          tokens_used?: number | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          feedback_rating?: number | null
+          id?: string
+          interaction_type?: string
+          model_used?: string | null
+          note_id?: string | null
+          processing_time?: number | null
+          prompt?: string | null
+          response?: string | null
+          tokens_used?: number | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ai_interactions_v2_note_id_fkey"
+            columns: ["note_id"]
+            isOneToOne: false
+            referencedRelation: "notes_v2"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       content_moderation: {
         Row: {
           content_id: string
@@ -117,35 +167,184 @@ export type Database = {
         }
         Relationships: []
       }
+      note_shares: {
+        Row: {
+          access_count: number | null
+          access_level: string | null
+          created_at: string | null
+          expires_at: string | null
+          id: string
+          note_id: string | null
+          share_type: string | null
+          shared_by: string | null
+          shared_with: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          access_count?: number | null
+          access_level?: string | null
+          created_at?: string | null
+          expires_at?: string | null
+          id?: string
+          note_id?: string | null
+          share_type?: string | null
+          shared_by?: string | null
+          shared_with?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          access_count?: number | null
+          access_level?: string | null
+          created_at?: string | null
+          expires_at?: string | null
+          id?: string
+          note_id?: string | null
+          share_type?: string | null
+          shared_by?: string | null
+          shared_with?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "note_shares_note_id_fkey"
+            columns: ["note_id"]
+            isOneToOne: false
+            referencedRelation: "notes_v2"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      note_versions: {
+        Row: {
+          changes_summary: string | null
+          content: string
+          created_at: string | null
+          created_by: string | null
+          id: string
+          note_id: string | null
+          version: number
+        }
+        Insert: {
+          changes_summary?: string | null
+          content: string
+          created_at?: string | null
+          created_by?: string | null
+          id?: string
+          note_id?: string | null
+          version: number
+        }
+        Update: {
+          changes_summary?: string | null
+          content?: string
+          created_at?: string | null
+          created_by?: string | null
+          id?: string
+          note_id?: string | null
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "note_versions_note_id_fkey"
+            columns: ["note_id"]
+            isOneToOne: false
+            referencedRelation: "notes_v2"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       notes: {
         Row: {
           content: string
           created_at: string
           id: string
           is_encrypted: boolean
-          owner_id: string | null
           title: string
           updated_at: string
+          user_id: string | null
         }
         Insert: {
           content: string
           created_at?: string
           id: string
           is_encrypted?: boolean
-          owner_id?: string | null
           title: string
           updated_at?: string
+          user_id?: string | null
         }
         Update: {
           content?: string
           created_at?: string
           id?: string
           is_encrypted?: boolean
-          owner_id?: string | null
           title?: string
           updated_at?: string
+          user_id?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "notes_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "user_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      notes_v2: {
+        Row: {
+          content: string
+          content_type: string | null
+          created_at: string | null
+          id: string
+          is_encrypted: boolean | null
+          is_public: boolean | null
+          last_accessed_at: string | null
+          parent_id: string | null
+          tags: string[] | null
+          title: string
+          updated_at: string | null
+          user_id: string | null
+          version: number | null
+        }
+        Insert: {
+          content: string
+          content_type?: string | null
+          created_at?: string | null
+          id?: string
+          is_encrypted?: boolean | null
+          is_public?: boolean | null
+          last_accessed_at?: string | null
+          parent_id?: string | null
+          tags?: string[] | null
+          title: string
+          updated_at?: string | null
+          user_id?: string | null
+          version?: number | null
+        }
+        Update: {
+          content?: string
+          content_type?: string | null
+          created_at?: string | null
+          id?: string
+          is_encrypted?: boolean | null
+          is_public?: boolean | null
+          last_accessed_at?: string | null
+          parent_id?: string | null
+          tags?: string[] | null
+          title?: string
+          updated_at?: string | null
+          user_id?: string | null
+          version?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "notes_v2_parent_id_fkey"
+            columns: ["parent_id"]
+            isOneToOne: false
+            referencedRelation: "notes_v2"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       page_visits: {
         Row: {
@@ -327,6 +526,111 @@ export type Database = {
           expires_at?: string
           id?: string
           views?: number | null
+        }
+        Relationships: []
+      }
+      sync_queue: {
+        Row: {
+          created_at: string | null
+          data: Json | null
+          error_message: string | null
+          id: string
+          operation_type: string
+          processed_at: string | null
+          record_id: string | null
+          retry_count: number | null
+          status: string | null
+          table_name: string
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          data?: Json | null
+          error_message?: string | null
+          id?: string
+          operation_type: string
+          processed_at?: string | null
+          record_id?: string | null
+          retry_count?: number | null
+          status?: string | null
+          table_name: string
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          data?: Json | null
+          error_message?: string | null
+          id?: string
+          operation_type?: string
+          processed_at?: string | null
+          record_id?: string | null
+          retry_count?: number | null
+          status?: string | null
+          table_name?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      user_profiles: {
+        Row: {
+          avatar_url: string | null
+          created_at: string | null
+          display_name: string | null
+          email: string | null
+          id: string
+          preferences: Json | null
+          updated_at: string | null
+        }
+        Insert: {
+          avatar_url?: string | null
+          created_at?: string | null
+          display_name?: string | null
+          email?: string | null
+          id: string
+          preferences?: Json | null
+          updated_at?: string | null
+        }
+        Update: {
+          avatar_url?: string | null
+          created_at?: string | null
+          display_name?: string | null
+          email?: string | null
+          id?: string
+          preferences?: Json | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      user_settings: {
+        Row: {
+          ai_preferences: Json | null
+          created_at: string | null
+          editor_preferences: Json | null
+          id: string
+          notification_preferences: Json | null
+          sync_preferences: Json | null
+          updated_at: string | null
+          user_id: string | null
+        }
+        Insert: {
+          ai_preferences?: Json | null
+          created_at?: string | null
+          editor_preferences?: Json | null
+          id?: string
+          notification_preferences?: Json | null
+          sync_preferences?: Json | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          ai_preferences?: Json | null
+          created_at?: string | null
+          editor_preferences?: Json | null
+          id?: string
+          notification_preferences?: Json | null
+          sync_preferences?: Json | null
+          updated_at?: string | null
+          user_id?: string | null
         }
         Relationships: []
       }

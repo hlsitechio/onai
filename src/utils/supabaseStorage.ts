@@ -1,3 +1,4 @@
+
 import { StorageOperationResult } from './notesStorage';
 import { supabase } from '@/integrations/supabase/client';
 import { encryptContent, decryptContent } from './encryptionUtils';
@@ -11,12 +12,27 @@ export interface Note {
   created_at: string;
   updated_at: string;
   is_encrypted: boolean;
-  owner_id?: string; // Will be used when auth is implemented
+  user_id?: string;
 }
 
-// Check if Supabase tables exist, create them if they don't
+// Check if user is authenticated
+const getCurrentUser = async () => {
+  const { data: { user } } = await supabase.auth.getUser();
+  return user;
+};
+
+// Check if Supabase tables exist and user is authenticated
 export const initializeSupabaseSchema = async (): Promise<StorageOperationResult> => {
   try {
+    // Check if user is authenticated
+    const user = await getCurrentUser();
+    if (!user) {
+      return { 
+        success: false, 
+        error: "User not authenticated. Please sign in to access your notes." 
+      };
+    }
+
     // Check if the notes table exists by trying to select from it
     const { data, error } = await supabase
       .from('notes')
@@ -53,6 +69,15 @@ export const saveNoteToSupabase = async (
   isEncrypted: boolean = true
 ): Promise<StorageOperationResult> => {
   try {
+    // Check if user is authenticated
+    const user = await getCurrentUser();
+    if (!user) {
+      return { 
+        success: false, 
+        error: "User not authenticated. Please sign in to save notes." 
+      };
+    }
+
     // Generate a title from the content (first line or first few words)
     const title = content
       .split('\n')[0]
@@ -67,6 +92,7 @@ export const saveNoteToSupabase = async (
       .from('notes')
       .select('id')
       .eq('id', noteId)
+      .eq('user_id', user.id)
       .single();
     
     // Insert or update based on existence
@@ -79,18 +105,21 @@ export const saveNoteToSupabase = async (
         content: string;
         updated_at: string;
         is_encrypted: boolean;
+        user_id: string;
       } = {
         id: noteId,
         title,
         content: finalContent,
         updated_at: new Date().toISOString(),
-        is_encrypted: isEncrypted
+        is_encrypted: isEncrypted,
+        user_id: user.id
       };
       
       result = await supabase
         .from('notes')
         .update(updateNote)
-        .eq('id', noteId);
+        .eq('id', noteId)
+        .eq('user_id', user.id);
     } else {
       // Create new note with all required fields
       const newNote: {
@@ -100,13 +129,15 @@ export const saveNoteToSupabase = async (
         created_at: string;
         updated_at: string;
         is_encrypted: boolean;
+        user_id: string;
       } = {
         id: noteId,
         title,
         content: finalContent,
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
-        is_encrypted: isEncrypted
+        is_encrypted: isEncrypted,
+        user_id: user.id
       };
       
       result = await supabase
@@ -129,13 +160,21 @@ export const saveNoteToSupabase = async (
 };
 
 /**
- * Get all notes from Supabase
+ * Get all notes from Supabase for the current user
  */
 export const getAllNotesFromSupabase = async (): Promise<Record<string, string>> => {
   try {
+    // Check if user is authenticated
+    const user = await getCurrentUser();
+    if (!user) {
+      console.warn("User not authenticated. Cannot retrieve notes.");
+      return {};
+    }
+
     const { data, error } = await supabase
       .from('notes')
       .select('id, content, is_encrypted')
+      .eq('user_id', user.id)
       .order('updated_at', { ascending: false });
     
     if (error) {
@@ -175,10 +214,20 @@ export const getAllNotesFromSupabase = async (): Promise<Record<string, string>>
  */
 export const deleteNoteFromSupabase = async (noteId: string): Promise<StorageOperationResult> => {
   try {
+    // Check if user is authenticated
+    const user = await getCurrentUser();
+    if (!user) {
+      return { 
+        success: false, 
+        error: "User not authenticated. Please sign in to delete notes." 
+      };
+    }
+
     const { error } = await supabase
       .from('notes')
       .delete()
-      .eq('id', noteId);
+      .eq('id', noteId)
+      .eq('user_id', user.id);
     
     if (error) {
       throw error;

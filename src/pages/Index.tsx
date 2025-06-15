@@ -70,7 +70,7 @@ const Index = () => {
               Start Writing Now
             </h2>
             <p className="text-lg text-gray-300 max-w-xl mx-auto">
-              AI-powered notes. No signup required.
+              AI-powered notes. Secure and personalized.
             </p>
           </div>
           <ErrorBoundary fallback={<div className="text-white p-4 text-center">Editor failed to load</div>}>
