@@ -6,7 +6,8 @@ import {
   getAllNotesFromSupabase, 
   deleteNoteFromSupabase,
   shareNoteViaSupabase,
-  initializeSupabaseSchema
+  initializeSupabaseSchema,
+  cleanupOrphanedNotes
 } from '@/utils/supabaseStorage';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -35,6 +36,14 @@ export function useSupabaseNotes() {
             description: 'Could not connect to the database. Using local storage instead.',
             variant: 'destructive',
           });
+        } else {
+          // If Supabase is ready, try to clean up any orphaned notes
+          try {
+            await cleanupOrphanedNotes();
+          } catch (cleanupError) {
+            console.warn('Note cleanup failed:', cleanupError);
+            // Don't show error to user as this is just a cleanup operation
+          }
         }
       } catch (error) {
         console.error('Error initializing Supabase:', error);

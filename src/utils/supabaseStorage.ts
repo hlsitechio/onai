@@ -98,7 +98,7 @@ export const saveNoteToSupabase = async (
     // Insert or update based on existence
     let result;
     if (existingNote) {
-      // Update existing note with required fields
+      // Update existing note - ensure user_id is always set
       const updateNote: {
         id: string;
         title: string;
@@ -112,7 +112,7 @@ export const saveNoteToSupabase = async (
         content: finalContent,
         updated_at: new Date().toISOString(),
         is_encrypted: isEncrypted,
-        user_id: user.id
+        user_id: user.id // Always ensure user_id is set
       };
       
       result = await supabase
@@ -121,7 +121,7 @@ export const saveNoteToSupabase = async (
         .eq('id', noteId)
         .eq('user_id', user.id);
     } else {
-      // Create new note with all required fields
+      // Create new note - ensure all required fields including user_id
       const newNote: {
         id: string;
         title: string;
@@ -137,7 +137,7 @@ export const saveNoteToSupabase = async (
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
         is_encrypted: isEncrypted,
-        user_id: user.id
+        user_id: user.id // Always ensure user_id is set
       };
       
       result = await supabase
@@ -326,5 +326,43 @@ export const getSharedNoteById = async (shareId: string): Promise<string | null>
   } catch (error) {
     console.error("Error getting shared note:", error);
     return null;
+  }
+};
+
+/**
+ * Clean up notes with missing user_id (migration helper)
+ */
+export const cleanupOrphanedNotes = async (): Promise<StorageOperationResult> => {
+  try {
+    const user = await getCurrentUser();
+    if (!user) {
+      return { 
+        success: false, 
+        error: "User not authenticated." 
+      };
+    }
+
+    // Update any notes without user_id to belong to current user
+    // This is a migration helper function
+    const { error } = await supabase
+      .from('notes')
+      .update({ user_id: user.id })
+      .is('user_id', null);
+    
+    if (error) {
+      console.error("Error cleaning up orphaned notes:", error);
+      return { 
+        success: false, 
+        error: error.message 
+      };
+    }
+    
+    return { success: true };
+  } catch (error) {
+    console.error("Error in cleanup function:", error);
+    return { 
+      success: false, 
+      error: error instanceof Error ? error.message : 'Unknown error during cleanup'
+    };
   }
 };
