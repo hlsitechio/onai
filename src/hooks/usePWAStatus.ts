@@ -1,6 +1,6 @@
+
 import { useState, useEffect } from 'react';
 import { useToast } from '@/hooks/use-toast';
-import { ToastAction } from '@/components/ui/toast';
 
 interface PWAStatus {
   isOnline: boolean;
@@ -64,12 +64,11 @@ export function usePWAStatus() {
       
       toast({
         title: "Update Available",
-        description: "A new version is ready. Refresh to update.",
-        action: (
-          <ToastAction onClick={() => window.location.reload()}>
-            Refresh
-          </ToastAction>
-        ),
+        description: "A new version is ready. Click to refresh and update.",
+        action: {
+          altText: "Refresh to update",
+          onClick: () => window.location.reload(),
+        },
       });
     };
 
