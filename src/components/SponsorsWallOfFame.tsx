@@ -64,6 +64,20 @@ const SponsorsWallOfFame = () => {
       website: "https://gemini.google.com",
       tier: "platinum",
       sponsorshipLevel: "$500+"
+    },
+    {
+      name: "Next.js",
+      logo: "/lovable-uploads/f4582249-1bde-4cad-b4d1-7b2826c30db4.png",
+      website: "https://nextjs.org",
+      tier: "gold",
+      sponsorshipLevel: "$250+"
+    },
+    {
+      name: "Framer",
+      logo: "/lovable-uploads/38082ca1-5e9d-4386-8aa2-4dfc1a9dcbf0.png",
+      website: "https://framer.com",
+      tier: "gold",
+      sponsorshipLevel: "$250+"
     }
   ];
 
