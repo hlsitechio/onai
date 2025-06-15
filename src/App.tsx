@@ -6,7 +6,8 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { PWAProvider } from "@/components/pwa/PWAProvider";
-import ProtectedRoute from "@/components/ProtectedRoute";
+import AuthGuard from "@/components/AuthGuard";
+import SharedNoteViewer from "@/components/SharedNoteViewer";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import NotFound from "./pages/NotFound";
@@ -23,12 +24,13 @@ const App = () => (
           <BrowserRouter>
             <Routes>
               <Route path="/auth" element={<Auth />} />
+              <Route path="/shared/:shareId" element={<SharedNoteViewer />} />
               <Route
                 path="/"
                 element={
-                  <ProtectedRoute>
+                  <AuthGuard>
                     <Index />
-                  </ProtectedRoute>
+                  </AuthGuard>
                 }
               />
               <Route path="*" element={<NotFound />} />
