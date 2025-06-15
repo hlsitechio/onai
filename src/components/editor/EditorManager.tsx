@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useCallback } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { useSupabaseNotes } from '@/hooks/useSupabaseNotes';
@@ -14,7 +13,7 @@ import { cn } from '@/lib/utils';
 const EditorManager: React.FC = () => {
   const [content, setContent] = useState('');
   const [isLeftSidebarOpen, setIsLeftSidebarOpen] = useState(true);
-  const [isAISidebarOpen, setIsAISidebarOpen] = useState(false);
+  const [isAISidebarOpen, setIsAISidebarOpen] = useState(true); // Changed to true by default
   const [isAIDialogOpen, setIsAIDialogOpen] = useState(false);
   const [lastSaved, setLastSaved] = useState<Date | null>(null);
   
