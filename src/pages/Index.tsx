@@ -6,7 +6,7 @@ import Features from "@/components/Features";
 import EditorManager from "@/components/editor/EditorManager";
 import SponsorsWallOfFame from "@/components/SponsorsWallOfFame";
 import IndividualSupportersSection from "@/components/IndividualSupportersSection";
-import SitemapSection from "@/components/SitemapSection";
+import StandardSitemap from "@/components/StandardSitemap";
 import Footer from "@/components/Footer";
 import CookieConsent from "@/components/CookieConsent";
 import DotGridBackground from "@/components/DotGridBackground";
@@ -99,14 +99,38 @@ const Index = () => {
         </ErrorBoundary>
       </div>
       
-      {/* Sitemap Section */}
+      {/* Standard Sitemap Section - Replaced the old SitemapSection */}
       <div className="relative z-10">
         <ErrorBoundary fallback={<div className="text-white p-4 text-center">Sitemap section failed to load</div>}>
-          <DebugWrapper componentName="SitemapSection">
-            <SitemapSection />
+          <DebugWrapper componentName="StandardSitemap">
+            <StandardSitemap />
           </DebugWrapper>
         </ErrorBoundary>
       </div>
+      
+      {/* Prominent Coffee Support Section */}
+      <section className="relative z-10 py-12 bg-gradient-to-r from-yellow-900/20 to-orange-900/20">
+        <div className="container mx-auto px-4 text-center">
+          <h2 className="text-2xl md:text-3xl font-bold text-white mb-4">
+            Keep Online Note AI Free Forever!
+          </h2>
+          <p className="text-lg text-gray-300 mb-6 max-w-2xl mx-auto">
+            Your support helps us maintain this free service and add amazing new features. Every coffee makes a difference!
+          </p>
+          <a 
+            href="https://www.buymeacoffee.com/onlinenoteai" 
+            target="_blank" 
+            rel="noopener noreferrer"
+            className="inline-block"
+          >
+            <img 
+              src="https://img.buymeacoffee.com/button-api/?text=Buy me! Stay free forever!&emoji=🤑&slug=onlinenoteai&button_colour=213e87&font_colour=ffffff&font_family=Inter&outline_colour=ffffff&coffee_colour=FFDD00" 
+              alt="Buy Me A Coffee"
+              className="hover:opacity-80 transition-opacity shadow-2xl rounded-lg"
+            />
+          </a>
+        </div>
+      </section>
       
       {/* Footer */}
       <ErrorBoundary fallback={<div className="text-white p-4 text-center">Footer failed to load</div>}>
