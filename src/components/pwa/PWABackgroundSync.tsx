@@ -3,7 +3,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { toast } from 'sonner';
-import { sync as Sync, CheckCircle, Clock, AlertCircle } from 'lucide-react';
+import { RotateCw as Sync, CheckCircle, Clock, AlertCircle } from 'lucide-react';
 
 interface SyncItem {
   id: string;
