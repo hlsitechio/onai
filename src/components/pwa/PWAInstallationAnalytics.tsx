@@ -38,6 +38,9 @@ const PWAInstallationAnalytics: React.FC = () => {
   const [isCollecting, setIsCollecting] = useState(true);
 
   useEffect(() => {
+    // Only initialize analytics in development mode
+    if (!import.meta.env.DEV) return;
+    
     loadMetrics();
     setupAnalyticsListeners();
   }, []);
@@ -145,15 +148,20 @@ const PWAInstallationAnalytics: React.FC = () => {
     URL.revokeObjectURL(url);
   };
 
+  // Only show in development mode
+  if (!import.meta.env.DEV) {
+    return null;
+  }
+
   return (
     <Card className="w-full max-w-2xl">
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <TrendingUp className="h-5 w-5" />
-          PWA Installation Analytics
+          PWA Installation Analytics (Dev Only)
         </CardTitle>
         <CardDescription>
-          Track how users interact with your app installation prompts
+          Development analytics - not visible to production users
         </CardDescription>
       </CardHeader>
       

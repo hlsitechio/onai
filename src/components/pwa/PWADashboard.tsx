@@ -12,7 +12,6 @@ import PWAPushNotifications from './PWAPushNotifications';
 import { PWAStatusDashboard } from './PWAStatusDashboard';
 import { 
   Settings, 
-  BarChart3, 
   RefreshCw, 
   Share, 
   Bell, 
@@ -32,6 +31,9 @@ const PWADashboard: React.FC = () => {
   
   const [activeTab, setActiveTab] = useState('overview');
 
+  // Only show analytics in development mode
+  const isDevelopment = import.meta.env.DEV;
+
   const getFeatureStatus = (feature: keyof typeof enhancedFeatures) => {
     return enhancedFeatures[feature] ? 'Available' : 'Not Available';
   };
@@ -50,14 +52,10 @@ const PWADashboard: React.FC = () => {
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="grid w-full grid-cols-6">
+        <TabsList className="grid w-full grid-cols-5">
           <TabsTrigger value="overview">
             <Settings className="h-4 w-4 mr-2" />
             Overview
-          </TabsTrigger>
-          <TabsTrigger value="analytics">
-            <BarChart3 className="h-4 w-4 mr-2" />
-            Analytics
           </TabsTrigger>
           <TabsTrigger value="sync">
             <RefreshCw className="h-4 w-4 mr-2" />
@@ -202,10 +200,21 @@ const PWADashboard: React.FC = () => {
               </div>
             </CardContent>
           </Card>
-        </TabsContent>
 
-        <TabsContent value="analytics">
-          <PWAInstallationAnalytics />
+          {/* Development Mode Analytics Access */}
+          {isDevelopment && (
+            <Card className="border-dashed border-yellow-500 bg-yellow-50 dark:bg-yellow-950/20">
+              <CardHeader>
+                <CardTitle className="text-yellow-700 dark:text-yellow-300">Development Mode</CardTitle>
+                <CardDescription className="text-yellow-600 dark:text-yellow-400">
+                  Additional analytics available in development environment
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <PWAInstallationAnalytics />
+              </CardContent>
+            </Card>
+          )}
         </TabsContent>
 
         <TabsContent value="sync">
