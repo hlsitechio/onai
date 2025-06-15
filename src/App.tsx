@@ -10,6 +10,8 @@ import AuthGuard from "@/components/AuthGuard";
 import SharedNoteViewer from "@/components/SharedNoteViewer";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
+import SignIn from "./pages/SignIn";
+import SignUp from "./pages/SignUp";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -24,6 +26,8 @@ const App = () => (
           <BrowserRouter>
             <Routes>
               <Route path="/auth" element={<Auth />} />
+              <Route path="/signin" element={<SignIn />} />
+              <Route path="/signup" element={<SignUp />} />
               <Route path="/shared/:shareId" element={<SharedNoteViewer />} />
               <Route
                 path="/"
