@@ -1,159 +1,196 @@
-import React, { useState, useEffect } from "react";
-import Modal from "react-modal";
-import { X, Mail } from "lucide-react";
 
-// Set the app element for react-modal accessibility
-if (typeof window !== 'undefined') {
-  Modal.setAppElement('#root');
-}
+import React, { useState } from 'react';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Label } from '@/components/ui/label';
+import { useToast } from '@/hooks/use-toast';
+import { sendEmail } from '@/utils/emailService';
+import { Loader2, Mail } from 'lucide-react';
 
-interface ContactFormProps {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-}
+const ContactForm = () => {
+  const [isLoading, setIsLoading] = useState(false);
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    subject: '',
+    message: '',
+  });
+  const { toast } = useToast();
 
-const ContactForm: React.FC<ContactFormProps> = ({ open, onOpenChange }) => {
-  // Scroll to top when the modal opens
-  React.useEffect(() => {
-    if (open) {
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
-  }, [open]);
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
-  const [subject, setSubject] = useState("General Info");
-  const [message, setMessage] = useState("");
-
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    // Format the email subject based on the selected inquiry type
-    const emailSubject = encodeURIComponent(`[${subject}] Inquiry from ${name}`);
-    const emailBody = encodeURIComponent(message);
-    
-    // Create a mailto link that will open in Gmail
-    const mailtoLink = `mailto:info@onlinenote.ai?subject=${emailSubject}&body=${emailBody}`;
-    
-    // Open the email client
-    window.open(mailtoLink, "_blank");
-    
-    // Close the dialog after sending
-    onOpenChange(false);
-    
-    // Reset the form
-    setName("");
-    setEmail("");
-    setSubject("General Info");
-    setMessage("");
+    if (!formData.name || !formData.email || !formData.message) {
+      toast({
+        title: 'Missing fields',
+        description: 'Please fill in all required fields.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    setIsLoading(true);
+
+    try {
+      // Send notification email to admin
+      const adminEmailResult = await sendEmail({
+        to: 'info@onlinenote.ai',
+        subject: `Contact Form: ${formData.subject || 'New Message'}`,
+        html: `
+          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+            <h2>New Contact Form Submission</h2>
+            <p><strong>Name:</strong> ${formData.name}</p>
+            <p><strong>Email:</strong> ${formData.email}</p>
+            <p><strong>Subject:</strong> ${formData.subject || 'No subject'}</p>
+            <h3>Message:</h3>
+            <div style="background-color: #f5f5f5; padding: 15px; border-radius: 5px;">
+              ${formData.message.replace(/\n/g, '<br>')}
+            </div>
+          </div>
+        `,
+      });
+
+      if (!adminEmailResult.success) {
+        throw new Error(adminEmailResult.error || 'Failed to send admin notification');
+      }
+
+      // Send confirmation email to user
+      const userEmailResult = await sendEmail({
+        to: formData.email,
+        subject: 'Thank you for contacting Online Note AI',
+        html: `
+          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+            <h1 style="color: #4f46e5;">Thank you for contacting us!</h1>
+            <p>Hi ${formData.name},</p>
+            <p>We've received your message and will get back to you as soon as possible.</p>
+            <h3>Your message:</h3>
+            <div style="background-color: #f5f5f5; padding: 15px; border-radius: 5px;">
+              ${formData.message.replace(/\n/g, '<br>')}
+            </div>
+            <p>If you have any urgent questions, you can also reach us directly at info@onlinenote.ai</p>
+            <p>Best regards,<br>The Online Note AI Team</p>
+          </div>
+        `,
+      });
+
+      if (!userEmailResult.success) {
+        console.warn('Failed to send confirmation email to user:', userEmailResult.error);
+      }
+
+      toast({
+        title: 'Message sent successfully!',
+        description: 'We\'ll get back to you as soon as possible.',
+      });
+
+      // Reset form
+      setFormData({
+        name: '',
+        email: '',
+        subject: '',
+        message: '',
+      });
+    } catch (error) {
+      console.error('Error sending contact form:', error);
+      toast({
+        title: 'Failed to send message',
+        description: 'Please try again later or contact us directly at info@onlinenote.ai',
+        variant: 'destructive',
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleInputChange = (field: string, value: string) => {
+    setFormData(prev => ({
+      ...prev,
+      [field]: value,
+    }));
   };
 
   return (
-    <Modal
-      isOpen={open}
-      onRequestClose={() => onOpenChange(false)}
-      contentLabel="Contact Form"
-      className="fixed left-1/2 top-24 transform -translate-x-1/2 max-w-md w-full bg-black/80 backdrop-blur-xl p-6 rounded-xl border border-indigo-500/20 shadow-2xl outline-none text-white z-50 max-h-[80vh] overflow-y-auto"
-      overlayClassName="fixed inset-0 bg-black/70 backdrop-blur-sm z-40"
-    >
-      {/* Header */}
-      <div className="flex flex-col space-y-2 text-center border-b border-indigo-500/20 pb-4">
-        <h2 className="text-xl font-bold flex items-center gap-2 justify-center">
-          <span className="bg-clip-text text-transparent bg-gradient-to-r from-indigo-400 to-purple-500">
-            Contact OneAI Notes
-          </span>
-        </h2>
-        <p className="text-white/80">
-          Have a question or feedback? We'd love to hear from you.
-        </p>
-      </div>
-      
-      <form onSubmit={handleSubmit} className="grid gap-4 py-4">
-        <div className="grid grid-cols-1 gap-2">
-          <label htmlFor="name" className="text-sm text-white/90">
-            Your Name
-          </label>
-          <input
-            id="name"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            className="flex h-10 w-full rounded-md border border-white/10 bg-black/40 px-3 py-2 text-sm text-white placeholder:text-white/50 focus:outline-none focus:ring-1 focus:ring-indigo-500/50 disabled:cursor-not-allowed disabled:opacity-50"
-            placeholder="John Doe"
-            required
-          />
-        </div>
-        
-        <div className="grid grid-cols-1 gap-2">
-          <label htmlFor="email" className="text-sm text-white/90">
-            Your Email
-          </label>
-          <input
-            id="email"
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            className="flex h-10 w-full rounded-md border border-white/10 bg-black/40 px-3 py-2 text-sm text-white placeholder:text-white/50 focus:outline-none focus:ring-1 focus:ring-indigo-500/50 disabled:cursor-not-allowed disabled:opacity-50"
-            placeholder="john@example.com"
-            required
-          />
-        </div>
-        
-        <div className="grid grid-cols-1 gap-2">
-          <label htmlFor="subject" className="text-sm text-white/90">
-            Inquiry Type
-          </label>
-          <select 
-            value={subject} 
-            onChange={(e) => setSubject(e.target.value)}
-            className="flex h-10 w-full rounded-md border border-white/10 bg-black/40 px-3 py-2 text-sm text-white placeholder:text-white/50 focus:outline-none focus:ring-1 focus:ring-indigo-500/50 disabled:cursor-not-allowed disabled:opacity-50"
+    <Card className="w-full max-w-md mx-auto bg-black/60 border-white/10">
+      <CardHeader>
+        <CardTitle className="flex items-center text-white">
+          <Mail className="w-5 h-5 mr-2" />
+          Contact Us
+        </CardTitle>
+        <CardDescription className="text-gray-400">
+          Send us a message and we'll get back to you soon.
+        </CardDescription>
+      </CardHeader>
+      <CardContent>
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div className="space-y-2">
+            <Label htmlFor="name" className="text-white">Name *</Label>
+            <Input
+              id="name"
+              type="text"
+              value={formData.name}
+              onChange={(e) => handleInputChange('name', e.target.value)}
+              className="bg-white/5 border-white/10 text-white"
+              placeholder="Your name"
+              disabled={isLoading}
+            />
+          </div>
+          
+          <div className="space-y-2">
+            <Label htmlFor="email" className="text-white">Email *</Label>
+            <Input
+              id="email"
+              type="email"
+              value={formData.email}
+              onChange={(e) => handleInputChange('email', e.target.value)}
+              className="bg-white/5 border-white/10 text-white"
+              placeholder="your@email.com"
+              disabled={isLoading}
+            />
+          </div>
+          
+          <div className="space-y-2">
+            <Label htmlFor="subject" className="text-white">Subject</Label>
+            <Input
+              id="subject"
+              type="text"
+              value={formData.subject}
+              onChange={(e) => handleInputChange('subject', e.target.value)}
+              className="bg-white/5 border-white/10 text-white"
+              placeholder="What's this about?"
+              disabled={isLoading}
+            />
+          </div>
+          
+          <div className="space-y-2">
+            <Label htmlFor="message" className="text-white">Message *</Label>
+            <Textarea
+              id="message"
+              value={formData.message}
+              onChange={(e) => handleInputChange('message', e.target.value)}
+              className="bg-white/5 border-white/10 text-white min-h-[100px]"
+              placeholder="Tell us how we can help you..."
+              disabled={isLoading}
+            />
+          </div>
+          
+          <Button 
+            type="submit" 
+            className="w-full bg-gradient-to-r from-noteflow-500 to-purple-500 hover:from-noteflow-600 hover:to-purple-600"
+            disabled={isLoading}
           >
-            <option value="General Info">General Information</option>
-            <option value="Support">Technical Support</option>
-            <option value="Feedback">Feedback & Suggestions</option>
-            <option value="Business">Business Inquiry</option>
-            <option value="Other">Other</option>
-          </select>
-        </div>
-        
-        <div className="grid grid-cols-1 gap-2">
-          <label htmlFor="message" className="text-sm text-white/90">
-            Your Message
-          </label>
-          <textarea
-            id="message"
-            value={message}
-            onChange={(e) => setMessage(e.target.value)}
-            className="min-h-[120px] flex w-full rounded-md border border-white/10 bg-black/40 px-3 py-2 text-sm text-white placeholder:text-white/50 focus:outline-none focus:ring-1 focus:ring-indigo-500/50 disabled:cursor-not-allowed disabled:opacity-50"
-            placeholder="Tell us how we can help..."
-            required
-          />
-        </div>
-        
-        <div className="mt-4 flex justify-end gap-2">
-          <button 
-            type="button" 
-            onClick={() => onOpenChange(false)}
-            className="inline-flex h-10 items-center justify-center rounded-md border border-white/10 bg-transparent px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-white/10 focus:outline-none"
-          >
-            Cancel
-          </button>
-          <button 
-            type="submit"
-            className="inline-flex h-10 items-center justify-center rounded-md bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 px-4 py-2 text-sm font-medium text-white transition-colors focus:outline-none"
-          >
-            Send Message
-          </button>
-        </div>
-      </form>
-      
-      {/* Close button */}
-      <button
-        className="absolute right-4 top-4 rounded-sm opacity-70 transition-opacity hover:opacity-100 focus:outline-none"
-        onClick={() => onOpenChange(false)}
-      >
-        <X className="h-4 w-4 text-white" />
-        <span className="sr-only">Close</span>
-      </button>
-    </Modal>
+            {isLoading ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Sending...
+              </>
+            ) : (
+              'Send Message'
+            )}
+          </Button>
+        </form>
+      </CardContent>
+    </Card>
   );
 };
 
