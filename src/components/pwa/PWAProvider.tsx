@@ -1,24 +1,9 @@
 
-import React, { createContext, useContext, useEffect, useState } from 'react';
-import { usePWAStatus } from '@/hooks/usePWAStatus';
-import { usePWAMetrics } from '@/hooks/usePWAMetrics';
-import { useToast } from '@/hooks/use-toast';
-import { offlineStorage } from './utils/OfflineStorage';
+import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 
 interface PWAContextType {
   isOnline: boolean;
   isInstalled: boolean;
-  updateAvailable: boolean;
-  canInstall: boolean;
-  installApp: () => Promise<void>;
-  requestUpdate: () => void;
-  syncStatus: {
-    pending: number;
-    syncing: boolean;
-  };
-  metrics: any;
-  sendMetricsToAnalytics: () => void;
-  offlineStorage: typeof offlineStorage;
   enhancedFeatures: {
     backgroundSync: boolean;
     pushNotifications: boolean;
@@ -28,171 +13,79 @@ interface PWAContextType {
   };
 }
 
-const PWAContext = createContext<PWAContextType | null>(null);
-
-export const usePWA = () => {
-  const context = useContext(PWAContext);
-  if (!context) {
-    throw new Error('usePWA must be used within PWAProvider');
-  }
-  return context;
-};
+const PWAContext = createContext<PWAContextType | undefined>(undefined);
 
 interface PWAProviderProps {
-  children: React.ReactNode;
+  children: ReactNode;
 }
 
 export const PWAProvider: React.FC<PWAProviderProps> = ({ children }) => {
-  const { toast } = useToast();
-  const pwaStatus = usePWAStatus();
-  const { metrics, sendMetricsToAnalytics } = usePWAMetrics();
-  const [syncStatus, setSyncStatus] = useState({
-    pending: 0,
-    syncing: false,
-  });
-
-  // Enhanced features availability
-  const [enhancedFeatures] = useState({
-    backgroundSync: 'serviceWorker' in navigator && 'sync' in window.ServiceWorkerRegistration.prototype,
-    pushNotifications: 'PushManager' in window && 'Notification' in window,
-    offlineStorage: 'indexedDB' in window,
-    installationAnalytics: 'localStorage' in window,
-    enhancedShare: 'share' in navigator || 'clipboard' in navigator,
+  // Always call hooks at the top level
+  const [isOnline, setIsOnline] = useState(navigator.onLine);
+  const [isInstalled, setIsInstalled] = useState(false);
+  const [enhancedFeatures, setEnhancedFeatures] = useState({
+    backgroundSync: false,
+    pushNotifications: false,
+    offlineStorage: false,
+    installationAnalytics: false,
+    enhancedShare: false,
   });
 
   useEffect(() => {
-    // Initialize offline storage
-    offlineStorage.initialize().catch(error => {
-      console.error('Failed to initialize offline storage:', error);
-    });
-
-    // Listen for service worker messages
-    if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.addEventListener('message', (event) => {
-        const { type, data } = event.data;
-        
-        switch (type) {
-          case 'SYNC_COMPLETED':
-            setSyncStatus(prev => ({ ...prev, syncing: false }));
-            toast({
-              title: 'Sync Complete',
-              description: `${data.count} notes synced successfully.`,
-            });
-            break;
-            
-          case 'CONNECTIVITY_RESTORED':
-            toast({
-              title: 'Connection Restored',
-              description: 'Your notes are being synced.',
-            });
-            break;
-
-          case 'CACHE_ERROR':
-            console.warn('Service worker cache error:', data);
-            break;
-
-          case 'NETWORK_ERROR':
-            toast({
-              title: 'Network Issue',
-              description: 'Some features may be limited while offline.',
-              variant: 'destructive',
-            });
-            break;
-
-          case 'STORAGE_QUOTA_EXCEEDED':
-            toast({
-              title: 'Storage Full',
-              description: 'Please clear some data to continue.',
-              variant: 'destructive',
-            });
-            break;
-
-          case 'BACKGROUND_SYNC_REGISTERED':
-            setSyncStatus(prev => ({ ...prev, pending: prev.pending + 1 }));
-            break;
-
-          case 'BACKGROUND_SYNC_COMPLETED':
-            setSyncStatus(prev => ({ 
-              ...prev, 
-              pending: Math.max(0, prev.pending - 1),
-              syncing: false 
-            }));
-            break;
-            
-          default:
-            break;
-        }
-      });
-    }
-
-    // Handle app shortcuts from manifest
-    const handleShortcuts = () => {
-      const urlParams = new URLSearchParams(window.location.search);
-      
-      if (urlParams.get('new') === 'true') {
-        const event = new CustomEvent('pwa:new-note');
-        window.dispatchEvent(event);
-      }
-      
-      if (urlParams.get('ai') === 'true') {
-        const event = new CustomEvent('pwa:open-ai');
-        window.dispatchEvent(event);
-      }
-
-      if (urlParams.get('share') === 'true') {
-        const event = new CustomEvent('pwa:open-share');
-        window.dispatchEvent(event);
-      }
+    // Check for enhanced features
+    const checkFeatures = () => {
+      const features = {
+        backgroundSync: 'serviceWorker' in navigator && 'sync' in window.ServiceWorkerRegistration.prototype,
+        pushNotifications: 'serviceWorker' in navigator && 'Notification' in window,
+        offlineStorage: 'caches' in window && 'indexedDB' in window,
+        installationAnalytics: 'serviceWorker' in navigator,
+        enhancedShare: 'share' in navigator || 'canShare' in navigator,
+      };
+      setEnhancedFeatures(features);
     };
 
-    handleShortcuts();
+    // Check installation status
+    const checkInstallationStatus = () => {
+      const isStandalone = window.matchMedia('(display-mode: standalone)').matches ||
+                          (window.navigator as any).standalone ||
+                          document.referrer.includes('android-app://');
+      setIsInstalled(isStandalone);
+    };
 
-    // Send metrics to analytics periodically
-    const metricsInterval = setInterval(() => {
-      if (Object.keys(metrics).length > 0) {
-        sendMetricsToAnalytics();
-      }
-    }, 60000); // Every minute
+    // Set up online/offline listeners
+    const handleOnline = () => setIsOnline(true);
+    const handleOffline = () => setIsOnline(false);
 
-    // Monitor storage usage
-    const storageInterval = setInterval(async () => {
-      try {
-        const usage = await offlineStorage.getStorageUsage();
-        if (usage.quota > 0 && usage.used / usage.quota > 0.9) {
-          toast({
-            title: 'Storage Almost Full',
-            description: 'Consider clearing old data to free up space.',
-            variant: 'destructive',
-          });
-        }
-      } catch (error) {
-        console.warn('Failed to check storage usage:', error);
-      }
-    }, 300000); // Every 5 minutes
+    window.addEventListener('online', handleOnline);
+    window.addEventListener('offline', handleOffline);
+
+    // Initial checks
+    checkFeatures();
+    checkInstallationStatus();
 
     return () => {
-      clearInterval(metricsInterval);
-      clearInterval(storageInterval);
+      window.removeEventListener('online', handleOnline);
+      window.removeEventListener('offline', handleOffline);
     };
-  }, [toast, metrics, sendMetricsToAnalytics]);
+  }, []);
 
-  const contextValue: PWAContextType = {
-    isOnline: pwaStatus.isOnline,
-    isInstalled: pwaStatus.isInstalled,
-    updateAvailable: pwaStatus.updateAvailable,
-    canInstall: pwaStatus.canInstall,
-    installApp: pwaStatus.installApp,
-    requestUpdate: pwaStatus.requestUpdate,
-    syncStatus,
-    metrics,
-    sendMetricsToAnalytics,
-    offlineStorage,
+  const value: PWAContextType = {
+    isOnline,
+    isInstalled,
     enhancedFeatures,
   };
 
   return (
-    <PWAContext.Provider value={contextValue}>
+    <PWAContext.Provider value={value}>
       {children}
     </PWAContext.Provider>
   );
+};
+
+export const usePWA = (): PWAContextType => {
+  const context = useContext(PWAContext);
+  if (context === undefined) {
+    throw new Error('usePWA must be used within a PWAProvider');
+  }
+  return context;
 };

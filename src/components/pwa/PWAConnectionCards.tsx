@@ -6,7 +6,10 @@ import { Wifi, Database } from 'lucide-react';
 import { usePWA } from './PWAProvider';
 
 const PWAConnectionCards: React.FC = () => {
+  // Always call the hook at the top level
   const { isOnline, isInstalled, enhancedFeatures } = usePWA();
+
+  console.log('PWAConnectionCards render:', { isOnline, isInstalled, enhancedFeatures });
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -49,8 +52,8 @@ const PWAConnectionCards: React.FC = () => {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <Badge variant={enhancedFeatures.offlineStorage ? 'default' : 'secondary'}>
-            {enhancedFeatures.offlineStorage ? 'Available' : 'Limited'}
+          <Badge variant={enhancedFeatures?.offlineStorage ? 'default' : 'secondary'}>
+            {enhancedFeatures?.offlineStorage ? 'Available' : 'Limited'}
           </Badge>
         </CardContent>
       </Card>

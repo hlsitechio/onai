@@ -88,7 +88,7 @@ class CacheManager {
 
   static isNavigationRequest(request) {
     return request.mode === 'navigate' || 
-           (request.method === 'GET' && request.headers.get('accept').includes('text/html'));
+           (request.method === 'GET' && request.headers.get('accept') && request.headers.get('accept').includes('text/html'));
   }
 
   static async cacheFirst(request, cacheName) {
@@ -278,6 +278,7 @@ class CacheManager {
   static createOfflineResponse(request) {
     const url = new URL(request.url);
     
+    // Always return a proper Response object
     if (this.isAPIRequest(url)) {
       return new Response(JSON.stringify({ 
         error: 'Network unavailable', 
@@ -289,6 +290,7 @@ class CacheManager {
       });
     }
     
+    // For all other requests, return a proper Response object
     return new Response('Offline - Please check your connection', { 
       status: 503,
       headers: { 'Content-Type': 'text/plain' }
