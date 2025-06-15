@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useCallback } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { useNotesManager } from '@/hooks/useNotesManager';
@@ -68,7 +67,7 @@ const TransferredTextEditor: React.FC = () => {
     }
 
     try {
-      await saveNote(content);
+      await saveNote();
       setLastSaved(new Date());
       toast({
         title: "Note saved",
