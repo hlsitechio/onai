@@ -12,16 +12,14 @@ import DotGridBackground from "@/components/DotGridBackground";
 
 const Index = () => {
   return (
-    <div className="min-h-screen w-full overflow-hidden bg-black relative page-container">
-      {/* Enhanced Dark Background - Fixed positioning for consistency */}
+    <div className="min-h-screen w-full overflow-hidden bg-black relative">
+      {/* Enhanced Dark Background */}
       <DotGridBackground />
       
       {/* Header */}
-      <div className="relative z-20">
-        <Header />
-      </div>
+      <Header />
       
-      {/* Hero Section */}
+      {/* Hero Section - Simplified */}
       <div className="relative z-10">
         <Hero />
       </div>
@@ -57,9 +55,7 @@ const Index = () => {
       </div>
       
       {/* Footer */}
-      <div className="relative z-10">
-        <Footer />
-      </div>
+      <Footer />
       
       {/* Cookie Consent */}
       <CookieConsent />
