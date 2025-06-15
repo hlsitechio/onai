@@ -4,6 +4,8 @@ import Header from "@/components/Header";
 import Hero from "@/components/Hero";
 import Features from "@/components/Features";
 import EditorManager from "@/components/editor/EditorManager";
+import SponsorsWallOfFame from "@/components/SponsorsWallOfFame";
+import SitemapSection from "@/components/SitemapSection";
 import Footer from "@/components/Footer";
 import CookieConsent from "@/components/CookieConsent";
 import DotGridBackground from "@/components/DotGridBackground";
@@ -37,9 +39,19 @@ const Index = () => {
         </div>
       </section>
       
-      {/* Simplified Features Section */}
+      {/* Features Section */}
       <div className="relative z-10">
         <Features />
+      </div>
+      
+      {/* Wall of Fame / Sponsors Section */}
+      <div className="relative z-10">
+        <SponsorsWallOfFame />
+      </div>
+      
+      {/* Sitemap Section */}
+      <div className="relative z-10">
+        <SitemapSection />
       </div>
       
       {/* Footer */}
