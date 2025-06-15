@@ -1,20 +1,25 @@
+
 {
   "name": "OneAI Notes - 100% Free Note Taking App",
   "short_name": "OneAI Notes",
   "description": "Create, edit and organize beautiful notes with OneAI. Completely free forever, no login required. Secure storage with AI assistance.",
   "start_url": "/",
+  "scope": "/",
   "display": "standalone",
+  "orientation": "any",
   "background_color": "#000000",
-  "theme_color": "#000000",
+  "theme_color": "#783DFF",
+  "lang": "en",
+  "dir": "ltr",
   "icons": [
     {
-      "src": "/icons/icon-192x192.png",
+      "src": "/lovable-uploads/8a54ca4d-f005-4821-b9d8-3fd2958d340b.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any maskable"
     },
     {
-      "src": "/icons/icon-512x512.png",
+      "src": "/lovable-uploads/8a54ca4d-f005-4821-b9d8-3fd2958d340b.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"
@@ -43,12 +48,49 @@
       "short_name": "New",
       "description": "Create a new note",
       "url": "/?new=true",
-      "icons": [{ "src": "/new-note-icon.png", "sizes": "192x192" }]
+      "icons": [{ 
+        "src": "/lovable-uploads/8a54ca4d-f005-4821-b9d8-3fd2958d340b.png", 
+        "sizes": "192x192" 
+      }]
+    },
+    {
+      "name": "AI Assistant",
+      "short_name": "AI",
+      "description": "Open AI assistant",
+      "url": "/?ai=true",
+      "icons": [{ 
+        "src": "/lovable-uploads/8a54ca4d-f005-4821-b9d8-3fd2958d340b.png", 
+        "sizes": "192x192" 
+      }]
     }
   ],
   "related_applications": [],
   "prefer_related_applications": false,
   "edge_side_panel": {
     "preferred_width": 400
-  }
+  },
+  "protocol_handlers": [
+    {
+      "protocol": "web+notes",
+      "url": "/?note=%s"
+    }
+  ],
+  "share_target": {
+    "action": "/",
+    "method": "GET",
+    "params": {
+      "title": "title",
+      "text": "text",
+      "url": "url"
+    }
+  },
+  "file_handlers": [
+    {
+      "action": "/",
+      "accept": {
+        "text/plain": [".txt"],
+        "text/markdown": [".md", ".markdown"]
+      }
+    }
+  ]
 }

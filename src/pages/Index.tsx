@@ -10,12 +10,18 @@ import SitemapSection from "@/components/SitemapSection";
 import Footer from "@/components/Footer";
 import CookieConsent from "@/components/CookieConsent";
 import DotGridBackground from "@/components/DotGridBackground";
+import PWAInstaller from "@/components/pwa/PWAInstaller";
+import OfflineIndicator from "@/components/pwa/OfflineIndicator";
 
 const Index = () => {
   return (
     <div className="min-h-screen w-full overflow-hidden bg-black relative">
       {/* Enhanced Dark Background */}
       <DotGridBackground />
+      
+      {/* PWA Components */}
+      <PWAInstaller />
+      <OfflineIndicator />
       
       {/* Header */}
       <Header />
