@@ -2,7 +2,6 @@
 import React from "react";
 import { cn } from "@/lib/utils";
 import FocusModeOverlay from "./FocusModeOverlay";
-import "../../styles/rotating-border.css";
 
 interface EditorLayoutProps {
   isFocusMode: boolean;
@@ -14,42 +13,24 @@ const EditorLayout: React.FC<EditorLayoutProps> = ({
   children
 }) => {
   return (
-    <section id="editor-section" className={cn(
-      "pt-0 pb-4 sm:pb-6 px-3 relative transition-all duration-500 w-full overflow-hidden border-0"
+    <div className={cn(
+      "min-h-screen w-full relative",
+      "bg-gradient-to-br from-[#050510] to-[#0a0518]"
     )}>
       {/* Enhanced focus mode overlay */}
       <FocusModeOverlay isFocusMode={isFocusMode} />
       
+      {/* Main content container */}
       <div className={cn(
-        "mx-auto px-1 sm:px-2 md:px-3 w-full relative",
+        "w-full h-screen relative",
         isFocusMode ? "z-[101]" : "z-10"
       )}>
-        {/* Rotating border container with proper positioning */}
-        <div className={cn(
-          "relative w-full", 
-          isFocusMode && "focus-mode"
-        )}>
-          {/* Multiple glow layers for enhanced effect */}
-          <div className={cn(
-            "rotating-border-glow rotating-border-pulse",
-            isFocusMode && "focus-mode"
-          )}></div>
-          
-          {/* Main container with rotating border */}
-          <div className={cn(
-            "rotating-border-container relative w-full",
-            isFocusMode && "focus-mode"
-          )}>
-            {/* Inner content with proper background and height */}
-            <div className="rotating-border-inner w-full">
-              <div className="w-full h-[calc(100vh-120px)] min-h-[500px] p-1 overflow-hidden relative">
-                {children}
-              </div>
-            </div>
-          </div>
+        {/* Content wrapper with proper height */}
+        <div className="w-full h-full overflow-hidden">
+          {children}
         </div>
       </div>
-    </section>
+    </div>
   );
 };
 

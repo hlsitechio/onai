@@ -40,24 +40,26 @@ function App() {
   };
 
   return (
-    <QueryClientProvider client={queryClient}>
-      <TooltipProvider>
-        <AppInitializer>
-          <Toaster />
-          <BrowserRouter>
-            <Routes>
-              <Route path="/" element={<Index />} />
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-          </BrowserRouter>
-          <MigrationDialog 
-            isOpen={showMigrationDialog}
-            onOpenChange={setShowMigrationDialog}
-            onMigrationComplete={handleMigrationComplete}
-          />
-        </AppInitializer>
-      </TooltipProvider>
-    </QueryClientProvider>
+    <div className="min-h-screen w-full">
+      <QueryClientProvider client={queryClient}>
+        <TooltipProvider>
+          <AppInitializer>
+            <Toaster />
+            <BrowserRouter>
+              <Routes>
+                <Route path="/" element={<Index />} />
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+            </BrowserRouter>
+            <MigrationDialog 
+              isOpen={showMigrationDialog}
+              onOpenChange={setShowMigrationDialog}
+              onMigrationComplete={handleMigrationComplete}
+            />
+          </AppInitializer>
+        </TooltipProvider>
+      </QueryClientProvider>
+    </div>
   );
 }
 

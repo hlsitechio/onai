@@ -1,123 +1,151 @@
 
-import React, { useState, useCallback, useEffect } from "react";
-import { useToast } from "@/hooks/use-toast";
-import { useIsMobileDevice } from "@/hooks/useIsMobileDevice";
-import MobileLayout from "./mobile/MobileLayout";
-import EditorLayout from "./editor/EditorLayout";
-import EditorPanels from "./editor/EditorPanels";
-import { useFocusModeManager } from "@/hooks/useFocusModeManager";
-import { useKeyboardShortcuts } from "@/hooks/useKeyboardShortcuts";
-import { useSupabaseNotes } from "@/hooks/useSupabaseNotes";
+import React, { useState, useEffect, useCallback } from 'react';
+import { useToast } from '@/hooks/use-toast';
+import { useNotesManager } from '@/hooks/useNotesManager';
+import { useSupabaseNotes } from '@/hooks/useSupabaseNotes';
+import { useFocusModeManager } from '@/hooks/useFocusModeManager';
+import EditorLayout from './editor/EditorLayout';
+import EditorPanels from './editor/EditorPanels';
 
-const TransferredTextEditor = () => {
-  const { toast } = useToast();
-  const isMobileDevice = useIsMobileDevice();
+const TransferredTextEditor: React.FC = () => {
+  const [content, setContent] = useState('');
   const [isLeftSidebarOpen, setIsLeftSidebarOpen] = useState(true);
-  const [isAISidebarOpen, setIsAISidebarOpen] = useState(true);
+  const [isAISidebarOpen, setIsAISidebarOpen] = useState(false);
+  const [isAIDialogOpen, setIsAIDialogOpen] = useState(false);
+  const [lastSaved, setLastSaved] = useState<Date | null>(null);
   
-  // Focus mode management
-  const { isFocusMode, setFocusMode, toggleFocusMode } = useFocusModeManager();
+  const { toast } = useToast();
+  const { isFocusMode, toggleFocusMode } = useFocusModeManager();
   
-  // Use Supabase notes hook for proper save functionality
-  const { 
-    content, 
-    setContent, 
-    lastSaved, 
-    execCommand, 
-    handleSave, 
-    handleLoadNote,
-    handleDeleteNote,
-    isAIDialogOpen,
-    toggleAIDialog,
-    setIsAIDialogOpen,
+  const {
     allNotes,
-    createNewNote,
-    isSupabaseReady,
+    saveNote,
+    deleteNote,
     importNotes
   } = useSupabaseNotes();
 
-  // Check for shared content on initialization
+  // Auto-save functionality
   useEffect(() => {
-    const sharedContent = localStorage.getItem('onlinenote-shared-content');
-    if (sharedContent) {
-      setContent(sharedContent);
-      localStorage.removeItem('onlinenote-shared-content');
+    if (content.trim() && content !== '<p></p>') {
+      const timer = setTimeout(() => {
+        handleSave();
+      }, 2000);
+      return () => clearTimeout(timer);
+    }
+  }, [content]);
+
+  // Keyboard shortcuts
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.ctrlKey && event.key === 's') {
+        event.preventDefault();
+        handleSave();
+      }
+      
+      if (event.key === 'F11') {
+        event.preventDefault();
+        toggleFocusMode();
+      }
+      
+      if (event.ctrlKey && event.shiftKey && event.key === 'A') {
+        event.preventDefault();
+        setIsAIDialogOpen(true);
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [toggleFocusMode]);
+
+  const handleSave = useCallback(async () => {
+    if (!content.trim() || content === '<p></p>') {
       toast({
-        title: 'Shared note loaded',
-        description: 'The shared note has been loaded into the editor.',
+        title: "Nothing to save",
+        description: "Your note is empty.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    try {
+      await saveNote(content);
+      setLastSaved(new Date());
+      toast({
+        title: "Note saved",
+        description: "Your note has been saved successfully."
+      });
+    } catch (error) {
+      console.error('Save error:', error);
+      toast({
+        title: "Save failed",
+        description: "Failed to save your note. Please try again.",
+        variant: "destructive"
       });
     }
-  }, [setContent, toast]);
-  
-  // Create a wrapper function that matches the expected signature
-  const handleNoteLoad = useCallback((content: string) => {
-    setContent(content);
-  }, [setContent]);
-  
-  // Handle import notes with proper integration
-  const handleImportNotes = useCallback(async (importedNotes: Record<string, string>) => {
+  }, [content, saveNote, toast]);
+
+  const handleNoteLoad = useCallback((noteContent: string) => {
+    setContent(noteContent);
+  }, []);
+
+  const handleDeleteNote = useCallback(async (noteId: string): Promise<boolean> => {
     try {
-      const success = await importNotes(importedNotes);
-      if (success) {
-        toast({
-          title: "Notes imported successfully",
-          description: `Imported ${Object.keys(importedNotes).length} notes`
-        });
-      } else {
-        toast({
-          title: "Import failed",
-          description: "Some notes could not be imported",
-          variant: "destructive"
-        });
-      }
-      return success;
-    } catch (error) {
-      console.error('Error importing notes:', error);
+      await deleteNote(noteId);
       toast({
-        title: "Import error",
-        description: "An error occurred while importing notes",
+        title: "Note deleted",
+        description: "The note has been deleted successfully."
+      });
+      return true;
+    } catch (error) {
+      console.error('Delete error:', error);
+      toast({
+        title: "Delete failed",
+        description: "Failed to delete the note. Please try again.",
+        variant: "destructive"
+      });
+      return false;
+    }
+  }, [deleteNote, toast]);
+
+  const createNewNote = useCallback(() => {
+    setContent('');
+    setLastSaved(null);
+  }, []);
+
+  const handleImportNotes = useCallback(async (importedNotes: Record<string, string>): Promise<boolean> => {
+    try {
+      await importNotes(importedNotes);
+      toast({
+        title: "Notes imported",
+        description: `Successfully imported ${Object.keys(importedNotes).length} notes.`
+      });
+      return true;
+    } catch (error) {
+      console.error('Import error:', error);
+      toast({
+        title: "Import failed",
+        description: "Failed to import notes. Please try again.",
         variant: "destructive"
       });
       return false;
     }
   }, [importNotes, toast]);
-  
-  // Define regular functions for sidebar toggles
-  const toggleLeftSidebar = () => {
-    setIsLeftSidebarOpen(!isLeftSidebarOpen);
-  };
-  
-  const toggleAISidebar = () => {
-    setIsAISidebarOpen(!isAISidebarOpen);
-  };
-  
-  const handleToggleFocusMode = () => {
-    toggleFocusMode();
-    // When entering focus mode, close both sidebars
-    if (!isFocusMode) {
-      setIsLeftSidebarOpen(false);
-      setIsAISidebarOpen(false);
-    }
-  };
-  
-  // Setup keyboard shortcuts
-  useKeyboardShortcuts({
-    handleSave,
-    toggleFocusMode: handleToggleFocusMode,
-    toggleLeftSidebar,
-    toggleAISidebar,
-    isFocusMode,
-    setFocusMode
-  });
 
-  // Convert lastSaved Date to string format for the toolbar
+  const execCommand = useCallback((command: string, value?: string | null) => {
+    // This is mainly for compatibility - most formatting is handled by TiptapEditor
+    console.log('Editor command:', command, value);
+  }, []);
+
+  const toggleLeftSidebar = useCallback(() => {
+    setIsLeftSidebarOpen(prev => !prev);
+  }, []);
+
+  const toggleAISidebar = useCallback(() => {
+    setIsAISidebarOpen(prev => !prev);
+  }, []);
+
   const lastSavedString = lastSaved ? lastSaved.toISOString() : undefined;
 
-  // Use mobile layout for mobile devices
-  if (isMobileDevice) {
-    return <MobileLayout />;
-  }
-  
   return (
     <EditorLayout isFocusMode={isFocusMode}>
       <EditorPanels
@@ -136,7 +164,7 @@ const TransferredTextEditor = () => {
         toggleLeftSidebar={toggleLeftSidebar}
         toggleAISidebar={toggleAISidebar}
         lastSavedString={lastSavedString}
-        handleToggleFocusMode={handleToggleFocusMode}
+        handleToggleFocusMode={toggleFocusMode}
         isAIDialogOpen={isAIDialogOpen}
         setIsAIDialogOpen={setIsAIDialogOpen}
       />
