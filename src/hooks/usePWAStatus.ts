@@ -65,14 +65,11 @@ export function usePWAStatus() {
       toast({
         title: "Update Available",
         description: "A new version is ready. Refresh to update.",
-        action: (
-          <button 
-            onClick={() => window.location.reload()}
-            className="bg-noteflow-500 text-white px-3 py-1 rounded text-sm"
-          >
-            Refresh
-          </button>
-        ),
+        action: {
+          altText: "Refresh",
+          label: "Refresh",
+          onClick: () => window.location.reload()
+        },
       });
     };
 
