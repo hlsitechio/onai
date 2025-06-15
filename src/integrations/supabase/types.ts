@@ -180,6 +180,42 @@ export type Database = {
         }
         Relationships: []
       }
+      pwa_analytics: {
+        Row: {
+          browser: string | null
+          created_at: string
+          device_type: string | null
+          event_type: string
+          id: string
+          metadata: Json | null
+          platform: string | null
+          session_id: string | null
+          user_agent: string | null
+        }
+        Insert: {
+          browser?: string | null
+          created_at?: string
+          device_type?: string | null
+          event_type: string
+          id?: string
+          metadata?: Json | null
+          platform?: string | null
+          session_id?: string | null
+          user_agent?: string | null
+        }
+        Update: {
+          browser?: string | null
+          created_at?: string
+          device_type?: string | null
+          event_type?: string
+          id?: string
+          metadata?: Json | null
+          platform?: string | null
+          session_id?: string | null
+          user_agent?: string | null
+        }
+        Relationships: []
+      }
       rate_limits: {
         Row: {
           blocked_until: string | null
@@ -301,6 +337,16 @@ export type Database = {
           page_path: string | null
           visit_count: number | null
           visit_date: string | null
+        }
+        Relationships: []
+      }
+      pwa_analytics_summary: {
+        Row: {
+          count: number | null
+          date: string | null
+          device_type: string | null
+          event_type: string | null
+          platform: string | null
         }
         Relationships: []
       }

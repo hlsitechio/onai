@@ -5,6 +5,8 @@ import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Button } from '@/components/ui/button';
 import { Smartphone, Monitor, Download, Users, TrendingUp } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
+import { useToast } from '@/hooks/use-toast';
 
 interface InstallationMetrics {
   promptsShown: number;
@@ -25,7 +27,18 @@ interface InstallationMetrics {
   };
 }
 
+interface PWAAnalyticsEvent {
+  event_type: 'prompt_shown' | 'install_completed' | 'install_declined' | 'app_launched';
+  user_agent?: string;
+  device_type?: 'mobile' | 'desktop' | 'tablet';
+  platform?: 'android' | 'ios' | 'windows' | 'mac' | 'linux';
+  browser?: string;
+  session_id?: string;
+  metadata?: any;
+}
+
 const PWAInstallationAnalytics: React.FC = () => {
+  const { toast } = useToast();
   const [metrics, setMetrics] = useState<InstallationMetrics>({
     promptsShown: 0,
     installsCompleted: 0,
@@ -36,121 +49,273 @@ const PWAInstallationAnalytics: React.FC = () => {
   });
 
   const [isCollecting, setIsCollecting] = useState(true);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     // Only initialize analytics in development mode
     if (!import.meta.env.DEV) return;
     
-    loadMetrics();
+    loadMetricsFromSupabase();
     setupAnalyticsListeners();
   }, []);
 
-  const loadMetrics = () => {
+  const loadMetricsFromSupabase = async () => {
     try {
-      const stored = localStorage.getItem('pwa-installation-metrics');
-      if (stored) {
-        const parsedMetrics = JSON.parse(stored);
-        setMetrics(parsedMetrics);
+      setIsLoading(true);
+      
+      // Get all analytics events
+      const { data: events, error } = await supabase
+        .from('pwa_analytics')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (error) {
+        console.error('Error loading analytics:', error);
+        toast({
+          title: 'Analytics Error',
+          description: 'Failed to load analytics data from database',
+          variant: 'destructive',
+        });
+        return;
       }
+
+      if (!events || events.length === 0) {
+        setMetrics({
+          promptsShown: 0,
+          installsCompleted: 0,
+          installsDeclined: 0,
+          installationRate: 0,
+          deviceTypes: { mobile: 0, desktop: 0, tablet: 0 },
+          platforms: { android: 0, ios: 0, windows: 0, mac: 0, linux: 0 }
+        });
+        return;
+      }
+
+      // Process events into metrics
+      const newMetrics: InstallationMetrics = {
+        promptsShown: events.filter(e => e.event_type === 'prompt_shown').length,
+        installsCompleted: events.filter(e => e.event_type === 'install_completed').length,
+        installsDeclined: events.filter(e => e.event_type === 'install_declined').length,
+        installationRate: 0,
+        deviceTypes: { mobile: 0, desktop: 0, tablet: 0 },
+        platforms: { android: 0, ios: 0, windows: 0, mac: 0, linux: 0 }
+      };
+
+      // Calculate installation rate
+      newMetrics.installationRate = newMetrics.promptsShown > 0 
+        ? Math.round((newMetrics.installsCompleted / newMetrics.promptsShown) * 100)
+        : 0;
+
+      // Count device types and platforms
+      events.forEach(event => {
+        if (event.device_type && newMetrics.deviceTypes.hasOwnProperty(event.device_type)) {
+          newMetrics.deviceTypes[event.device_type as keyof typeof newMetrics.deviceTypes]++;
+        }
+        if (event.platform && newMetrics.platforms.hasOwnProperty(event.platform)) {
+          newMetrics.platforms[event.platform as keyof typeof newMetrics.platforms]++;
+        }
+      });
+
+      setMetrics(newMetrics);
     } catch (error) {
-      console.error('Error loading installation metrics:', error);
+      console.error('Error processing analytics data:', error);
+      toast({
+        title: 'Analytics Error',
+        description: 'Failed to process analytics data',
+        variant: 'destructive',
+      });
+    } finally {
+      setIsLoading(false);
     }
   };
 
-  const saveMetrics = (newMetrics: InstallationMetrics) => {
+  const trackEvent = async (eventData: PWAAnalyticsEvent) => {
+    if (!isCollecting || !import.meta.env.DEV) return;
+
     try {
-      localStorage.setItem('pwa-installation-metrics', JSON.stringify(newMetrics));
-      setMetrics(newMetrics);
+      const { error } = await supabase
+        .from('pwa_analytics')
+        .insert([{
+          event_type: eventData.event_type,
+          user_agent: eventData.user_agent || navigator.userAgent,
+          device_type: eventData.device_type || detectDeviceType(),
+          platform: eventData.platform || detectPlatform(),
+          browser: eventData.browser || detectBrowser(),
+          session_id: eventData.session_id || getSessionId(),
+          metadata: eventData.metadata || {}
+        }]);
+
+      if (error) {
+        console.error('Error tracking event:', error);
+        return;
+      }
+
+      // Reload metrics after tracking new event
+      await loadMetricsFromSupabase();
     } catch (error) {
-      console.error('Error saving installation metrics:', error);
+      console.error('Error saving analytics event:', error);
     }
+  };
+
+  const detectDeviceType = (): 'mobile' | 'desktop' | 'tablet' => {
+    const userAgent = navigator.userAgent.toLowerCase();
+    const isMobile = /android|webos|iphone|ipad|ipod|blackberry|iemobile|opera mini/i.test(userAgent);
+    const isTablet = /ipad|android(?!.*mobile)/i.test(userAgent);
+    
+    if (isMobile && !isTablet) return 'mobile';
+    if (isTablet) return 'tablet';
+    return 'desktop';
+  };
+
+  const detectPlatform = (): 'android' | 'ios' | 'windows' | 'mac' | 'linux' => {
+    const userAgent = navigator.userAgent.toLowerCase();
+    if (userAgent.includes('android')) return 'android';
+    if (userAgent.includes('iphone') || userAgent.includes('ipad')) return 'ios';
+    if (userAgent.includes('mac')) return 'mac';
+    if (userAgent.includes('linux')) return 'linux';
+    return 'windows';
+  };
+
+  const detectBrowser = (): string => {
+    const userAgent = navigator.userAgent;
+    if (userAgent.includes('Chrome')) return 'Chrome';
+    if (userAgent.includes('Firefox')) return 'Firefox';
+    if (userAgent.includes('Safari')) return 'Safari';
+    if (userAgent.includes('Edge')) return 'Edge';
+    return 'Other';
+  };
+
+  const getSessionId = (): string => {
+    let sessionId = sessionStorage.getItem('pwa-session-id');
+    if (!sessionId) {
+      sessionId = Date.now().toString(36) + Math.random().toString(36).substr(2);
+      sessionStorage.setItem('pwa-session-id', sessionId);
+    }
+    return sessionId;
   };
 
   const setupAnalyticsListeners = () => {
     // Track install prompt shown
     window.addEventListener('beforeinstallprompt', () => {
-      const newMetrics = {
-        ...metrics,
-        promptsShown: metrics.promptsShown + 1
-      };
-      newMetrics.installationRate = calculateInstallationRate(newMetrics);
-      saveMetrics(newMetrics);
-      trackDeviceAndPlatform();
+      trackEvent({ event_type: 'prompt_shown' });
     });
 
     // Track successful installation
     window.addEventListener('appinstalled', () => {
-      const newMetrics = {
-        ...metrics,
-        installsCompleted: metrics.installsCompleted + 1
-      };
-      newMetrics.installationRate = calculateInstallationRate(newMetrics);
-      saveMetrics(newMetrics);
+      trackEvent({ event_type: 'install_completed' });
     });
   };
 
-  const calculateInstallationRate = (metricsData: InstallationMetrics): number => {
-    const totalPrompts = metricsData.promptsShown;
-    if (totalPrompts === 0) return 0;
-    return Math.round((metricsData.installsCompleted / totalPrompts) * 100);
+  const recordDeclined = async () => {
+    await trackEvent({ event_type: 'install_declined' });
   };
 
-  const trackDeviceAndPlatform = () => {
-    const userAgent = navigator.userAgent.toLowerCase();
-    const isMobile = /android|webos|iphone|ipad|ipod|blackberry|iemobile|opera mini/i.test(userAgent);
-    const isTablet = /ipad|android(?!.*mobile)/i.test(userAgent);
-    
-    let deviceType: 'mobile' | 'desktop' | 'tablet' = 'desktop';
-    if (isMobile && !isTablet) deviceType = 'mobile';
-    else if (isTablet) deviceType = 'tablet';
+  const resetMetrics = async () => {
+    try {
+      // Delete all analytics data
+      const { error } = await supabase
+        .from('pwa_analytics')
+        .delete()
+        .neq('id', '00000000-0000-0000-0000-000000000000'); // Delete all rows
 
-    let platform: keyof InstallationMetrics['platforms'] = 'windows';
-    if (userAgent.includes('android')) platform = 'android';
-    else if (userAgent.includes('iphone') || userAgent.includes('ipad')) platform = 'ios';
-    else if (userAgent.includes('mac')) platform = 'mac';
-    else if (userAgent.includes('linux')) platform = 'linux';
+      if (error) {
+        console.error('Error resetting analytics:', error);
+        toast({
+          title: 'Reset Failed',
+          description: 'Failed to reset analytics data',
+          variant: 'destructive',
+        });
+        return;
+      }
 
-    const newMetrics = { ...metrics };
-    newMetrics.deviceTypes[deviceType]++;
-    newMetrics.platforms[platform]++;
-    saveMetrics(newMetrics);
+      // Reload metrics
+      await loadMetricsFromSupabase();
+      
+      toast({
+        title: 'Analytics Reset',
+        description: 'All analytics data has been cleared',
+      });
+    } catch (error) {
+      console.error('Error resetting analytics:', error);
+      toast({
+        title: 'Reset Failed',
+        description: 'An error occurred while resetting analytics',
+        variant: 'destructive',
+      });
+    }
   };
 
-  const recordDeclined = () => {
-    const newMetrics = {
-      ...metrics,
-      installsDeclined: metrics.installsDeclined + 1
-    };
-    newMetrics.installationRate = calculateInstallationRate(newMetrics);
-    saveMetrics(newMetrics);
-  };
+  const exportMetrics = async () => {
+    try {
+      // Get all raw data for export
+      const { data: events, error } = await supabase
+        .from('pwa_analytics')
+        .select('*')
+        .order('created_at', { ascending: false });
 
-  const resetMetrics = () => {
-    const resetMetrics: InstallationMetrics = {
-      promptsShown: 0,
-      installsCompleted: 0,
-      installsDeclined: 0,
-      installationRate: 0,
-      deviceTypes: { mobile: 0, desktop: 0, tablet: 0 },
-      platforms: { android: 0, ios: 0, windows: 0, mac: 0, linux: 0 }
-    };
-    saveMetrics(resetMetrics);
-  };
+      if (error) {
+        console.error('Error exporting analytics:', error);
+        toast({
+          title: 'Export Failed',
+          description: 'Failed to export analytics data',
+          variant: 'destructive',
+        });
+        return;
+      }
 
-  const exportMetrics = () => {
-    const dataStr = JSON.stringify(metrics, null, 2);
-    const dataBlob = new Blob([dataStr], { type: 'application/json' });
-    const url = URL.createObjectURL(dataBlob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = 'pwa-installation-metrics.json';
-    link.click();
-    URL.revokeObjectURL(url);
+      const exportData = {
+        summary: metrics,
+        events: events || [],
+        exportedAt: new Date().toISOString()
+      };
+
+      const dataStr = JSON.stringify(exportData, null, 2);
+      const dataBlob = new Blob([dataStr], { type: 'application/json' });
+      const url = URL.createObjectURL(dataBlob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `pwa-analytics-${new Date().toISOString().split('T')[0]}.json`;
+      link.click();
+      URL.revokeObjectURL(url);
+      
+      toast({
+        title: 'Export Complete',
+        description: 'Analytics data has been downloaded',
+      });
+    } catch (error) {
+      console.error('Error exporting analytics:', error);
+      toast({
+        title: 'Export Failed',
+        description: 'An error occurred during export',
+        variant: 'destructive',
+      });
+    }
   };
 
   // Only show in development mode
   if (!import.meta.env.DEV) {
     return null;
+  }
+
+  if (isLoading) {
+    return (
+      <Card className="w-full max-w-2xl">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <TrendingUp className="h-5 w-5" />
+            PWA Installation Analytics (Dev Only)
+          </CardTitle>
+          <CardDescription>
+            Loading analytics data from database...
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="flex items-center justify-center p-8">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+          </div>
+        </CardContent>
+      </Card>
+    );
   }
 
   return (
@@ -161,7 +326,7 @@ const PWAInstallationAnalytics: React.FC = () => {
           PWA Installation Analytics (Dev Only)
         </CardTitle>
         <CardDescription>
-          Development analytics - not visible to production users
+          Development analytics stored in Supabase - not visible to production users
         </CardDescription>
       </CardHeader>
       
@@ -238,6 +403,10 @@ const PWAInstallationAnalytics: React.FC = () => {
             onClick={() => setIsCollecting(!isCollecting)}
           >
             {isCollecting ? 'Pause' : 'Resume'} Tracking
+          </Button>
+          
+          <Button variant="outline" size="sm" onClick={recordDeclined}>
+            Test Decline Event
           </Button>
           
           <Button variant="outline" size="sm" onClick={exportMetrics}>
