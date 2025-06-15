@@ -106,10 +106,10 @@ class CacheManager {
       }
       
       const response = await fetch(request);
-      if (response.ok) {
+      if (response && response.ok) {
         cache.put(request, response.clone());
       }
-      return response;
+      return response || this.createOfflineResponse(request);
     } catch (error) {
       console.error('Cache first strategy failed:', error);
       return this.createOfflineResponse(request);
@@ -120,12 +120,16 @@ class CacheManager {
     try {
       const response = await fetch(request, { timeout: 5000 });
       
-      if (response.ok) {
+      if (response && response.ok) {
         const cache = await caches.open(cacheName);
         cache.put(request, response.clone());
+        return response;
       }
       
-      return response;
+      // If response is not ok, try cache
+      const cache = await caches.open(cacheName);
+      const cached = await cache.match(request);
+      return cached || this.createOfflineResponse(request);
     } catch (error) {
       console.log('Network failed, trying cache:', error);
       
@@ -150,16 +154,16 @@ class CacheManager {
       const cached = await cache.match(request);
       
       const fetchPromise = fetch(request).then((response) => {
-        if (response.ok) {
+        if (response && response.ok) {
           cache.put(request, response.clone());
         }
         return response;
       }).catch((error) => {
         console.warn('Background fetch failed:', error);
-        return cached;
+        return null;
       });
       
-      return cached || fetchPromise;
+      return cached || fetchPromise || this.createOfflineResponse(request);
     } catch (error) {
       console.error('Stale while revalidate failed:', error);
       return this.createOfflineResponse(request);
@@ -169,63 +173,67 @@ class CacheManager {
   static async handleNavigation(request) {
     try {
       const response = await fetch(request, { timeout: 3000 });
-      return response;
+      if (response && response.ok) {
+        return response;
+      }
     } catch (error) {
       console.log('Navigation request failed, serving cached version:', error);
-      
-      try {
-        const cache = await caches.open(STATIC_CACHE);
-        const cached = await cache.match('/') || await cache.match('/index.html');
-        
-        if (cached) {
-          return cached;
-        }
-      } catch (cacheError) {
-        console.error('Cache navigation fallback failed:', cacheError);
-      }
-      
-      return new Response(this.getOfflineHTML(), { 
-        status: 503, 
-        headers: { 'Content-Type': 'text/html' } 
-      });
     }
+    
+    try {
+      const cache = await caches.open(STATIC_CACHE);
+      const cached = await cache.match('/') || await cache.match('/index.html');
+      
+      if (cached) {
+        return cached;
+      }
+    } catch (cacheError) {
+      console.error('Cache navigation fallback failed:', cacheError);
+    }
+    
+    return new Response(this.getOfflineHTML(), { 
+      status: 503, 
+      headers: { 'Content-Type': 'text/html' } 
+    });
   }
 
   static async handleNotesSave(request) {
     try {
       const response = await fetch(request, { timeout: 10000 });
-      return response;
+      if (response && response.ok) {
+        return response;
+      }
     } catch (error) {
       console.log('Notes save failed, storing offline:', error);
+    }
+    
+    try {
+      // Store offline and sync later
+      const requestData = await request.json();
+      await this.storeOfflineNote(requestData);
       
-      try {
-        // Store offline and sync later
-        const requestData = await request.json();
-        await this.storeOfflineNote(requestData);
-        
-        // Register background sync
-        if ('serviceWorker' in navigator && 'sync' in window.ServiceWorkerRegistration.prototype) {
-          await self.registration.sync.register('sync-notes');
-        }
-        
-        return new Response(JSON.stringify({ 
-          success: true, 
-          offline: true,
-          message: 'Note saved offline, will sync when online' 
-        }), {
-          status: 200,
-          headers: { 'Content-Type': 'application/json' }
-        });
-      } catch (offlineError) {
-        console.error('Offline storage failed:', offlineError);
-        return new Response(JSON.stringify({ 
-          error: 'Failed to save note offline', 
-          details: offlineError.message 
-        }), {
-          status: 500,
-          headers: { 'Content-Type': 'application/json' }
-        });
+      // Register background sync
+      if ('serviceWorker' in navigator && 'sync' in window.ServiceWorkerRegistration.prototype) {
+        await self.registration.sync.register('sync-notes');
       }
+      
+      return new Response(JSON.stringify({ 
+        success: true, 
+        offline: true,
+        message: 'Note saved offline, will sync when online' 
+      }), {
+        status: 200,
+        headers: { 'Content-Type': 'application/json' }
+      });
+    } catch (offlineError) {
+      console.error('Offline storage failed:', offlineError);
+      return new Response(JSON.stringify({ 
+        error: 'Failed to save note offline', 
+        details: offlineError.message 
+      }), {
+        status: 500,
+        headers: { 'Content-Type': 'application/json' }
+      });
     }
   }
 
@@ -249,12 +257,12 @@ class CacheManager {
       
       clearTimeout(timeoutId);
       
-      if (response.ok) {
+      if (response && response.ok) {
         const cache = await caches.open(cacheName);
         await cache.put(request, response.clone());
         console.log('Background update successful for:', request.url);
       } else {
-        console.warn('Background update failed with status:', response.status, 'for:', request.url);
+        console.warn('Background update failed with status:', response?.status, 'for:', request.url);
         this.markRequestAsFailed(requestKey);
       }
     } catch (error) {

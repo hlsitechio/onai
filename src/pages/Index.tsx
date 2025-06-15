@@ -13,29 +13,53 @@ import DotGridBackground from "@/components/DotGridBackground";
 import PWAInstaller from "@/components/pwa/PWAInstaller";
 import IOSInstallPrompt from "@/components/pwa/iOSInstallPrompt";
 import OfflineIndicator from "@/components/pwa/OfflineIndicator";
+import ErrorBoundary from "@/components/ErrorBoundary";
+import DebugWrapper from "@/components/DebugWrapper";
 
 const Index = () => {
+  console.log('Index component rendering');
+  
   return (
     <div className="min-h-screen w-full overflow-hidden bg-black relative">
       {/* Enhanced Dark Background */}
-      <DotGridBackground />
+      <ErrorBoundary fallback={<div className="text-white p-4">Background component failed to load</div>}>
+        <DebugWrapper componentName="DotGridBackground">
+          <DotGridBackground />
+        </DebugWrapper>
+      </ErrorBoundary>
       
       {/* PWA Components */}
-      <PWAInstaller />
-      <IOSInstallPrompt />
-      <OfflineIndicator />
+      <ErrorBoundary fallback={<div className="text-white p-2">PWA components not available</div>}>
+        <DebugWrapper componentName="PWA Components">
+          <PWAInstaller />
+          <IOSInstallPrompt />
+          <OfflineIndicator />
+        </DebugWrapper>
+      </ErrorBoundary>
       
       {/* Header */}
-      <Header />
+      <ErrorBoundary fallback={<div className="text-white p-4 text-center">Header failed to load</div>}>
+        <DebugWrapper componentName="Header">
+          <Header />
+        </DebugWrapper>
+      </ErrorBoundary>
       
       {/* Hero Section - Simplified */}
       <div className="relative z-10">
-        <Hero />
+        <ErrorBoundary fallback={<div className="text-white p-4 text-center">Hero section failed to load</div>}>
+          <DebugWrapper componentName="Hero">
+            <Hero />
+          </DebugWrapper>
+        </ErrorBoundary>
       </div>
       
       {/* Our Technologies Section - Moved directly below Hero */}
       <div className="relative z-10">
-        <SponsorsWallOfFame />
+        <ErrorBoundary fallback={<div className="text-white p-4 text-center">Sponsors section failed to load</div>}>
+          <DebugWrapper componentName="SponsorsWallOfFame">
+            <SponsorsWallOfFame />
+          </DebugWrapper>
+        </ErrorBoundary>
       </div>
       
       {/* Main Editor Section - Centralized and Prominent */}
@@ -49,30 +73,54 @@ const Index = () => {
               AI-powered notes. No signup required.
             </p>
           </div>
-          <EditorManager />
+          <ErrorBoundary fallback={<div className="text-white p-4 text-center">Editor failed to load</div>}>
+            <DebugWrapper componentName="EditorManager">
+              <EditorManager />
+            </DebugWrapper>
+          </ErrorBoundary>
         </div>
       </section>
       
       {/* Features Section */}
       <div className="relative z-10">
-        <Features />
+        <ErrorBoundary fallback={<div className="text-white p-4 text-center">Features section failed to load</div>}>
+          <DebugWrapper componentName="Features">
+            <Features />
+          </DebugWrapper>
+        </ErrorBoundary>
       </div>
       
       {/* Individual Supporters Section - Moved below Features */}
       <div className="relative z-10">
-        <IndividualSupportersSection />
+        <ErrorBoundary fallback={<div className="text-white p-4 text-center">Supporters section failed to load</div>}>
+          <DebugWrapper componentName="IndividualSupportersSection">
+            <IndividualSupportersSection />
+          </DebugWrapper>
+        </ErrorBoundary>
       </div>
       
       {/* Sitemap Section */}
       <div className="relative z-10">
-        <SitemapSection />
+        <ErrorBoundary fallback={<div className="text-white p-4 text-center">Sitemap section failed to load</div>}>
+          <DebugWrapper componentName="SitemapSection">
+            <SitemapSection />
+          </DebugWrapper>
+        </ErrorBoundary>
       </div>
       
       {/* Footer */}
-      <Footer />
+      <ErrorBoundary fallback={<div className="text-white p-4 text-center">Footer failed to load</div>}>
+        <DebugWrapper componentName="Footer">
+          <Footer />
+        </DebugWrapper>
+      </ErrorBoundary>
       
       {/* Cookie Consent */}
-      <CookieConsent />
+      <ErrorBoundary fallback={<div className="text-white p-2">Cookie consent failed to load</div>}>
+        <DebugWrapper componentName="CookieConsent">
+          <CookieConsent />
+        </DebugWrapper>
+      </ErrorBoundary>
     </div>
   );
 };

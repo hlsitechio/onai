@@ -12,22 +12,36 @@ interface PWAContextType {
   };
 }
 
-const PWAContext = createContext<PWAContextType | undefined>(undefined);
+// Default context value to prevent undefined errors
+const defaultContextValue: PWAContextType = {
+  isOnline: true,
+  isInstalled: false,
+  enhancedFeatures: {
+    backgroundSync: false,
+    pushNotifications: false,
+    offlineStorage: false,
+    installationAnalytics: false,
+    enhancedShare: false,
+  },
+};
+
+const PWAContext = createContext<PWAContextType>(defaultContextValue);
 
 interface PWAProviderProps {
   children: ReactNode;
 }
 
 export const PWAProvider: React.FC<PWAProviderProps> = ({ children }) => {
-  const [isOnline, setIsOnline] = useState(navigator.onLine);
-  const [isInstalled, setIsInstalled] = useState(false);
-  const [enhancedFeatures, setEnhancedFeatures] = useState({
-    backgroundSync: false,
-    pushNotifications: false,
-    offlineStorage: false,
-    installationAnalytics: false,
-    enhancedShare: false,
+  const [isOnline, setIsOnline] = useState(() => {
+    try {
+      return navigator.onLine;
+    } catch {
+      return true; // Default to online if navigator is not available
+    }
   });
+  
+  const [isInstalled, setIsInstalled] = useState(false);
+  const [enhancedFeatures, setEnhancedFeatures] = useState(defaultContextValue.enhancedFeatures);
 
   useEffect(() => {
     const checkFeatures = () => {
@@ -43,6 +57,7 @@ export const PWAProvider: React.FC<PWAProviderProps> = ({ children }) => {
       } catch (error) {
         console.warn('Error checking PWA features:', error);
         // Keep default false values
+        setEnhancedFeatures(defaultContextValue.enhancedFeatures);
       }
     };
 
@@ -58,25 +73,48 @@ export const PWAProvider: React.FC<PWAProviderProps> = ({ children }) => {
       }
     };
 
-    const handleOnline = () => setIsOnline(true);
-    const handleOffline = () => setIsOnline(false);
+    const handleOnline = () => {
+      try {
+        setIsOnline(true);
+      } catch (error) {
+        console.warn('Error handling online event:', error);
+      }
+    };
+    
+    const handleOffline = () => {
+      try {
+        setIsOnline(false);
+      } catch (error) {
+        console.warn('Error handling offline event:', error);
+      }
+    };
 
-    window.addEventListener('online', handleOnline);
-    window.addEventListener('offline', handleOffline);
+    // Add event listeners with error handling
+    try {
+      window.addEventListener('online', handleOnline);
+      window.addEventListener('offline', handleOffline);
+    } catch (error) {
+      console.warn('Error adding event listeners:', error);
+    }
 
     checkFeatures();
     checkInstallationStatus();
 
     return () => {
-      window.removeEventListener('online', handleOnline);
-      window.removeEventListener('offline', handleOffline);
+      try {
+        window.removeEventListener('online', handleOnline);
+        window.removeEventListener('offline', handleOffline);
+      } catch (error) {
+        console.warn('Error removing event listeners:', error);
+      }
     };
   }, []);
 
+  // Ensure value is always defined
   const value: PWAContextType = {
-    isOnline,
-    isInstalled,
-    enhancedFeatures,
+    isOnline: Boolean(isOnline),
+    isInstalled: Boolean(isInstalled),
+    enhancedFeatures: enhancedFeatures || defaultContextValue.enhancedFeatures,
   };
 
   return (
@@ -88,8 +126,6 @@ export const PWAProvider: React.FC<PWAProviderProps> = ({ children }) => {
 
 export const usePWA = (): PWAContextType => {
   const context = useContext(PWAContext);
-  if (context === undefined) {
-    throw new Error('usePWA must be used within a PWAProvider');
-  }
-  return context;
+  // Always return a valid context, even if provider is missing
+  return context || defaultContextValue;
 };
