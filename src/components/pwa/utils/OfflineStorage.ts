@@ -81,7 +81,7 @@ class OfflineStorageManager {
     const index = store.index('synced');
     
     return new Promise((resolve, reject) => {
-      const request = index.getAll(false);
+      const request = index.getAll(IDBKeyRange.only(false));
       request.onsuccess = () => resolve(request.result);
       request.onerror = () => reject(request.error);
     });
@@ -92,12 +92,22 @@ class OfflineStorageManager {
     
     const transaction = this.db!.transaction(['notes'], 'readwrite');
     const store = transaction.objectStore('notes');
-    const note = await store.get(noteId);
     
-    if (note) {
-      note.synced = true;
-      await store.put(note);
-    }
+    return new Promise((resolve, reject) => {
+      const getRequest = store.get(noteId);
+      getRequest.onsuccess = () => {
+        const note = getRequest.result;
+        if (note) {
+          note.synced = true;
+          const putRequest = store.put(note);
+          putRequest.onsuccess = () => resolve();
+          putRequest.onerror = () => reject(putRequest.error);
+        } else {
+          resolve();
+        }
+      };
+      getRequest.onerror = () => reject(getRequest.error);
+    });
   }
 
   async savePreference(key: string, value: any): Promise<void> {
