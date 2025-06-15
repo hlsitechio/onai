@@ -6,21 +6,68 @@ import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { usePWAStatus } from '@/hooks/usePWAStatus';
 import { usePWASync } from './hooks/usePWASync';
-import ConnectionStatus from './components/ConnectionStatus';
-import QueueStats from './components/QueueStats';
 import { Wifi, WifiOff, Download, RefreshCw, Smartphone } from 'lucide-react';
 
+// Create a simple ConnectionStatus component inline to avoid import issues
+const ConnectionStatus: React.FC<{ isOnline: boolean }> = ({ isOnline }) => (
+  <div className="flex items-center gap-2 text-sm">
+    {isOnline ? (
+      <>
+        <Wifi className="h-4 w-4 text-green-500" />
+        <span className="text-green-600">Online</span>
+      </>
+    ) : (
+      <>
+        <WifiOff className="h-4 w-4 text-orange-500" />
+        <span className="text-orange-600">Offline</span>
+      </>
+    )}
+  </div>
+);
+
+// Create a simple QueueStats component inline to avoid import issues
+const QueueStats: React.FC<{ syncQueue: any[] }> = ({ syncQueue }) => {
+  const pending = syncQueue.filter(item => item.status === 'pending').length;
+  const completed = syncQueue.filter(item => item.status === 'completed').length;
+  const failed = syncQueue.filter(item => item.status === 'failed').length;
+
+  return (
+    <div className="grid grid-cols-3 gap-2 text-sm">
+      <div>
+        <span className="text-muted-foreground">Pending</span>
+        <p className="font-medium">{pending}</p>
+      </div>
+      <div>
+        <span className="text-muted-foreground">Completed</span>
+        <p className="font-medium">{completed}</p>
+      </div>
+      <div>
+        <span className="text-muted-foreground">Failed</span>
+        <p className="font-medium">{failed}</p>
+      </div>
+    </div>
+  );
+};
+
 export const PWAStatusDashboard: React.FC = () => {
-  const { 
-    isOnline, 
-    isInstalled, 
-    updateAvailable, 
-    canInstall, 
-    installApp, 
-    requestUpdate 
-  } = usePWAStatus();
+  const pwaNative = usePWAStatus();
+  const syncData = usePWASync();
   
-  const { syncQueue, isSyncing, clearCompletedItems } = usePWASync();
+  // Provide default values to prevent undefined errors
+  const { 
+    isOnline = navigator.onLine, 
+    isInstalled = false, 
+    updateAvailable = false, 
+    canInstall = false, 
+    installApp = () => Promise.resolve(), 
+    requestUpdate = () => {}
+  } = pwaNative || {};
+  
+  const { 
+    syncQueue = [], 
+    isSyncing = false, 
+    clearCompletedItems = () => {}
+  } = syncData || {};
 
   return (
     <Card className="w-full max-w-md">

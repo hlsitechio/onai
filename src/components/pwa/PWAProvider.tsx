@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 
 interface PWAContextType {
@@ -20,7 +19,6 @@ interface PWAProviderProps {
 }
 
 export const PWAProvider: React.FC<PWAProviderProps> = ({ children }) => {
-  // Always call hooks at the top level
   const [isOnline, setIsOnline] = useState(navigator.onLine);
   const [isInstalled, setIsInstalled] = useState(false);
   const [enhancedFeatures, setEnhancedFeatures] = useState({
@@ -32,34 +30,40 @@ export const PWAProvider: React.FC<PWAProviderProps> = ({ children }) => {
   });
 
   useEffect(() => {
-    // Check for enhanced features
     const checkFeatures = () => {
-      const features = {
-        backgroundSync: 'serviceWorker' in navigator && 'sync' in window.ServiceWorkerRegistration.prototype,
-        pushNotifications: 'serviceWorker' in navigator && 'Notification' in window,
-        offlineStorage: 'caches' in window && 'indexedDB' in window,
-        installationAnalytics: 'serviceWorker' in navigator,
-        enhancedShare: 'share' in navigator || 'canShare' in navigator,
-      };
-      setEnhancedFeatures(features);
+      try {
+        const features = {
+          backgroundSync: 'serviceWorker' in navigator && 'sync' in window.ServiceWorkerRegistration.prototype,
+          pushNotifications: 'serviceWorker' in navigator && 'Notification' in window,
+          offlineStorage: 'caches' in window && 'indexedDB' in window,
+          installationAnalytics: 'serviceWorker' in navigator,
+          enhancedShare: 'share' in navigator || 'canShare' in navigator,
+        };
+        setEnhancedFeatures(features);
+      } catch (error) {
+        console.warn('Error checking PWA features:', error);
+        // Keep default false values
+      }
     };
 
-    // Check installation status
     const checkInstallationStatus = () => {
-      const isStandalone = window.matchMedia('(display-mode: standalone)').matches ||
-                          (window.navigator as any).standalone ||
-                          document.referrer.includes('android-app://');
-      setIsInstalled(isStandalone);
+      try {
+        const isStandalone = window.matchMedia('(display-mode: standalone)').matches ||
+                            (window.navigator as any).standalone ||
+                            document.referrer.includes('android-app://');
+        setIsInstalled(isStandalone);
+      } catch (error) {
+        console.warn('Error checking installation status:', error);
+        setIsInstalled(false);
+      }
     };
 
-    // Set up online/offline listeners
     const handleOnline = () => setIsOnline(true);
     const handleOffline = () => setIsOnline(false);
 
     window.addEventListener('online', handleOnline);
     window.addEventListener('offline', handleOffline);
 
-    // Initial checks
     checkFeatures();
     checkInstallationStatus();
 
