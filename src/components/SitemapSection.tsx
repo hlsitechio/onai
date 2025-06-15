@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { motion } from "framer-motion";
-import { FileText, Shield, Settings, Coffee, Mail } from 'lucide-react';
+import { FileText, Shield, Coffee, Mail } from 'lucide-react';
 
 const SitemapSection = () => {
   const sitemapLinks = [
@@ -24,7 +24,7 @@ const SitemapSection = () => {
       ]
     },
     {
-      category: "Support",
+      category: "Support & Contact",
       icon: Coffee,
       links: [
         { name: "Buy Me a Coffee", href: "https://www.buymeacoffee.com/onlinenoteai", description: "Support our free service", external: true },

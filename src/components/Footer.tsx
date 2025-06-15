@@ -12,57 +12,67 @@ const Footer = () => {
   const [contactDialogOpen, setContactDialogOpen] = useState(false);
   
   return (
-    <footer className="py-4">
+    <footer className="py-8 border-t border-white/10">
       <div className="container mx-auto px-4">
-        {/* Reduced space above the copyright section */}
-        <div className="h-2"></div>
-        
-        <div className="mt-2 flex flex-col items-center">
-          <div className="mb-3 flex flex-col items-center space-y-2">
-            <p className="text-gray-500 text-xs text-center">
-              © {currentYear} Online Note AI. All rights reserved.
-            </p>
-            <a href="https://onlinenote.ai" className="text-gray-600 text-xs hover:text-noteflow-400 transition-colors block text-center">onlinenote.ai</a>
-            
-            {/* Buy Me a Coffee Button */}
-            <div className="mt-2">
-              <a href="https://www.buymeacoffee.com/onlinenoteai" target="_blank" rel="noopener noreferrer">
-                <img 
-                  src="https://img.buymeacoffee.com/button-api/?text=Buy me! Stay free forever!&emoji=🤑&slug=onlinenoteai&button_colour=213e87&font_colour=ffffff&font_family=Inter&outline_colour=ffffff&coffee_colour=FFDD00" 
-                  alt="Buy Me A Coffee"
-                  className="hover:opacity-80 transition-opacity"
-                />
-              </a>
-            </div>
+        {/* Main footer content */}
+        <div className="flex flex-col items-center space-y-6">
+          {/* Buy Me a Coffee Button */}
+          <div className="flex justify-center">
+            <a href="https://www.buymeacoffee.com/onlinenoteai" target="_blank" rel="noopener noreferrer">
+              <img 
+                src="https://img.buymeacoffee.com/button-api/?text=Buy me! Stay free forever!&emoji=🤑&slug=onlinenoteai&button_colour=213e87&font_colour=ffffff&font_family=Inter&outline_colour=ffffff&coffee_colour=FFDD00" 
+                alt="Buy Me A Coffee"
+                className="hover:opacity-80 transition-opacity"
+              />
+            </a>
           </div>
           
-          {/* Sitemap links in a horizontal line */}
-          <div className="flex items-center mb-1 space-x-2">
+          {/* Navigation links */}
+          <div className="flex flex-wrap justify-center items-center gap-4 text-sm">
             <a 
               href="/privacy-policy"
-              className="text-gray-500 hover:text-noteflow-400 text-xs transition-colors"
+              className="text-gray-400 hover:text-noteflow-400 transition-colors"
               onClick={() => trackPageView('/privacy-policy', 'Privacy Policy')}
             >
               Privacy Policy
             </a>
-            <span className="text-gray-600 text-xs">|</span>
-            <a href="/terms-of-use" className="text-gray-500 hover:text-noteflow-400 text-xs transition-colors" onClick={() => trackPageView('/terms-of-use', 'Terms of Use')}>Terms of Use</a>
-            <span className="text-gray-600 text-xs">|</span>
+            <span className="text-gray-600">•</span>
+            <a 
+              href="/terms-of-use" 
+              className="text-gray-400 hover:text-noteflow-400 transition-colors"
+              onClick={() => trackPageView('/terms-of-use', 'Terms of Use')}
+            >
+              Terms of Use
+            </a>
+            <span className="text-gray-600">•</span>
             <a 
               href="/cookie-settings"
-              className="text-gray-500 hover:text-noteflow-400 text-xs transition-colors"
+              className="text-gray-400 hover:text-noteflow-400 transition-colors"
               onClick={() => trackPageView('/cookie-settings', 'Cookie Settings')}
             >
               Cookie Settings
             </a>
-            <span className="text-gray-600 text-xs">|</span>
+            <span className="text-gray-600">•</span>
             <button
               onClick={() => setContactDialogOpen(true)}
-              className="text-gray-500 hover:text-noteflow-400 text-xs transition-colors flex items-center gap-1"
+              className="text-gray-400 hover:text-noteflow-400 transition-colors flex items-center gap-1"
             >
-              <Mail size={12} className="text-gray-500" />
+              <Mail size={14} className="text-gray-400" />
               Contact
             </button>
+          </div>
+          
+          {/* Copyright notice */}
+          <div className="text-center space-y-2">
+            <p className="text-gray-500 text-sm">
+              © {currentYear} Online Note AI. All rights reserved.
+            </p>
+            <a 
+              href="https://onlinenote.ai" 
+              className="text-gray-600 text-sm hover:text-noteflow-400 transition-colors block"
+            >
+              onlinenote.ai
+            </a>
           </div>
         </div>
         
