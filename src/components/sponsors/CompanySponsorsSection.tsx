@@ -21,8 +21,8 @@ const CompanySponsorsSection: React.FC<CompanySponsorsSectionProps> = ({ sponsor
     <div className="mb-16">
       {/* Section Header */}
       <div className="text-center mb-8">
-        <h3 className="text-2xl md:text-3xl font-bold text-white mb-2">Meet Our Sponsors</h3>
-        <p className="text-gray-400 text-sm">Trusted by leading companies worldwide</p>
+        <h3 className="text-2xl md:text-3xl font-bold text-white mb-2">Our Technologies</h3>
+        <p className="text-gray-400 text-sm">Powered by industry-leading technologies</p>
       </div>
       
       {/* Logo Container - Static layout for few sponsors */}

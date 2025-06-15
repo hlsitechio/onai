@@ -1,4 +1,3 @@
-
 import React from 'react';
 import WallOfFameHeader from './sponsors/WallOfFameHeader';
 import CompanySponsorsSection from './sponsors/CompanySponsorsSection';
@@ -42,7 +41,7 @@ const SponsorsWallOfFame = () => {
     }
   ];
 
-  // Company sponsors with the new uploaded logos
+  // Company sponsors with updated list - removed Next.js and Framer, added Framer Motion
   const companySponsors = [
     {
       name: "IONOS",
@@ -66,16 +65,9 @@ const SponsorsWallOfFame = () => {
       sponsorshipLevel: "$500+"
     },
     {
-      name: "Next.js",
-      logo: "/lovable-uploads/f4582249-1bde-4cad-b4d1-7b2826c30db4.png",
-      website: "https://nextjs.org",
-      tier: "gold",
-      sponsorshipLevel: "$250+"
-    },
-    {
-      name: "Framer",
-      logo: "/lovable-uploads/38082ca1-5e9d-4386-8aa2-4dfc1a9dcbf0.png",
-      website: "https://framer.com",
+      name: "Framer Motion",
+      logo: "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/framermotion/framermotion-original.svg",
+      website: "https://www.framer.com/motion/",
       tier: "gold",
       sponsorshipLevel: "$250+"
     }
