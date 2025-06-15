@@ -16,9 +16,8 @@ const EditorContent: React.FC<EditorContentProps> = ({
 }) => {
   return (
     <div className={cn(
-      "relative flex-1 overflow-hidden",
-      "bg-gradient-to-br from-[#03010a] to-[#0a0518]",
-      "rounded-lg border border-white/5"
+      "relative h-full w-full",
+      "bg-gradient-to-br from-[#03010a] to-[#0a0518]"
     )}>
       <TiptapEditor
         content={content}

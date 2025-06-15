@@ -40,7 +40,7 @@ function App() {
   };
 
   return (
-    <div className="min-h-screen w-full">
+    <div className="min-h-screen w-full bg-gradient-to-br from-[#050510] to-[#0a0518]">
       <QueryClientProvider client={queryClient}>
         <TooltipProvider>
           <AppInitializer>

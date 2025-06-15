@@ -129,7 +129,7 @@ const TiptapEditor: React.FC<TiptapEditorProps> = ({
   useEffect(() => {
     const timer = setTimeout(() => {
       setIsLoading(false);
-    }, 1000);
+    }, 500);
     return () => clearTimeout(timer);
   }, []);
 
@@ -149,13 +149,17 @@ const TiptapEditor: React.FC<TiptapEditorProps> = ({
   }
 
   if (!editor) {
-    return <div>Editor failed to load. Please refresh the page.</div>;
+    return (
+      <div className="flex items-center justify-center h-full text-white">
+        <p>Editor failed to load. Please refresh the page.</p>
+      </div>
+    );
   }
 
   return (
     <div className="relative h-full flex flex-col">
-      {/* Enhanced Toolbar with all free Tiptap tools */}
-      <TiptapEnhancedToolbar editor={editor} />
+      {/* Enhanced Toolbar - only show if not in focus mode */}
+      {!isFocusMode && <TiptapEnhancedToolbar editor={editor} />}
 
       {/* Bubble Menu for text selection */}
       <TiptapBubbleMenu
@@ -185,7 +189,7 @@ const TiptapEditor: React.FC<TiptapEditorProps> = ({
         />
 
         {/* Floating AI hint */}
-        {!isAIAgentVisible && content.length > 50 && (
+        {!isAIAgentVisible && content.length > 50 && !isFocusMode && (
           <TiptapFloatingHint onShowAIAgent={showAIAgent} />
         )}
 
