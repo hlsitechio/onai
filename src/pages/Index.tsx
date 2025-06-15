@@ -11,7 +11,7 @@ import Footer from "@/components/Footer";
 import CookieConsent from "@/components/CookieConsent";
 import DotGridBackground from "@/components/DotGridBackground";
 import PWAInstaller from "@/components/pwa/PWAInstaller";
-import iOSInstallPrompt from "@/components/pwa/iOSInstallPrompt";
+import IOSInstallPrompt from "@/components/pwa/iOSInstallPrompt";
 import OfflineIndicator from "@/components/pwa/OfflineIndicator";
 import { PWAStatusDashboard } from "@/components/pwa/PWAStatusDashboard";
 
@@ -23,7 +23,7 @@ const Index = () => {
       
       {/* PWA Components */}
       <PWAInstaller />
-      <iOSInstallPrompt />
+      <IOSInstallPrompt />
       <OfflineIndicator />
       
       {/* PWA Status Dashboard - Fixed position for easy access */}
