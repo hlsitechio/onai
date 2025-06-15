@@ -3,6 +3,14 @@ import { useState, useEffect, useCallback } from 'react';
 import { createSyncItem, saveSyncQueue, loadSyncQueue, processSyncItem } from '../utils/SyncUtils';
 import { SyncItem } from '../types/SyncTypes';
 
+// Extend ServiceWorkerRegistration type for Background Sync
+interface ServiceWorkerRegistrationWithSync extends ServiceWorkerRegistration {
+  sync: {
+    register(tag: string): Promise<void>;
+    getTags(): Promise<string[]>;
+  };
+}
+
 export function usePWASync() {
   const [syncQueue, setSyncQueue] = useState<SyncItem[]>([]);
   const [isSyncing, setIsSyncing] = useState(false);
@@ -35,10 +43,26 @@ export function usePWASync() {
         markItemAsFailed(syncItem.id);
       });
     } else {
-      // Register background sync
-      if ('serviceWorker' in navigator && 'sync' in window.ServiceWorkerRegistration.prototype) {
+      // Register background sync with proper type checking
+      if ('serviceWorker' in navigator) {
         navigator.serviceWorker.ready.then((registration) => {
-          registration.sync.register('sync-notes');
+          // Check if Background Sync is supported
+          if ('sync' in registration) {
+            const syncRegistration = registration as ServiceWorkerRegistrationWithSync;
+            syncRegistration.sync.register('sync-notes')
+              .then(() => {
+                console.log('Background sync registered successfully');
+              })
+              .catch((error) => {
+                console.warn('Background sync registration failed:', error);
+              });
+          } else {
+            console.log('Background Sync not supported, using alternative sync method');
+            // Fallback: try to sync when online
+            window.addEventListener('online', () => {
+              processPendingItems(syncQueue);
+            });
+          }
         });
       }
     }
