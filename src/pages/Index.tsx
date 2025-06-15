@@ -24,6 +24,11 @@ const Index = () => {
         <Hero />
       </div>
       
+      {/* Our Technologies Section - Moved directly below Hero */}
+      <div className="relative z-10">
+        <SponsorsWallOfFame />
+      </div>
+      
       {/* Main Editor Section - Centralized and Prominent */}
       <section id="editor-section" className="relative z-10 min-h-screen flex items-center justify-center py-8">
         <div className="container mx-auto px-4 max-w-7xl">
@@ -42,11 +47,6 @@ const Index = () => {
       {/* Features Section */}
       <div className="relative z-10">
         <Features />
-      </div>
-      
-      {/* Wall of Fame / Sponsors Section */}
-      <div className="relative z-10">
-        <SponsorsWallOfFame />
       </div>
       
       {/* Sitemap Section */}
