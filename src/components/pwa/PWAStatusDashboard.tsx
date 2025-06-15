@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
-import { usePWA } from './PWAProvider';
+import { usePWAStatus } from '@/hooks/usePWAStatus';
 import { usePWASync } from './hooks/usePWASync';
 import ConnectionStatus from './components/ConnectionStatus';
 import QueueStats from './components/QueueStats';
@@ -18,7 +18,7 @@ export const PWAStatusDashboard: React.FC = () => {
     canInstall, 
     installApp, 
     requestUpdate 
-  } = usePWA();
+  } = usePWAStatus();
   
   const { syncQueue, isSyncing, clearCompletedItems } = usePWASync();
 
