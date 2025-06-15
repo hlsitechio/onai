@@ -1,18 +1,14 @@
+
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 import { toast } from 'sonner';
-import { RotateCw as Sync, CheckCircle, Clock, AlertCircle } from 'lucide-react';
-
-interface SyncItem {
-  id: string;
-  type: string;
-  data: any;
-  timestamp: number;
-  status: 'pending' | 'syncing' | 'completed' | 'failed';
-  retryCount: number;
-}
+import { RotateCw as Sync } from 'lucide-react';
+import { SyncItem } from './types/SyncTypes';
+import { createSyncItem, saveSyncQueue, loadSyncQueue, processSyncItem } from './utils/SyncUtils';
+import ConnectionStatus from './components/ConnectionStatus';
+import QueueStats from './components/QueueStats';
+import QueueList from './components/QueueList';
+import SyncActions from './components/SyncActions';
 
 const PWABackgroundSync: React.FC = () => {
   const [syncQueue, setSyncQueue] = useState<SyncItem[]>([]);
@@ -20,7 +16,9 @@ const PWABackgroundSync: React.FC = () => {
   const [isSyncing, setIsSyncing] = useState(false);
 
   useEffect(() => {
-    loadSyncQueue();
+    // Load initial sync queue
+    const initialQueue = loadSyncQueue();
+    setSyncQueue(initialQueue);
     
     const handleOnline = () => {
       setIsOnline(true);
@@ -33,7 +31,7 @@ const PWABackgroundSync: React.FC = () => {
     window.addEventListener('offline', handleOffline);
     
     // Process queue when component mounts if online
-    if (navigator.onLine) {
+    if (navigator.onLine && initialQueue.length > 0) {
       processSyncQueue();
     }
     
@@ -43,37 +41,11 @@ const PWABackgroundSync: React.FC = () => {
     };
   }, []);
 
-  const loadSyncQueue = () => {
-    try {
-      const stored = localStorage.getItem('oneai-sync-queue');
-      if (stored) {
-        setSyncQueue(JSON.parse(stored));
-      }
-    } catch (error) {
-      console.error('Error loading sync queue:', error);
-    }
-  };
-
-  const saveSyncQueue = (queue: SyncItem[]) => {
-    try {
-      localStorage.setItem('oneai-sync-queue', JSON.stringify(queue));
-      setSyncQueue(queue);
-    } catch (error) {
-      console.error('Error saving sync queue:', error);
-    }
-  };
-
   const addToSyncQueue = (type: string, data: any) => {
-    const newItem: SyncItem = {
-      id: `${type}-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
-      type,
-      data,
-      timestamp: Date.now(),
-      status: 'pending',
-      retryCount: 0,
-    };
-    
+    const newItem = createSyncItem(type, data);
     const updatedQueue = [...syncQueue, newItem];
+    
+    setSyncQueue(updatedQueue);
     saveSyncQueue(updatedQueue);
     
     // Try to sync immediately if online
@@ -104,7 +76,7 @@ const PWABackgroundSync: React.FC = () => {
           setSyncQueue([...updatedQueue]);
         }
         
-        // Process the sync item based on type
+        // Process the sync item
         await processSyncItem(item);
         
         // Mark as completed
@@ -129,6 +101,7 @@ const PWABackgroundSync: React.FC = () => {
       }
     }
     
+    setSyncQueue(updatedQueue);
     saveSyncQueue(updatedQueue);
     setIsSyncing(false);
     
@@ -140,32 +113,15 @@ const PWABackgroundSync: React.FC = () => {
       // Clean up completed items after a delay
       setTimeout(() => {
         const cleanedQueue = updatedQueue.filter(item => item.status !== 'completed');
+        setSyncQueue(cleanedQueue);
         saveSyncQueue(cleanedQueue);
       }, 5000);
     }
   };
 
-  const processSyncItem = async (item: SyncItem): Promise<void> => {
-    switch (item.type) {
-      case 'note-save':
-        // Simulate note saving
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        break;
-      case 'note-delete':
-        // Simulate note deletion
-        await new Promise(resolve => setTimeout(resolve, 500));
-        break;
-      case 'settings-update':
-        // Simulate settings update
-        await new Promise(resolve => setTimeout(resolve, 300));
-        break;
-      default:
-        throw new Error(`Unknown sync type: ${item.type}`);
-    }
-  };
-
   const clearCompletedItems = () => {
     const filtered = syncQueue.filter(item => item.status !== 'completed');
+    setSyncQueue(filtered);
     saveSyncQueue(filtered);
   };
 
@@ -173,6 +129,7 @@ const PWABackgroundSync: React.FC = () => {
     const updatedQueue = syncQueue.map(item => 
       item.status === 'failed' ? { ...item, status: 'pending' as const, retryCount: 0 } : item
     );
+    setSyncQueue(updatedQueue);
     saveSyncQueue(updatedQueue);
     
     if (isOnline) {
@@ -180,36 +137,13 @@ const PWABackgroundSync: React.FC = () => {
     }
   };
 
-  const getStatusIcon = (status: SyncItem['status']) => {
-    switch (status) {
-      case 'pending':
-        return <Clock className="h-4 w-4" />;
-      case 'syncing':
-        return <Sync className="h-4 w-4 animate-spin" />;
-      case 'completed':
-        return <CheckCircle className="h-4 w-4" />;
-      case 'failed':
-        return <AlertCircle className="h-4 w-4" />;
-    }
-  };
-
-  const getStatusColor = (status: SyncItem['status']) => {
-    switch (status) {
-      case 'pending':
-        return 'secondary';
-      case 'syncing':
-        return 'default';
-      case 'completed':
-        return 'default';
-      case 'failed':
-        return 'destructive';
-    }
-  };
-
   // Expose addToSyncQueue globally for other components
   useEffect(() => {
     (window as any).addToSyncQueue = addToSyncQueue;
   }, [syncQueue]);
+
+  const hasFailedItems = syncQueue.some(item => item.status === 'failed');
+  const hasCompletedItems = syncQueue.some(item => item.status === 'completed');
 
   return (
     <Card className="w-full max-w-md">
@@ -219,83 +153,25 @@ const PWABackgroundSync: React.FC = () => {
           Background Sync
         </CardTitle>
         <CardDescription>
-          Manage offline data synchronization
+          Manage data synchronization
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
-        {/* Status */}
-        <div className="flex items-center justify-between">
-          <span className="text-sm text-muted-foreground">Status</span>
-          <Badge variant={isOnline ? 'default' : 'secondary'}>
-            {isOnline ? 'Online' : 'Offline'}
-          </Badge>
-        </div>
+        <ConnectionStatus isOnline={isOnline} />
+        
+        <QueueStats syncQueue={syncQueue} />
+        
+        <QueueList syncQueue={syncQueue} />
 
-        {/* Queue Stats */}
-        <div className="grid grid-cols-3 gap-2 text-sm">
-          <div className="text-center">
-            <p className="font-medium">{syncQueue.filter(item => item.status === 'pending').length}</p>
-            <p className="text-muted-foreground">Pending</p>
-          </div>
-          <div className="text-center">
-            <p className="font-medium">{syncQueue.filter(item => item.status === 'completed').length}</p>
-            <p className="text-muted-foreground">Completed</p>
-          </div>
-          <div className="text-center">
-            <p className="font-medium">{syncQueue.filter(item => item.status === 'failed').length}</p>
-            <p className="text-muted-foreground">Failed</p>
-          </div>
-        </div>
-
-        {/* Queue Items */}
-        {syncQueue.length > 0 && (
-          <div className="space-y-2 max-h-40 overflow-y-auto">
-            {syncQueue.slice(-5).map((item) => (
-              <div key={item.id} className="flex items-center gap-2 p-2 bg-muted/30 rounded">
-                {getStatusIcon(item.status)}
-                <span className="text-sm flex-1">{item.type}</span>
-                <Badge variant={getStatusColor(item.status)} className="text-xs">
-                  {item.status}
-                </Badge>
-              </div>
-            ))}
-          </div>
-        )}
-
-        {/* Actions */}
-        <div className="flex gap-2">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={processSyncQueue}
-            disabled={!isOnline || isSyncing}
-            className="flex-1"
-          >
-            <Sync className="h-4 w-4 mr-2" />
-            {isSyncing ? 'Syncing...' : 'Sync Now'}
-          </Button>
-          {syncQueue.some(item => item.status === 'failed') && (
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={retryFailedItems}
-              className="flex-1"
-            >
-              Retry Failed
-            </Button>
-          )}
-        </div>
-
-        {syncQueue.some(item => item.status === 'completed') && (
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={clearCompletedItems}
-            className="w-full"
-          >
-            Clear Completed
-          </Button>
-        )}
+        <SyncActions
+          isOnline={isOnline}
+          isSyncing={isSyncing}
+          hasFailedItems={hasFailedItems}
+          hasCompletedItems={hasCompletedItems}
+          onSyncNow={processSyncQueue}
+          onRetryFailed={retryFailedItems}
+          onClearCompleted={clearCompletedItems}
+        />
       </CardContent>
     </Card>
   );
