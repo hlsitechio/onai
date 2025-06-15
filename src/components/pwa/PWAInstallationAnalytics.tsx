@@ -4,7 +4,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Button } from '@/components/ui/button';
-import { Smartphone, Monitor, Download, Users, TrendingUp } from 'lucide-react';
+import { Smartphone, Monitor, Download, TrendingUp } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 
@@ -48,13 +48,9 @@ const PWAInstallationAnalytics: React.FC = () => {
     platforms: { android: 0, ios: 0, windows: 0, mac: 0, linux: 0 }
   });
 
-  const [isCollecting, setIsCollecting] = useState(true);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // Only initialize analytics in development mode
-    if (!import.meta.env.DEV) return;
-    
     loadMetricsFromSupabase();
     setupAnalyticsListeners();
   }, []);
@@ -63,7 +59,6 @@ const PWAInstallationAnalytics: React.FC = () => {
     try {
       setIsLoading(true);
       
-      // Get all analytics events
       const { data: events, error } = await supabase
         .from('pwa_analytics')
         .select('*')
@@ -71,10 +66,13 @@ const PWAInstallationAnalytics: React.FC = () => {
 
       if (error) {
         console.error('Error loading analytics:', error);
-        toast({
-          title: 'Analytics Error',
-          description: 'Failed to load analytics data from database',
-          variant: 'destructive',
+        setMetrics({
+          promptsShown: 0,
+          installsCompleted: 0,
+          installsDeclined: 0,
+          installationRate: 0,
+          deviceTypes: { mobile: 0, desktop: 0, tablet: 0 },
+          platforms: { android: 0, ios: 0, windows: 0, mac: 0, linux: 0 }
         });
         return;
       }
@@ -91,7 +89,6 @@ const PWAInstallationAnalytics: React.FC = () => {
         return;
       }
 
-      // Process events into metrics
       const newMetrics: InstallationMetrics = {
         promptsShown: events.filter(e => e.event_type === 'prompt_shown').length,
         installsCompleted: events.filter(e => e.event_type === 'install_completed').length,
@@ -101,12 +98,10 @@ const PWAInstallationAnalytics: React.FC = () => {
         platforms: { android: 0, ios: 0, windows: 0, mac: 0, linux: 0 }
       };
 
-      // Calculate installation rate
       newMetrics.installationRate = newMetrics.promptsShown > 0 
         ? Math.round((newMetrics.installsCompleted / newMetrics.promptsShown) * 100)
         : 0;
 
-      // Count device types and platforms
       events.forEach(event => {
         if (event.device_type && newMetrics.deviceTypes.hasOwnProperty(event.device_type)) {
           newMetrics.deviceTypes[event.device_type as keyof typeof newMetrics.deviceTypes]++;
@@ -119,19 +114,12 @@ const PWAInstallationAnalytics: React.FC = () => {
       setMetrics(newMetrics);
     } catch (error) {
       console.error('Error processing analytics data:', error);
-      toast({
-        title: 'Analytics Error',
-        description: 'Failed to process analytics data',
-        variant: 'destructive',
-      });
     } finally {
       setIsLoading(false);
     }
   };
 
   const trackEvent = async (eventData: PWAAnalyticsEvent) => {
-    if (!isCollecting || !import.meta.env.DEV) return;
-
     try {
       const { error } = await supabase
         .from('pwa_analytics')
@@ -150,7 +138,6 @@ const PWAInstallationAnalytics: React.FC = () => {
         return;
       }
 
-      // Reload metrics after tracking new event
       await loadMetricsFromSupabase();
     } catch (error) {
       console.error('Error saving analytics event:', error);
@@ -195,107 +182,14 @@ const PWAInstallationAnalytics: React.FC = () => {
   };
 
   const setupAnalyticsListeners = () => {
-    // Track install prompt shown
     window.addEventListener('beforeinstallprompt', () => {
       trackEvent({ event_type: 'prompt_shown' });
     });
 
-    // Track successful installation
     window.addEventListener('appinstalled', () => {
       trackEvent({ event_type: 'install_completed' });
     });
   };
-
-  const recordDeclined = async () => {
-    await trackEvent({ event_type: 'install_declined' });
-  };
-
-  const resetMetrics = async () => {
-    try {
-      // Delete all analytics data
-      const { error } = await supabase
-        .from('pwa_analytics')
-        .delete()
-        .neq('id', '00000000-0000-0000-0000-000000000000'); // Delete all rows
-
-      if (error) {
-        console.error('Error resetting analytics:', error);
-        toast({
-          title: 'Reset Failed',
-          description: 'Failed to reset analytics data',
-          variant: 'destructive',
-        });
-        return;
-      }
-
-      // Reload metrics
-      await loadMetricsFromSupabase();
-      
-      toast({
-        title: 'Analytics Reset',
-        description: 'All analytics data has been cleared',
-      });
-    } catch (error) {
-      console.error('Error resetting analytics:', error);
-      toast({
-        title: 'Reset Failed',
-        description: 'An error occurred while resetting analytics',
-        variant: 'destructive',
-      });
-    }
-  };
-
-  const exportMetrics = async () => {
-    try {
-      // Get all raw data for export
-      const { data: events, error } = await supabase
-        .from('pwa_analytics')
-        .select('*')
-        .order('created_at', { ascending: false });
-
-      if (error) {
-        console.error('Error exporting analytics:', error);
-        toast({
-          title: 'Export Failed',
-          description: 'Failed to export analytics data',
-          variant: 'destructive',
-        });
-        return;
-      }
-
-      const exportData = {
-        summary: metrics,
-        events: events || [],
-        exportedAt: new Date().toISOString()
-      };
-
-      const dataStr = JSON.stringify(exportData, null, 2);
-      const dataBlob = new Blob([dataStr], { type: 'application/json' });
-      const url = URL.createObjectURL(dataBlob);
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = `pwa-analytics-${new Date().toISOString().split('T')[0]}.json`;
-      link.click();
-      URL.revokeObjectURL(url);
-      
-      toast({
-        title: 'Export Complete',
-        description: 'Analytics data has been downloaded',
-      });
-    } catch (error) {
-      console.error('Error exporting analytics:', error);
-      toast({
-        title: 'Export Failed',
-        description: 'An error occurred during export',
-        variant: 'destructive',
-      });
-    }
-  };
-
-  // Only show in development mode
-  if (!import.meta.env.DEV) {
-    return null;
-  }
 
   if (isLoading) {
     return (
@@ -303,10 +197,10 @@ const PWAInstallationAnalytics: React.FC = () => {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <TrendingUp className="h-5 w-5" />
-            PWA Installation Analytics (Dev Only)
+            PWA Installation Analytics
           </CardTitle>
           <CardDescription>
-            Loading analytics data from database...
+            Loading installation analytics...
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -323,15 +217,14 @@ const PWAInstallationAnalytics: React.FC = () => {
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <TrendingUp className="h-5 w-5" />
-          PWA Installation Analytics (Dev Only)
+          PWA Installation Analytics
         </CardTitle>
         <CardDescription>
-          Development analytics stored in Supabase - not visible to production users
+          Track how users install and use your Progressive Web App
         </CardDescription>
       </CardHeader>
       
       <CardContent className="space-y-6">
-        {/* Installation Overview */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           <div className="text-center p-3 bg-muted/50 rounded-lg">
             <div className="text-2xl font-bold text-blue-600">{metrics.promptsShown}</div>
@@ -354,7 +247,6 @@ const PWAInstallationAnalytics: React.FC = () => {
           </div>
         </div>
 
-        {/* Installation Rate Progress */}
         <div className="space-y-2">
           <div className="flex justify-between text-sm">
             <span>Installation Rate</span>
@@ -363,7 +255,6 @@ const PWAInstallationAnalytics: React.FC = () => {
           <Progress value={metrics.installationRate} className="h-2" />
         </div>
 
-        {/* Device Types */}
         <div className="space-y-3">
           <h4 className="font-medium flex items-center gap-2">
             <Monitor className="h-4 w-4" />
@@ -379,7 +270,6 @@ const PWAInstallationAnalytics: React.FC = () => {
           </div>
         </div>
 
-        {/* Platforms */}
         <div className="space-y-3">
           <h4 className="font-medium flex items-center gap-2">
             <Smartphone className="h-4 w-4" />
@@ -393,30 +283,6 @@ const PWAInstallationAnalytics: React.FC = () => {
               </div>
             ))}
           </div>
-        </div>
-
-        {/* Controls */}
-        <div className="flex gap-2 pt-4 border-t">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => setIsCollecting(!isCollecting)}
-          >
-            {isCollecting ? 'Pause' : 'Resume'} Tracking
-          </Button>
-          
-          <Button variant="outline" size="sm" onClick={recordDeclined}>
-            Test Decline Event
-          </Button>
-          
-          <Button variant="outline" size="sm" onClick={exportMetrics}>
-            <Download className="h-4 w-4 mr-2" />
-            Export
-          </Button>
-          
-          <Button variant="destructive" size="sm" onClick={resetMetrics}>
-            Reset Data
-          </Button>
         </div>
       </CardContent>
     </Card>

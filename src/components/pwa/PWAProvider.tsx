@@ -130,19 +130,16 @@ export const PWAProvider: React.FC<PWAProviderProps> = ({ children }) => {
       const urlParams = new URLSearchParams(window.location.search);
       
       if (urlParams.get('new') === 'true') {
-        // Handle new note shortcut
         const event = new CustomEvent('pwa:new-note');
         window.dispatchEvent(event);
       }
       
       if (urlParams.get('ai') === 'true') {
-        // Handle AI assistant shortcut
         const event = new CustomEvent('pwa:open-ai');
         window.dispatchEvent(event);
       }
 
       if (urlParams.get('share') === 'true') {
-        // Handle share shortcut
         const event = new CustomEvent('pwa:open-share');
         window.dispatchEvent(event);
       }
