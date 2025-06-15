@@ -1,6 +1,7 @@
 
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { usePWAStatus } from '@/hooks/usePWAStatus';
+import { usePWAMetrics } from '@/hooks/usePWAMetrics';
 import { useToast } from '@/hooks/use-toast';
 
 interface PWAContextType {
@@ -14,6 +15,8 @@ interface PWAContextType {
     pending: number;
     syncing: boolean;
   };
+  metrics: any;
+  sendMetricsToAnalytics: () => void;
 }
 
 const PWAContext = createContext<PWAContextType | null>(null);
@@ -33,6 +36,7 @@ interface PWAProviderProps {
 export const PWAProvider: React.FC<PWAProviderProps> = ({ children }) => {
   const { toast } = useToast();
   const pwaStatus = usePWAStatus();
+  const { metrics, sendMetricsToAnalytics } = usePWAMetrics();
   const [syncStatus, setSyncStatus] = useState({
     pending: 0,
     syncing: false,
@@ -57,6 +61,18 @@ export const PWAProvider: React.FC<PWAProviderProps> = ({ children }) => {
             toast({
               title: 'Connection Restored',
               description: 'Your notes are being synced.',
+            });
+            break;
+
+          case 'CACHE_ERROR':
+            console.warn('Service worker cache error:', data);
+            break;
+
+          case 'NETWORK_ERROR':
+            toast({
+              title: 'Network Issue',
+              description: 'Some features may be limited while offline.',
+              variant: 'destructive',
             });
             break;
             
@@ -84,7 +100,18 @@ export const PWAProvider: React.FC<PWAProviderProps> = ({ children }) => {
     };
 
     handleShortcuts();
-  }, [toast]);
+
+    // Send metrics to analytics periodically
+    const metricsInterval = setInterval(() => {
+      if (Object.keys(metrics).length > 0) {
+        sendMetricsToAnalytics();
+      }
+    }, 60000); // Every minute
+
+    return () => {
+      clearInterval(metricsInterval);
+    };
+  }, [toast, metrics, sendMetricsToAnalytics]);
 
   const contextValue: PWAContextType = {
     isOnline: pwaStatus.isOnline,
@@ -94,6 +121,8 @@ export const PWAProvider: React.FC<PWAProviderProps> = ({ children }) => {
     installApp: pwaStatus.installApp,
     requestUpdate: pwaStatus.requestUpdate,
     syncStatus,
+    metrics,
+    sendMetricsToAnalytics,
   };
 
   return (

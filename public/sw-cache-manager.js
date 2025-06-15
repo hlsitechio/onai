@@ -21,28 +21,43 @@ const CACHEABLE_APIS = [
 
 class CacheManager {
   static async initializeCaches() {
-    return Promise.all([
-      caches.open(STATIC_CACHE).then((cache) => {
-        return cache.addAll(STATIC_ASSETS);
-      }),
-      caches.open(NOTES_CACHE),
-      caches.open(DYNAMIC_CACHE)
-    ]);
+    try {
+      return Promise.all([
+        caches.open(STATIC_CACHE).then((cache) => {
+          return cache.addAll(STATIC_ASSETS);
+        }),
+        caches.open(NOTES_CACHE),
+        caches.open(DYNAMIC_CACHE)
+      ]);
+    } catch (error) {
+      console.error('Cache initialization failed:', error);
+      // Create empty caches as fallback
+      return Promise.all([
+        caches.open(STATIC_CACHE),
+        caches.open(NOTES_CACHE),
+        caches.open(DYNAMIC_CACHE)
+      ]);
+    }
   }
 
   static async cleanupOldCaches() {
-    const cacheNames = await caches.keys();
-    return Promise.all(
-      cacheNames.map((cacheName) => {
-        if (cacheName !== STATIC_CACHE && 
-            cacheName !== DYNAMIC_CACHE && 
-            cacheName !== NOTES_CACHE &&
-            cacheName !== CACHE_NAME) {
-          console.log('Deleting old cache:', cacheName);
-          return caches.delete(cacheName);
-        }
-      })
-    );
+    try {
+      const cacheNames = await caches.keys();
+      return Promise.all(
+        cacheNames.map((cacheName) => {
+          if (cacheName !== STATIC_CACHE && 
+              cacheName !== DYNAMIC_CACHE && 
+              cacheName !== NOTES_CACHE &&
+              cacheName !== CACHE_NAME) {
+            console.log('Deleting old cache:', cacheName);
+            return caches.delete(cacheName);
+          }
+        })
+      );
+    } catch (error) {
+      console.error('Cache cleanup failed:', error);
+      return Promise.resolve();
+    }
   }
 
   static isStaticAsset(url) {
@@ -77,6 +92,8 @@ class CacheManager {
       const cached = await cache.match(request);
       
       if (cached) {
+        // Start background update for fresh content
+        this.backgroundUpdate(request, cacheName);
         return cached;
       }
       
@@ -86,14 +103,14 @@ class CacheManager {
       }
       return response;
     } catch (error) {
-      console.error('Cache first failed:', error);
-      return new Response('Offline', { status: 503 });
+      console.error('Cache first strategy failed:', error);
+      return this.createOfflineResponse(request);
     }
   }
 
   static async networkFirst(request, cacheName) {
     try {
-      const response = await fetch(request);
+      const response = await fetch(request, { timeout: 5000 });
       
       if (response.ok) {
         const cache = await caches.open(cacheName);
@@ -103,85 +120,179 @@ class CacheManager {
       return response;
     } catch (error) {
       console.log('Network failed, trying cache:', error);
-      const cache = await caches.open(cacheName);
-      const cached = await cache.match(request);
       
-      if (cached) {
-        return cached;
+      try {
+        const cache = await caches.open(cacheName);
+        const cached = await cache.match(request);
+        
+        if (cached) {
+          return cached;
+        }
+      } catch (cacheError) {
+        console.error('Cache access failed:', cacheError);
       }
       
-      return new Response(JSON.stringify({ 
-        error: 'Network unavailable', 
-        offline: true 
-      }), {
-        status: 503,
-        headers: { 'Content-Type': 'application/json' }
-      });
+      return this.createOfflineResponse(request);
     }
   }
 
   static async staleWhileRevalidate(request, cacheName) {
-    const cache = await caches.open(cacheName);
-    const cached = await cache.match(request);
-    
-    const fetchPromise = fetch(request).then((response) => {
-      if (response.ok) {
-        cache.put(request, response.clone());
-      }
-      return response;
-    }).catch(() => cached);
-    
-    return cached || fetchPromise;
+    try {
+      const cache = await caches.open(cacheName);
+      const cached = await cache.match(request);
+      
+      const fetchPromise = fetch(request).then((response) => {
+        if (response.ok) {
+          cache.put(request, response.clone());
+        }
+        return response;
+      }).catch((error) => {
+        console.warn('Background fetch failed:', error);
+        return cached;
+      });
+      
+      return cached || fetchPromise;
+    } catch (error) {
+      console.error('Stale while revalidate failed:', error);
+      return this.createOfflineResponse(request);
+    }
   }
 
   static async handleNavigation(request) {
     try {
-      return await fetch(request);
+      const response = await fetch(request, { timeout: 3000 });
+      return response;
     } catch (error) {
-      const cache = await caches.open(STATIC_CACHE);
-      return cache.match('/') || cache.match('/index.html') || 
-             new Response('App is offline', { 
-               status: 503, 
-               headers: { 'Content-Type': 'text/html' } 
-             });
+      console.log('Navigation request failed, serving cached version:', error);
+      
+      try {
+        const cache = await caches.open(STATIC_CACHE);
+        const cached = await cache.match('/') || await cache.match('/index.html');
+        
+        if (cached) {
+          return cached;
+        }
+      } catch (cacheError) {
+        console.error('Cache navigation fallback failed:', cacheError);
+      }
+      
+      return new Response(this.getOfflineHTML(), { 
+        status: 503, 
+        headers: { 'Content-Type': 'text/html' } 
+      });
     }
   }
 
   static async handleNotesSave(request) {
     try {
-      const response = await fetch(request);
+      const response = await fetch(request, { timeout: 10000 });
       return response;
     } catch (error) {
-      // Store offline and sync later
-      const requestData = await request.json();
-      await this.storeOfflineNote(requestData);
+      console.log('Notes save failed, storing offline:', error);
       
-      // Register background sync
-      if ('serviceWorker' in navigator && 'sync' in window.ServiceWorkerRegistration.prototype) {
-        await self.registration.sync.register('sync-notes');
+      try {
+        // Store offline and sync later
+        const requestData = await request.json();
+        await this.storeOfflineNote(requestData);
+        
+        // Register background sync
+        if ('serviceWorker' in navigator && 'sync' in window.ServiceWorkerRegistration.prototype) {
+          await self.registration.sync.register('sync-notes');
+        }
+        
+        return new Response(JSON.stringify({ 
+          success: true, 
+          offline: true,
+          message: 'Note saved offline, will sync when online' 
+        }), {
+          status: 200,
+          headers: { 'Content-Type': 'application/json' }
+        });
+      } catch (offlineError) {
+        console.error('Offline storage failed:', offlineError);
+        return new Response(JSON.stringify({ 
+          error: 'Failed to save note offline', 
+          details: offlineError.message 
+        }), {
+          status: 500,
+          headers: { 'Content-Type': 'application/json' }
+        });
       }
-      
-      return new Response(JSON.stringify({ 
-        success: true, 
-        offline: true,
-        message: 'Note saved offline, will sync when online' 
-      }), {
-        status: 200,
-        headers: { 'Content-Type': 'application/json' }
-      });
     }
   }
 
-  static async storeOfflineNote(noteData) {
-    const db = await this.openOfflineDB();
-    const transaction = db.transaction(['offline_notes'], 'readwrite');
-    const store = transaction.objectStore('offline_notes');
+  static async backgroundUpdate(request, cacheName) {
+    try {
+      const response = await fetch(request);
+      if (response.ok) {
+        const cache = await caches.open(cacheName);
+        cache.put(request, response.clone());
+      }
+    } catch (error) {
+      console.warn('Background update failed:', error);
+    }
+  }
+
+  static createOfflineResponse(request) {
+    const url = new URL(request.url);
     
-    await store.add({
-      ...noteData,
-      timestamp: Date.now(),
-      synced: false
+    if (this.isAPIRequest(url)) {
+      return new Response(JSON.stringify({ 
+        error: 'Network unavailable', 
+        offline: true,
+        retry: true
+      }), {
+        status: 503,
+        headers: { 'Content-Type': 'application/json' }
+      });
+    }
+    
+    return new Response('Offline - Please check your connection', { 
+      status: 503,
+      headers: { 'Content-Type': 'text/plain' }
     });
+  }
+
+  static getOfflineHTML() {
+    return `
+      <!DOCTYPE html>
+      <html>
+        <head>
+          <title>OneAI Notes - Offline</title>
+          <meta name="viewport" content="width=device-width, initial-scale=1">
+          <style>
+            body { font-family: Arial, sans-serif; text-align: center; padding: 50px; background: #000; color: #fff; }
+            h1 { color: #783DFF; }
+            .offline-message { max-width: 400px; margin: 0 auto; }
+          </style>
+        </head>
+        <body>
+          <div class="offline-message">
+            <h1>OneAI Notes</h1>
+            <h2>You're offline</h2>
+            <p>Please check your internet connection and try again.</p>
+            <button onclick="window.location.reload()">Retry</button>
+          </div>
+        </body>
+      </html>
+    `;
+  }
+
+  static async storeOfflineNote(noteData) {
+    try {
+      const db = await this.openOfflineDB();
+      const transaction = db.transaction(['offline_notes'], 'readwrite');
+      const store = transaction.objectStore('offline_notes');
+      
+      await store.add({
+        ...noteData,
+        timestamp: Date.now(),
+        synced: false
+      });
+    } catch (error) {
+      console.error('Failed to store offline note:', error);
+      throw error;
+    }
   }
 
   static openOfflineDB() {
