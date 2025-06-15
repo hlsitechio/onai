@@ -3,6 +3,7 @@ import React, { createContext, useContext, useEffect, useState } from 'react';
 import { usePWAStatus } from '@/hooks/usePWAStatus';
 import { usePWAMetrics } from '@/hooks/usePWAMetrics';
 import { useToast } from '@/hooks/use-toast';
+import { offlineStorage } from './utils/OfflineStorage';
 
 interface PWAContextType {
   isOnline: boolean;
@@ -17,6 +18,14 @@ interface PWAContextType {
   };
   metrics: any;
   sendMetricsToAnalytics: () => void;
+  offlineStorage: typeof offlineStorage;
+  enhancedFeatures: {
+    backgroundSync: boolean;
+    pushNotifications: boolean;
+    offlineStorage: boolean;
+    installationAnalytics: boolean;
+    enhancedShare: boolean;
+  };
 }
 
 const PWAContext = createContext<PWAContextType | null>(null);
@@ -42,7 +51,21 @@ export const PWAProvider: React.FC<PWAProviderProps> = ({ children }) => {
     syncing: false,
   });
 
+  // Enhanced features availability
+  const [enhancedFeatures] = useState({
+    backgroundSync: 'serviceWorker' in navigator && 'sync' in window.ServiceWorkerRegistration.prototype,
+    pushNotifications: 'PushManager' in window && 'Notification' in window,
+    offlineStorage: 'indexedDB' in window,
+    installationAnalytics: 'localStorage' in window,
+    enhancedShare: 'share' in navigator || 'clipboard' in navigator,
+  });
+
   useEffect(() => {
+    // Initialize offline storage
+    offlineStorage.initialize().catch(error => {
+      console.error('Failed to initialize offline storage:', error);
+    });
+
     // Listen for service worker messages
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.addEventListener('message', (event) => {
@@ -75,6 +98,26 @@ export const PWAProvider: React.FC<PWAProviderProps> = ({ children }) => {
               variant: 'destructive',
             });
             break;
+
+          case 'STORAGE_QUOTA_EXCEEDED':
+            toast({
+              title: 'Storage Full',
+              description: 'Please clear some data to continue.',
+              variant: 'destructive',
+            });
+            break;
+
+          case 'BACKGROUND_SYNC_REGISTERED':
+            setSyncStatus(prev => ({ ...prev, pending: prev.pending + 1 }));
+            break;
+
+          case 'BACKGROUND_SYNC_COMPLETED':
+            setSyncStatus(prev => ({ 
+              ...prev, 
+              pending: Math.max(0, prev.pending - 1),
+              syncing: false 
+            }));
+            break;
             
           default:
             break;
@@ -97,6 +140,12 @@ export const PWAProvider: React.FC<PWAProviderProps> = ({ children }) => {
         const event = new CustomEvent('pwa:open-ai');
         window.dispatchEvent(event);
       }
+
+      if (urlParams.get('share') === 'true') {
+        // Handle share shortcut
+        const event = new CustomEvent('pwa:open-share');
+        window.dispatchEvent(event);
+      }
     };
 
     handleShortcuts();
@@ -108,8 +157,25 @@ export const PWAProvider: React.FC<PWAProviderProps> = ({ children }) => {
       }
     }, 60000); // Every minute
 
+    // Monitor storage usage
+    const storageInterval = setInterval(async () => {
+      try {
+        const usage = await offlineStorage.getStorageUsage();
+        if (usage.quota > 0 && usage.used / usage.quota > 0.9) {
+          toast({
+            title: 'Storage Almost Full',
+            description: 'Consider clearing old data to free up space.',
+            variant: 'destructive',
+          });
+        }
+      } catch (error) {
+        console.warn('Failed to check storage usage:', error);
+      }
+    }, 300000); // Every 5 minutes
+
     return () => {
       clearInterval(metricsInterval);
+      clearInterval(storageInterval);
     };
   }, [toast, metrics, sendMetricsToAnalytics]);
 
@@ -123,6 +189,8 @@ export const PWAProvider: React.FC<PWAProviderProps> = ({ children }) => {
     syncStatus,
     metrics,
     sendMetricsToAnalytics,
+    offlineStorage,
+    enhancedFeatures,
   };
 
   return (
