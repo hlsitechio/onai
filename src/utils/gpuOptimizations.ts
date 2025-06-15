@@ -46,8 +46,8 @@ export default {
       // Get WebGL context with proper typing
       const webglContext = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
       
-      if (webglContext && typeof webglContext.getExtension === 'function') {
-        // Check for WebGL support by testing context methods
+      if (webglContext) {
+        // Check for WebGL support by testing if context exists
         isWebGLSupported = true;
       }
     } catch (e) {
