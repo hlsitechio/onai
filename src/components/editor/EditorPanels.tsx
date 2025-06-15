@@ -53,7 +53,7 @@ const EditorPanels: React.FC<EditorPanelsProps> = ({
   setIsAIDialogOpen
 }) => {
   return (
-    <div className="h-full w-full relative">
+    <div className="h-full w-full">
       <ResizablePanelGroup 
         direction="horizontal" 
         className="h-full w-full"
