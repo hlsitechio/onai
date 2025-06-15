@@ -1,11 +1,7 @@
 
 import React, { useState } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { usePWA } from './PWAProvider';
-import PWAInstallationAnalytics from './PWAInstallationAnalytics';
+import PWAOverviewTab from './PWAOverviewTab';
 import BackgroundSyncUI from './BackgroundSyncUI';
 import EnhancedShareIntegration from './EnhancedShareIntegration';
 import PWAPushNotifications from './PWAPushNotifications';
@@ -13,32 +9,11 @@ import {
   Settings, 
   RefreshCw, 
   Share, 
-  Bell,
-  Database,
-  Wifi
+  Bell
 } from 'lucide-react';
 
 const PWADashboard: React.FC = () => {
-  const { 
-    isOnline, 
-    isInstalled, 
-    enhancedFeatures, 
-    metrics, 
-    offlineStorage 
-  } = usePWA();
-  
   const [activeTab, setActiveTab] = useState('overview');
-
-  // Only show analytics in development mode
-  const isDevelopment = import.meta.env.DEV;
-
-  const getFeatureStatus = (feature: keyof typeof enhancedFeatures) => {
-    return enhancedFeatures[feature] ? 'Available' : 'Not Available';
-  };
-
-  const getFeatureVariant = (feature: keyof typeof enhancedFeatures) => {
-    return enhancedFeatures[feature] ? 'default' : 'secondary';
-  };
 
   return (
     <div className="w-full max-w-6xl mx-auto p-4">
@@ -69,146 +44,8 @@ const PWADashboard: React.FC = () => {
           </TabsTrigger>
         </TabsList>
 
-        <TabsContent value="overview" className="space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {/* Connection Status */}
-            <Card>
-              <CardHeader className="pb-3">
-                <CardTitle className="flex items-center gap-2 text-lg">
-                  <Wifi className="h-5 w-5" />
-                  Connection
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <Badge variant={isOnline ? 'default' : 'destructive'}>
-                  {isOnline ? 'Online' : 'Offline'}
-                </Badge>
-              </CardContent>
-            </Card>
-
-            {/* Installation Status */}
-            <Card>
-              <CardHeader className="pb-3">
-                <CardTitle className="flex items-center gap-2 text-lg">
-                  <Database className="h-5 w-5" />
-                  Installation
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <Badge variant={isInstalled ? 'default' : 'secondary'}>
-                  {isInstalled ? 'Installed' : 'Not Installed'}
-                </Badge>
-              </CardContent>
-            </Card>
-
-            {/* Storage Status */}
-            <Card>
-              <CardHeader className="pb-3">
-                <CardTitle className="flex items-center gap-2 text-lg">
-                  <Database className="h-5 w-5" />
-                  Storage
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <Badge variant={enhancedFeatures.offlineStorage ? 'default' : 'secondary'}>
-                  {enhancedFeatures.offlineStorage ? 'Available' : 'Limited'}
-                </Badge>
-              </CardContent>
-            </Card>
-          </div>
-
-          {/* Feature Availability */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Feature Availability</CardTitle>
-              <CardDescription>
-                Overview of PWA features supported by this browser
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-3">
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm font-medium">Background Sync</span>
-                    <Badge variant={getFeatureVariant('backgroundSync')}>
-                      {getFeatureStatus('backgroundSync')}
-                    </Badge>
-                  </div>
-                  
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm font-medium">Push Notifications</span>
-                    <Badge variant={getFeatureVariant('pushNotifications')}>
-                      {getFeatureStatus('pushNotifications')}
-                    </Badge>
-                  </div>
-                  
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm font-medium">Offline Storage</span>
-                    <Badge variant={getFeatureVariant('offlineStorage')}>
-                      {getFeatureStatus('offlineStorage')}
-                    </Badge>
-                  </div>
-                </div>
-                
-                <div className="space-y-3">
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm font-medium">Installation Analytics</span>
-                    <Badge variant={getFeatureVariant('installationAnalytics')}>
-                      {getFeatureStatus('installationAnalytics')}
-                    </Badge>
-                  </div>
-                  
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm font-medium">Enhanced Share</span>
-                    <Badge variant={getFeatureVariant('enhancedShare')}>
-                      {getFeatureStatus('enhancedShare')}
-                    </Badge>
-                  </div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Quick Actions */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Quick Actions</CardTitle>
-              <CardDescription>
-                Common PWA management tasks
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="flex gap-2 flex-wrap">
-                <Button variant="outline" size="sm">
-                  Clear Cache
-                </Button>
-                <Button variant="outline" size="sm">
-                  Force Sync
-                </Button>
-                <Button variant="outline" size="sm">
-                  Export Data
-                </Button>
-                <Button variant="outline" size="sm">
-                  Reset Settings
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Development Mode Analytics Access */}
-          {isDevelopment && (
-            <Card className="border-dashed border-yellow-500 bg-yellow-50 dark:bg-yellow-950/20">
-              <CardHeader>
-                <CardTitle className="text-yellow-700 dark:text-yellow-300">Development Mode</CardTitle>
-                <CardDescription className="text-yellow-600 dark:text-yellow-400">
-                  Additional analytics available in development environment
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <PWAInstallationAnalytics />
-              </CardContent>
-            </Card>
-          )}
+        <TabsContent value="overview">
+          <PWAOverviewTab />
         </TabsContent>
 
         <TabsContent value="sync">
