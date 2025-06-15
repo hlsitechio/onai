@@ -11,6 +11,11 @@ html, body, #root {
   background-color: #000000 !important; /* Ultra dark background */
 }
 
+/* Ensure all page containers have dark background */
+body {
+  background: linear-gradient(135deg, #000000 0%, #0a0a0a 50%, #000000 100%) !important;
+}
+
 /* Full-height wrapper in focus mode */
 [data-focus-mode="true"] #root {
   background-color: black !important;
@@ -29,4 +34,58 @@ html, body, #root {
   height: 100vh;
   background-color: black;
   z-index: -1;
+}
+
+/* Enhanced background consistency for all pages */
+.page-container {
+  min-height: 100vh;
+  background-color: #000000;
+  background-image: 
+    radial-gradient(at 20% 80%, rgba(120, 90, 220, 0.05) 0px, transparent 50%),
+    radial-gradient(at 80% 20%, rgba(220, 120, 90, 0.05) 0px, transparent 50%),
+    radial-gradient(at 40% 40%, rgba(90, 220, 120, 0.03) 0px, transparent 50%);
+}
+
+/* Ensure consistent dark theme for all components */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(120, 90, 220, 0.3) transparent;
+}
+
+*::-webkit-scrollbar {
+  width: 6px;
+}
+
+*::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.1);
+}
+
+*::-webkit-scrollbar-thumb {
+  background: rgba(120, 90, 220, 0.3);
+  border-radius: 3px;
+}
+
+*::-webkit-scrollbar-thumb:hover {
+  background: rgba(120, 90, 220, 0.5);
+}
+
+/* Enhanced glass effect for components */
+.glass-effect {
+  background: rgba(0, 0, 0, 0.4) !important;
+  backdrop-filter: blur(20px) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  box-shadow: 
+    0 8px 32px rgba(0, 0, 0, 0.5),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1) !important;
+}
+
+/* Enhanced dark mode consistency */
+.dark, [data-theme="dark"] {
+  background-color: #000000 !important;
+}
+
+/* Ensure modals and overlays maintain dark theme */
+.modal-overlay, .dialog-overlay {
+  background-color: rgba(0, 0, 0, 0.8) !important;
+  backdrop-filter: blur(10px) !important;
 }
