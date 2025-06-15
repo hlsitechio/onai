@@ -19,6 +19,11 @@ const CACHEABLE_APIS = [
   '/api/ai',
 ];
 
+// Track failed requests to avoid repeated attempts
+const failedRequests = new Set();
+const MAX_RETRY_ATTEMPTS = 3;
+const RETRY_DELAY = 5000; // 5 seconds
+
 class CacheManager {
   static async initializeCaches() {
     try {
@@ -92,8 +97,11 @@ class CacheManager {
       const cached = await cache.match(request);
       
       if (cached) {
-        // Start background update for fresh content
-        this.backgroundUpdate(request, cacheName);
+        // Start background update for fresh content (only if not recently failed)
+        const requestKey = `${request.method}-${request.url}`;
+        if (!failedRequests.has(requestKey)) {
+          this.backgroundUpdate(request, cacheName);
+        }
         return cached;
       }
       
@@ -222,15 +230,49 @@ class CacheManager {
   }
 
   static async backgroundUpdate(request, cacheName) {
+    const requestKey = `${request.method}-${request.url}`;
+    
+    // Skip if this request has failed recently
+    if (failedRequests.has(requestKey)) {
+      return;
+    }
+
     try {
-      const response = await fetch(request);
+      // Add timeout to prevent hanging requests
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
+      
+      const response = await fetch(request, { 
+        signal: controller.signal,
+        cache: 'no-cache' // Ensure we get fresh content
+      });
+      
+      clearTimeout(timeoutId);
+      
       if (response.ok) {
         const cache = await caches.open(cacheName);
-        cache.put(request, response.clone());
+        await cache.put(request, response.clone());
+        console.log('Background update successful for:', request.url);
+      } else {
+        console.warn('Background update failed with status:', response.status, 'for:', request.url);
+        this.markRequestAsFailed(requestKey);
       }
     } catch (error) {
-      console.warn('Background update failed:', error);
+      // Only log if it's not an abort error (timeout)
+      if (error.name !== 'AbortError') {
+        console.warn('Background update failed for:', request.url, error.message);
+      }
+      this.markRequestAsFailed(requestKey);
     }
+  }
+
+  static markRequestAsFailed(requestKey) {
+    failedRequests.add(requestKey);
+    
+    // Remove from failed list after delay to allow retry
+    setTimeout(() => {
+      failedRequests.delete(requestKey);
+    }, RETRY_DELAY);
   }
 
   static createOfflineResponse(request) {
