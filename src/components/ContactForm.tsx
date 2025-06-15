@@ -4,12 +4,18 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { sendEmail } from '@/utils/emailService';
 import { Loader2, Mail } from 'lucide-react';
 
-const ContactForm = () => {
+interface ContactFormProps {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+}
+
+const ContactForm: React.FC<ContactFormProps> = ({ open, onOpenChange }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
@@ -84,13 +90,14 @@ const ContactForm = () => {
         description: 'We\'ll get back to you as soon as possible.',
       });
 
-      // Reset form
+      // Reset form and close dialog
       setFormData({
         name: '',
         email: '',
         subject: '',
         message: '',
       });
+      onOpenChange(false);
     } catch (error) {
       console.error('Error sending contact form:', error);
       toast({
@@ -111,86 +118,84 @@ const ContactForm = () => {
   };
 
   return (
-    <Card className="w-full max-w-md mx-auto bg-black/60 border-white/10">
-      <CardHeader>
-        <CardTitle className="flex items-center text-white">
-          <Mail className="w-5 h-5 mr-2" />
-          Contact Us
-        </CardTitle>
-        <CardDescription className="text-gray-400">
-          Send us a message and we'll get back to you soon.
-        </CardDescription>
-      </CardHeader>
-      <CardContent>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="name" className="text-white">Name *</Label>
-            <Input
-              id="name"
-              type="text"
-              value={formData.name}
-              onChange={(e) => handleInputChange('name', e.target.value)}
-              className="bg-white/5 border-white/10 text-white"
-              placeholder="Your name"
-              disabled={isLoading}
-            />
-          </div>
-          
-          <div className="space-y-2">
-            <Label htmlFor="email" className="text-white">Email *</Label>
-            <Input
-              id="email"
-              type="email"
-              value={formData.email}
-              onChange={(e) => handleInputChange('email', e.target.value)}
-              className="bg-white/5 border-white/10 text-white"
-              placeholder="your@email.com"
-              disabled={isLoading}
-            />
-          </div>
-          
-          <div className="space-y-2">
-            <Label htmlFor="subject" className="text-white">Subject</Label>
-            <Input
-              id="subject"
-              type="text"
-              value={formData.subject}
-              onChange={(e) => handleInputChange('subject', e.target.value)}
-              className="bg-white/5 border-white/10 text-white"
-              placeholder="What's this about?"
-              disabled={isLoading}
-            />
-          </div>
-          
-          <div className="space-y-2">
-            <Label htmlFor="message" className="text-white">Message *</Label>
-            <Textarea
-              id="message"
-              value={formData.message}
-              onChange={(e) => handleInputChange('message', e.target.value)}
-              className="bg-white/5 border-white/10 text-white min-h-[100px]"
-              placeholder="Tell us how we can help you..."
-              disabled={isLoading}
-            />
-          </div>
-          
-          <Button 
-            type="submit" 
-            className="w-full bg-gradient-to-r from-noteflow-500 to-purple-500 hover:from-noteflow-600 hover:to-purple-600"
-            disabled={isLoading}
-          >
-            {isLoading ? (
-              <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Sending...
-              </>
-            ) : (
-              'Send Message'
-            )}
-          </Button>
-        </form>
-      </CardContent>
-    </Card>
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="sm:max-w-md">
+        <DialogHeader>
+          <DialogTitle className="flex items-center">
+            <Mail className="w-5 h-5 mr-2" />
+            Contact Us
+          </DialogTitle>
+        </DialogHeader>
+        <Card className="border-0 shadow-none">
+          <CardContent className="p-0">
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="name">Name *</Label>
+                <Input
+                  id="name"
+                  type="text"
+                  value={formData.name}
+                  onChange={(e) => handleInputChange('name', e.target.value)}
+                  placeholder="Your name"
+                  disabled={isLoading}
+                />
+              </div>
+              
+              <div className="space-y-2">
+                <Label htmlFor="email">Email *</Label>
+                <Input
+                  id="email"
+                  type="email"
+                  value={formData.email}
+                  onChange={(e) => handleInputChange('email', e.target.value)}
+                  placeholder="your@email.com"
+                  disabled={isLoading}
+                />
+              </div>
+              
+              <div className="space-y-2">
+                <Label htmlFor="subject">Subject</Label>
+                <Input
+                  id="subject"
+                  type="text"
+                  value={formData.subject}
+                  onChange={(e) => handleInputChange('subject', e.target.value)}
+                  placeholder="What's this about?"
+                  disabled={isLoading}
+                />
+              </div>
+              
+              <div className="space-y-2">
+                <Label htmlFor="message">Message *</Label>
+                <Textarea
+                  id="message"
+                  value={formData.message}
+                  onChange={(e) => handleInputChange('message', e.target.value)}
+                  className="min-h-[100px]"
+                  placeholder="Tell us how we can help you..."
+                  disabled={isLoading}
+                />
+              </div>
+              
+              <Button 
+                type="submit" 
+                className="w-full bg-gradient-to-r from-noteflow-500 to-purple-500 hover:from-noteflow-600 hover:to-purple-600"
+                disabled={isLoading}
+              >
+                {isLoading ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Sending...
+                  </>
+                ) : (
+                  'Send Message'
+                )}
+              </Button>
+            </form>
+          </CardContent>
+        </Card>
+      </DialogContent>
+    </Dialog>
   );
 };
 
