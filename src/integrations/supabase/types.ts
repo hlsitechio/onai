@@ -610,7 +610,7 @@ export type Database = {
           notification_preferences: Json | null
           sync_preferences: Json | null
           updated_at: string | null
-          user_id: string | null
+          user_id: string
         }
         Insert: {
           ai_preferences?: Json | null
@@ -620,7 +620,7 @@ export type Database = {
           notification_preferences?: Json | null
           sync_preferences?: Json | null
           updated_at?: string | null
-          user_id?: string | null
+          user_id: string
         }
         Update: {
           ai_preferences?: Json | null
@@ -630,7 +630,7 @@ export type Database = {
           notification_preferences?: Json | null
           sync_preferences?: Json | null
           updated_at?: string | null
-          user_id?: string | null
+          user_id?: string
         }
         Relationships: []
       }
