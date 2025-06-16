@@ -27,3 +27,6 @@ verify_jwt = false
 
 [functions.ionos-api]
 verify_jwt = false
+
+[functions.deployment-webhook]
+verify_jwt = false
