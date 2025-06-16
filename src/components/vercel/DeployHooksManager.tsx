@@ -49,6 +49,10 @@ const DeployHooksManager = () => {
     }
   };
 
+  const handleRefresh = () => {
+    fetchDeployHooks();
+  };
+
   const copyToClipboard = async (text: string, label: string) => {
     try {
       await navigator.clipboard.writeText(text);
@@ -90,7 +94,7 @@ const DeployHooksManager = () => {
         
         <div className="flex gap-2">
           <Button
-            onClick={fetchDeployHooks}
+            onClick={handleRefresh}
             disabled={isLoading}
             variant="outline"
             className="border-white/20 text-white hover:bg-white/10"
