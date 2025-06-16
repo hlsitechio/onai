@@ -8,8 +8,8 @@ let componentTagger: any = null;
 try {
   const taggerModule = await import("lovable-tagger");
   componentTagger = taggerModule.componentTagger;
-} catch (error) {
-  console.warn("lovable-tagger could not be loaded:", error.message);
+} catch (error: any) {
+  console.warn("lovable-tagger could not be loaded:", error?.message || "Unknown error");
 }
 
 // https://vitejs.dev/config/
