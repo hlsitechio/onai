@@ -167,6 +167,102 @@ export type Database = {
         }
         Relationships: []
       }
+      deployment_analytics: {
+        Row: {
+          bandwidth_used: number | null
+          created_at: string | null
+          date: string
+          deployment_id: string
+          error_rate: number | null
+          id: string
+          page_views: number | null
+          response_time_avg: number | null
+          unique_visitors: number | null
+          user_id: string
+          vercel_project_id: string
+        }
+        Insert: {
+          bandwidth_used?: number | null
+          created_at?: string | null
+          date: string
+          deployment_id: string
+          error_rate?: number | null
+          id?: string
+          page_views?: number | null
+          response_time_avg?: number | null
+          unique_visitors?: number | null
+          user_id: string
+          vercel_project_id: string
+        }
+        Update: {
+          bandwidth_used?: number | null
+          created_at?: string | null
+          date?: string
+          deployment_id?: string
+          error_rate?: number | null
+          id?: string
+          page_views?: number | null
+          response_time_avg?: number | null
+          unique_visitors?: number | null
+          user_id?: string
+          vercel_project_id?: string
+        }
+        Relationships: []
+      }
+      deployment_logs: {
+        Row: {
+          branch: string | null
+          build_duration: number | null
+          commit_sha: string | null
+          completed_at: string | null
+          created_at: string | null
+          deployment_id: string
+          deployment_size: number | null
+          deployment_url: string | null
+          errors: Json | null
+          id: string
+          metadata: Json | null
+          status: string
+          user_id: string
+          vercel_project_id: string
+          warnings: Json | null
+        }
+        Insert: {
+          branch?: string | null
+          build_duration?: number | null
+          commit_sha?: string | null
+          completed_at?: string | null
+          created_at?: string | null
+          deployment_id: string
+          deployment_size?: number | null
+          deployment_url?: string | null
+          errors?: Json | null
+          id?: string
+          metadata?: Json | null
+          status?: string
+          user_id: string
+          vercel_project_id: string
+          warnings?: Json | null
+        }
+        Update: {
+          branch?: string | null
+          build_duration?: number | null
+          commit_sha?: string | null
+          completed_at?: string | null
+          created_at?: string | null
+          deployment_id?: string
+          deployment_size?: number | null
+          deployment_url?: string | null
+          errors?: Json | null
+          id?: string
+          metadata?: Json | null
+          status?: string
+          user_id?: string
+          vercel_project_id?: string
+          warnings?: Json | null
+        }
+        Relationships: []
+      }
       note_shares: {
         Row: {
           access_count: number | null
@@ -631,6 +727,51 @@ export type Database = {
           sync_preferences?: Json | null
           updated_at?: string | null
           user_id?: string | null
+        }
+        Relationships: []
+      }
+      vercel_projects: {
+        Row: {
+          build_command: string | null
+          created_at: string | null
+          deployment_settings: Json | null
+          deployment_url: string | null
+          environment_variables: Json | null
+          framework: string | null
+          id: string
+          output_directory: string | null
+          project_name: string
+          updated_at: string | null
+          user_id: string
+          vercel_project_id: string
+        }
+        Insert: {
+          build_command?: string | null
+          created_at?: string | null
+          deployment_settings?: Json | null
+          deployment_url?: string | null
+          environment_variables?: Json | null
+          framework?: string | null
+          id?: string
+          output_directory?: string | null
+          project_name: string
+          updated_at?: string | null
+          user_id: string
+          vercel_project_id: string
+        }
+        Update: {
+          build_command?: string | null
+          created_at?: string | null
+          deployment_settings?: Json | null
+          deployment_url?: string | null
+          environment_variables?: Json | null
+          framework?: string | null
+          id?: string
+          output_directory?: string | null
+          project_name?: string
+          updated_at?: string | null
+          user_id?: string
+          vercel_project_id?: string
         }
         Relationships: []
       }

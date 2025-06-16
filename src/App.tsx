@@ -13,6 +13,7 @@ import Auth from "./pages/Auth";
 import SignIn from "./pages/SignIn";
 import SignUp from "./pages/SignUp";
 import NotFound from "./pages/NotFound";
+import VercelDashboard from "./pages/VercelDashboard";
 
 const queryClient = new QueryClient();
 
@@ -34,6 +35,14 @@ const App = () => (
                 element={
                   <AuthGuard>
                     <Index />
+                  </AuthGuard>
+                }
+              />
+              <Route
+                path="/vercel"
+                element={
+                  <AuthGuard>
+                    <VercelDashboard />
                   </AuthGuard>
                 }
               />
