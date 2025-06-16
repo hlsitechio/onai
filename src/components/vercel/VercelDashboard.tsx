@@ -1,12 +1,12 @@
-
 import React, { useEffect, useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useVercelIntegration } from '@/hooks/useVercelIntegration';
-import { RefreshCw, ExternalLink, Play, Settings, BarChart3 } from 'lucide-react';
+import { RefreshCw, ExternalLink, Play, Settings, BarChart3, Webhook } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import DeployHooksManager from './DeployHooksManager';
 
 interface VercelProject {
   id: string;
@@ -92,9 +92,10 @@ const VercelDashboard = () => {
       </div>
 
       <Tabs defaultValue="projects" className="w-full">
-        <TabsList className="grid w-full grid-cols-3">
+        <TabsList className="grid w-full grid-cols-4">
           <TabsTrigger value="projects">Projects</TabsTrigger>
           <TabsTrigger value="deployments">Deployments</TabsTrigger>
+          <TabsTrigger value="hooks">Deploy Hooks</TabsTrigger>
           <TabsTrigger value="analytics">Analytics</TabsTrigger>
         </TabsList>
 
@@ -215,6 +216,10 @@ const VercelDashboard = () => {
               )}
             </CardContent>
           </Card>
+        </TabsContent>
+
+        <TabsContent value="hooks" className="space-y-4">
+          <DeployHooksManager />
         </TabsContent>
 
         <TabsContent value="analytics" className="space-y-4">

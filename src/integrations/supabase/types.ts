@@ -167,6 +167,106 @@ export type Database = {
         }
         Relationships: []
       }
+      deploy_hook_logs: {
+        Row: {
+          created_at: string
+          deploy_hook_id: string
+          deployment_id: string | null
+          error_message: string | null
+          id: string
+          response_data: Json | null
+          source_ip: unknown | null
+          status: string
+          triggered_at: string
+          user_agent: string | null
+        }
+        Insert: {
+          created_at?: string
+          deploy_hook_id: string
+          deployment_id?: string | null
+          error_message?: string | null
+          id?: string
+          response_data?: Json | null
+          source_ip?: unknown | null
+          status?: string
+          triggered_at?: string
+          user_agent?: string | null
+        }
+        Update: {
+          created_at?: string
+          deploy_hook_id?: string
+          deployment_id?: string | null
+          error_message?: string | null
+          id?: string
+          response_data?: Json | null
+          source_ip?: unknown | null
+          status?: string
+          triggered_at?: string
+          user_agent?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "deploy_hook_logs_deploy_hook_id_fkey"
+            columns: ["deploy_hook_id"]
+            isOneToOne: false
+            referencedRelation: "deploy_hooks"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      deploy_hooks: {
+        Row: {
+          branch: string
+          created_at: string
+          hook_name: string
+          id: string
+          is_active: boolean
+          last_triggered_at: string | null
+          trigger_count: number
+          updated_at: string
+          user_id: string
+          vercel_project_id: string
+          webhook_secret: string
+          webhook_url: string
+        }
+        Insert: {
+          branch?: string
+          created_at?: string
+          hook_name: string
+          id?: string
+          is_active?: boolean
+          last_triggered_at?: string | null
+          trigger_count?: number
+          updated_at?: string
+          user_id: string
+          vercel_project_id: string
+          webhook_secret: string
+          webhook_url: string
+        }
+        Update: {
+          branch?: string
+          created_at?: string
+          hook_name?: string
+          id?: string
+          is_active?: boolean
+          last_triggered_at?: string | null
+          trigger_count?: number
+          updated_at?: string
+          user_id?: string
+          vercel_project_id?: string
+          webhook_secret?: string
+          webhook_url?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fk_deploy_hooks_vercel_project"
+            columns: ["user_id", "vercel_project_id"]
+            isOneToOne: false
+            referencedRelation: "vercel_projects"
+            referencedColumns: ["user_id", "vercel_project_id"]
+          },
+        ]
+      }
       deployment_analytics: {
         Row: {
           bandwidth_used: number | null
