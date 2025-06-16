@@ -25,8 +25,8 @@ interface DeploymentLog {
   build_duration?: number;
   created_at: string;
   completed_at?: string;
-  errors?: any[];
-  warnings?: any[];
+  errors?: any;
+  warnings?: any;
 }
 
 interface DeploymentRequest {
@@ -104,7 +104,19 @@ export const useVercelIntegration = () => {
         .order('updated_at', { ascending: false });
       
       if (localProjects) {
-        setProjects(localProjects);
+        // Transform database schema to match interface
+        const transformedProjects: VercelProject[] = localProjects.map(project => ({
+          id: project.vercel_project_id,
+          name: project.project_name,
+          framework: project.framework,
+          deployment_url: project.deployment_url,
+          build_command: project.build_command,
+          output_directory: project.output_directory,
+          environment_variables: project.environment_variables as Record<string, string>,
+          created_at: project.created_at,
+          updated_at: project.updated_at,
+        }));
+        setProjects(transformedProjects);
       }
     } catch (error) {
       console.error('Failed to fetch projects:', error);
@@ -158,7 +170,23 @@ export const useVercelIntegration = () => {
       
       if (error) throw error;
       
-      setDeploymentLogs(data || []);
+      // Transform database schema to match interface
+      if (data) {
+        const transformedLogs: DeploymentLog[] = data.map(log => ({
+          id: log.id,
+          deployment_id: log.deployment_id,
+          status: log.status,
+          deployment_url: log.deployment_url,
+          commit_sha: log.commit_sha,
+          branch: log.branch,
+          build_duration: log.build_duration,
+          created_at: log.created_at,
+          completed_at: log.completed_at,
+          errors: log.errors,
+          warnings: log.warnings,
+        }));
+        setDeploymentLogs(transformedLogs);
+      }
     } catch (error) {
       console.error('Failed to fetch deployment logs:', error);
     }

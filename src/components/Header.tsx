@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
-import { Coffee, FileText, Zap, Brain, Deployment } from 'lucide-react';
+import { Coffee, FileText, Zap, Brain, Globe } from 'lucide-react';
 import UserMenu from './UserMenu';
 import AuthModal from './AuthModal';
 import { useAuth } from '@/contexts/AuthContext';
@@ -58,7 +58,7 @@ const Header = () => {
                 to="/vercel" 
                 className="text-gray-300 hover:text-white transition-colors flex items-center space-x-1"
               >
-                <Deployment className="w-4 h-4" />
+                <Globe className="w-4 h-4" />
                 <span>Vercel</span>
               </Link>
             )}
