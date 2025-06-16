@@ -76,14 +76,14 @@ export default defineConfig(({ mode }) => ({
     },
     // Reduce bundle size
     target: 'es2020',
-    minify: 'terser',
-    terserOptions: {
+    minify: mode === 'production' ? 'terser' : false,
+    terserOptions: mode === 'production' ? {
       compress: {
-        drop_console: mode === 'production',
-        drop_debugger: mode === 'production',
-        pure_funcs: mode === 'production' ? ['console.log', 'console.debug'] : []
+        drop_console: true,
+        drop_debugger: true,
+        pure_funcs: ['console.log', 'console.debug']
       }
-    },
+    } : undefined,
     // Set chunk size warning limit
     chunkSizeWarningLimit: 500
   },
