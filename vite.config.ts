@@ -2,7 +2,15 @@
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react-swc";
 import path from "path";
-import { componentTagger } from "lovable-tagger";
+
+// Conditional import for lovable-tagger to handle version conflicts
+let componentTagger: any = null;
+try {
+  const taggerModule = await import("lovable-tagger");
+  componentTagger = taggerModule.componentTagger;
+} catch (error) {
+  console.warn("lovable-tagger could not be loaded:", error.message);
+}
 
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => ({
@@ -34,7 +42,8 @@ export default defineConfig(({ mode }) => ({
   },
   plugins: [
     react(),
-    mode === 'development' && componentTagger(),
+    // Only include componentTagger if it was successfully loaded and in development mode
+    mode === 'development' && componentTagger && componentTagger(),
   ].filter(Boolean),
   resolve: {
     alias: {
