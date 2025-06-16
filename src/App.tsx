@@ -7,6 +7,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { PWAProvider } from "@/components/pwa/PWAProvider";
 import { preloadCriticalResources } from "@/utils/bundleOptimization";
+import ErrorBoundaryWrapper from "@/components/ErrorBoundaryWrapper";
 import AuthGuard from "@/components/AuthGuard";
 import SharedNoteViewer from "@/components/SharedNoteViewer";
 import Index from "./pages/Index";
@@ -14,7 +15,6 @@ import Auth from "./pages/Auth";
 import SignIn from "./pages/SignIn";
 import SignUp from "./pages/SignUp";
 import NotFound from "./pages/NotFound";
-import OptimizedVercelDashboard from "@/components/OptimizedVercelDashboard";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -32,41 +32,35 @@ if (typeof window !== 'undefined') {
 }
 
 const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <PWAProvider>
-        <AuthProvider>
-          <Toaster />
-          <Sonner />
-          <BrowserRouter>
-            <Routes>
-              <Route path="/auth" element={<Auth />} />
-              <Route path="/signin" element={<SignIn />} />
-              <Route path="/signup" element={<SignUp />} />
-              <Route path="/shared/:shareId" element={<SharedNoteViewer />} />
-              <Route
-                path="/"
-                element={
-                  <AuthGuard>
-                    <Index />
-                  </AuthGuard>
-                }
-              />
-              <Route
-                path="/vercel"
-                element={
-                  <AuthGuard>
-                    <OptimizedVercelDashboard />
-                  </AuthGuard>
-                }
-              />
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-          </BrowserRouter>
-        </AuthProvider>
-      </PWAProvider>
-    </TooltipProvider>
-  </QueryClientProvider>
+  <ErrorBoundaryWrapper>
+    <QueryClientProvider client={queryClient}>
+      <TooltipProvider>
+        <PWAProvider>
+          <AuthProvider>
+            <Toaster />
+            <Sonner />
+            <BrowserRouter>
+              <Routes>
+                <Route path="/auth" element={<Auth />} />
+                <Route path="/signin" element={<SignIn />} />
+                <Route path="/signup" element={<SignUp />} />
+                <Route path="/shared/:shareId" element={<SharedNoteViewer />} />
+                <Route
+                  path="/"
+                  element={
+                    <AuthGuard>
+                      <Index />
+                    </AuthGuard>
+                  }
+                />
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+            </BrowserRouter>
+          </AuthProvider>
+        </PWAProvider>
+      </TooltipProvider>
+    </QueryClientProvider>
+  </ErrorBoundaryWrapper>
 );
 
 export default App;
