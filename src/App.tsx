@@ -6,6 +6,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { PWAProvider } from "@/components/pwa/PWAProvider";
+import { preloadCriticalResources } from "@/utils/bundleOptimization";
 import AuthGuard from "@/components/AuthGuard";
 import SharedNoteViewer from "@/components/SharedNoteViewer";
 import Index from "./pages/Index";
@@ -13,9 +14,22 @@ import Auth from "./pages/Auth";
 import SignIn from "./pages/SignIn";
 import SignUp from "./pages/SignUp";
 import NotFound from "./pages/NotFound";
-import VercelDashboard from "./pages/VercelDashboard";
+import OptimizedVercelDashboard from "@/components/OptimizedVercelDashboard";
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      // Reduce bundle size by limiting query cache
+      staleTime: 5 * 60 * 1000, // 5 minutes
+      gcTime: 10 * 60 * 1000, // 10 minutes
+    },
+  },
+});
+
+// Preload critical resources on app start
+if (typeof window !== 'undefined') {
+  preloadCriticalResources();
+}
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
@@ -42,7 +56,7 @@ const App = () => (
                 path="/vercel"
                 element={
                   <AuthGuard>
-                    <VercelDashboard />
+                    <OptimizedVercelDashboard />
                   </AuthGuard>
                 }
               />

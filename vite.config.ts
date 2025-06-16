@@ -41,6 +41,52 @@ export default defineConfig(({ mode }) => ({
       "@": path.resolve(__dirname, "./src"),
     },
   },
+  // Advanced bundle optimization
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          // Separate vendor chunks to improve caching
+          vendor: ['react', 'react-dom'],
+          editor: [
+            '@tiptap/react',
+            '@tiptap/starter-kit',
+            '@tiptap/core',
+            '@tiptap/extension-link',
+            '@tiptap/extension-image',
+            '@tiptap/extension-table'
+          ],
+          ui: [
+            '@radix-ui/react-tabs',
+            '@radix-ui/react-slot',
+            '@radix-ui/react-toast',
+            '@radix-ui/react-dropdown-menu'
+          ],
+          charts: ['recharts'],
+          ocr: ['tesseract.js'],
+          supabase: ['@supabase/supabase-js'],
+          utils: ['date-fns', 'clsx', 'class-variance-authority']
+        },
+        // Optimize chunk file names
+        chunkFileNames: (chunkInfo) => {
+          const facadeModuleId = chunkInfo.facadeModuleId ? chunkInfo.facadeModuleId.split('/').pop() : 'chunk';
+          return `assets/[name]-[hash].js`;
+        }
+      }
+    },
+    // Reduce bundle size
+    target: 'es2020',
+    minify: 'terser',
+    terserOptions: {
+      compress: {
+        drop_console: mode === 'production',
+        drop_debugger: mode === 'production',
+        pure_funcs: mode === 'production' ? ['console.log', 'console.debug'] : []
+      }
+    },
+    // Set chunk size warning limit
+    chunkSizeWarningLimit: 500
+  },
   // Optimize dependency resolution
   optimizeDeps: {
     exclude: ['lovable-tagger'],
