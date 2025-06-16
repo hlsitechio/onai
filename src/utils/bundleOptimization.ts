@@ -7,9 +7,6 @@ export const lazyComponents = {
   // Editor components (heavy due to TipTap)
   TiptapEditor: () => import('@/components/editor/TiptapEditor'),
   
-  // Vercel dashboard (business logic heavy)
-  VercelDashboard: () => import('@/components/vercel/VercelDashboard'),
-  
   // OCR components (Tesseract.js heavy)
   OCRButton: () => import('@/components/ocr/OCRButton'),
   OCRPopup: () => import('@/components/ocr/OCRPopup'),
