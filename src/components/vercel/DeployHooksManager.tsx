@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -10,8 +9,12 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useDeployHooks } from '@/hooks/useDeployHooks';
 import { useVercelIntegration } from '@/hooks/useVercelIntegration';
-import { Plus, Copy, Trash2, Power, PowerOff, ExternalLink, RefreshCw } from 'lucide-react';
+import { Plus, Copy, Trash2, Power, PowerOff, ExternalLink, RefreshCw, Download, BarChart3, Settings } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import ExternalHookImporter from './ExternalHookImporter';
+import WebhookTester from './WebhookTester';
+import DeployHookAnalytics from './DeployHookAnalytics';
+import CICDIntegrationGuide from './CICDIntegrationGuide';
 
 const DeployHooksManager = () => {
   const { deployHooks, isLoading, fetchDeployHooks, createDeployHook, deleteDeployHook, toggleDeployHook } = useDeployHooks();
@@ -19,6 +22,8 @@ const DeployHooksManager = () => {
   const { toast } = useToast();
   
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
+  const [isImportDialogOpen, setIsImportDialogOpen] = useState(false);
+  const [selectedHookForCICD, setSelectedHookForCICD] = useState<any>(null);
   const [newHook, setNewHook] = useState({
     hookName: '',
     vercelProjectId: '',
@@ -103,6 +108,15 @@ const DeployHooksManager = () => {
             Refresh
           </Button>
           
+          <Button
+            onClick={() => setIsImportDialogOpen(true)}
+            variant="outline"
+            className="border-white/20 text-white hover:bg-white/10"
+          >
+            <Download className="w-4 h-4 mr-2" />
+            Import Hook
+          </Button>
+          
           <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
             <DialogTrigger asChild>
               <Button className="bg-gradient-to-r from-noteflow-500 to-purple-500">
@@ -180,8 +194,10 @@ const DeployHooksManager = () => {
       </div>
 
       <Tabs defaultValue="hooks" className="w-full">
-        <TabsList className="grid w-full grid-cols-2">
+        <TabsList className="grid w-full grid-cols-4">
           <TabsTrigger value="hooks">Hooks</TabsTrigger>
+          <TabsTrigger value="analytics">Analytics</TabsTrigger>
+          <TabsTrigger value="cicd">CI/CD Setup</TabsTrigger>
           <TabsTrigger value="logs">Activity Logs</TabsTrigger>
         </TabsList>
 
@@ -222,6 +238,15 @@ const DeployHooksManager = () => {
                         <Button
                           size="sm"
                           variant="outline"
+                          onClick={() => setSelectedHookForCICD(hook)}
+                          className="border-white/20 text-white hover:bg-white/10"
+                        >
+                          <Settings className="w-4 h-4" />
+                        </Button>
+                        
+                        <Button
+                          size="sm"
+                          variant="outline"
                           onClick={() => toggleDeployHook(hook.id)}
                           className="border-white/20 text-white hover:bg-white/10"
                         >
@@ -244,7 +269,7 @@ const DeployHooksManager = () => {
                     </div>
                   </CardHeader>
                   
-                  <CardContent className="space-y-3">
+                  <CardContent className="space-y-4">
                     <div>
                       <Label className="text-sm text-gray-400">Webhook URL</Label>
                       <div className="flex gap-2 mt-1">
@@ -283,10 +308,48 @@ const DeployHooksManager = () => {
                         </Button>
                       </div>
                     </div>
+
+                    {/* Webhook Tester */}
+                    <WebhookTester 
+                      webhookUrl={hook.webhook_url}
+                      hookName={hook.hook_name}
+                    />
                   </CardContent>
                 </Card>
               ))}
             </div>
+          )}
+        </TabsContent>
+
+        <TabsContent value="analytics" className="space-y-4">
+          <DeployHookAnalytics deployHooks={deployHooks} />
+        </TabsContent>
+
+        <TabsContent value="cicd" className="space-y-4">
+          {selectedHookForCICD ? (
+            <CICDIntegrationGuide 
+              webhookUrl={selectedHookForCICD.webhook_url}
+              hookName={selectedHookForCICD.hook_name}
+            />
+          ) : (
+            <Card className="border-white/10 bg-black/40 backdrop-blur-sm">
+              <CardContent className="text-center py-8">
+                <p className="text-gray-400">
+                  Select a deploy hook from the "Hooks" tab to view CI/CD integration instructions.
+                </p>
+                <Button
+                  variant="outline"
+                  className="mt-4 border-white/20 text-white hover:bg-white/10"
+                  onClick={() => {
+                    if (deployHooks.length > 0) {
+                      setSelectedHookForCICD(deployHooks[0]);
+                    }
+                  }}
+                >
+                  {deployHooks.length > 0 ? 'Select First Hook' : 'Create a Hook First'}
+                </Button>
+              </CardContent>
+            </Card>
           )}
         </TabsContent>
 
@@ -352,6 +415,31 @@ const DeployHooksManager = () => {
           </Card>
         </TabsContent>
       </Tabs>
+
+      {/* External Hook Importer Dialog */}
+      <ExternalHookImporter 
+        isOpen={isImportDialogOpen}
+        onClose={() => setIsImportDialogOpen(false)}
+      />
+
+      {/* CI/CD Setup Dialog */}
+      {selectedHookForCICD && (
+        <Dialog open={!!selectedHookForCICD} onOpenChange={() => setSelectedHookForCICD(null)}>
+          <DialogContent className="bg-black/90 border-white/10 max-w-4xl max-h-[80vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle className="text-white">CI/CD Integration Setup</DialogTitle>
+              <DialogDescription className="text-gray-400">
+                Configure continuous integration for "{selectedHookForCICD.hook_name}"
+              </DialogDescription>
+            </DialogHeader>
+            
+            <CICDIntegrationGuide 
+              webhookUrl={selectedHookForCICD.webhook_url}
+              hookName={selectedHookForCICD.hook_name}
+            />
+          </DialogContent>
+        </Dialog>
+      )}
     </div>
   );
 };
