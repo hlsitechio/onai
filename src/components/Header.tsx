@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { Coffee, FileText, Zap, Brain } from 'lucide-react';
+import { Github } from 'lucide-react';
 import UserMenu from './UserMenu';
 import AuthModal from './AuthModal';
 import { useAuth } from '@/contexts/AuthContext';
@@ -54,6 +55,15 @@ const Header = () => {
               Technologies
             </a>
             <Separator orientation="vertical" className="h-6 bg-white/10" />
+            <a 
+              href="https://github.com/hlsitechio/onai/" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="flex items-center space-x-2 text-gray-300 hover:text-white transition-colors"
+            >
+              <Github className="w-4 h-4" />
+              <span>GitHub</span>
+            </a>
             <a 
               href="https://www.buymeacoffee.com/onlinenoteai" 
               target="_blank" 

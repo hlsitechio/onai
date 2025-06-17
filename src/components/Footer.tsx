@@ -27,6 +27,34 @@ const Footer = () => {
             </a>
           </div>
           
+          {/* Social Media Links */}
+          <div className="flex items-center gap-6">
+            <a 
+              href="https://x.com/Online_Note_AI" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="text-gray-400 hover:text-noteflow-400 transition-colors"
+            >
+              𝕏 (Twitter)
+            </a>
+            <a 
+              href="https://www.instagram.com/onlinenoteai/" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="text-gray-400 hover:text-noteflow-400 transition-colors"
+            >
+              Instagram
+            </a>
+            <a 
+              href="https://bsky.app/profile/onlinenoteai.bsky.social" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="text-gray-400 hover:text-noteflow-400 transition-colors"
+            >
+              Bluesky
+            </a>
+          </div>
+          
           {/* Navigation links */}
           <div className="flex flex-wrap justify-center items-center gap-4 text-sm">
             <a 

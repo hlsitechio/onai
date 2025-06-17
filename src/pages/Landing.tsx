@@ -5,7 +5,6 @@ import Header from "@/components/Header";
 import Hero from "@/components/Hero";
 import WhyChooseUs from "@/components/WhyChooseUs";
 import FeatureShowcase from "@/components/FeatureShowcase";
-import Testimonials from "@/components/Testimonials";
 import SponsorsWallOfFame from "@/components/SponsorsWallOfFame";
 import Footer from "@/components/Footer";
 import PWAInstaller from "@/components/pwa/PWAInstaller";
@@ -21,7 +20,6 @@ const Landing = () => {
         <WhyChooseUs />
         <FeatureShowcase />
         <PricingSection />
-        <Testimonials />
         <SponsorsWallOfFame />
         <Footer />
         <PWAInstaller />
