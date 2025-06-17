@@ -1,4 +1,3 @@
-
 import React from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
@@ -16,6 +15,7 @@ import Auth from "./pages/Auth";
 import SignIn from "./pages/SignIn";
 import SignUp from "./pages/SignUp";
 import NotFound from "./pages/NotFound";
+import Success from "./pages/Success";
 
 // Create query client with proper configuration
 const queryClient = new QueryClient({
@@ -54,6 +54,7 @@ const App: React.FC = () => {
                   <Route path="/signin" element={<SignIn />} />
                   <Route path="/signup" element={<SignUp />} />
                   <Route path="/shared/:shareId" element={<SharedNoteViewer />} />
+                  <Route path="/success" element={<Success />} />
                   <Route
                     path="/"
                     element={

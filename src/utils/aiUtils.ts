@@ -1,4 +1,3 @@
-
 // Utility functions for Gemini AI API via Supabase Edge Function
 import { supabase } from "@/integrations/supabase/client";
 
@@ -83,7 +82,81 @@ export function incrementUsageCounter(): void {
   }
 }
 
-// Main function to call Gemini AI via Supabase Edge Function
+// Updated function to check usage limits with subscription
+export async function checkAIUsageLimit(): Promise<{ canMakeRequest: boolean; reason?: string }> {
+  try {
+    const { data: { user } } = await supabase.auth.getUser();
+    
+    if (!user) {
+      return { canMakeRequest: false, reason: 'User not authenticated' };
+    }
+
+    // Check if user can make AI request using the database function
+    const { data: canMakeRequest, error } = await supabase
+      .rpc('can_make_ai_request', { user_uuid: user.id });
+
+    if (error) {
+      console.error('Error checking AI usage limit:', error);
+      return { canMakeRequest: true }; // Allow request if check fails
+    }
+
+    if (!canMakeRequest) {
+      // Get subscription info to provide specific reason
+      const { data: subscriber } = await supabase
+        .from('subscribers')
+        .select('subscription_tier')
+        .eq('user_id', user.id)
+        .single();
+
+      const tier = subscriber?.subscription_tier || 'starter';
+      const limit = tier === 'professional' ? 500 : 10;
+      
+      return { 
+        canMakeRequest: false, 
+        reason: `Daily limit of ${limit} AI requests reached. ${tier === 'starter' ? 'Upgrade to Professional for 500 daily requests.' : ''}` 
+      };
+    }
+
+    return { canMakeRequest: true };
+  } catch (error) {
+    console.error('Error checking usage limit:', error);
+    return { canMakeRequest: true }; // Allow request if check fails
+  }
+}
+
+// Updated function to track AI usage
+export async function trackAIUsage(requestType: string, tokensUsed: number = 0): Promise<void> {
+  try {
+    const { data: { user } } = await supabase.auth.getUser();
+    
+    if (!user) {
+      console.warn('Cannot track AI usage: user not authenticated');
+      return;
+    }
+
+    // Get user's subscription tier
+    const { data: subscriber } = await supabase
+      .from('subscribers')
+      .select('subscription_tier')
+      .eq('user_id', user.id)
+      .single();
+
+    const tier = subscriber?.subscription_tier || 'starter';
+
+    await supabase
+      .from('ai_usage_tracking')
+      .insert({
+        user_id: user.id,
+        request_type: requestType,
+        tokens_used: tokensUsed,
+        subscription_tier: tier,
+      });
+  } catch (error) {
+    console.error('Error tracking AI usage:', error);
+  }
+}
+
+// Main function to call Gemini AI via Supabase Edge Function (updated with usage tracking)
 export async function callGeminiAI(
   prompt: string, 
   noteContent: string, 
@@ -93,6 +166,13 @@ export async function callGeminiAI(
 ): Promise<string> {
   try {
     console.log('Calling Gemini AI with:', { requestType, prompt: prompt.substring(0, 50) + '...', hasImage: !!imageUrl });
+    
+    // Check usage limits before making request
+    const { canMakeRequest, reason } = await checkAIUsageLimit();
+    
+    if (!canMakeRequest) {
+      throw new Error(reason || 'Daily AI request limit reached');
+    }
     
     // Validate inputs
     if (!prompt && !customPrompt) {
@@ -134,8 +214,8 @@ export async function callGeminiAI(
       throw new Error('No data received from AI service');
     }
     
-    // Increment usage counter on success
-    incrementUsageCounter();
+    // Track usage on success
+    await trackAIUsage(requestType, 0); // Token counting can be added later
     
     return processAIResponse(data as AIResponse);
 

@@ -89,6 +89,36 @@ export type Database = {
           },
         ]
       }
+      ai_usage_tracking: {
+        Row: {
+          created_at: string
+          date: string
+          id: string
+          request_type: string
+          subscription_tier: string | null
+          tokens_used: number | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          date?: string
+          id?: string
+          request_type: string
+          subscription_tier?: string | null
+          tokens_used?: number | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          date?: string
+          id?: string
+          request_type?: string
+          subscription_tier?: string | null
+          tokens_used?: number | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       content_moderation: {
         Row: {
           content_id: string
@@ -529,6 +559,42 @@ export type Database = {
         }
         Relationships: []
       }
+      subscribers: {
+        Row: {
+          created_at: string
+          email: string
+          id: string
+          stripe_customer_id: string | null
+          subscribed: boolean
+          subscription_end: string | null
+          subscription_tier: string | null
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          id?: string
+          stripe_customer_id?: string | null
+          subscribed?: boolean
+          subscription_end?: string | null
+          subscription_tier?: string | null
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          id?: string
+          stripe_customer_id?: string | null
+          subscribed?: boolean
+          subscription_end?: string | null
+          subscription_tier?: string | null
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       sync_queue: {
         Row: {
           created_at: string | null
@@ -664,7 +730,14 @@ export type Database = {
       }
     }
     Functions: {
-      [_ in never]: never
+      can_make_ai_request: {
+        Args: { user_uuid: string }
+        Returns: boolean
+      }
+      get_daily_ai_usage: {
+        Args: { user_uuid: string; usage_date?: string }
+        Returns: number
+      }
     }
     Enums: {
       [_ in never]: never
