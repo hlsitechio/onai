@@ -62,7 +62,12 @@ export const useAuthActions = () => {
     }
   };
 
-  const handleSignUp = async (signUpData: SignUpData, clearForm: () => void, setActiveTab: (tab: string) => void, setSignInData: (data: SignInData) => void) => {
+  const handleSignUp = async (
+    signUpData: SignUpData, 
+    clearForm: () => void, 
+    setActiveTab: (tab: string) => void, 
+    setSignInData: (data: SignInData) => void
+  ) => {
     if (!signUpData.email || !signUpData.password || !signUpData.confirmPassword) {
       toast({
         title: 'Missing fields',
@@ -105,17 +110,13 @@ export const useAuthActions = () => {
             title: 'Account already exists',
             description: `This email is already registered. Please sign in instead. (Detected via ${result.validationMethod})`,
             variant: 'destructive',
-            action: (
-              <button
-                onClick={() => {
-                  setActiveTab('signin');
-                  setSignInData({ email: signUpData.email, password: '' });
-                }}
-                className="bg-white text-black hover:bg-gray-100 px-3 py-1 rounded text-sm"
-              >
-                Go to Sign In
-              </button>
-            ),
+            action: {
+              label: 'Go to Sign In',
+              onClick: () => {
+                setActiveTab('signin');
+                setSignInData({ email: signUpData.email, password: '' });
+              }
+            },
           });
           
           setIsLoading(false);
