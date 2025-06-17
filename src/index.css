@@ -1,5 +1,5 @@
-@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap");
-@import url("https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&display=swap");
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -10,159 +10,136 @@
 /* Import mobile-specific styles */
 @import './styles/mobile.css';
 
+/* Import focus mode styles */
+@import './styles/focus-mode.css';
+
+/* Import global styles */
+@import './styles/globals.css';
+
+/* Import separator fix styles */
+@import './styles/fix-separation.css';
+@import './styles/hide-separators.css';
+@import './styles/horizontal-line-fix.css';
+
+/* Import scrollbar styles */
+@import './styles/scrollbar.css';
+
+/* Import rotating border styles */
+@import './styles/rotating-border.css';
+
 /* Fix for white border on right side and panel containment */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
 html, body {
-  width: 100%;
-  max-width: 100vw;
   overflow-x: hidden;
-  background-color: #000;
-  /* Enhanced smooth scrolling */
-  scroll-behavior: smooth;
-  scroll-padding-top: 2rem;
+  max-width: 100vw;
+  width: 100%;
+  background-color: black;
 }
 
 #root {
+  overflow-x: hidden;
+  max-width: 100vw;
+  width: 100%;
+  background-color: black;
+}
+
+/* Ensure no white space on the right */
+.container, .max-w-7xl, .mx-auto {
+  max-width: 100% !important;
+  padding-left: 1rem;
+  padding-right: 1rem;
+}
+
+/* Remove any potential right margin/padding that could cause overflow */
+.min-h-screen {
+  overflow-x: hidden;
   width: 100%;
   max-width: 100vw;
-  overflow-x: hidden;
 }
 
-/* Ensure app containers have proper constraints */
-.container {
-  width: 100%;
-  max-width: 1280px;
-  margin-left: auto;
-  margin-right: auto;
-  box-sizing: border-box;
-}
-
-/* Proper panel layout - no borders */
-#editor-section {
-  overflow: visible;
-  max-width: 100%;
-  box-sizing: border-box;
-  border-top: none !important;
-  border: none !important;
-}
-
-/* Enhanced scrolling for all scrollable elements */
-* {
-  scroll-behavior: smooth;
-}
-
-/* Improved scrolling performance for mobile devices */
+/* Prevent horizontal scroll */
 body {
-  -webkit-overflow-scrolling: touch;
-  overflow-scrolling: touch;
+  overflow-x: hidden !important;
 }
 
-/* Smooth scrolling for specific containers */
-.mobile-scroll,
-.custom-scrollbar,
-.scroll-area {
-  scroll-behavior: smooth;
-  -webkit-overflow-scrolling: touch;
-  overflow-scrolling: touch;
+/* Additional safety for responsive containers */
+@media (max-width: 768px) {
+  .container {
+    padding-left: 0.75rem;
+    padding-right: 0.75rem;
+  }
 }
 
 @layer base {
   :root {
-    --background: 220 20% 97%;
-    --foreground: 222 47% 4%;
-
-    --card: 0 0% 100%;
-    --card-foreground: 222 47% 4%;
-
-    --popover: 0 0% 100%;
-    --popover-foreground: 222 47% 4%;
-
-    /* Enhanced primary colors with rich blue hue */
-    --primary: 224 76% 48%;
-    --primary-foreground: 210 40% 98%;
-
-    /* Improved secondary colors for better contrast */
-    --secondary: 220 16% 22%;
+    --background: 222.2 84% 4.9%;
+    --foreground: 210 40% 98%;
+    --card: 222.2 84% 4.9%;
+    --card-foreground: 210 40% 98%;
+    --popover: 222.2 84% 4.9%;
+    --popover-foreground: 210 40% 98%;
+    --primary: 200 90% 50%;
+    --primary-foreground: 222.2 84% 4.9%;
+    --secondary: 217.2 32.6% 17.5%;
     --secondary-foreground: 210 40% 98%;
-
-    /* Refined muted colors */
-    --muted: 220 14% 94%;
-    --muted-foreground: 220 10% 46%;
-
-    /* New accent colors with vibrant purple tones */
-    --accent: 265 89% 66%;
+    --muted: 217.2 32.6% 17.5%;
+    --muted-foreground: 215 20.2% 65.1%;
+    --accent: 217.2 32.6% 17.5%;
     --accent-foreground: 210 40% 98%;
-
-    /* Enhanced destructive colors */
-    --destructive: 0 84% 60%;
+    --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 210 40% 98%;
-
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 222.2 84% 4.9%;
-
-    --radius: 0.5rem;
-
-    --sidebar-background: 0 0% 98%;
-
-    --sidebar-foreground: 240 5.3% 26.1%;
-
-    --sidebar-primary: 240 5.9% 10%;
-
-    --sidebar-primary-foreground: 0 0% 98%;
-
-    --sidebar-accent: 240 4.8% 95.9%;
-
-    --sidebar-accent-foreground: 240 5.9% 10%;
-
-    --sidebar-border: 220 13% 91%;
-
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    --border: 217.2 32.6% 17.5%;
+    --input: 217.2 32.6% 17.5%;
+    --ring: 200 90% 50%;
+    --chart-1: 220 70% 50%;
+    --chart-2: 160 60% 45%;
+    --chart-3: 30 80% 55%;
+    --chart-4: 280 65% 60%;
+    --chart-5: 340 75% 55%;
+    --radius: 0.75rem;
+    --noteflow-50: #eff6ff;
+    --noteflow-100: #dbeafe;
+    --noteflow-200: #bfdbfe;
+    --noteflow-300: #93c5fd;
+    --noteflow-400: #60a5fa;
+    --noteflow-500: #3b82f6;
+    --noteflow-600: #2563eb;
+    --noteflow-700: #1d4ed8;
+    --noteflow-800: #1e40af;
+    --noteflow-900: #1e3a8a;
+    --noteflow-950: #172554;
   }
 
   .dark {
-    /* Rich dark background with subtle blue undertone */
-    --background: 230 30% 8%;
+    --background: 222.2 84% 4.9%;
     --foreground: 210 40% 98%;
-
-    /* Enhanced card styling for better contrast */
-    --card: 230 25% 10%;
+    --card: 222.2 84% 4.9%;
     --card-foreground: 210 40% 98%;
-
-    /* Improved popover styling */
-    --popover: 230 25% 10%;
+    --popover: 222.2 84% 4.9%;
     --popover-foreground: 210 40% 98%;
-
-    /* Vibrant primary colors for dark mode */
-    --primary: 264 80% 70%;
-    --primary-foreground: 210 40% 98%;
-
-    /* Refined secondary colors with better contrast */
-    --secondary: 230 25% 16%;
+    --primary: 200 90% 50%;
+    --primary-foreground: 222.2 84% 4.9%;
+    --secondary: 217.2 32.6% 17.5%;
     --secondary-foreground: 210 40% 98%;
-
-    /* Enhanced muted colors for dark mode */
-    --muted: 230 25% 16%;
-    --muted-foreground: 217 24% 75%;
-
-    /* Accent colors with more vibrancy */
-    --accent: 264 80% 60%;
+    --muted: 217.2 32.6% 17.5%;
+    --muted-foreground: 215 20.2% 65.1%;
+    --accent: 217.2 32.6% 17.5%;
     --accent-foreground: 210 40% 98%;
-
-    /* Rich destructive colors */
-    --destructive: 0 84% 50%;
+    --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 210 40% 98%;
-
     --border: 217.2 32.6% 17.5%;
     --input: 217.2 32.6% 17.5%;
-    --ring: 212.7 26.8% 83.9%;
-    --sidebar-background: 240 5.9% 10%;
-    --sidebar-foreground: 240 4.8% 95.9%;
-    --sidebar-primary: 224.3 76.3% 48%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 240 3.7% 15.9%;
-    --sidebar-accent-foreground: 240 4.8% 95.9%;
-    --sidebar-border: 240 3.7% 15.9%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    --ring: 200 90% 50%;
+    --chart-1: 220 70% 50%;
+    --chart-2: 160 60% 45%;
+    --chart-3: 30 80% 55%;
+    --chart-4: 280 65% 60%;
+    --chart-5: 340 75% 55%;
   }
 }
 
@@ -170,294 +147,32 @@ body {
   * {
     @apply border-border;
   }
-
   body {
     @apply bg-background text-foreground;
-    font-feature-settings: "rlig" 1, "calt" 1;
-  }
-
-  h1, h2, h3, h4, h5, h6 {
-    @apply font-poppins;
   }
 }
 
-/* Enhanced glassmorphism effects */
-.glass-panel {
-  backdrop-filter: blur(12px);
-  background: linear-gradient(135deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.01) 100%);
-  border: 1px solid rgba(255,255,255,0.1);
-  box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+/* Custom scrollbar styling */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
 }
 
-.glass-panel-dark {
-  backdrop-filter: blur(12px);
-  background: linear-gradient(135deg, rgba(30, 30, 60, 0.2) 0%, rgba(15, 15, 40, 0.15) 100%);
-  border: 1px solid rgba(255,255,255,0.08);
-  box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+::-webkit-scrollbar-track {
+  background: transparent;
 }
 
-.glass-panel-dark {
-  @apply backdrop-blur-md bg-black/40 border border-white/10 rounded-xl;
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 4px;
 }
 
-.animate-fade-up {
-  animation: fadeUp 0.8s ease-out forwards;
-  opacity: 0;
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.3);
 }
 
-@keyframes fadeUp {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-/* Floating animations for the gradient orbs */
-.animate-float-slow {
-  animation: float 15s ease-in-out infinite alternate;
-}
-
-.animate-float-medium {
-  animation: float 12s ease-in-out infinite alternate-reverse;
-}
-
-.animate-float-fast {
-  animation: float 9s ease-in-out infinite alternate;
-}
-
-@keyframes float {
-  0% {
-    transform: translateY(0) translateX(0);
-  }
-  50% {
-    transform: translateY(-10%) translateX(5%);
-  }
-  100% {
-    transform: translateY(5%) translateX(-5%);
-  }
-}
-
-/* Subtle tilt animation for the heading highlight */
-@keyframes tilt {
-  0%, 100% {
-    transform: rotate(-1deg);
-  }
-  50% {
-    transform: rotate(1deg);
-  }
-}
-
-.animate-tilt {
-  animation: tilt 10s ease-in-out infinite;
-}
-
-.animate-pulse-slow {
-  animation: pulse-slow 4s ease-in-out infinite alternate;
-}
-
-@keyframes pulse-slow {
-  0% {
-    opacity: 0.6;
-  }
-  100% {
-    opacity: 0.9;
-  }
-}
-
-/* Sidebar animations */
-.animate-fadeIn {
-  animation: fadeIn 0.5s ease-out forwards;
-}
-
-.animate-slideDown {
-  animation: slideDown 0.5s ease-out forwards;
-  opacity: 0;
-}
-
-.animate-slideUp {
-  animation: slideUp 0.5s ease-out forwards;
-  opacity: 0;
-}
-
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
-
-@keyframes slideDown {
-  from {
-    opacity: 0;
-    transform: translateY(-10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-@keyframes slideUp {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-/* Custom scrollbar for sidebar */
-.custom-scrollbar::-webkit-scrollbar {
-  width: 6px;
-}
-
-.custom-scrollbar::-webkit-scrollbar-track {
-  background: rgba(0, 0, 0, 0.1);
-  border-radius: 3px;
-}
-
-.custom-scrollbar::-webkit-scrollbar-thumb {
-  background: rgba(120, 60, 255, 0.3);
-  border-radius: 3px;
-}
-
-.custom-scrollbar::-webkit-scrollbar-thumb:hover {
-  background: rgba(120, 60, 255, 0.5);
-}
-
-/* Gradient button styles */
-.gradient-button {
-  background: linear-gradient(135deg, var(--accent) 0%, var(--primary) 100%);
-  transition: all 0.3s ease;
-  position: relative;
-  z-index: 1;
-}
-
-.gradient-button:before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
-  border-radius: inherit;
-  opacity: 0;
-  transition: opacity 0.3s ease;
-  z-index: -1;
-}
-
-.gradient-button:hover:before {
-  opacity: 1;
-}
-
-/* Custom styling for content editable */
-[contenteditable="true"]:focus {
-  outline: none;
-}
-
-[contenteditable="true"] h1 {
-  @apply text-3xl font-bold mb-4;
-}
-
-[contenteditable="true"] h2 {
-  @apply text-2xl font-bold mb-3;
-}
-
-[contenteditable="true"] h3 {
-  @apply text-xl font-bold mb-2;
-}
-
-[contenteditable="true"] p {
-  @apply mb-4;
-}
-
-[contenteditable="true"] ul {
-  @apply list-disc pl-6 mb-4;
-}
-
-[contenteditable="true"] ol {
-  @apply list-decimal pl-6 mb-4;
-}
-
-/* Markdown preview styles */
-.markdown-preview h1 {
-  @apply text-3xl font-bold mb-4;
-}
-
-.markdown-preview h2 {
-  @apply text-2xl font-bold mb-3;
-}
-
-.markdown-preview h3 {
-  @apply text-xl font-bold mb-2;
-}
-
-.markdown-preview p {
-  @apply mb-4;
-}
-
-.markdown-preview ul {
-  @apply list-disc pl-6 mb-4;
-}
-
-.markdown-preview ol {
-  @apply list-decimal pl-6 mb-4;
-}
-
-.markdown-preview a {
-  @apply text-noteflow-400 hover:underline;
-}
-
-.markdown-preview blockquote {
-  @apply border-l-4 border-noteflow-600 pl-4 italic my-4;
-}
-
-.markdown-preview code {
-  @apply bg-black/30 px-1 py-0.5 rounded font-mono text-sm;
-}
-
-.markdown-preview pre {
-  @apply bg-black/30 p-4 rounded font-mono text-sm my-4 overflow-x-auto;
-}
-
-.markdown-preview hr {
-  @apply my-4 border-t border-white/20;
-}
-
-.markdown-preview table {
-  @apply w-full border-collapse my-4;
-}
-
-.markdown-preview th, 
-.markdown-preview td {
-  @apply border border-white/20 px-3 py-2;
-}
-
-.markdown-preview th {
-  @apply bg-black/30;
-}
-
-/* Improved editor experience */
-[contenteditable="true"] {
-  caret-color: #38bdf8; /* Noteflow blue cursor */
-  transition: background-color 0.2s;
-}
-
-[contenteditable="true"]:focus {
-  background-color: rgba(0, 0, 0, 0.3);
-}
-
-/* Selection styling */
-::selection {
-  background-color: rgba(56, 189, 248, 0.3); /* Noteflow blue with transparency */
-  color: white;
+/* Scrollbar for Firefox */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
 }
