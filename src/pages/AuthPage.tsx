@@ -9,6 +9,7 @@ import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2, Mail, Lock, Brain } from 'lucide-react';
+import { sendWelcomeEmail } from '@/utils/welcomeEmailService';
 
 const AuthPage: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
@@ -126,6 +127,16 @@ const AuthPage: React.FC = () => {
           title: 'Account created!',
           description: 'Please check your email for a confirmation link.',
         });
+        
+        // Send welcome email
+        try {
+          await sendWelcomeEmail(signUpData.email);
+          console.log('Welcome email sent successfully');
+        } catch (emailError) {
+          console.error('Failed to send welcome email:', emailError);
+          // Don't show error to user - welcome email is nice-to-have
+        }
+        
         // Clear form
         setSignUpData({ email: '', password: '', confirmPassword: '' });
       }
