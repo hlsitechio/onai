@@ -4,7 +4,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { PWAProvider } from "@/components/pwa/PWAProvider";
 import { preloadCriticalResources } from "@/utils/bundleOptimization";
@@ -59,6 +59,7 @@ const App: React.FC = () => {
                   <Route path="/signup" element={<SignUp />} />
                   <Route path="/shared/:shareId" element={<SharedNoteViewer />} />
                   <Route path="/success" element={<Success />} />
+                  <Route path="/vercel" element={<Navigate to="/" replace />} />
                   <Route
                     path="/"
                     element={
