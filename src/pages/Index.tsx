@@ -12,46 +12,19 @@ import SponsorsWallOfFame from "@/components/SponsorsWallOfFame";
 import Footer from "@/components/Footer";
 import PWAInstaller from "@/components/pwa/PWAInstaller";
 import PWAUpdateNotifier from "@/components/pwa/PWAUpdateNotifier";
-import NotesContent from "@/components/notes/NotesContent";
-import { useAuthenticatedSupabaseNotes } from "@/hooks/useAuthenticatedSupabaseNotes";
+import EditorManager from "@/components/editor/EditorManager";
 import { useAuth } from "@/contexts/AuthContext";
 
 const Index = () => {
   const { user } = useAuth();
-  const noteHookData = useAuthenticatedSupabaseNotes();
 
-  // If user is authenticated, show the notes interface
+  // If user is authenticated, show the full editor interface
   if (user) {
     return (
       <DebugWrapper componentName="Index">
         <div className="min-h-screen bg-gradient-to-br from-[#050510] to-[#0a0518]">
           <Header />
-          <NotesContent 
-            notes={noteHookData.allNotes}
-            searchQuery=""
-            sortOrder="newest"
-            filterType="all"
-            customNoteNames={{}}
-            formatNoteId={(id: string) => id}
-            activeNoteId={noteHookData.currentNoteId || ""}
-            onLoadNote={(noteId: string) => {
-              const noteContent = noteHookData.allNotes[noteId];
-              if (noteContent) {
-                noteHookData.handleLoadNote(noteId, noteContent);
-              }
-            }}
-            onDeleteNote={(noteId: string, e: React.MouseEvent) => {
-              e.stopPropagation();
-              return noteHookData.handleDeleteNote(noteId);
-            }}
-            onOpenShare={(noteId: string) => {
-              console.log("Share note:", noteId);
-            }}
-            onRenameNote={async (oldNoteId: string, newNoteId: string) => {
-              // For now, just return false as rename is not implemented
-              return false;
-            }}
-          />
+          <EditorManager />
           <PWAInstaller />
           <PWAUpdateNotifier />
         </div>
