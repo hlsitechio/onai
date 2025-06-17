@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -45,7 +44,8 @@ const PricingSection = () => {
         'Advanced AI features',
         'Priority support',
         'Custom templates',
-        'Export options'
+        'Export options',
+        'Offline note'
       ],
       limitedFeatures: [],
       buttonText: 'Start Free Trial',
