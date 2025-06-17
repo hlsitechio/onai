@@ -1,0 +1,100 @@
+
+import { motion } from "framer-motion";
+import { Button } from "@/components/ui/button";
+import { ArrowDown } from "lucide-react";
+import HeroTextAnimations from "./HeroTextAnimations";
+import HeroFloatingIcons from "./HeroFloatingIcons";
+
+const HeroMainContent = () => {
+  const scrollToEditor = () => {
+    const editorElement = document.getElementById('editor-section');
+    if (editorElement) {
+      editorElement.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+
+  const itemVariants = {
+    hidden: { y: 20, opacity: 0 },
+    visible: { 
+      y: 0, 
+      opacity: 1,
+      transition: { type: 'spring', stiffness: 100 }
+    }
+  };
+
+  return (
+    <div className="flex flex-col items-center text-center">
+      <HeroFloatingIcons />
+
+      {/* Main heading with enhanced animation */}
+      <motion.div 
+        className="relative mb-6"
+        variants={itemVariants}
+      >
+        <motion.div 
+          className="relative bg-gradient-to-r from-black/40 via-black/20 to-black/40 backdrop-blur-xl p-6 rounded-3xl border border-white/10 shadow-2xl"
+          whileHover={{ scale: 1.02, borderColor: 'rgba(120, 60, 255, 0.3)' }}
+          transition={{ duration: 0.3 }}
+        >
+          <HeroTextAnimations className="font-poppins font-bold text-4xl md:text-6xl mb-2 text-transparent bg-clip-text bg-gradient-to-r from-white via-noteflow-200 to-purple-300 relative" />
+        </motion.div>
+      </motion.div>
+      
+      {/* Simplified description with enhanced styling */}
+      <motion.div 
+        className="relative max-w-xl w-full mb-8"
+        variants={itemVariants}
+      >
+        <motion.div 
+          className="relative text-gray-200 text-lg md:text-xl p-4 rounded-2xl bg-gradient-to-r from-black/30 via-black/40 to-black/30 backdrop-blur-xl border border-white/20"
+          whileHover={{ scale: 1.02 }}
+          transition={{ duration: 0.3 }}
+        >
+          <motion.p
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.5, duration: 0.8 }}
+          >
+            <span className="font-medium text-white">AI-Enhanced Notes.</span> 
+            <span className="bg-gradient-to-r from-noteflow-400 to-purple-400 bg-clip-text text-transparent font-medium"> Pure Simplicity.</span>
+          </motion.p>
+        </motion.div>
+      </motion.div>
+      
+      {/* Enhanced call to action button */}
+      <motion.div 
+        variants={itemVariants}
+        whileHover={{ scale: 1.05 }}
+        whileTap={{ scale: 0.95 }}
+      >
+        <Button 
+          onClick={scrollToEditor} 
+          className="relative group overflow-hidden bg-gradient-to-r from-noteflow-600 via-purple-500 to-noteflow-400 hover:from-noteflow-500 hover:via-purple-400 hover:to-noteflow-300 text-white rounded-full px-10 py-6 text-lg font-medium flex items-center gap-3 transition-all duration-500 shadow-2xl shadow-noteflow-500/30 hover:shadow-noteflow-400/40" 
+        >
+          <motion.div
+            className="absolute inset-0 bg-gradient-to-r from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+            style={{ transform: 'skewX(-45deg) translateX(-100%)' }}
+            animate={{ translateX: ['100%', '-100%'] }}
+            transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+          />
+          
+          <motion.span 
+            className="relative z-10 flex items-center gap-3"
+            whileHover={{ scale: 1.05 }}
+            transition={{ type: "spring", stiffness: 400 }}
+          >
+            Start Creating
+            <motion.div
+              animate={{ y: [0, 6, 0] }}
+              transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
+            >
+              <ArrowDown className="h-5 w-5" />
+            </motion.div>
+          </motion.span>
+        </Button>
+      </motion.div>
+    </div>
+  );
+};
+
+export default HeroMainContent;
