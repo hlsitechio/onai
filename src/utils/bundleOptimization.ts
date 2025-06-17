@@ -55,13 +55,12 @@ export const analyzeBundleSize = () => {
   return null;
 };
 
-// Preload critical resources
+// Only preload truly critical resources that are used immediately
 export const preloadCriticalResources = () => {
+  // Only preload resources that are definitely used on initial page load
   const criticalResources = [
-    // Preload critical fonts
-    { href: '/fonts/inter.woff2', as: 'font', type: 'font/woff2' },
-    // Preload critical images
-    { href: '/icons/icon-192x192.png', as: 'image' }
+    // Only preload manifest as it's used by PWA
+    { href: '/manifest.json', as: 'fetch', type: 'application/json' }
   ];
   
   criticalResources.forEach(resource => {
