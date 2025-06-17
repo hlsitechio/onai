@@ -2,6 +2,7 @@
 import { useEffect, useRef } from 'react';
 import { useLocation } from 'react-router-dom';
 import { initializeAnalytics, trackPageView, GTagEvent, GTagPageView } from '../../utils/analytics';
+import { logger } from '../../utils/consoleControl';
 
 declare global {
   interface Window {
@@ -24,7 +25,7 @@ const GoogleAnalytics = () => {
     // Track initial page view
     trackPageView(location.pathname, document.title);
     
-    console.log('Google Analytics initialized with Measurement ID: G-LFFQYK81C6');
+    logger.info('Google Analytics initialized with Measurement ID: G-LFFQYK81C6');
   }, []);
   
   // Track page views when route changes
@@ -36,7 +37,7 @@ const GoogleAnalytics = () => {
       
       // Track page view in Google Analytics
       trackPageView(location.pathname, document.title);
-      console.log('Analytics: Page navigation tracked', location.pathname);
+      logger.debug('Analytics: Page navigation tracked', location.pathname);
     }
   }, [location]);
   

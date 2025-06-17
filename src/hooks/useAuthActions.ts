@@ -6,6 +6,7 @@ import { useToast } from '@/hooks/use-toast';
 import { sendWelcomeEmail } from '@/utils/welcomeEmailService';
 import { attemptSignUp } from '@/utils/userValidationService';
 import { SignInData, SignUpData } from './useAuthForms';
+import { logger } from '@/utils/consoleControl';
 
 export const useAuthActions = () => {
   const [isLoading, setIsLoading] = useState(false);
@@ -52,6 +53,7 @@ export const useAuthActions = () => {
         navigate('/');
       }
     } catch (error) {
+      logger.error('Sign-in error:', error);
       toast({
         title: 'Sign in failed',
         description: 'An unexpected error occurred. Please try again.',
@@ -98,13 +100,13 @@ export const useAuthActions = () => {
     setIsLoading(true);
     
     try {
-      console.log('AuthPage: Starting enhanced sign-up process...');
+      logger.debug('AuthPage: Starting enhanced sign-up process...');
       
       const result = await attemptSignUp(signUpData.email, signUpData.password);
       
       if (!result.success) {
         if (result.userExists) {
-          console.log('AuthPage: User exists, showing appropriate message');
+          logger.debug('AuthPage: User exists, showing appropriate message');
           
           toast({
             title: 'Account already exists',
@@ -141,7 +143,7 @@ export const useAuthActions = () => {
           variant: 'destructive',
         });
       } else {
-        console.log('AuthPage: Sign-up successful, sending welcome email...');
+        logger.debug('AuthPage: Sign-up successful, sending welcome email...');
         
         toast({
           title: 'Account created!',
@@ -149,22 +151,22 @@ export const useAuthActions = () => {
         });
         
         try {
-          console.log('AuthPage: Attempting to send welcome email to:', signUpData.email);
+          logger.debug('AuthPage: Attempting to send welcome email to:', signUpData.email);
           const emailResult = await sendWelcomeEmail(signUpData.email);
           
           if (emailResult.success) {
-            console.log('AuthPage: Welcome email sent successfully');
+            logger.debug('AuthPage: Welcome email sent successfully');
           } else {
-            console.error('AuthPage: Failed to send welcome email:', emailResult.error);
+            logger.error('AuthPage: Failed to send welcome email:', emailResult.error);
           }
         } catch (emailError) {
-          console.error('AuthPage: Error sending welcome email:', emailError);
+          logger.error('AuthPage: Error sending welcome email:', emailError);
         }
         
         clearForm();
       }
     } catch (error) {
-      console.error('AuthPage: Unexpected sign-up error:', error);
+      logger.error('AuthPage: Unexpected sign-up error:', error);
       toast({
         title: 'Sign up failed',
         description: 'An unexpected error occurred. Please try again.',

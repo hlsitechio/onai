@@ -1,5 +1,6 @@
 
 import React, { Component, ReactNode } from 'react';
+import { logger } from '../utils/consoleControl';
 
 interface Props {
   children: ReactNode;
@@ -18,22 +19,22 @@ class DebugWrapper extends Component<Props, State> {
   };
 
   public static getDerivedStateFromError(error: Error): State {
-    console.error(`DebugWrapper caught error in ${error.stack}:`, error);
+    logger.error(`DebugWrapper caught error in ${error.stack}:`, error);
     return { hasError: true, error };
   }
 
   public componentDidCatch(error: Error, errorInfo: any) {
-    console.error(`DebugWrapper componentDidCatch in ${this.props.componentName}:`, error, errorInfo);
-    console.error('Component stack:', errorInfo.componentStack);
+    logger.error(`DebugWrapper componentDidCatch in ${this.props.componentName}:`, error, errorInfo);
+    logger.error('Component stack:', errorInfo.componentStack);
     
     // Log additional debugging information
-    console.error('Props:', this.props);
-    console.error('State:', this.state);
+    logger.debug('Props:', this.props);
+    logger.debug('State:', this.state);
   }
 
   public render() {
     if (this.state.hasError) {
-      console.error(`Rendering error fallback for ${this.props.componentName}`);
+      logger.error(`Rendering error fallback for ${this.props.componentName}`);
       return (
         <div className="p-4 text-center bg-red-50 border border-red-200 rounded">
           <h2 className="text-xl font-semibold text-red-600 mb-2">
@@ -45,7 +46,7 @@ class DebugWrapper extends Component<Props, State> {
           <button 
             className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"
             onClick={() => {
-              console.log(`Resetting error state for ${this.props.componentName}`);
+              logger.info(`Resetting error state for ${this.props.componentName}`);
               this.setState({ hasError: false, error: undefined });
             }}
           >
@@ -55,7 +56,7 @@ class DebugWrapper extends Component<Props, State> {
       );
     }
 
-    console.log(`DebugWrapper rendering ${this.props.componentName} successfully`);
+    logger.debug(`DebugWrapper rendering ${this.props.componentName} successfully`);
     return this.props.children;
   }
 }

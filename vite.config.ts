@@ -9,7 +9,10 @@ try {
   const taggerModule = await import("lovable-tagger");
   componentTagger = taggerModule.componentTagger;
 } catch (error: any) {
-  console.warn("lovable-tagger could not be loaded:", error?.message || "Unknown error");
+  // Only log in development to avoid production noise
+  if (process.env.NODE_ENV === 'development') {
+    console.warn("lovable-tagger could not be loaded:", error?.message || "Unknown error");
+  }
 }
 
 // https://vitejs.dev/config/
@@ -100,7 +103,10 @@ export default defineConfig(({ mode }) => ({
       compress: {
         drop_console: true,
         drop_debugger: true,
-        pure_funcs: ['console.log', 'console.debug']
+        pure_funcs: ['console.log', 'console.debug', 'console.info']
+      },
+      mangle: {
+        keep_fnames: false
       }
     } : undefined,
     chunkSizeWarningLimit: 500
@@ -114,7 +120,8 @@ export default defineConfig(({ mode }) => ({
       'lucide-react',
       '@radix-ui/react-tabs',
       '@radix-ui/react-slot',
-      '@radix-ui/react-tooltip'
+      '@radix-ui/react-tooltip',
+      'loglevel'
     ],
     // Force pre-bundling of React and ensure consistency
     force: true,

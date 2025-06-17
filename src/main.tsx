@@ -3,12 +3,13 @@ import React from 'react'
 import ReactDOM from 'react-dom/client'
 import App from './App.tsx'
 import './index.css'
+import { logger } from './utils/consoleControl'
 
-console.log('Starting OneAI Notes application...');
-console.log('React version:', React.version);
-console.log('React object:', React);
-console.log('React.useState:', React.useState);
-console.log('React.useContext:', React.useContext);
+logger.info('Starting OneAI Notes application...');
+logger.debug('React version:', React.version);
+logger.debug('React object:', React);
+logger.debug('React.useState:', React.useState);
+logger.debug('React.useContext:', React.useContext);
 
 // Ensure React is properly loaded before proceeding
 if (!React || typeof React.createElement !== 'function') {
@@ -27,14 +28,14 @@ if (!rootElement) {
 // Make React globally available to ensure all components can access it
 (window as any).React = React;
 
-console.log('Creating React root...');
+logger.debug('Creating React root...');
 const root = ReactDOM.createRoot(rootElement);
 
-console.log('Rendering App component...');
+logger.debug('Rendering App component...');
 root.render(
   <React.StrictMode>
     <App />
   </React.StrictMode>
 );
 
-console.log('App rendered successfully');
+logger.info('App rendered successfully');
