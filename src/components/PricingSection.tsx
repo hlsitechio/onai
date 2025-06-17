@@ -90,11 +90,17 @@ const PricingSection = () => {
   ];
 
   const handlePlanSelection = async (plan: typeof plans[0]) => {
+    console.log('Plan selection clicked:', plan.id, 'User:', !!user);
+    
+    // Handle free plan - always allow this
     if (plan.id === 'free') {
+      console.log('Free plan selected');
       if (!user) {
+        console.log('No user, navigating to auth');
         navigate('/auth');
         return;
       }
+      console.log('User exists, navigating to app');
       navigate('/app');
       return;
     }
