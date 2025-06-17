@@ -1,0 +1,172 @@
+
+import React, { useEffect, useState, useCallback } from 'react';
+import { useNotesManager } from '@/hooks/useNotesManager';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Save, FileText, Edit3 } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
+import { cn } from '@/lib/utils';
+import { useDebounce } from '@/hooks/useDebounce';
+
+interface NotesEditorProps {
+  className?: string;
+}
+
+// Simple debounce hook
+const useDebounceHook = (value: string, delay: number) => {
+  const [debouncedValue, setDebouncedValue] = useState(value);
+
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedValue(value);
+    }, delay);
+
+    return () => {
+      clearTimeout(handler);
+    };
+  }, [value, delay]);
+
+  return debouncedValue;
+};
+
+const NotesEditor: React.FC<NotesEditorProps> = ({ className }) => {
+  const {
+    currentNote,
+    saving,
+    saveNote,
+    autoSave,
+  } = useNotesManager();
+
+  const [title, setTitle] = useState('');
+  const [content, setContent] = useState('');
+  const [isEditing, setIsEditing] = useState(false);
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
+  const { toast } = useToast();
+
+  // Debounce content for auto-save
+  const debouncedContent = useDebounceHook(content, 1000);
+  const debouncedTitle = useDebounceHook(title, 1000);
+
+  // Update local state when current note changes
+  useEffect(() => {
+    if (currentNote) {
+      setTitle(currentNote.title);
+      setContent(currentNote.content);
+      setHasUnsavedChanges(false);
+    } else {
+      setTitle('');
+      setContent('');
+      setHasUnsavedChanges(false);
+    }
+  }, [currentNote]);
+
+  // Auto-save when content changes
+  useEffect(() => {
+    if (currentNote && (debouncedContent !== currentNote.content || debouncedTitle !== currentNote.title)) {
+      autoSave(currentNote.id, debouncedContent, debouncedTitle);
+      setHasUnsavedChanges(false);
+    }
+  }, [currentNote, debouncedContent, debouncedTitle, autoSave]);
+
+  // Track unsaved changes
+  useEffect(() => {
+    if (currentNote) {
+      setHasUnsavedChanges(
+        content !== currentNote.content || title !== currentNote.title
+      );
+    }
+  }, [currentNote, content, title]);
+
+  const handleSave = async () => {
+    if (!currentNote) return;
+
+    const success = await saveNote(currentNote.id, { title, content });
+    if (success) {
+      setHasUnsavedChanges(false);
+      toast({
+        title: 'Note saved',
+        description: 'Your note has been saved successfully.',
+      });
+    }
+  };
+
+  const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setTitle(e.target.value);
+  };
+
+  const handleContentChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    setContent(e.target.value);
+  };
+
+  if (!currentNote) {
+    return (
+      <div className={cn("flex-1 flex items-center justify-center bg-black/10", className)}>
+        <div className="text-center">
+          <FileText className="h-16 w-16 text-gray-400 mx-auto mb-4" />
+          <h3 className="text-xl font-semibold text-white mb-2">No note selected</h3>
+          <p className="text-gray-400">Select a note from the sidebar or create a new one to get started.</p>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className={cn("flex-1 flex flex-col bg-black/10", className)}>
+      {/* Editor Header */}
+      <div className="flex items-center justify-between p-4 border-b border-white/10">
+        <div className="flex items-center space-x-4 flex-1 min-w-0">
+          <div className="flex items-center space-x-2">
+            <Edit3 className="h-5 w-5 text-noteflow-400" />
+            <Input
+              value={title}
+              onChange={handleTitleChange}
+              placeholder="Note title..."
+              className="bg-transparent border-none text-xl font-semibold text-white placeholder:text-gray-400 p-0 h-auto focus-visible:ring-0"
+            />
+          </div>
+        </div>
+        
+        <div className="flex items-center space-x-2">
+          {hasUnsavedChanges && (
+            <span className="text-xs text-gray-400">Unsaved changes</span>
+          )}
+          {saving && (
+            <span className="text-xs text-noteflow-400">Saving...</span>
+          )}
+          <Button
+            onClick={handleSave}
+            disabled={saving || !hasUnsavedChanges}
+            size="sm"
+            className="bg-noteflow-500 hover:bg-noteflow-600"
+          >
+            <Save className="h-4 w-4 mr-2" />
+            Save
+          </Button>
+        </div>
+      </div>
+
+      {/* Editor Content */}
+      <div className="flex-1 p-4">
+        <textarea
+          value={content}
+          onChange={handleContentChange}
+          placeholder="Start writing your note..."
+          className="w-full h-full bg-transparent text-white placeholder:text-gray-400 border-none outline-none resize-none text-lg leading-relaxed"
+          style={{ fontFamily: 'ui-monospace, SFMono-Regular, monospace' }}
+        />
+      </div>
+
+      {/* Editor Footer */}
+      <div className="flex items-center justify-between p-4 border-t border-white/10 text-xs text-gray-400">
+        <div>
+          Last updated: {new Date(currentNote.updated_at).toLocaleString()}
+        </div>
+        <div>
+          {content.length} characters
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default NotesEditor;
