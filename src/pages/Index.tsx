@@ -18,21 +18,6 @@ import { useAuth } from "@/contexts/AuthContext";
 const Index = () => {
   const { user } = useAuth();
 
-  // If user is authenticated, show the full editor interface
-  if (user) {
-    return (
-      <DebugWrapper componentName="Index">
-        <div className="min-h-screen bg-gradient-to-br from-[#050510] to-[#0a0518]">
-          <Header />
-          <EditorManager />
-          <PWAInstaller />
-          <PWAUpdateNotifier />
-        </div>
-      </DebugWrapper>
-    );
-  }
-
-  // If not authenticated, show the landing page
   return (
     <DebugWrapper componentName="Index">
       <div className="min-h-screen bg-gradient-to-br from-[#050510] to-[#0a0518]">
@@ -44,6 +29,24 @@ const Index = () => {
         <FeatureShowcase />
         <Testimonials />
         <SponsorsWallOfFame />
+        
+        {/* Show editor section for authenticated users */}
+        {user && (
+          <section id="editor-section" className="py-16 px-4 bg-black/40 backdrop-blur-sm border-t border-white/10">
+            <div className="container mx-auto max-w-6xl">
+              <div className="text-center mb-8">
+                <h2 className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-white to-noteflow-200 bg-clip-text text-transparent mb-4">
+                  Your Notes
+                </h2>
+                <p className="text-lg text-gray-300">
+                  Start writing and let AI enhance your ideas
+                </p>
+              </div>
+              <EditorManager />
+            </div>
+          </section>
+        )}
+        
         <Footer />
         <PWAInstaller />
         <PWAUpdateNotifier />
