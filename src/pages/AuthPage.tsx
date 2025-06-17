@@ -15,6 +15,7 @@ const AuthPage: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [signInData, setSignInData] = useState({ email: '', password: '' });
   const [signUpData, setSignUpData] = useState({ email: '', password: '', confirmPassword: '' });
+  const [activeTab, setActiveTab] = useState('signin');
   
   const { signIn, signUp } = useAuth();
   const { toast } = useToast();
@@ -110,7 +111,29 @@ const AuthPage: React.FC = () => {
         let errorMessage = 'An error occurred during sign up.';
         
         if (error.message.includes('User already registered')) {
-          errorMessage = 'An account with this email already exists. Please try signing in instead.';
+          errorMessage = 'An account with this email already exists.';
+          
+          // Show toast with action to switch to sign in
+          toast({
+            title: 'Account already exists',
+            description: 'This email is already registered. Please sign in instead.',
+            variant: 'destructive',
+            action: (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  setActiveTab('signin');
+                  setSignInData({ email: signUpData.email, password: '' });
+                }}
+                className="bg-white text-black hover:bg-gray-100"
+              >
+                Go to Sign In
+              </Button>
+            ),
+          });
+          
+          return;
         } else if (error.message.includes('Password should be')) {
           errorMessage = 'Password must be at least 6 characters long.';
         } else if (error.message.includes('Invalid email')) {
@@ -175,7 +198,7 @@ const AuthPage: React.FC = () => {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <Tabs defaultValue="signin" className="w-full">
+            <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
               <TabsList className="grid w-full grid-cols-2 bg-white/5">
                 <TabsTrigger value="signin" className="text-gray-300 data-[state=active]:text-white data-[state=active]:bg-noteflow-500">
                   Sign In
