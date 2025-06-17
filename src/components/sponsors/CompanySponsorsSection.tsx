@@ -39,12 +39,12 @@ const CompanySponsorsSection: React.FC<CompanySponsorsSectionProps> = ({ sponsor
                   className="block group cursor-pointer"
                 >
                   <div className={`flex items-center justify-center p-6 group-hover:scale-105 transition-all duration-300 ${
-                    sponsor.name === 'Vercel' ? 'w-64 h-32' : 'w-56 h-28'
+                    sponsor.name === 'Supabase' ? 'w-64 h-32' : 'w-56 h-28'
                   }`}>
                     <img 
                       src={sponsor.logo} 
                       alt={`${sponsor.name} logo`}
-                      className="max-w-full max-h-full object-contain filter grayscale group-hover:grayscale-0 transition-all duration-300 opacity-70 group-hover:opacity-100"
+                      className="max-w-full max-h-full object-contain filter brightness-0 invert group-hover:brightness-100 group-hover:invert-0 transition-all duration-300 opacity-70 group-hover:opacity-100"
                     />
                   </div>
                   <div className="text-center mt-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
@@ -72,12 +72,12 @@ const CompanySponsorsSection: React.FC<CompanySponsorsSectionProps> = ({ sponsor
                   className="block group cursor-pointer"
                 >
                   <div className={`flex items-center justify-center p-6 group-hover:scale-105 transition-all duration-300 ${
-                    sponsor.name === 'Vercel' ? 'w-64 h-32' : 'w-56 h-28'
+                    sponsor.name === 'Supabase' ? 'w-64 h-32' : 'w-56 h-28'
                   }`}>
                     <img 
                       src={sponsor.logo} 
                       alt={`${sponsor.name} logo`}
-                      className="max-w-full max-h-full object-contain filter grayscale group-hover:grayscale-0 transition-all duration-300 opacity-70 group-hover:opacity-100"
+                      className="max-w-full max-h-full object-contain filter brightness-0 invert group-hover:brightness-100 group-hover:invert-0 transition-all duration-300 opacity-70 group-hover:opacity-100"
                     />
                   </div>
                   <div className="text-center mt-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300">

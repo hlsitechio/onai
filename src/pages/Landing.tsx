@@ -17,10 +17,10 @@ const Landing = () => {
       <div className="min-h-screen bg-gradient-to-br from-[#050510] to-[#0a0518]">
         <Header />
         <Hero />
+        <SponsorsWallOfFame />
         <WhyChooseUs />
         <FeatureShowcase />
         <PricingSection />
-        <SponsorsWallOfFame />
         <Footer />
         <PWAInstaller />
         <PWAUpdateNotifier />

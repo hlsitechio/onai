@@ -5,7 +5,7 @@ import CompanySponsorsSection from './sponsors/CompanySponsorsSection';
 import DotGridBackground from './DotGridBackground';
 
 const SponsorsWallOfFame = () => {
-  // Company sponsors with updated list - removed Next.js and Framer, added Framer Motion
+  // Company sponsors with updated list - removed Vercel, added Supabase
   const companySponsors = [
     {
       name: "IONOS",
@@ -15,9 +15,9 @@ const SponsorsWallOfFame = () => {
       sponsorshipLevel: "$250+"
     },
     {
-      name: "Vercel",
-      logo: "/lovable-uploads/a3e8be49-df57-474f-b816-358eeb923ca1.png",
-      website: "https://vercel.com",
+      name: "Supabase",
+      logo: "https://supabase.com/brand-assets/supabase-logo-wordmark--light.png",
+      website: "https://supabase.com",
       tier: "gold",
       sponsorshipLevel: "$250+"
     },
