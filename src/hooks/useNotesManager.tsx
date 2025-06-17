@@ -26,6 +26,7 @@ export const useNotesManager = () => {
   const loadNotes = useCallback(async () => {
     if (!user) {
       setNotes([]);
+      setCurrentNote(null);
       setLoading(false);
       return;
     }
@@ -60,7 +61,14 @@ export const useNotesManager = () => {
 
   // Create a new note
   const createNote = useCallback(async (title: string = 'Untitled Note', content: string = '') => {
-    if (!user) return null;
+    if (!user) {
+      toast({
+        title: 'Authentication required',
+        description: 'Please sign in to create notes.',
+        variant: 'destructive',
+      });
+      return null;
+    }
 
     try {
       const newNote: Omit<Note, 'created_at' | 'updated_at'> = {
@@ -101,7 +109,14 @@ export const useNotesManager = () => {
 
   // Save/update a note
   const saveNote = useCallback(async (noteId: string, updates: Partial<Pick<Note, 'title' | 'content'>>) => {
-    if (!user) return false;
+    if (!user) {
+      toast({
+        title: 'Authentication required',
+        description: 'Please sign in to save notes.',
+        variant: 'destructive',
+      });
+      return false;
+    }
 
     try {
       setSaving(true);
@@ -144,33 +159,16 @@ export const useNotesManager = () => {
     }
   }, [user, currentNote, toast]);
 
-  // Rename a note
-  const renameNote = useCallback(async (noteId: string, newTitle: string) => {
-    if (!user) return false;
-
-    try {
-      const result = await saveNote(noteId, { title: newTitle });
-      if (result) {
-        toast({
-          title: 'Note renamed',
-          description: `Note renamed to "${newTitle}"`,
-        });
-      }
-      return result;
-    } catch (error) {
-      console.error('Error renaming note:', error);
+  // Delete a note
+  const deleteNote = useCallback(async (noteId: string) => {
+    if (!user) {
       toast({
-        title: 'Error renaming note',
-        description: error instanceof Error ? error.message : 'Unknown error',
+        title: 'Authentication required',
+        description: 'Please sign in to delete notes.',
         variant: 'destructive',
       });
       return false;
     }
-  }, [user, saveNote, toast]);
-
-  // Delete a note
-  const deleteNote = useCallback(async (noteId: string) => {
-    if (!user) return false;
 
     try {
       const { error } = await supabase
@@ -232,7 +230,6 @@ export const useNotesManager = () => {
     createNote,
     saveNote,
     deleteNote,
-    renameNote,
     autoSave,
     refreshNotes: loadNotes,
   };
