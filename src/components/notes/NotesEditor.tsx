@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { useNotesManager } from '@/hooks/useNotesManager';
 import { Button } from '@/components/ui/button';
@@ -306,7 +305,7 @@ const NotesEditor: React.FC<NotesEditorProps> = ({ className }) => {
       {/* Editor Footer */}
       <div className="flex items-center justify-between p-4 border-t border-white/10 text-xs text-gray-400">
         <div>
-          Last updated: {new Date(currentNote.updated_at).toLocaleString()}
+          Last updated: {currentNote.updated_at ? new Date(currentNote.updated_at).toLocaleString() : 'Never'}
         </div>
         <div>
           {content.length} characters
