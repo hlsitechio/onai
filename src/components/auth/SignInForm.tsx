@@ -38,6 +38,7 @@ export const SignInForm: React.FC<SignInFormProps> = ({
             onChange={(e) => updateSignInData('email', e.target.value)}
             className="pl-10 bg-white/5 border-white/10 text-white"
             disabled={isLoading}
+            autoComplete="email"
           />
         </div>
       </div>
@@ -54,6 +55,7 @@ export const SignInForm: React.FC<SignInFormProps> = ({
             onChange={(e) => updateSignInData('password', e.target.value)}
             className="pl-10 bg-white/5 border-white/10 text-white"
             disabled={isLoading}
+            autoComplete="current-password"
           />
         </div>
       </div>

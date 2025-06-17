@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
@@ -183,6 +182,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ open, onOpenChange, defaultTab = 
                         onChange={(e) => setEmail(e.target.value)}
                         className="pl-10 bg-white/5 border-white/10 text-white"
                         disabled={isLoading}
+                        autoComplete="email"
                       />
                     </div>
                   </div>
@@ -199,6 +199,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ open, onOpenChange, defaultTab = 
                         onChange={(e) => setPassword(e.target.value)}
                         className="pl-10 bg-white/5 border-white/10 text-white"
                         disabled={isLoading}
+                        autoComplete="current-password"
                       />
                     </div>
                   </div>
@@ -234,6 +235,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ open, onOpenChange, defaultTab = 
                         onChange={(e) => setEmail(e.target.value)}
                         className="pl-10 bg-white/5 border-white/10 text-white"
                         disabled={isLoading}
+                        autoComplete="email"
                       />
                     </div>
                   </div>
@@ -250,6 +252,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ open, onOpenChange, defaultTab = 
                         onChange={(e) => setPassword(e.target.value)}
                         className="pl-10 bg-white/5 border-white/10 text-white"
                         disabled={isLoading}
+                        autoComplete="new-password"
                       />
                     </div>
                   </div>
@@ -266,6 +269,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ open, onOpenChange, defaultTab = 
                         onChange={(e) => setConfirmPassword(e.target.value)}
                         className="pl-10 bg-white/5 border-white/10 text-white"
                         disabled={isLoading}
+                        autoComplete="new-password"
                       />
                     </div>
                   </div>

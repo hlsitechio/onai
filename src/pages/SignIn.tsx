@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
@@ -102,6 +101,7 @@ const SignIn = () => {
                     onChange={(e) => setEmail(e.target.value)}
                     className="pl-10 bg-white/5 border-white/10 text-white"
                     disabled={isLoading}
+                    autoComplete="email"
                   />
                 </div>
               </div>
@@ -118,6 +118,7 @@ const SignIn = () => {
                     onChange={(e) => setPassword(e.target.value)}
                     className="pl-10 bg-white/5 border-white/10 text-white"
                     disabled={isLoading}
+                    autoComplete="current-password"
                   />
                 </div>
               </div>
