@@ -3,9 +3,7 @@ import React from "react";
 import DebugWrapper from "@/components/DebugWrapper";
 import Header from "@/components/Header";
 import Hero from "@/components/Hero";
-import Features from "@/components/Features";
-import HowItWorks from "@/components/HowItWorks";
-import AIFeatures from "@/components/AIFeatures";
+import WhyChooseUs from "@/components/WhyChooseUs";
 import FeatureShowcase from "@/components/FeatureShowcase";
 import Testimonials from "@/components/Testimonials";
 import SponsorsWallOfFame from "@/components/SponsorsWallOfFame";
@@ -20,9 +18,7 @@ const Landing = () => {
       <div className="min-h-screen bg-gradient-to-br from-[#050510] to-[#0a0518]">
         <Header />
         <Hero />
-        <Features />
-        <HowItWorks />
-        <AIFeatures />
+        <WhyChooseUs />
         <FeatureShowcase />
         <PricingSection />
         <Testimonials />
