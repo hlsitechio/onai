@@ -4,8 +4,10 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { Toaster } from '@/components/ui/toaster';
 import { AuthProvider } from '@/contexts/AuthContext';
 import AuthGuard from '@/components/AuthGuard';
-import AuthPage from '@/pages/AuthPage';
-import MainLayout from '@/components/MainLayout';
+import Auth from '@/pages/Auth';
+import Index from '@/pages/Index';
+import App as AppPage from '@/pages/App';
+import SignIn from '@/pages/SignIn';
 import ErrorBoundaryWrapper from '@/components/ErrorBoundaryWrapper';
 
 function App() {
@@ -15,15 +17,14 @@ function App() {
         <Router>
           <div className="App">
             <Routes>
-              <Route path="/auth" element={<AuthPage />} />
-              <Route 
-                path="/" 
-                element={
-                  <AuthGuard>
-                    <MainLayout />
-                  </AuthGuard>
-                } 
-              />
+              <Route path="/auth" element={<Auth />} />
+              <Route path="/signin" element={<SignIn />} />
+              <Route path="/app" element={
+                <AuthGuard>
+                  <AppPage />
+                </AuthGuard>
+              } />
+              <Route path="/" element={<Index />} />
             </Routes>
             <Toaster />
           </div>
