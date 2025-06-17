@@ -6,7 +6,7 @@ import { AuthProvider } from '@/contexts/AuthContext';
 import AuthGuard from '@/components/AuthGuard';
 import Auth from '@/pages/Auth';
 import Index from '@/pages/Index';
-import App as AppPage from '@/pages/App';
+import AppPage from '@/pages/App';
 import SignIn from '@/pages/SignIn';
 import ErrorBoundaryWrapper from '@/components/ErrorBoundaryWrapper';
 
