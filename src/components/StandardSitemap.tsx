@@ -28,7 +28,7 @@ const StandardSitemap = () => {
       links: [
         { name: "Buy Me a Coffee", url: "https://www.buymeacoffee.com/onlinenoteai", description: "Support our free service - every coffee helps!", external: true },
         { name: "Contact Support", url: "mailto:info@onlinenote.ai", description: "Get help from our support team", external: true },
-        { name: "Feature Requests", url: "mailto:features@onlinenote.ai", description: "Suggest new features", external: true }
+        { name: "Feature Requests", url: "mailto:info@onlinenote.ai", description: "Suggest new features", external: true }
       ]
     }
   ];
