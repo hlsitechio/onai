@@ -18,7 +18,6 @@ export default defineConfig(({ mode }) => ({
     host: "::",
     port: 8080,
     watch: {
-      // Reduce the number of files being watched
       ignored: [
         '**/node_modules/**',
         '**/.git/**',
@@ -36,26 +35,24 @@ export default defineConfig(({ mode }) => ({
         '**/public/sw.js',
         '**/public/sw-*.js'
       ],
-      // Use polling for better compatibility but with reasonable interval
       usePolling: false,
     },
   },
   plugins: [
     react(),
-    // Only include componentTagger if it was successfully loaded and in development mode
     mode === 'development' && componentTagger && componentTagger(),
   ].filter(Boolean),
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
     },
+    // Ensure single React instance
+    dedupe: ['react', 'react-dom'],
   },
-  // Advanced bundle optimization
   build: {
     rollupOptions: {
       output: {
         manualChunks: {
-          // Separate vendor chunks to improve caching
           vendor: ['react', 'react-dom'],
           editor: [
             '@tiptap/react',
@@ -76,14 +73,11 @@ export default defineConfig(({ mode }) => ({
           supabase: ['@supabase/supabase-js'],
           utils: ['date-fns', 'clsx', 'class-variance-authority']
         },
-        // Optimize chunk file names
         chunkFileNames: (chunkInfo) => {
-          const facadeModuleId = chunkInfo.facadeModuleId ? chunkInfo.facadeModuleId.split('/').pop() : 'chunk';
           return `assets/[name]-[hash].js`;
         }
       }
     },
-    // Reduce bundle size
     target: 'es2020',
     minify: mode === 'production' ? 'terser' : false,
     terserOptions: mode === 'production' ? {
@@ -93,10 +87,8 @@ export default defineConfig(({ mode }) => ({
         pure_funcs: ['console.log', 'console.debug']
       }
     } : undefined,
-    // Set chunk size warning limit
     chunkSizeWarningLimit: 500
   },
-  // Optimize dependency resolution
   optimizeDeps: {
     exclude: ['lovable-tagger'],
     include: [
@@ -106,8 +98,9 @@ export default defineConfig(({ mode }) => ({
       '@radix-ui/react-tabs',
       '@radix-ui/react-slot'
     ],
+    // Force pre-bundling of React
+    force: true,
   },
-  // Reduce the number of watched files
   define: {
     global: 'globalThis',
   },
