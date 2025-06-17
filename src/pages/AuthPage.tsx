@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
@@ -10,6 +9,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2, Mail, Lock, Brain } from 'lucide-react';
 import { sendWelcomeEmail } from '@/utils/welcomeEmailService';
+import { supabase } from '@/integrations/supabase/client';
 
 const AuthPage: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
@@ -72,6 +72,34 @@ const AuthPage: React.FC = () => {
     }
   };
 
+  const checkIfUserExists = async (email: string): Promise<boolean> => {
+    try {
+      // First try to sign in with a dummy password to check if user exists
+      const { error } = await supabase.auth.signInWithPassword({
+        email: email,
+        password: 'dummy-password-check-123'
+      });
+      
+      // If we get "Invalid login credentials", it means the user exists but password is wrong
+      // If we get "Invalid login credentials" or similar, user likely exists
+      if (error && error.message.includes('Invalid login credentials')) {
+        return true;
+      }
+      
+      // Also check the users table directly if possible
+      const { data: profiles } = await supabase
+        .from('user_profiles')
+        .select('email')
+        .eq('email', email)
+        .limit(1);
+      
+      return profiles && profiles.length > 0;
+    } catch (error) {
+      console.error('Error checking if user exists:', error);
+      return false;
+    }
+  };
+
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -105,14 +133,38 @@ const AuthPage: React.FC = () => {
     setIsLoading(true);
     
     try {
+      // First check if user already exists
+      const userExists = await checkIfUserExists(signUpData.email);
+      
+      if (userExists) {
+        toast({
+          title: 'Account already exists',
+          description: 'This email is already registered. Please sign in instead.',
+          variant: 'destructive',
+          action: (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => {
+                setActiveTab('signin');
+                setSignInData({ email: signUpData.email, password: '' });
+              }}
+              className="bg-white text-black hover:bg-gray-100"
+            >
+              Go to Sign In
+            </Button>
+          ),
+        });
+        setIsLoading(false);
+        return;
+      }
+
       const { error } = await signUp(signUpData.email, signUpData.password);
       
       if (error) {
         let errorMessage = 'An error occurred during sign up.';
         
-        if (error.message.includes('User already registered')) {
-          errorMessage = 'An account with this email already exists.';
-          
+        if (error.message.includes('User already registered') || error.message.includes('already been taken')) {
           // Show toast with action to switch to sign in
           toast({
             title: 'Account already exists',
@@ -133,6 +185,7 @@ const AuthPage: React.FC = () => {
             ),
           });
           
+          setIsLoading(false);
           return;
         } else if (error.message.includes('Password should be')) {
           errorMessage = 'Password must be at least 6 characters long.';
@@ -153,10 +206,16 @@ const AuthPage: React.FC = () => {
         
         // Send welcome email
         try {
-          await sendWelcomeEmail(signUpData.email);
-          console.log('Welcome email sent successfully');
+          console.log('Attempting to send welcome email to:', signUpData.email);
+          const result = await sendWelcomeEmail(signUpData.email);
+          
+          if (result.success) {
+            console.log('Welcome email sent successfully');
+          } else {
+            console.error('Failed to send welcome email:', result.error);
+          }
         } catch (emailError) {
-          console.error('Failed to send welcome email:', emailError);
+          console.error('Error sending welcome email:', emailError);
           // Don't show error to user - welcome email is nice-to-have
         }
         
@@ -164,6 +223,7 @@ const AuthPage: React.FC = () => {
         setSignUpData({ email: '', password: '', confirmPassword: '' });
       }
     } catch (error) {
+      console.error('Sign up error:', error);
       toast({
         title: 'Sign up failed',
         description: 'An unexpected error occurred. Please try again.',

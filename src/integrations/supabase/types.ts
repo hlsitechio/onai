@@ -735,7 +735,9 @@ export type Database = {
         Returns: boolean
       }
       get_daily_ai_usage: {
-        Args: { user_uuid: string; usage_date?: string }
+        Args:
+          | Record<PropertyKey, never>
+          | { user_uuid: string; usage_date?: string }
         Returns: number
       }
     }

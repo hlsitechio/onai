@@ -10,33 +10,44 @@ interface EmailData {
 
 export const sendEmail = async (emailData: EmailData): Promise<{ success: boolean; error?: string }> => {
   try {
+    console.log('Email service: Attempting to send email via Supabase edge function...');
+    console.log('Email service: Recipient:', emailData.to);
+    console.log('Email service: Subject:', emailData.subject);
+    
     const { data, error } = await supabase.functions.invoke('send-email', {
-      body: emailData,
+      body: {
+        to: emailData.to,
+        subject: emailData.subject,
+        html: emailData.html,
+        from: emailData.from || "Online Note AI <info@onlinenote.ai>"
+      }
     });
 
+    console.log('Email service: Supabase function response:', { data, error });
+
     if (error) {
-      console.error('Error invoking send-email function:', error);
-      return { success: false, error: error.message };
+      console.error('Email service: Supabase function error:', error);
+      return { 
+        success: false, 
+        error: error.message || 'Failed to send email via Supabase function' 
+      };
     }
 
-    if (!data.success) {
-      console.error('Email sending failed:', data.error);
-      return { success: false, error: data.error };
+    if (data && !data.success) {
+      console.error('Email service: Email function returned failure:', data.error);
+      return { 
+        success: false, 
+        error: data.error || 'Email function returned failure' 
+      };
     }
 
-    console.log('Email sent successfully:', data.data);
+    console.log('Email service: Email sent successfully');
     return { success: true };
   } catch (error) {
-    console.error('Unexpected error sending email:', error);
+    console.error('Email service: Exception occurred:', error);
     return { 
       success: false, 
       error: error instanceof Error ? error.message : 'Unknown error occurred' 
     };
   }
 };
-
-// Export templates and utilities from other files for convenience
-export { subscriptionEmailTemplates } from './email/subscriptionTemplates';
-export { emailTemplates } from './email/legacyTemplates';
-export { sendTestEmail } from './email/testEmailService';
-export { createEmailTemplate } from './email/emailTemplateUtils';
