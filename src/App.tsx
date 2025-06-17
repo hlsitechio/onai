@@ -12,6 +12,7 @@ import ErrorBoundaryWrapper from "@/components/ErrorBoundaryWrapper";
 import AuthGuard from "@/components/AuthGuard";
 import SharedNoteViewer from "@/components/SharedNoteViewer";
 import Index from "./pages/Index";
+import App from "./pages/App";
 import Auth from "./pages/Auth";
 import SignIn from "./pages/SignIn";
 import SignUp from "./pages/SignUp";
@@ -38,11 +39,11 @@ if (typeof window !== 'undefined') {
   preloadCriticalResources();
 }
 
-const App: React.FC = () => {
+const AppRouter: React.FC = () => {
   console.log('App component rendering');
   console.log('React version:', React.version);
   console.log('React available:', !!React);
-  console.log('React useState available:', !!React.useState);
+  console.log('React.useState available:', !!React.useState);
   
   return (
     <ErrorBoundaryWrapper>
@@ -54,6 +55,7 @@ const App: React.FC = () => {
               <Sonner />
               <BrowserRouter>
                 <Routes>
+                  <Route path="/" element={<Index />} />
                   <Route path="/auth" element={<Auth />} />
                   <Route path="/signin" element={<SignIn />} />
                   <Route path="/signup" element={<SignUp />} />
@@ -61,10 +63,10 @@ const App: React.FC = () => {
                   <Route path="/success" element={<Success />} />
                   <Route path="/vercel" element={<Navigate to="/" replace />} />
                   <Route
-                    path="/"
+                    path="/app"
                     element={
                       <AuthGuard>
-                        <Index />
+                        <App />
                       </AuthGuard>
                     }
                   />
@@ -79,4 +81,4 @@ const App: React.FC = () => {
   );
 };
 
-export default App;
+export default AppRouter;
