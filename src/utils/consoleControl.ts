@@ -1,4 +1,5 @@
 
+
 import log from 'loglevel';
 
 // Configure loglevel based on environment
@@ -62,7 +63,10 @@ console.error = (...args: any[]) => {
     'sandbox attribute can escape its sandboxing',
     'vr',
     'ambient-light-sensor',
-    'battery'
+    'battery',
+    'was preloaded using link preload but not used',
+    'facebook.com/tr',
+    'preloaded intentionally'
   ];
   
   const shouldIgnore = ignoredErrors.some(ignored => 
@@ -88,7 +92,10 @@ console.warn = (...args: any[]) => {
     'sandbox attribute can escape its sandboxing',
     'vr',
     'ambient-light-sensor',
-    'battery'
+    'battery',
+    'was preloaded using link preload but not used',
+    'facebook.com/tr',
+    'preloaded intentionally'
   ];
   
   const shouldIgnore = ignoredWarnings.some(ignored => 
@@ -128,3 +135,4 @@ if (isDevelopment && typeof window !== 'undefined') {
   (window as any).consoleControls = consoleControls;
   console.log('Console controls available at window.consoleControls');
 }
+
