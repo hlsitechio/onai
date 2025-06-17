@@ -1,10 +1,20 @@
-import React from 'react';
+
+import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Check, Sparkles, Zap, Crown } from 'lucide-react';
+import { useAuth } from '@/contexts/AuthContext';
+import { useToast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
+import { useNavigate } from 'react-router-dom';
 
 const PricingSection = () => {
+  const { user } = useAuth();
+  const { toast } = useToast();
+  const navigate = useNavigate();
+  const [loading, setLoading] = useState<string | null>(null);
+
   const plans = [
     {
       id: 'free',
@@ -27,7 +37,8 @@ const PricingSection = () => {
       ],
       buttonText: 'Get Started Free',
       buttonVariant: 'outline' as const,
-      popular: false
+      popular: false,
+      priceId: ''
     },
     {
       id: 'pro',
@@ -50,7 +61,8 @@ const PricingSection = () => {
       limitedFeatures: [],
       buttonText: 'Start Free Trial',
       buttonVariant: 'default' as const,
-      popular: true
+      popular: true,
+      priceId: 'price_1QUzaDF4QdBZ7yYeVqB9KRxA' // Replace with your actual Stripe price ID
     },
     {
       id: 'enterprise',
@@ -72,9 +84,76 @@ const PricingSection = () => {
       limitedFeatures: [],
       buttonText: 'Contact Sales',
       buttonVariant: 'outline' as const,
-      popular: false
+      popular: false,
+      priceId: ''
     }
   ];
+
+  const handlePlanSelection = async (plan: typeof plans[0]) => {
+    if (plan.id === 'free') {
+      if (!user) {
+        navigate('/auth');
+        return;
+      }
+      navigate('/app');
+      return;
+    }
+
+    if (plan.id === 'enterprise') {
+      // Handle enterprise contact
+      toast({
+        title: 'Contact Sales',
+        description: 'Please contact our sales team for enterprise pricing.',
+      });
+      return;
+    }
+
+    if (!user) {
+      navigate('/auth');
+      return;
+    }
+
+    if (!plan.priceId) return;
+
+    setLoading(plan.id);
+
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      if (!session) {
+        throw new Error('No active session');
+      }
+
+      const { data, error } = await supabase.functions.invoke('stripe-checkout', {
+        body: {
+          price_id: plan.priceId,
+          success_url: `${window.location.origin}/success`,
+          cancel_url: window.location.href,
+        },
+        headers: {
+          Authorization: `Bearer ${session.access_token}`,
+        },
+      });
+
+      if (error) {
+        throw error;
+      }
+
+      if (data?.url) {
+        // Open Stripe checkout in a new tab
+        window.open(data.url, '_blank');
+      }
+    } catch (error) {
+      console.error('Subscription error:', error);
+      toast({
+        title: 'Subscription failed',
+        description: 'There was an error processing your subscription. Please try again.',
+        variant: 'destructive',
+      });
+    } finally {
+      setLoading(null);
+    }
+  };
 
   return (
     <section id="pricing" className="py-16 px-4 bg-black/20 backdrop-blur-sm">
@@ -135,6 +214,8 @@ const PricingSection = () => {
                 </ul>
 
                 <Button
+                  onClick={() => handlePlanSelection(plan)}
+                  disabled={loading === plan.id}
                   variant={plan.buttonVariant}
                   className={`w-full ${
                     plan.popular
@@ -144,7 +225,7 @@ const PricingSection = () => {
                       : ''
                   }`}
                 >
-                  {plan.buttonText}
+                  {loading === plan.id ? 'Processing...' : plan.buttonText}
                 </Button>
               </CardContent>
             </Card>
