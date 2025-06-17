@@ -1,7 +1,8 @@
+
 import React from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
-import { TooltipProvider } from "@/components/ui/tooltip";
+// import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
@@ -39,36 +40,38 @@ if (typeof window !== 'undefined') {
 
 const App: React.FC = () => {
   console.log('App component rendering');
+  console.log('React version:', React.version);
+  console.log('React available:', !!React);
+  console.log('React useState available:', !!React.useState);
   
   return (
     <ErrorBoundaryWrapper>
       <QueryClientProvider client={queryClient}>
-        <TooltipProvider>
-          <PWAProvider>
-            <AuthProvider>
-              <Toaster />
-              <Sonner />
-              <BrowserRouter>
-                <Routes>
-                  <Route path="/auth" element={<Auth />} />
-                  <Route path="/signin" element={<SignIn />} />
-                  <Route path="/signup" element={<SignUp />} />
-                  <Route path="/shared/:shareId" element={<SharedNoteViewer />} />
-                  <Route path="/success" element={<Success />} />
-                  <Route
-                    path="/"
-                    element={
-                      <AuthGuard>
-                        <Index />
-                      </AuthGuard>
-                    }
-                  />
-                  <Route path="*" element={<NotFound />} />
-                </Routes>
-              </BrowserRouter>
-            </AuthProvider>
-          </PWAProvider>
-        </TooltipProvider>
+        {/* Temporarily removed TooltipProvider to isolate React instance issue */}
+        <PWAProvider>
+          <AuthProvider>
+            <Toaster />
+            <Sonner />
+            <BrowserRouter>
+              <Routes>
+                <Route path="/auth" element={<Auth />} />
+                <Route path="/signin" element={<SignIn />} />
+                <Route path="/signup" element={<SignUp />} />
+                <Route path="/shared/:shareId" element={<SharedNoteViewer />} />
+                <Route path="/success" element={<Success />} />
+                <Route
+                  path="/"
+                  element={
+                    <AuthGuard>
+                      <Index />
+                    </AuthGuard>
+                  }
+                />
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+            </BrowserRouter>
+          </AuthProvider>
+        </PWAProvider>
       </QueryClientProvider>
     </ErrorBoundaryWrapper>
   );
