@@ -108,16 +108,13 @@ export const useAuthActions = () => {
           
           toast({
             title: 'Account already exists',
-            description: `This email is already registered. Please sign in instead. (Detected via ${result.validationMethod})`,
+            description: `This email is already registered. Please switch to the Sign In tab. (Detected via ${result.validationMethod})`,
             variant: 'destructive',
-            action: {
-              label: 'Go to Sign In',
-              onClick: () => {
-                setActiveTab('signin');
-                setSignInData({ email: signUpData.email, password: '' });
-              }
-            },
           });
+          
+          // Automatically switch to sign in tab and pre-fill email
+          setActiveTab('signin');
+          setSignInData({ email: signUpData.email, password: '' });
           
           setIsLoading(false);
           return;
