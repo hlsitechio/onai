@@ -119,16 +119,19 @@ const NotesSidebar: React.FC<NotesSidebarProps> = ({ className }) => {
                   onClick={() => handleNoteSelect(note)}
                 >
                   <div className="flex items-start justify-between">
-                    <div className="flex-1 min-w-0 mr-2">
-                      <h3 className="font-medium text-white truncate text-sm">
-                        {note.title || 'Untitled'}
-                      </h3>
-                      <p className="text-xs text-gray-400 line-clamp-2 mt-1">
-                        {note.content.replace(/<[^>]*>/g, '').substring(0, 100) || 'No content'}
-                      </p>
-                      <p className="text-xs text-gray-500 mt-2">
-                        {formatDistanceToNow(new Date(note.updated_at), { addSuffix: true })}
-                      </p>
+                    <div className="flex items-start space-x-2 flex-1 min-w-0">
+                      <FileText className={`h-3.5 w-3.5 text-noteflow-400 mt-0.5 shrink-0 ${currentNote?.id === note.id ? 'opacity-100' : 'opacity-50'}`} />
+                      <div className="flex-1 min-w-0">
+                        <h3 className="font-medium text-white truncate text-sm">
+                          {note.title || 'Untitled'}
+                        </h3>
+                        <p className="text-xs text-gray-400 line-clamp-2 mt-1">
+                          {note.content.replace(/<[^>]*>/g, '').substring(0, 100) || 'No content'}
+                        </p>
+                        <p className="text-xs text-gray-500 mt-2">
+                          {formatDistanceToNow(new Date(note.updated_at), { addSuffix: true })}
+                        </p>
+                      </div>
                     </div>
                     
                     <DropdownMenu>
