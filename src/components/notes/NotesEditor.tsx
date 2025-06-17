@@ -1,5 +1,5 @@
 
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNotesManager } from '@/hooks/useNotesManager';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -11,23 +11,6 @@ import { useDebounce } from '@/hooks/useDebounce';
 interface NotesEditorProps {
   className?: string;
 }
-
-// Simple debounce hook
-const useDebounceHook = (value: string, delay: number) => {
-  const [debouncedValue, setDebouncedValue] = useState(value);
-
-  useEffect(() => {
-    const handler = setTimeout(() => {
-      setDebouncedValue(value);
-    }, delay);
-
-    return () => {
-      clearTimeout(handler);
-    };
-  }, [value, delay]);
-
-  return debouncedValue;
-};
 
 const NotesEditor: React.FC<NotesEditorProps> = ({ className }) => {
   const {
@@ -44,8 +27,8 @@ const NotesEditor: React.FC<NotesEditorProps> = ({ className }) => {
   const { toast } = useToast();
 
   // Debounce content for auto-save
-  const debouncedContent = useDebounceHook(content, 1000);
-  const debouncedTitle = useDebounceHook(title, 1000);
+  const debouncedContent = useDebounce(content, 1000);
+  const debouncedTitle = useDebounce(title, 1000);
 
   // Update local state when current note changes
   useEffect(() => {

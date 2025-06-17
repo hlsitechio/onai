@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { useNotesManager, Note } from '@/hooks/useNotesManager';
+import { useNotesManager } from '@/hooks/useNotesManager';
 import { Plus, Search, FileText, MoreVertical, Trash2, Edit } from 'lucide-react';
 import {
   DropdownMenu,
@@ -47,7 +47,7 @@ const NotesSidebar: React.FC<NotesSidebarProps> = ({ className }) => {
     }
   };
 
-  const handleNoteSelect = (note: Note) => {
+  const handleNoteSelect = (note: typeof notes[0]) => {
     setCurrentNote(note);
     setEditingNoteId(null);
   };
