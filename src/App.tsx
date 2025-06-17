@@ -1,3 +1,4 @@
+
 import React from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
@@ -39,44 +40,64 @@ if (typeof window !== 'undefined') {
   preloadCriticalResources();
 }
 
+// Inner app component that renders after React is confirmed available
+const AppContent: React.FC = () => {
+  return (
+    <QueryClientProvider client={queryClient}>
+      <TooltipProvider>
+        <PWAProvider>
+          <AuthProvider>
+            <Toaster />
+            <Sonner />
+            <BrowserRouter>
+              <Routes>
+                <Route path="/" element={<Index />} />
+                <Route path="/landing" element={<Landing />} />
+                <Route path="/auth" element={<Auth />} />
+                <Route path="/signin" element={<SignIn />} />
+                <Route path="/signup" element={<SignUp />} />
+                <Route path="/shared/:shareId" element={<SharedNoteViewer />} />
+                <Route path="/success" element={<Success />} />
+                <Route
+                  path="/app"
+                  element={
+                    <AuthGuard>
+                      <App />
+                    </AuthGuard>
+                  }
+                />
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+            </BrowserRouter>
+          </AuthProvider>
+        </PWAProvider>
+      </TooltipProvider>
+    </QueryClientProvider>
+  );
+};
+
 const AppRouter: React.FC = () => {
   console.log('App component rendering');
   console.log('React version:', React.version);
   console.log('React available:', !!React);
   console.log('React.useState available:', !!React.useState);
   
+  // Ensure React is fully available before rendering
+  if (!React || !React.useState) {
+    console.error('React is not properly initialized');
+    return (
+      <div className="min-h-screen bg-black flex items-center justify-center">
+        <div className="text-white text-center">
+          <h1 className="text-xl mb-4">Loading...</h1>
+          <p>Initializing React...</p>
+        </div>
+      </div>
+    );
+  }
+  
   return (
     <ErrorBoundaryWrapper>
-      <QueryClientProvider client={queryClient}>
-        <TooltipProvider>
-          <PWAProvider>
-            <AuthProvider>
-              <Toaster />
-              <Sonner />
-              <BrowserRouter>
-                <Routes>
-                  <Route path="/" element={<Index />} />
-                  <Route path="/landing" element={<Landing />} />
-                  <Route path="/auth" element={<Auth />} />
-                  <Route path="/signin" element={<SignIn />} />
-                  <Route path="/signup" element={<SignUp />} />
-                  <Route path="/shared/:shareId" element={<SharedNoteViewer />} />
-                  <Route path="/success" element={<Success />} />
-                  <Route
-                    path="/app"
-                    element={
-                      <AuthGuard>
-                        <App />
-                      </AuthGuard>
-                    }
-                  />
-                  <Route path="*" element={<NotFound />} />
-                </Routes>
-              </BrowserRouter>
-            </AuthProvider>
-          </PWAProvider>
-        </TooltipProvider>
-      </QueryClientProvider>
+      <AppContent />
     </ErrorBoundaryWrapper>
   );
 };
