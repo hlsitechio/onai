@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
-import { Coffee, FileText, Zap, Brain, Globe } from 'lucide-react';
+import { Coffee, FileText, Zap, Brain } from 'lucide-react';
 import UserMenu from './UserMenu';
 import AuthModal from './AuthModal';
 import { useAuth } from '@/contexts/AuthContext';
@@ -53,15 +53,6 @@ const Header = () => {
             >
               Technologies
             </a>
-            {user && (
-              <Link 
-                to="/vercel" 
-                className="text-gray-300 hover:text-white transition-colors flex items-center space-x-1"
-              >
-                <Globe className="w-4 h-4" />
-                <span>Vercel</span>
-              </Link>
-            )}
             <Separator orientation="vertical" className="h-6 bg-white/10" />
             <a 
               href="https://www.buymeacoffee.com/onlinenoteai" 
