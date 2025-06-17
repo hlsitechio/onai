@@ -1,6 +1,7 @@
+
 import React, { useState, useEffect, useCallback } from 'react';
 import { useToast } from '@/hooks/use-toast';
-import { useSupabaseNotes } from '@/hooks/useSupabaseNotes';
+import { useNotesManager } from '@/hooks/useNotesManager.tsx';
 import { useFocusModeManager } from '@/hooks/useFocusModeManager';
 import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from '../ui/resizable';
 import SidebarPanel from './SidebarPanel';
@@ -13,7 +14,7 @@ import { cn } from '@/lib/utils';
 const EditorManager: React.FC = () => {
   const [content, setContent] = useState('');
   const [isLeftSidebarOpen, setIsLeftSidebarOpen] = useState(true);
-  const [isAISidebarOpen, setIsAISidebarOpen] = useState(true); // Changed to true by default
+  const [isAISidebarOpen, setIsAISidebarOpen] = useState(true);
   const [isAIDialogOpen, setIsAIDialogOpen] = useState(false);
   const [lastSaved, setLastSaved] = useState<Date | null>(null);
   
@@ -21,21 +22,32 @@ const EditorManager: React.FC = () => {
   const { isFocusMode, toggleFocusMode } = useFocusModeManager();
   
   const {
-    allNotes,
-    handleSave: saveNote,
-    handleDeleteNote: deleteNote,
-    importNotes
-  } = useSupabaseNotes();
+    notes,
+    currentNote,
+    setCurrentNote,
+    loading,
+    saving,
+    createNote,
+    saveNote,
+    deleteNote,
+  } = useNotesManager();
 
   // Auto-save functionality
   useEffect(() => {
-    if (content.trim() && content !== '<p></p>') {
+    if (content.trim() && content !== '<p></p>' && currentNote && content !== currentNote.content) {
       const timer = setTimeout(() => {
         handleSave();
       }, 2000);
       return () => clearTimeout(timer);
     }
-  }, [content]);
+  }, [content, currentNote]);
+
+  // Update content when current note changes
+  useEffect(() => {
+    if (currentNote) {
+      setContent(currentNote.content);
+    }
+  }, [currentNote]);
 
   // PWA shortcuts handling
   useEffect(() => {
@@ -91,7 +103,7 @@ const EditorManager: React.FC = () => {
   }, [toggleFocusMode]);
 
   const handleSave = useCallback(async () => {
-    if (!content.trim() || content === '<p></p>') {
+    if (!currentNote || !content.trim() || content === '<p></p>') {
       toast({
         title: "Nothing to save",
         description: "Your note is empty.",
@@ -101,7 +113,7 @@ const EditorManager: React.FC = () => {
     }
 
     try {
-      await saveNote();
+      await saveNote(currentNote.id, { content });
       setLastSaved(new Date());
       toast({
         title: "Note saved",
@@ -115,7 +127,7 @@ const EditorManager: React.FC = () => {
         variant: "destructive"
       });
     }
-  }, [content, saveNote, toast]);
+  }, [content, currentNote, saveNote, toast]);
 
   const handleNoteLoad = useCallback((noteContent: string) => {
     setContent(noteContent);
@@ -123,12 +135,26 @@ const EditorManager: React.FC = () => {
 
   const handleDeleteNote = useCallback(async (noteId: string): Promise<boolean> => {
     try {
-      await deleteNote(noteId);
-      toast({
-        title: "Note deleted",
-        description: "The note has been deleted successfully."
-      });
-      return true;
+      const success = await deleteNote(noteId);
+      if (success) {
+        toast({
+          title: "Note deleted",
+          description: "The note has been deleted successfully."
+        });
+        
+        // If we deleted the current note, select another one
+        if (currentNote?.id === noteId) {
+          const remainingNotes = notes.filter(note => note.id !== noteId);
+          if (remainingNotes.length > 0) {
+            setCurrentNote(remainingNotes[0]);
+            setContent(remainingNotes[0].content);
+          } else {
+            setCurrentNote(null);
+            setContent('');
+          }
+        }
+      }
+      return success;
     } catch (error) {
       console.error('Delete error:', error);
       toast({
@@ -138,16 +164,24 @@ const EditorManager: React.FC = () => {
       });
       return false;
     }
-  }, [deleteNote, toast]);
+  }, [deleteNote, toast, currentNote, notes, setCurrentNote]);
 
-  const createNewNote = useCallback(() => {
-    setContent('');
-    setLastSaved(null);
-  }, []);
+  const createNewNote = useCallback(async () => {
+    const newNote = await createNote();
+    if (newNote) {
+      setCurrentNote(newNote);
+      setContent(newNote.content);
+      setLastSaved(null);
+    }
+  }, [createNote, setCurrentNote]);
 
   const handleImportNotes = useCallback(async (importedNotes: Record<string, string>): Promise<boolean> => {
     try {
-      await importNotes(importedNotes);
+      // Convert imported notes to modern format and create them
+      for (const [id, content] of Object.entries(importedNotes)) {
+        await createNote('Imported Note', content);
+      }
+      
       toast({
         title: "Notes imported",
         description: `Successfully imported ${Object.keys(importedNotes).length} notes.`
@@ -162,7 +196,7 @@ const EditorManager: React.FC = () => {
       });
       return false;
     }
-  }, [importNotes, toast]);
+  }, [createNote, toast]);
 
   const execCommand = useCallback((command: string, value?: string | null) => {
     console.log('Editor command:', command, value);
@@ -177,6 +211,12 @@ const EditorManager: React.FC = () => {
   }, []);
 
   const lastSavedString = lastSaved ? lastSaved.toISOString() : undefined;
+
+  // Convert notes to legacy format for compatibility
+  const allNotes: Record<string, string> = {};
+  notes.forEach(note => {
+    allNotes[note.id] = note.content;
+  });
 
   // Check if content is empty (only contains empty paragraph tags or is truly empty)
   const isContentEmpty = !content || content === '<p></p>' || content.trim() === '';

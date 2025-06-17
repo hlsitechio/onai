@@ -1,17 +1,15 @@
 
 import React, { useState } from 'react';
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { Sheet, SheetContent } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { 
-  Menu, 
   Plus, 
   Search, 
   X,
   FileText,
   Clock
 } from "lucide-react";
-import { cn } from "@/lib/utils";
 
 interface MobileSidebarProps {
   isOpen: boolean;
@@ -19,7 +17,7 @@ interface MobileSidebarProps {
   currentContent: string;
   onLoadNote: (content: string) => void;
   onSave: () => void;
-  onDeleteNote: (id: string) => void;
+  onDeleteNote: (id: string) => Promise<boolean>;
   allNotes: Record<string, string>;
   onCreateNew: () => void;
 }
@@ -41,7 +39,7 @@ const MobileSidebar: React.FC<MobileSidebarProps> = ({
     id,
     content,
     title: content.split('\n')[0].substring(0, 50).trim() || 'Untitled Note',
-    created_at: id, // Using ID as timestamp for now
+    created_at: id,
     updated_at: id,
   }));
 

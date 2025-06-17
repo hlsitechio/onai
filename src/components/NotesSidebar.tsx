@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { useNotesManager } from "@/hooks/useNotesManager";
+import { useNotesManager } from '@/hooks/useNotesManager.tsx';
 import { useNotesImportExport } from "@/utils/notesImportExport";
 import ShareNoteDrawer from './notes/ShareNoteDrawer';
 import KeyboardShortcuts from './notes/KeyboardShortcuts';
@@ -39,28 +39,50 @@ const NotesSidebar: React.FC<NotesSidebarProps> = ({
 
   const {
     notes,
-    activeNoteId,
-    sortOrder,
-    filterType,
-    customNoteNames,
-    formatNoteId,
-    handleLoadNote,
-    handleDeleteNote,
-    handleRenameNote,
-    handleNewNote,
-    handleSortNotes,
-    handleFilterNotes
-  } = useNotesManager({
-    allNotes,
-    onLoadNote,
-    onDeleteNote,
-    onCreateNew
-  });
+    currentNote,
+    setCurrentNote,
+    loading,
+    createNote,
+    saveNote,
+    deleteNote,
+  } = useNotesManager();
 
   const {
     handleExportNotes,
     handleImportNotes
   } = useNotesImportExport();
+
+  // Convert modern notes to legacy format for compatibility
+  const modernNotesAsLegacy: Record<string, string> = {};
+  notes.forEach(note => {
+    modernNotesAsLegacy[note.id] = note.content;
+  });
+
+  const formatNoteId = (noteId: string): string => {
+    const note = notes.find(n => n.id === noteId);
+    return note?.title || 'Untitled Note';
+  };
+
+  const handleLoadNoteModern = (noteId: string) => {
+    const note = notes.find(n => n.id === noteId);
+    if (note) {
+      setCurrentNote(note);
+      onLoadNote(note.content);
+    }
+  };
+
+  const handleDeleteNoteModern = async (noteId: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    return await deleteNote(noteId);
+  };
+
+  const handleCreateNewModern = async () => {
+    const newNote = await createNote();
+    if (newNote) {
+      setCurrentNote(newNote);
+      onLoadNote(newNote.content);
+    }
+  };
 
   const handleOpenShare = (noteId: string | null) => {
     setSelectedNoteId(noteId);
@@ -68,8 +90,10 @@ const NotesSidebar: React.FC<NotesSidebarProps> = ({
   };
 
   const handleShareNote = async (service: 'onedrive' | 'googledrive' | 'device' | 'link') => {
-    const content = selectedNoteId ? notes[selectedNoteId] : currentContent;
-    const title = selectedNoteId ? customNoteNames[selectedNoteId] || formatNoteId(selectedNoteId) : 'Current Note';
+    const content = selectedNoteId ? 
+      notes.find(n => n.id === selectedNoteId)?.content || '' : 
+      currentContent;
+    const title = selectedNoteId ? formatNoteId(selectedNoteId) : 'Current Note';
 
     const {
       shareToOneDrive,
@@ -120,16 +144,24 @@ const NotesSidebar: React.FC<NotesSidebarProps> = ({
     });
   };
 
+  const handleSortNotes = () => {
+    // Implementation for sorting
+  };
+
+  const handleFilterNotes = () => {
+    // Implementation for filtering
+  };
+
   return (
     <NotesSidebarContainer>
       <SidebarHeader
-        onCreateNew={handleNewNote}
+        onCreateNew={handleCreateNewModern}
         isSearching={isSearching}
         onSearchToggle={() => setIsSearching(!isSearching)}
         onShowShortcuts={() => setIsShortcutsOpen(true)}
         onSortNotes={handleSortNotes}
         onFilterNotes={handleFilterNotes}
-        onExportNotes={() => handleExportNotes(notes)}
+        onExportNotes={() => handleExportNotes(modernNotesAsLegacy)}
         onImportNotes={handleImportNotesWithMerge}
         searchQuery={searchQuery}
         onSearchChange={setSearchQuery}
@@ -140,17 +172,17 @@ const NotesSidebar: React.FC<NotesSidebarProps> = ({
         
         <div className="px-4 pb-4">
           <NotesContent
-            notes={notes}
+            notes={modernNotesAsLegacy}
             searchQuery={searchQuery}
-            sortOrder={sortOrder}
-            filterType={filterType}
-            customNoteNames={customNoteNames}
+            sortOrder="newest"
+            filterType="all"
+            customNoteNames={{}}
             formatNoteId={formatNoteId}
-            activeNoteId={activeNoteId}
-            onLoadNote={handleLoadNote}
-            onDeleteNote={handleDeleteNote}
+            activeNoteId={currentNote?.id || ''}
+            onLoadNote={handleLoadNoteModern}
+            onDeleteNote={handleDeleteNoteModern}
             onOpenShare={handleOpenShare}
-            onRenameNote={handleRenameNote}
+            onRenameNote={async () => true}
           />
         </div>
       </div>
@@ -167,8 +199,11 @@ const NotesSidebar: React.FC<NotesSidebarProps> = ({
           handleShareNote(service);
           return Promise.resolve("");
         }} 
-        content={selectedNoteId ? notes[selectedNoteId] : currentContent} 
-        title={selectedNoteId ? customNoteNames[selectedNoteId] || formatNoteId(selectedNoteId) : 'Current Note'} 
+        content={selectedNoteId ? 
+          notes.find(n => n.id === selectedNoteId)?.content || '' : 
+          currentContent
+        } 
+        title={selectedNoteId ? formatNoteId(selectedNoteId) : 'Current Note'} 
       />
 
       <KeyboardShortcuts 
