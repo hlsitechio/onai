@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
@@ -7,7 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2, Mail, Lock } from 'lucide-react';
+import { Loader2, Mail, Lock, Brain, Sparkles, Zap } from 'lucide-react';
 
 const Auth: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
@@ -150,149 +151,271 @@ const Auth: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen w-full bg-gradient-to-br from-[#050510] to-[#0a0518] flex items-center justify-center p-4">
-      <div className="w-full max-w-md">
-        <Card className="border-white/10 bg-black/40 backdrop-blur-sm">
-          <CardHeader className="text-center">
-            <CardTitle className="text-2xl font-bold bg-gradient-to-r from-noteflow-400 to-purple-400 bg-clip-text text-transparent">
-              Welcome to Online Note AI
-            </CardTitle>
-            <CardDescription className="text-gray-400">
-              Sign in to your account or create a new one
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Tabs defaultValue="signin" className="w-full">
-              <TabsList className="grid w-full grid-cols-2 mb-6">
-                <TabsTrigger value="signin">Sign In</TabsTrigger>
-                <TabsTrigger value="signup">Sign Up</TabsTrigger>
-              </TabsList>
+    <div className="min-h-screen w-full flex overflow-hidden bg-black">
+      {/* Left Panel - Branding & Visual */}
+      <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden">
+        {/* Animated Background */}
+        <div className="absolute inset-0 bg-gradient-to-br from-slate-900 via-purple-900/20 to-black">
+          {/* Flowing Lines Effect */}
+          <div className="absolute inset-0 opacity-30">
+            <svg className="w-full h-full" viewBox="0 0 800 600" fill="none">
+              <defs>
+                <linearGradient id="flowGradient1" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stopColor="#60a5fa" stopOpacity="0.8" />
+                  <stop offset="50%" stopColor="#a855f7" stopOpacity="0.6" />
+                  <stop offset="100%" stopColor="#ec4899" stopOpacity="0.4" />
+                </linearGradient>
+                <linearGradient id="flowGradient2" x1="100%" y1="0%" x2="0%" y2="100%">
+                  <stop offset="0%" stopColor="#f59e0b" stopOpacity="0.6" />
+                  <stop offset="50%" stopColor="#ef4444" stopOpacity="0.4" />
+                  <stop offset="100%" stopColor="#8b5cf6" stopOpacity="0.8" />
+                </linearGradient>
+              </defs>
               
-              <TabsContent value="signin">
-                <form onSubmit={handleSignIn} className="space-y-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="signin-email">Email</Label>
-                    <div className="relative">
-                      <Mail className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-                      <Input
-                        id="signin-email"
-                        type="email"
-                        placeholder="Enter your email"
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        className="pl-10 bg-white/5 border-white/10 text-white"
-                        disabled={isLoading}
-                        autoComplete="email"
-                      />
-                    </div>
-                  </div>
-                  
-                  <div className="space-y-2">
-                    <Label htmlFor="signin-password">Password</Label>
-                    <div className="relative">
-                      <Lock className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-                      <Input
-                        id="signin-password"
-                        type="password"
-                        placeholder="Enter your password"
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                        className="pl-10 bg-white/5 border-white/10 text-white"
-                        disabled={isLoading}
-                        autoComplete="current-password"
-                      />
-                    </div>
-                  </div>
-                  
-                  <Button 
-                    type="submit" 
-                    className="w-full bg-gradient-to-r from-noteflow-500 to-purple-500 hover:from-noteflow-600 hover:to-purple-600"
-                    disabled={isLoading}
-                  >
-                    {isLoading ? (
-                      <>
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        Signing in...
-                      </>
-                    ) : (
-                      'Sign In'
-                    )}
-                  </Button>
-                </form>
-              </TabsContent>
+              {/* Flowing curved lines */}
+              <path
+                d="M-100,300 Q200,100 400,250 T800,200"
+                stroke="url(#flowGradient1)"
+                strokeWidth="3"
+                fill="none"
+                className="animate-pulse"
+              />
+              <path
+                d="M-100,400 Q300,200 500,350 T900,300"
+                stroke="url(#flowGradient2)"
+                strokeWidth="2"
+                fill="none"
+                className="animate-pulse"
+                style={{ animationDelay: '1s' }}
+              />
+              <path
+                d="M-100,150 Q250,50 450,200 T850,150"
+                stroke="url(#flowGradient1)"
+                strokeWidth="1.5"
+                fill="none"
+                className="animate-pulse"
+                style={{ animationDelay: '2s' }}
+              />
+            </svg>
+          </div>
+          
+          {/* Radial Gradient Overlay */}
+          <div className="absolute inset-0 bg-gradient-radial from-purple-600/20 via-transparent to-black/60"></div>
+        </div>
+
+        {/* Content */}
+        <div className="relative z-10 flex flex-col justify-center items-center p-12 text-white">
+          {/* Logo Area */}
+          <div className="mb-8 text-center">
+            <div className="inline-flex items-center justify-center w-20 h-20 mb-6 bg-gradient-to-br from-blue-500 to-purple-600 rounded-3xl shadow-2xl">
+              <Brain className="w-10 h-10 text-white" />
+            </div>
+            <h1 className="text-5xl font-bold mb-4 bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
+              Online Note AI
+            </h1>
+            <p className="text-xl text-gray-300 max-w-md">
+              Transform your note-taking experience with the power of artificial intelligence
+            </p>
+          </div>
+
+          {/* Feature Highlights */}
+          <div className="space-y-6 max-w-sm">
+            <div className="flex items-center space-x-4">
+              <div className="flex-shrink-0 w-12 h-12 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-xl flex items-center justify-center">
+                <Sparkles className="w-6 h-6 text-white" />
+              </div>
+              <div>
+                <h3 className="font-semibold text-white">AI-Powered Insights</h3>
+                <p className="text-gray-400 text-sm">Get intelligent suggestions and auto-completion</p>
+              </div>
+            </div>
+            
+            <div className="flex items-center space-x-4">
+              <div className="flex-shrink-0 w-12 h-12 bg-gradient-to-r from-purple-500 to-pink-500 rounded-xl flex items-center justify-center">
+                <Zap className="w-6 h-6 text-white" />
+              </div>
+              <div>
+                <h3 className="font-semibold text-white">Lightning Fast</h3>
+                <p className="text-gray-400 text-sm">Real-time sync across all your devices</p>
+              </div>
+            </div>
+            
+            <div className="flex items-center space-x-4">
+              <div className="flex-shrink-0 w-12 h-12 bg-gradient-to-r from-green-500 to-emerald-500 rounded-xl flex items-center justify-center">
+                <Lock className="w-6 h-6 text-white" />
+              </div>
+              <div>
+                <h3 className="font-semibold text-white">Secure & Private</h3>
+                <p className="text-gray-400 text-sm">End-to-end encryption for your peace of mind</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Right Panel - Auth Form */}
+      <div className="w-full lg:w-1/2 flex items-center justify-center p-8 bg-gradient-to-br from-gray-950 to-black">
+        <div className="w-full max-w-md">
+          <Card className="border-gray-800 bg-gray-900/50 backdrop-blur-xl shadow-2xl">
+            <CardHeader className="text-center pb-6">
+              {/* Mobile Logo */}
+              <div className="lg:hidden mb-4">
+                <div className="inline-flex items-center justify-center w-16 h-16 mb-4 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl">
+                  <Brain className="w-8 h-8 text-white" />
+                </div>
+              </div>
               
-              <TabsContent value="signup">
-                <form onSubmit={handleSignUp} className="space-y-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="signup-email">Email</Label>
-                    <div className="relative">
-                      <Mail className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-                      <Input
-                        id="signup-email"
-                        type="email"
-                        placeholder="Enter your email"
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        className="pl-10 bg-white/5 border-white/10 text-white"
-                        disabled={isLoading}
-                        autoComplete="email"
-                      />
-                    </div>
-                  </div>
-                  
-                  <div className="space-y-2">
-                    <Label htmlFor="signup-password">Password</Label>
-                    <div className="relative">
-                      <Lock className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-                      <Input
-                        id="signup-password"
-                        type="password"
-                        placeholder="Create a password"
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                        className="pl-10 bg-white/5 border-white/10 text-white"
-                        disabled={isLoading}
-                        autoComplete="new-password"
-                      />
-                    </div>
-                  </div>
-                  
-                  <div className="space-y-2">
-                    <Label htmlFor="confirm-password">Confirm Password</Label>
-                    <div className="relative">
-                      <Lock className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-                      <Input
-                        id="confirm-password"
-                        type="password"
-                        placeholder="Confirm your password"
-                        value={confirmPassword}
-                        onChange={(e) => setConfirmPassword(e.target.value)}
-                        className="pl-10 bg-white/5 border-white/10 text-white"
-                        disabled={isLoading}
-                        autoComplete="new-password"
-                      />
-                    </div>
-                  </div>
-                  
-                  <Button 
-                    type="submit" 
-                    className="w-full bg-gradient-to-r from-noteflow-500 to-purple-500 hover:from-noteflow-600 hover:to-purple-600"
-                    disabled={isLoading}
+              <CardTitle className="text-3xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
+                Welcome Back
+              </CardTitle>
+              <CardDescription className="text-gray-400 text-lg">
+                Sign in to your account or create a new one
+              </CardDescription>
+            </CardHeader>
+            
+            <CardContent className="space-y-6">
+              <Tabs defaultValue="signin" className="w-full">
+                <TabsList className="grid w-full grid-cols-2 bg-gray-800/50 border border-gray-700">
+                  <TabsTrigger 
+                    value="signin" 
+                    className="text-gray-300 data-[state=active]:text-white data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-600 data-[state=active]:to-purple-600"
                   >
-                    {isLoading ? (
-                      <>
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        Creating account...
-                      </>
-                    ) : (
-                      'Create Account'
-                    )}
-                  </Button>
-                </form>
-              </TabsContent>
-            </Tabs>
-          </CardContent>
-        </Card>
+                    Sign In
+                  </TabsTrigger>
+                  <TabsTrigger 
+                    value="signup" 
+                    className="text-gray-300 data-[state=active]:text-white data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-600 data-[state=active]:to-purple-600"
+                  >
+                    Sign Up
+                  </TabsTrigger>
+                </TabsList>
+                
+                <TabsContent value="signin" className="space-y-4 mt-6">
+                  <form onSubmit={handleSignIn} className="space-y-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="signin-email" className="text-gray-300">Email</Label>
+                      <div className="relative">
+                        <Mail className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
+                        <Input
+                          id="signin-email"
+                          type="email"
+                          placeholder="Enter your email"
+                          value={email}
+                          onChange={(e) => setEmail(e.target.value)}
+                          className="pl-11 bg-gray-800/50 border-gray-700 text-white placeholder:text-gray-500 focus:border-blue-500 focus:ring-blue-500/20"
+                          disabled={isLoading}
+                          autoComplete="email"
+                        />
+                      </div>
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <Label htmlFor="signin-password" className="text-gray-300">Password</Label>
+                      <div className="relative">
+                        <Lock className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
+                        <Input
+                          id="signin-password"
+                          type="password"
+                          placeholder="Enter your password"
+                          value={password}
+                          onChange={(e) => setPassword(e.target.value)}
+                          className="pl-11 bg-gray-800/50 border-gray-700 text-white placeholder:text-gray-500 focus:border-blue-500 focus:ring-blue-500/20"
+                          disabled={isLoading}
+                          autoComplete="current-password"
+                        />
+                      </div>
+                    </div>
+                    
+                    <Button 
+                      type="submit" 
+                      className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold py-3 rounded-lg shadow-lg hover:shadow-xl transition-all duration-200"
+                      disabled={isLoading}
+                    >
+                      {isLoading ? (
+                        <>
+                          <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                          Signing in...
+                        </>
+                      ) : (
+                        'Sign In'
+                      )}
+                    </Button>
+                  </form>
+                </TabsContent>
+                
+                <TabsContent value="signup" className="space-y-4 mt-6">
+                  <form onSubmit={handleSignUp} className="space-y-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="signup-email" className="text-gray-300">Email</Label>
+                      <div className="relative">
+                        <Mail className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
+                        <Input
+                          id="signup-email"
+                          type="email"
+                          placeholder="Enter your email"
+                          value={email}
+                          onChange={(e) => setEmail(e.target.value)}
+                          className="pl-11 bg-gray-800/50 border-gray-700 text-white placeholder:text-gray-500 focus:border-blue-500 focus:ring-blue-500/20"
+                          disabled={isLoading}
+                          autoComplete="email"
+                        />
+                      </div>
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <Label htmlFor="signup-password" className="text-gray-300">Password</Label>
+                      <div className="relative">
+                        <Lock className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
+                        <Input
+                          id="signup-password"
+                          type="password"
+                          placeholder="Create a password"
+                          value={password}
+                          onChange={(e) => setPassword(e.target.value)}
+                          className="pl-11 bg-gray-800/50 border-gray-700 text-white placeholder:text-gray-500 focus:border-blue-500 focus:ring-blue-500/20"
+                          disabled={isLoading}
+                          autoComplete="new-password"
+                        />
+                      </div>
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <Label htmlFor="confirm-password" className="text-gray-300">Confirm Password</Label>
+                      <div className="relative">
+                        <Lock className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
+                        <Input
+                          id="confirm-password"
+                          type="password"
+                          placeholder="Confirm your password"
+                          value={confirmPassword}
+                          onChange={(e) => setConfirmPassword(e.target.value)}
+                          className="pl-11 bg-gray-800/50 border-gray-700 text-white placeholder:text-gray-500 focus:border-blue-500 focus:ring-blue-500/20"
+                          disabled={isLoading}
+                          autoComplete="new-password"
+                        />
+                      </div>
+                    </div>
+                    
+                    <Button 
+                      type="submit" 
+                      className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold py-3 rounded-lg shadow-lg hover:shadow-xl transition-all duration-200"
+                      disabled={isLoading}
+                    >
+                      {isLoading ? (
+                        <>
+                          <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                          Creating account...
+                        </>
+                      ) : (
+                        'Create Account'
+                      )}
+                    </Button>
+                  </form>
+                </TabsContent>
+              </Tabs>
+            </CardContent>
+          </Card>
+        </div>
       </div>
     </div>
   );
