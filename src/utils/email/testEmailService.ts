@@ -1,5 +1,5 @@
 
-import { sendEmail } from './emailService';
+import { sendEmail } from '../emailService';
 import { subscriptionEmailTemplates } from './subscriptionTemplates';
 import { emailTemplates } from './legacyTemplates';
 
