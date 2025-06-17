@@ -17,11 +17,17 @@ import SignIn from "./pages/SignIn";
 import SignUp from "./pages/SignUp";
 import NotFound from "./pages/NotFound";
 
+// Create query client with proper configuration
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
       staleTime: 5 * 60 * 1000, // 5 minutes
       gcTime: 10 * 60 * 1000, // 10 minutes
+      retry: 1,
+      refetchOnWindowFocus: false,
+    },
+    mutations: {
+      retry: 1,
     },
   },
 });
@@ -32,6 +38,8 @@ if (typeof window !== 'undefined') {
 }
 
 const App: React.FC = () => {
+  console.log('App component rendering');
+  
   return (
     <ErrorBoundaryWrapper>
       <QueryClientProvider client={queryClient}>

@@ -45,15 +45,20 @@ export default defineConfig(({ mode }) => ({
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
+      // Force all React imports to use the same instance
+      "react": path.resolve(__dirname, "./node_modules/react"),
+      "react-dom": path.resolve(__dirname, "./node_modules/react-dom"),
     },
-    // Ensure single React instance
-    dedupe: ['react', 'react-dom'],
+    // Ensure single React instance with more aggressive deduplication
+    dedupe: ['react', 'react-dom', '@tanstack/react-query'],
   },
   build: {
     rollupOptions: {
+      external: [],
       output: {
         manualChunks: {
           vendor: ['react', 'react-dom'],
+          query: ['@tanstack/react-query'],
           editor: [
             '@tiptap/react',
             '@tiptap/starter-kit',
@@ -94,11 +99,12 @@ export default defineConfig(({ mode }) => ({
     include: [
       'react',
       'react-dom',
+      '@tanstack/react-query',
       'lucide-react',
       '@radix-ui/react-tabs',
       '@radix-ui/react-slot'
     ],
-    // Force pre-bundling of React
+    // Force pre-bundling of React and ensure consistency
     force: true,
   },
   define: {
