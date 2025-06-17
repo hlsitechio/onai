@@ -114,7 +114,7 @@ const Hero = () => {
   };
 
   return (
-    <section className="pt-32 pb-16 px-4 relative overflow-hidden min-h-screen">
+    <section className="pt-20 pb-8 px-4 relative overflow-hidden min-h-[70vh] flex items-center">
       {/* Enhanced animated background */}
       <div className="absolute inset-0 z-0">
         {/* Main gradient */}
@@ -145,7 +145,7 @@ const Hero = () => {
       </div>
 
       <motion.div 
-        className="container mx-auto max-w-4xl relative z-10"
+        className="container mx-auto max-w-4xl relative z-10 w-full"
         variants={containerVariants}
         initial="hidden"
         animate="visible"
@@ -153,7 +153,7 @@ const Hero = () => {
         <div className="flex flex-col items-center text-center">
           {/* Floating icons */}
           <motion.div 
-            className="absolute top-20 left-1/4 z-0"
+            className="absolute top-10 left-1/4 z-0"
             variants={floatingVariants}
             animate="float"
           >
@@ -163,7 +163,7 @@ const Hero = () => {
           </motion.div>
           
           <motion.div 
-            className="absolute top-40 right-1/4 z-0"
+            className="absolute top-20 right-1/4 z-0"
             variants={floatingVariants}
             animate="float"
             transition={{ delay: 1 }}
@@ -175,18 +175,18 @@ const Hero = () => {
 
           {/* Main heading with enhanced animation */}
           <motion.div 
-            className="relative mb-8"
+            className="relative mb-6"
             variants={itemVariants}
           >
             <motion.div 
-              className="relative bg-gradient-to-r from-black/40 via-black/20 to-black/40 backdrop-blur-xl p-8 rounded-3xl border border-white/10 shadow-2xl"
+              className="relative bg-gradient-to-r from-black/40 via-black/20 to-black/40 backdrop-blur-xl p-6 rounded-3xl border border-white/10 shadow-2xl"
               whileHover={{ scale: 1.02, borderColor: 'rgba(120, 60, 255, 0.3)' }}
               transition={{ duration: 0.3 }}
             >
               <motion.h1 
-                className="font-poppins font-bold text-5xl md:text-7xl mb-2 text-transparent bg-clip-text bg-gradient-to-r from-white via-noteflow-200 to-purple-300 relative"
+                className="font-poppins font-bold text-4xl md:text-6xl mb-2 text-transparent bg-clip-text bg-gradient-to-r from-white via-noteflow-200 to-purple-300 relative"
               >
-                <span className="h-24 md:h-32 flex items-center justify-center">
+                <span className="h-16 md:h-20 flex items-center justify-center">
                   {displayText}
                   <motion.span 
                     className="text-noteflow-400"
@@ -208,11 +208,11 @@ const Hero = () => {
           
           {/* Simplified description with enhanced styling */}
           <motion.div 
-            className="relative max-w-xl w-full mb-12"
+            className="relative max-w-xl w-full mb-8"
             variants={itemVariants}
           >
             <motion.div 
-              className="relative text-gray-200 text-xl md:text-2xl p-6 rounded-2xl bg-gradient-to-r from-black/30 via-black/40 to-black/30 backdrop-blur-xl border border-white/20"
+              className="relative text-gray-200 text-lg md:text-xl p-4 rounded-2xl bg-gradient-to-r from-black/30 via-black/40 to-black/30 backdrop-blur-xl border border-white/20"
               whileHover={{ scale: 1.02 }}
               transition={{ duration: 0.3 }}
             >
@@ -235,7 +235,7 @@ const Hero = () => {
           >
             <Button 
               onClick={scrollToEditor} 
-              className="relative group overflow-hidden bg-gradient-to-r from-noteflow-600 via-purple-500 to-noteflow-400 hover:from-noteflow-500 hover:via-purple-400 hover:to-noteflow-300 text-white rounded-full px-12 py-8 text-xl font-medium flex items-center gap-3 transition-all duration-500 shadow-2xl shadow-noteflow-500/30 hover:shadow-noteflow-400/40" 
+              className="relative group overflow-hidden bg-gradient-to-r from-noteflow-600 via-purple-500 to-noteflow-400 hover:from-noteflow-500 hover:via-purple-400 hover:to-noteflow-300 text-white rounded-full px-10 py-6 text-lg font-medium flex items-center gap-3 transition-all duration-500 shadow-2xl shadow-noteflow-500/30 hover:shadow-noteflow-400/40" 
             >
               <motion.div
                 className="absolute inset-0 bg-gradient-to-r from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"
@@ -254,7 +254,7 @@ const Hero = () => {
                   animate={{ y: [0, 6, 0] }}
                   transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
                 >
-                  <ArrowDown className="h-6 w-6" />
+                  <ArrowDown className="h-5 w-5" />
                 </motion.div>
               </motion.span>
             </Button>

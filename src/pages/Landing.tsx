@@ -14,16 +14,32 @@ import PricingSection from "@/components/PricingSection";
 const Landing = () => {
   return (
     <DebugWrapper componentName="Landing">
-      <div className="min-h-screen bg-gradient-to-br from-[#020010] via-[#050520] to-[#0a0518]">
-        <Header />
-        <Hero />
-        <SponsorsWallOfFame />
-        <EnhancedFeatures />
-        <FeatureShowcase />
-        <PricingSection />
-        <Footer />
-        <PWAInstaller />
-        <PWAUpdateNotifier />
+      <div className="min-h-screen bg-gradient-to-br from-[#020010] via-[#050520] to-[#0a0518] relative">
+        {/* Global animated background overlay */}
+        <div className="fixed inset-0 z-0 pointer-events-none">
+          <div 
+            className="absolute inset-0 opacity-30"
+            style={{
+              background: `
+                radial-gradient(circle at 20% 50%, rgba(120, 60, 255, 0.15) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(255, 60, 120, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 40% 80%, rgba(60, 255, 200, 0.08) 0%, transparent 50%)
+              `
+            }}
+          />
+        </div>
+        
+        <div className="relative z-10">
+          <Header />
+          <Hero />
+          <SponsorsWallOfFame />
+          <EnhancedFeatures />
+          <FeatureShowcase />
+          <PricingSection />
+          <Footer />
+          <PWAInstaller />
+          <PWAUpdateNotifier />
+        </div>
       </div>
     </DebugWrapper>
   );
