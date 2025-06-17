@@ -124,6 +124,7 @@ const SignUp = () => {
                     onChange={(e) => setEmail(e.target.value)}
                     className="pl-10 bg-white/5 border-white/10 text-white"
                     disabled={isLoading}
+                    autoComplete="email"
                   />
                 </div>
               </div>
@@ -140,6 +141,7 @@ const SignUp = () => {
                     onChange={(e) => setPassword(e.target.value)}
                     className="pl-10 bg-white/5 border-white/10 text-white"
                     disabled={isLoading}
+                    autoComplete="new-password"
                   />
                 </div>
               </div>
@@ -156,6 +158,7 @@ const SignUp = () => {
                     onChange={(e) => setConfirmPassword(e.target.value)}
                     className="pl-10 bg-white/5 border-white/10 text-white"
                     disabled={isLoading}
+                    autoComplete="new-password"
                   />
                 </div>
               </div>
