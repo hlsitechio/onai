@@ -144,6 +144,30 @@ export const useNotesManager = () => {
     }
   }, [user, currentNote, toast]);
 
+  // Rename a note
+  const renameNote = useCallback(async (noteId: string, newTitle: string) => {
+    if (!user) return false;
+
+    try {
+      const result = await saveNote(noteId, { title: newTitle });
+      if (result) {
+        toast({
+          title: 'Note renamed',
+          description: `Note renamed to "${newTitle}"`,
+        });
+      }
+      return result;
+    } catch (error) {
+      console.error('Error renaming note:', error);
+      toast({
+        title: 'Error renaming note',
+        description: error instanceof Error ? error.message : 'Unknown error',
+        variant: 'destructive',
+      });
+      return false;
+    }
+  }, [user, saveNote, toast]);
+
   // Delete a note
   const deleteNote = useCallback(async (noteId: string) => {
     if (!user) return false;
@@ -208,6 +232,7 @@ export const useNotesManager = () => {
     createNote,
     saveNote,
     deleteNote,
+    renameNote,
     autoSave,
     refreshNotes: loadNotes,
   };

@@ -8,7 +8,7 @@ import { Label } from '@/components/ui/label';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2, User, Mail } from 'lucide-react';
+import { Loader2, User, Mail, AlertCircle } from 'lucide-react';
 
 interface UserProfile {
   id: string;
@@ -26,10 +26,14 @@ const UserProfile: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [displayName, setDisplayName] = useState('');
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if (user) {
       loadProfile();
+    } else {
+      setLoading(false);
+      setError('No user session found');
     }
   }, [user]);
 
@@ -37,6 +41,7 @@ const UserProfile: React.FC = () => {
     if (!user) return;
 
     try {
+      setError(null);
       const { data, error } = await supabase
         .from('user_profiles')
         .select('*')
@@ -68,12 +73,19 @@ const UserProfile: React.FC = () => {
 
         setProfile(createdProfile);
         setDisplayName(createdProfile.display_name || '');
+        
+        toast({
+          title: 'Profile created',
+          description: 'Your profile has been created successfully.',
+        });
       }
     } catch (error) {
       console.error('Error loading profile:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      setError(errorMessage);
       toast({
         title: 'Error loading profile',
-        description: error instanceof Error ? error.message : 'Unknown error',
+        description: errorMessage,
         variant: 'destructive',
       });
     } finally {
@@ -86,17 +98,19 @@ const UserProfile: React.FC = () => {
 
     try {
       setSaving(true);
+      setError(null);
+      
       const { error } = await supabase
         .from('user_profiles')
         .update({
-          display_name: displayName,
+          display_name: displayName.trim(),
           updated_at: new Date().toISOString(),
         })
         .eq('id', user.id);
 
       if (error) throw error;
 
-      setProfile(prev => prev ? { ...prev, display_name: displayName } : null);
+      setProfile(prev => prev ? { ...prev, display_name: displayName.trim() } : null);
 
       toast({
         title: 'Profile updated',
@@ -104,9 +118,11 @@ const UserProfile: React.FC = () => {
       });
     } catch (error) {
       console.error('Error saving profile:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      setError(errorMessage);
       toast({
         title: 'Error saving profile',
-        description: error instanceof Error ? error.message : 'Unknown error',
+        description: errorMessage,
         variant: 'destructive',
       });
     } finally {
@@ -115,6 +131,7 @@ const UserProfile: React.FC = () => {
   };
 
   const getInitials = (name: string) => {
+    if (!name) return 'U';
     return name
       .split(' ')
       .map(word => word.charAt(0))
@@ -126,7 +143,22 @@ const UserProfile: React.FC = () => {
   if (loading) {
     return (
       <div className="flex items-center justify-center p-8">
-        <Loader2 className="h-6 w-6 animate-spin text-noteflow-400" />
+        <div className="text-center">
+          <Loader2 className="h-8 w-8 animate-spin text-noteflow-400 mx-auto mb-4" />
+          <p className="text-gray-300">Loading profile...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="text-center p-8">
+        <AlertCircle className="h-12 w-12 text-red-400 mx-auto mb-4" />
+        <p className="text-red-400 mb-4">{error}</p>
+        <Button onClick={loadProfile} variant="outline" className="border-white/10">
+          Try Again
+        </Button>
       </div>
     );
   }
@@ -134,7 +166,11 @@ const UserProfile: React.FC = () => {
   if (!profile) {
     return (
       <div className="text-center p-8">
-        <p className="text-gray-400">Unable to load profile</p>
+        <AlertCircle className="h-12 w-12 text-yellow-400 mx-auto mb-4" />
+        <p className="text-gray-400 mb-4">Unable to load profile</p>
+        <Button onClick={loadProfile} className="bg-noteflow-500 hover:bg-noteflow-600">
+          Retry Loading Profile
+        </Button>
       </div>
     );
   }
@@ -181,12 +217,13 @@ const UserProfile: React.FC = () => {
             onChange={(e) => setDisplayName(e.target.value)}
             placeholder="Enter your display name"
             className="bg-white/5 border-white/10 text-white"
+            maxLength={50}
           />
         </div>
 
         <Button
           onClick={saveProfile}
-          disabled={saving || displayName === profile.display_name}
+          disabled={saving || displayName.trim() === profile.display_name || !displayName.trim()}
           className="w-full bg-noteflow-500 hover:bg-noteflow-600"
         >
           {saving ? (

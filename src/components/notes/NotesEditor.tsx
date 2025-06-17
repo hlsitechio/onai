@@ -22,7 +22,6 @@ const NotesEditor: React.FC<NotesEditorProps> = ({ className }) => {
 
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
-  const [isEditing, setIsEditing] = useState(false);
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const { toast } = useToast();
 

@@ -26,10 +26,12 @@ const NotesSidebar: React.FC<NotesSidebarProps> = ({ className }) => {
     loading,
     createNote,
     deleteNote,
+    renameNote,
   } = useNotesManager();
   
   const [searchQuery, setSearchQuery] = useState('');
   const [editingNoteId, setEditingNoteId] = useState<string | null>(null);
+  const [editingTitle, setEditingTitle] = useState('');
 
   const filteredNotes = notes.filter(note =>
     note.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -50,6 +52,25 @@ const NotesSidebar: React.FC<NotesSidebarProps> = ({ className }) => {
   const handleNoteSelect = (note: typeof notes[0]) => {
     setCurrentNote(note);
     setEditingNoteId(null);
+  };
+
+  const handleStartRename = (note: typeof notes[0], e: React.MouseEvent) => {
+    e.stopPropagation();
+    setEditingNoteId(note.id);
+    setEditingTitle(note.title);
+  };
+
+  const handleFinishRename = async (noteId: string) => {
+    if (editingTitle.trim()) {
+      await renameNote(noteId, editingTitle.trim());
+    }
+    setEditingNoteId(null);
+    setEditingTitle('');
+  };
+
+  const handleCancelRename = () => {
+    setEditingNoteId(null);
+    setEditingTitle('');
   };
 
   if (loading) {
@@ -122,9 +143,27 @@ const NotesSidebar: React.FC<NotesSidebarProps> = ({ className }) => {
                     <div className="flex items-start space-x-2 flex-1 min-w-0">
                       <FileText className={`h-3.5 w-3.5 text-noteflow-400 mt-0.5 shrink-0 ${currentNote?.id === note.id ? 'opacity-100' : 'opacity-50'}`} />
                       <div className="flex-1 min-w-0">
-                        <h3 className="font-medium text-white truncate text-sm">
-                          {note.title || 'Untitled'}
-                        </h3>
+                        {editingNoteId === note.id ? (
+                          <Input
+                            value={editingTitle}
+                            onChange={(e) => setEditingTitle(e.target.value)}
+                            onBlur={() => handleFinishRename(note.id)}
+                            onKeyDown={(e) => {
+                              if (e.key === 'Enter') {
+                                handleFinishRename(note.id);
+                              } else if (e.key === 'Escape') {
+                                handleCancelRename();
+                              }
+                            }}
+                            className="bg-white/10 border-white/20 text-white text-sm h-6 px-2"
+                            autoFocus
+                            onClick={(e) => e.stopPropagation()}
+                          />
+                        ) : (
+                          <h3 className="font-medium text-white truncate text-sm">
+                            {note.title || 'Untitled'}
+                          </h3>
+                        )}
                         <p className="text-xs text-gray-400 line-clamp-2 mt-1">
                           {note.content.replace(/<[^>]*>/g, '').substring(0, 100) || 'No content'}
                         </p>
@@ -147,10 +186,7 @@ const NotesSidebar: React.FC<NotesSidebarProps> = ({ className }) => {
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end" className="bg-black/90 border-white/10">
                         <DropdownMenuItem
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setEditingNoteId(note.id);
-                          }}
+                          onClick={(e) => handleStartRename(note, e)}
                           className="text-gray-300 hover:text-white hover:bg-white/10"
                         >
                           <Edit className="h-4 w-4 mr-2" />
