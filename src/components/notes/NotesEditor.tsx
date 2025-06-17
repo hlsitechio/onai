@@ -1,5 +1,6 @@
+
 import React, { useEffect, useState } from 'react';
-import { useNotesManager } from '@/hooks/useNotesManager';
+import { useNotesManager } from '@/hooks/useNotesManager.tsx';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Save, FileText, Edit3, Bold, Italic, Code, ListOrdered, ListCheck, Quote, Heading, Image, Link } from 'lucide-react';

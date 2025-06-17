@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { useNotesManager } from '@/hooks/useNotesManager';
+import { useNotesManager } from '@/hooks/useNotesManager.tsx';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Plus, FileText, Trash2, Calendar } from 'lucide-react';
