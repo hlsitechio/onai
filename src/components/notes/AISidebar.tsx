@@ -2,7 +2,7 @@
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Sparkles, InfoIcon, AlertTriangle, ShieldCheck, Clock, Bot, ExternalLink, Crown } from "lucide-react";
+import { Sparkles, InfoIcon, AlertTriangle, ShieldCheck, Clock, Bot, ExternalLink, Crown, Settings } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
@@ -53,8 +53,10 @@ const AISidebar: React.FC<AISidebarProps> = ({
       const { data: { session } } = await supabase.auth.getSession();
       
       if (!session) {
-        throw new Error('No active session');
+        throw new Error('No active session found. Please sign in again.');
       }
+
+      console.log('Invoking stripe-checkout function...');
 
       const { data, error } = await supabase.functions.invoke('stripe-checkout', {
         body: {
@@ -67,11 +69,26 @@ const AISidebar: React.FC<AISidebarProps> = ({
         },
       });
 
+      console.log('Stripe checkout response:', { data, error });
+
       if (error) {
+        console.error('Stripe checkout error:', error);
+        
+        // Check if it's a configuration issue
+        if (error.message?.includes('Failed to fetch') || error.message?.includes('STRIPE_SECRET_KEY')) {
+          toast({
+            title: "Configuration needed",
+            description: "Stripe integration needs to be configured. Please set up your Stripe secret key in the project settings.",
+            variant: "destructive",
+          });
+          return;
+        }
+        
         throw error;
       }
 
       if (data?.url) {
+        console.log('Opening Stripe checkout URL:', data.url);
         // Open Stripe checkout in a new tab
         window.open(data.url, '_blank');
         
@@ -79,12 +96,27 @@ const AISidebar: React.FC<AISidebarProps> = ({
           title: "Redirecting to payment",
           description: "Opening Stripe checkout in a new tab..."
         });
+      } else {
+        throw new Error('No checkout URL received from Stripe');
       }
     } catch (error) {
       console.error('Upgrade error:', error);
+      
+      let errorMessage = "There was an error processing your upgrade. Please try again.";
+      
+      if (error instanceof Error) {
+        if (error.message.includes('Failed to fetch')) {
+          errorMessage = "Unable to connect to payment service. Please check your internet connection and try again.";
+        } else if (error.message.includes('STRIPE_SECRET_KEY')) {
+          errorMessage = "Payment service is not configured. Please contact support.";
+        } else {
+          errorMessage = error.message;
+        }
+      }
+      
       toast({
         title: "Upgrade failed",
-        description: "There was an error processing your upgrade. Please try again.",
+        description: errorMessage,
         variant: "destructive",
       });
     } finally {
