@@ -1,5 +1,4 @@
-
-import { lowlight } from 'lowlight/lib/core';
+import { lowlight } from 'lowlight';
 
 export const editorClassNames = {
   base: `
