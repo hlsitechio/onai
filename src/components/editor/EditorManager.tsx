@@ -266,73 +266,34 @@ const EditorManager: React.FC = () => {
           }}
         />
       </div>
-
-      {/* Focus mode overlay */}
-      {isFocusMode && (
-        <div className="fixed inset-0 z-[100] bg-black/80 backdrop-blur-sm animate-fadeIn" />
-      )}
       
-      {/* Main content container */}
+      {/* Main content container with focus mode handling */}
       <div className={cn(
-        "w-full h-screen relative",
-        isFocusMode ? "z-[101]" : "z-10"
+        "w-full h-screen relative z-10",
+        isFocusMode && "z-[101]"
       )}>
-        {/* Header */}
-        <div className="absolute top-0 left-0 right-0 z-20 bg-black/20 backdrop-blur-sm border-b border-white/10">
-          <div className="flex items-center justify-between h-16 px-6">
-            <div className="flex items-center space-x-4">
-              <h1 className="text-xl font-bold bg-gradient-to-r from-noteflow-400 to-purple-400 bg-clip-text text-transparent">
-                Online Note AI
-              </h1>
+        {/* Header - conditionally rendered based on focus mode */}
+        {!isFocusMode && (
+          <div className="absolute top-0 left-0 right-0 z-20 bg-black/20 backdrop-blur-sm border-b border-white/10">
+            <div className="flex items-center justify-between h-16 px-6">
+              <div className="flex items-center space-x-4">
+                <h1 className="text-xl font-bold bg-gradient-to-r from-noteflow-400 to-purple-400 bg-clip-text text-transparent">
+                  Online Note AI
+                </h1>
+              </div>
+              <UserMenu />
             </div>
-            <UserMenu />
           </div>
-        </div>
+        )}
 
         {/* Main Content */}
-        <div className="w-full h-full pt-16 overflow-hidden">
-          <ResizablePanelGroup 
-            direction="horizontal" 
-            className="h-full w-full"
-            autoSaveId="noteflow-main-layout"
-          >
-            {/* Left sidebar - Notes */}
-            {isLeftSidebarOpen && !isFocusMode && (
-              <>
-                <ResizablePanel 
-                  id="notes-panel"
-                  defaultSize={25} 
-                  minSize={15} 
-                  maxSize={45}
-                  collapsible={false}
-                  className="min-w-0"
-                >
-                  <SidebarPanel>
-                    <NotesSidebar 
-                      currentContent={content} 
-                      onLoadNote={handleNoteLoad}
-                      onSave={handleSave}
-                      onDeleteNote={handleDeleteNote}
-                      editorHeight={0}
-                      allNotes={allNotes}
-                      onCreateNew={createNewNote}
-                      onImportNotes={handleImportNotes}
-                    />
-                  </SidebarPanel>
-                </ResizablePanel>
-                <ResizableHandle 
-                  withHandle={true}
-                  className="w-2 hover:w-3 transition-all duration-200 z-30"
-                />
-              </>
-            )}
-            
-            {/* Main editor panel */}
-            <ResizablePanel 
-              id="editor-panel"
-              minSize={30}
-              className="flex flex-col min-w-0"
-            >
+        <div className={cn(
+          "w-full h-full overflow-hidden",
+          !isFocusMode && "pt-16"  
+        )}>
+          {isFocusMode ? (
+            // Focus mode layout - simplified single panel
+            <div className="h-full w-full bg-black">
               <div className={cn(
                 "flex flex-col h-full transition-all duration-300 ease-in-out",
                 "bg-gradient-to-br from-[#03010a] to-[#0a0518]",
@@ -345,8 +306,8 @@ const EditorManager: React.FC = () => {
                   handleSave={handleSave}
                   toggleLeftSidebar={toggleLeftSidebar}
                   toggleAISidebar={toggleAISidebar}
-                  isLeftSidebarOpen={isLeftSidebarOpen}
-                  isAISidebarOpen={isAISidebarOpen}
+                  isLeftSidebarOpen={false}
+                  isAISidebarOpen={false}
                   lastSaved={lastSavedString}
                   isFocusMode={isFocusMode}
                   toggleFocusMode={toggleFocusMode}
@@ -361,36 +322,115 @@ const EditorManager: React.FC = () => {
                   />
                 </div>
               </div>
-            </ResizablePanel>
-            
-            {/* Right sidebar - AI Assistant */}
-            {isAISidebarOpen && !isFocusMode && (
-              <>
-                <ResizableHandle 
-                  withHandle={true}
-                  className="w-2 hover:w-3 transition-all duration-200 z-30"
-                />
-                <ResizablePanel 
-                  id="ai-panel"
-                  defaultSize={25} 
-                  minSize={15} 
-                  maxSize={45}
-                  collapsible={false}
-                  className="min-w-0"
-                >
-                  <SidebarPanel>
-                    <AISidebar
+            </div>
+          ) : (
+            // Normal mode layout - resizable panels
+            <ResizablePanelGroup 
+              direction="horizontal" 
+              className="h-full w-full"
+              autoSaveId="noteflow-main-layout"
+            >
+              {/* Left sidebar - Notes */}
+              {isLeftSidebarOpen && (
+                <>
+                  <ResizablePanel 
+                    id="notes-panel"
+                    defaultSize={25} 
+                    minSize={15} 
+                    maxSize={45}
+                    collapsible={false}
+                    className="min-w-0"
+                  >
+                    <SidebarPanel>
+                      <NotesSidebar 
+                        currentContent={content} 
+                        onLoadNote={handleNoteLoad}
+                        onSave={handleSave}
+                        onDeleteNote={handleDeleteNote}
+                        editorHeight={0}
+                        allNotes={allNotes}
+                        onCreateNew={createNewNote}
+                        onImportNotes={handleImportNotes}
+                      />
+                    </SidebarPanel>
+                  </ResizablePanel>
+                  <ResizableHandle 
+                    withHandle={true}
+                    className="w-2 hover:w-3 transition-all duration-200 z-30"
+                  />
+                </>
+              )}
+              
+              {/* Main editor panel */}
+              <ResizablePanel 
+                id="editor-panel"
+                minSize={30}
+                className="flex flex-col min-w-0"
+              >
+                <div className={cn(
+                  "flex flex-col h-full transition-all duration-300 ease-in-out",
+                  "bg-gradient-to-br from-[#03010a] to-[#0a0518]",
+                  "rounded-lg border border-white/5 overflow-hidden",
+                  "shadow-[0_8px_30px_rgb(0,0,0,0.4)]"
+                )}>
+                  {/* Editor Toolbar */}
+                  <EditorToolbar
+                    execCommand={execCommand}
+                    handleSave={handleSave}
+                    toggleLeftSidebar={toggleLeftSidebar}
+                    toggleAISidebar={toggleAISidebar}
+                    isLeftSidebarOpen={isLeftSidebarOpen}
+                    isAISidebarOpen={isAISidebarOpen}
+                    lastSaved={lastSavedString}
+                    isFocusMode={isFocusMode}
+                    toggleFocusMode={toggleFocusMode}
+                  />
+
+                  {/* Main Editor Area */}
+                  <div className="flex-1 relative overflow-hidden">
+                    <TiptapEditor
                       content={content}
-                      onApplyChanges={setContent}
-                      editorHeight={0}
+                      setContent={setContent}
+                      isFocusMode={isFocusMode}
                     />
-                  </SidebarPanel>
-                </ResizablePanel>
-              </>
-            )}
-          </ResizablePanelGroup>
+                  </div>
+                </div>
+              </ResizablePanel>
+              
+              {/* Right sidebar - AI Assistant */}
+              {isAISidebarOpen && (
+                <>
+                  <ResizableHandle 
+                    withHandle={true}
+                    className="w-2 hover:w-3 transition-all duration-200 z-30"
+                  />
+                  <ResizablePanel 
+                    id="ai-panel"
+                    defaultSize={25} 
+                    minSize={15} 
+                    maxSize={45}
+                    collapsible={false}
+                    className="min-w-0"
+                  >
+                    <SidebarPanel>
+                      <AISidebar
+                        content={content}
+                        onApplyChanges={setContent}
+                        editorHeight={0}
+                      />
+                    </SidebarPanel>
+                  </ResizablePanel>
+                </>
+              )}
+            </ResizablePanelGroup>
+          )}
         </div>
       </div>
+
+      {/* Focus mode overlay - only when transitioning */}
+      {isFocusMode && (
+        <div className="fixed inset-0 z-[100] bg-black/95 backdrop-blur-sm pointer-events-none animate-fadeIn" />
+      )}
     </div>
   );
 };
