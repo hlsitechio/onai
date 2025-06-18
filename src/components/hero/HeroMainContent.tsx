@@ -40,9 +40,9 @@ const HeroMainContent = () => {
         </motion.div>
       </motion.div>
       
-      {/* Subtitle text */}
+      {/* Enhanced subtitle text with more content */}
       <motion.div 
-        className="relative max-w-xl w-full mb-8"
+        className="relative max-w-2xl w-full mb-8 space-y-4"
         variants={itemVariants}
       >
         <motion.div 
@@ -59,6 +59,33 @@ const HeroMainContent = () => {
             <span className="font-medium text-white">AI-Enhanced Notes.</span>{' '}
             <span className="bg-gradient-to-r from-noteflow-400 to-purple-400 bg-clip-text text-transparent font-medium">Pure Simplicity.</span>
           </motion.p>
+        </motion.div>
+
+        {/* Additional descriptive text */}
+        <motion.div 
+          className="relative text-gray-300 text-base md:text-lg p-4 rounded-xl bg-gradient-to-r from-black/20 via-black/30 to-black/20 backdrop-blur-xl border border-white/10"
+          whileHover={{ scale: 1.01 }}
+          transition={{ duration: 0.3 }}
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.7, duration: 0.8 }}
+        >
+          <p className="text-gray-200 relative z-10">
+            Transform your thoughts into organized, intelligent notes with the power of artificial intelligence. 
+            Experience seamless writing, smart suggestions, and effortless organization.
+          </p>
+        </motion.div>
+
+        {/* Feature highlights */}
+        <motion.div 
+          className="relative text-sm md:text-base p-3 rounded-lg bg-gradient-to-r from-black/15 via-black/25 to-black/15 backdrop-blur-xl border border-white/5"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.9, duration: 0.8 }}
+        >
+          <p className="text-gray-400 relative z-10">
+            ✨ Smart AI assistance • 🔒 Secure & private • 📱 Works everywhere • ⚡ Lightning fast
+          </p>
         </motion.div>
       </motion.div>
       
