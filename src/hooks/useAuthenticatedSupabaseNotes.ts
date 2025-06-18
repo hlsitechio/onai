@@ -1,5 +1,4 @@
-
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import { 
@@ -22,12 +21,19 @@ export function useAuthenticatedSupabaseNotes() {
   const [isLoading, setIsLoading] = useState(true);
   const [allNotes, setAllNotes] = useState<Record<string, string>>({});
   const [isSupabaseReady, setIsSupabaseReady] = useState(false);
+  
+  // Add refs to prevent excessive polling
+  const initializationComplete = useRef(false);
+  const lastFetchTime = useRef<number>(0);
+  const fetchCooldown = 5000; // 5 seconds minimum between fetches
 
   // Initialize Supabase schema when user is authenticated
   useEffect(() => {
     const initialize = async () => {
-      if (authLoading || !user) {
-        setIsLoading(false);
+      if (authLoading || !user || initializationComplete.current) {
+        if (!authLoading && !user) {
+          setIsLoading(false);
+        }
         return;
       }
 
@@ -36,6 +42,7 @@ export function useAuthenticatedSupabaseNotes() {
         
         const result = await initializeSupabaseSchema();
         setIsSupabaseReady(result.success);
+        initializationComplete.current = true;
         
         if (!result.success) {
           console.error('Failed to initialize Supabase schema:', result.error);
@@ -50,6 +57,7 @@ export function useAuthenticatedSupabaseNotes() {
       } catch (error) {
         console.error('Error initializing Supabase:', error);
         setIsSupabaseReady(false);
+        initializationComplete.current = true;
         toast({
           title: 'Initialization Error',
           description: 'There was an error connecting to the database.',
@@ -64,12 +72,21 @@ export function useAuthenticatedSupabaseNotes() {
   // Load content from Supabase when ready and authenticated
   useEffect(() => {
     const loadSavedNotes = async () => {
-      if (!isSupabaseReady || !user) {
+      if (!isSupabaseReady || !user || !initializationComplete.current) {
+        setIsLoading(false);
+        return;
+      }
+
+      // Prevent excessive API calls
+      const now = Date.now();
+      if (now - lastFetchTime.current < fetchCooldown) {
         setIsLoading(false);
         return;
       }
 
       setIsLoading(true);
+      lastFetchTime.current = now;
+
       try {
         console.log('Loading notes for authenticated user...');
         
@@ -195,9 +212,13 @@ export function useAuthenticatedSupabaseNotes() {
       setLastSaved(new Date());
       localStorage.setItem('onlinenote-last-edited-id', noteId);
       
-      // Refresh the notes list
-      const updatedNotes = await getAllNotesFromSupabase();
-      setAllNotes(updatedNotes);
+      // Refresh the notes list with cooldown check
+      const now = Date.now();
+      if (now - lastFetchTime.current >= fetchCooldown) {
+        lastFetchTime.current = now;
+        const updatedNotes = await getAllNotesFromSupabase();
+        setAllNotes(updatedNotes);
+      }
       
       toast({
         title: 'Saved successfully',
@@ -296,9 +317,13 @@ export function useAuthenticatedSupabaseNotes() {
         localStorage.removeItem('onlinenote-last-edited-id');
       }
       
-      // Refresh notes list
-      const updatedNotes = await getAllNotesFromSupabase();
-      setAllNotes(updatedNotes);
+      // Refresh notes list with cooldown check
+      const now = Date.now();
+      if (now - lastFetchTime.current >= fetchCooldown) {
+        lastFetchTime.current = now;
+        const updatedNotes = await getAllNotesFromSupabase();
+        setAllNotes(updatedNotes);
+      }
       
       toast({
         title: 'Note deleted',
