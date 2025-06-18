@@ -1,7 +1,7 @@
 
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
-import { ArrowDown } from "lucide-react";
+import { ArrowDown, Zap, Layers } from "lucide-react";
 import HeroTextAnimations from "./HeroTextAnimations";
 import HeroFloatingIcons from "./HeroFloatingIcons";
 
@@ -93,6 +93,7 @@ const HeroMainContent = () => {
         variants={itemVariants}
         whileHover={{ scale: 1.05 }}
         whileTap={{ scale: 0.95 }}
+        className="mb-6"
       >
         <Button 
           onClick={scrollToEditor} 
@@ -118,6 +119,30 @@ const HeroMainContent = () => {
               <ArrowDown className="h-5 w-5" />
             </motion.div>
           </motion.span>
+        </Button>
+      </motion.div>
+
+      {/* Additional buttons for Features and Technologies */}
+      <motion.div 
+        className="flex flex-wrap items-center justify-center gap-4"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 1.1, duration: 0.8 }}
+      >
+        <Button 
+          variant="outline"
+          className="border-white/20 text-gray-300 hover:text-white hover:bg-white/10 rounded-full px-6 py-3 flex items-center gap-2 transition-all duration-300"
+        >
+          <Zap className="h-4 w-4" />
+          Features
+        </Button>
+        
+        <Button 
+          variant="outline"
+          className="border-white/20 text-gray-300 hover:text-white hover:bg-white/10 rounded-full px-6 py-3 flex items-center gap-2 transition-all duration-300"
+        >
+          <Layers className="h-4 w-4" />
+          Technologies
         </Button>
       </motion.div>
     </div>
