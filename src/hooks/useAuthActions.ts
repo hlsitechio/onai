@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
@@ -50,7 +49,7 @@ export const useAuthActions = () => {
           title: 'Welcome back!',
           description: 'You have been signed in successfully.',
         });
-        navigate('/');
+        navigate('/app');
       }
     } catch (error) {
       logger.error('Sign-in error:', error);

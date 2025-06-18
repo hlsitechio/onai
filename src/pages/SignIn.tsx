@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
@@ -20,7 +21,7 @@ const SignIn = () => {
   // Redirect if already authenticated
   useEffect(() => {
     if (user) {
-      navigate('/');
+      navigate('/app');
     }
   }, [user, navigate]);
 
@@ -62,7 +63,7 @@ const SignIn = () => {
           title: 'Welcome back!',
           description: 'You have been signed in successfully.',
         });
-        navigate('/');
+        navigate('/app');
       }
     } catch (error) {
       toast({
