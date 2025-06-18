@@ -3,6 +3,8 @@ import React from 'react'
 import ReactDOM from 'react-dom/client'
 import App from './App.tsx'
 import './index.css'
+import { initializeFormValidation } from './utils/formValidationUtils'
+import { initializeBrowserCompatibility } from './utils/browserCompatibilityUtils'
 
 // Ensure React is properly loaded before proceeding
 if (!React || typeof React.createElement !== 'function') {
@@ -31,6 +33,10 @@ if (!rootElement) {
 
 console.log('React version:', React.version);
 console.log('Starting OneAI Notes application...');
+
+// Initialize browser compatibility checks and form validation
+initializeBrowserCompatibility();
+initializeFormValidation();
 
 const root = ReactDOM.createRoot(rootElement);
 

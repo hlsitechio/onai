@@ -1,9 +1,8 @@
 
 import React from 'react';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Loader2, Mail, Lock } from 'lucide-react';
+import { FormField } from '@/components/ui/form-field';
+import { Loader2 } from 'lucide-react';
 import { SignInData } from '@/hooks/useAuthForms';
 
 interface SignInFormProps {
@@ -25,40 +24,28 @@ export const SignInForm: React.FC<SignInFormProps> = ({
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
-      <div className="space-y-2">
-        <Label htmlFor="signin-email">Email</Label>
-        <div className="relative">
-          <Mail className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-          <Input
-            id="signin-email"
-            type="email"
-            placeholder="Enter your email"
-            value={signInData.email}
-            onChange={(e) => updateSignInData('email', e.target.value)}
-            className="pl-10 bg-white/5 border-white/10 text-white"
-            disabled={isLoading}
-            autoComplete="email"
-          />
-        </div>
-      </div>
+    <form onSubmit={handleSubmit} className="space-y-4" noValidate>
+      <FormField
+        label="Email"
+        name="email"
+        type="email"
+        placeholder="Enter your email"
+        value={signInData.email}
+        onChange={(e) => updateSignInData('email', e.target.value)}
+        className="bg-white/5 border-white/10 text-white"
+        required
+      />
       
-      <div className="space-y-2">
-        <Label htmlFor="signin-password">Password</Label>
-        <div className="relative">
-          <Lock className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-          <Input
-            id="signin-password"
-            type="password"
-            placeholder="Enter your password"
-            value={signInData.password}
-            onChange={(e) => updateSignInData('password', e.target.value)}
-            className="pl-10 bg-white/5 border-white/10 text-white"
-            disabled={isLoading}
-            autoComplete="current-password"
-          />
-        </div>
-      </div>
+      <FormField
+        label="Password"
+        name="password"
+        type="password"
+        placeholder="Enter your password"
+        value={signInData.password}
+        onChange={(e) => updateSignInData('password', e.target.value)}
+        className="bg-white/5 border-white/10 text-white"
+        required
+      />
       
       <Button 
         type="submit" 
