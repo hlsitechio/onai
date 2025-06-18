@@ -30,6 +30,8 @@ const TiptapEditor: React.FC<TiptapEditorProps> = ({
   const editor = useEditor({
     extensions: [
       StarterKit.configure({
+        // Disable dropCursor from StarterKit to avoid duplication
+        dropCursor: false,
         heading: {
           levels: [1, 2, 3],
           HTMLAttributes: {
