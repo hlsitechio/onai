@@ -9,7 +9,7 @@ export const getUtilityExtensions = (): Extension[] => {
     Placeholder.configure({
       placeholder: ({ node }) => {
         if (node.type.name === 'heading') {
-          return 'What's the title?';
+          return 'What\'s the title?';
         }
         return 'Start writing your thoughts...';
       },
@@ -24,8 +24,8 @@ export const getUtilityExtensions = (): Extension[] => {
     Typography.configure({
       openDoubleQuote: '"',
       closeDoubleQuote: '"',
-      openSingleQuote: ''',
-      closeSingleQuote: ''',
+      openSingleQuote: '\'',
+      closeSingleQuote: '\'',
     }),
   ];
 };
