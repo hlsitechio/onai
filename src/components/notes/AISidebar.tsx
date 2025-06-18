@@ -73,17 +73,6 @@ const AISidebar: React.FC<AISidebarProps> = ({
 
       if (error) {
         console.error('Stripe checkout error:', error);
-        
-        // Check if it's a configuration issue
-        if (error.message?.includes('Failed to fetch') || error.message?.includes('STRIPE_SECRET_KEY')) {
-          toast({
-            title: "Configuration needed",
-            description: "Stripe integration needs to be configured. Please set up your Stripe secret key in the project settings.",
-            variant: "destructive",
-          });
-          return;
-        }
-        
         throw error;
       }
 
@@ -105,13 +94,7 @@ const AISidebar: React.FC<AISidebarProps> = ({
       let errorMessage = "There was an error processing your upgrade. Please try again.";
       
       if (error instanceof Error) {
-        if (error.message.includes('Failed to fetch')) {
-          errorMessage = "Unable to connect to payment service. Please check your internet connection and try again.";
-        } else if (error.message.includes('STRIPE_SECRET_KEY')) {
-          errorMessage = "Payment service is not configured. Please contact support.";
-        } else {
-          errorMessage = error.message;
-        }
+        errorMessage = error.message;
       }
       
       toast({

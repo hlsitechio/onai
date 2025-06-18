@@ -9,6 +9,7 @@ import Index from '@/pages/Index';
 import AppPage from '@/pages/App';
 import SignIn from '@/pages/SignIn';
 import SignUp from '@/pages/SignUp';
+import Success from '@/pages/Success';
 import NotFound from '@/pages/NotFound';
 import ErrorBoundaryWrapper from '@/components/ErrorBoundaryWrapper';
 import ReactCompatibilityCheck from '@/components/ReactCompatibilityCheck';
@@ -24,6 +25,7 @@ function App() {
                 <Route path="/auth" element={<Auth />} />
                 <Route path="/signin" element={<SignIn />} />
                 <Route path="/signup" element={<SignUp />} />
+                <Route path="/success" element={<Success />} />
                 <Route path="/app" element={
                   <AuthGuard>
                     <AppPage />
