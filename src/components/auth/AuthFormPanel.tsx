@@ -14,6 +14,7 @@ export const AuthFormPanel: React.FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [hoveredTab, setHoveredTab] = useState<string | null>(null);
   
   const { signUp, signIn } = useAuth();
   const { toast } = useToast();
@@ -181,21 +182,40 @@ export const AuthFormPanel: React.FC = () => {
             
             <CardContent className="space-y-6 relative">
               <Tabs defaultValue="signin" className="w-full">
-                {/* Enhanced Tab List */}
-                <TabsList className="grid w-full grid-cols-2 bg-white/5 backdrop-blur-sm border border-white/10 rounded-lg p-1">
-                  <TabsTrigger 
-                    value="signin" 
-                    className="relative text-gray-300 data-[state=active]:text-white data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-600 data-[state=active]:to-purple-600 data-[state=active]:shadow-lg data-[state=active]:shadow-blue-500/25 rounded-md transition-all duration-300"
-                  >
-                    Sign In
-                  </TabsTrigger>
-                  <TabsTrigger 
-                    value="signup" 
-                    className="relative text-gray-300 data-[state=active]:text-white data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-600 data-[state=active]:to-purple-600 data-[state=active]:shadow-lg data-[state=active]:shadow-purple-500/25 rounded-md transition-all duration-300"
-                  >
-                    Sign Up
-                  </TabsTrigger>
-                </TabsList>
+                {/* Enhanced Tab List with Hover Effect */}
+                <div className="relative">
+                  <TabsList className="grid w-full grid-cols-2 bg-white/5 backdrop-blur-sm border border-white/10 rounded-lg p-1 relative overflow-hidden">
+                    {/* Moving background effect */}
+                    <div 
+                      className={`absolute top-1 bottom-1 w-[calc(50%-4px)] bg-gradient-to-r transition-all duration-500 ease-out rounded-md shadow-lg ${
+                        hoveredTab === 'signin' || (!hoveredTab && true) 
+                          ? 'left-1 from-blue-600 to-purple-600 shadow-blue-500/25' 
+                          : 'left-[calc(50%+2px)] from-purple-600 to-pink-600 shadow-purple-500/25'
+                      }`}
+                    />
+                    
+                    <TabsTrigger 
+                      value="signin" 
+                      className="relative z-10 text-gray-300 data-[state=active]:text-white rounded-md transition-all duration-300 hover:text-white"
+                      onMouseEnter={() => setHoveredTab('signin')}
+                      onMouseLeave={() => setHoveredTab(null)}
+                    >
+                      <span className="relative z-10">
+                        {hoveredTab === 'signup' ? 'Sign Up' : 'Sign In'}
+                      </span>
+                    </TabsTrigger>
+                    <TabsTrigger 
+                      value="signup" 
+                      className="relative z-10 text-gray-300 data-[state=active]:text-white rounded-md transition-all duration-300 hover:text-white"
+                      onMouseEnter={() => setHoveredTab('signup')}
+                      onMouseLeave={() => setHoveredTab(null)}
+                    >
+                      <span className="relative z-10">
+                        {hoveredTab === 'signin' ? 'Sign In' : 'Sign Up'}
+                      </span>
+                    </TabsTrigger>
+                  </TabsList>
+                </div>
                 
                 <TabsContent value="signin" className="space-y-4 mt-6">
                   <form onSubmit={handleSignIn} className="space-y-4">
