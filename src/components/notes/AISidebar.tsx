@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -60,7 +59,7 @@ const AISidebar: React.FC<AISidebarProps> = ({
 
       const { data, error } = await supabase.functions.invoke('stripe-checkout', {
         body: {
-          price_id: 'price_1QUzaDF4QdBZ7yYeVqB9KRxA', // Pro plan price ID
+          product_id: 'prod_SOstZzMeZgtmK5', // Your product ID
           success_url: `${window.location.origin}/success`,
           cancel_url: window.location.href,
         },

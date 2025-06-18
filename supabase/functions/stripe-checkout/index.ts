@@ -8,7 +8,8 @@ const corsHeaders = {
 };
 
 interface CheckoutRequest {
-  price_id: string;
+  price_id?: string;
+  product_id?: string;
   success_url?: string;
   cancel_url?: string;
 }
@@ -44,11 +45,10 @@ serve(async (req) => {
       throw new Error('Invalid user token');
     }
 
-    const { price_id, success_url, cancel_url }: CheckoutRequest = await req.json();
+    const { price_id, product_id, success_url, cancel_url }: CheckoutRequest = await req.json();
 
-    if (!price_id) {
-      throw new Error('Price ID is required');
-    }
+    // Use the product ID you provided to get the price
+    const productIdToUse = product_id || 'prod_SOstZzMeZgtmK5';
 
     // Check if user already has a Stripe customer ID
     let { data: subscriber } = await supabase
@@ -59,6 +59,29 @@ serve(async (req) => {
 
     let customerId = subscriber?.stripe_customer_id;
 
+    // Get prices for the product to find the correct price ID
+    const pricesResponse = await fetch(`https://api.stripe.com/v1/prices?product=${productIdToUse}&active=true&limit=1`, {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${STRIPE_SECRET_KEY}`,
+      },
+    });
+
+    if (!pricesResponse.ok) {
+      const errorText = await pricesResponse.text();
+      console.error('Stripe prices API error:', errorText);
+      throw new Error(`Failed to fetch prices for product: ${pricesResponse.status}`);
+    }
+
+    const pricesData = await pricesResponse.json();
+    
+    if (!pricesData.data || pricesData.data.length === 0) {
+      throw new Error(`No active prices found for product: ${productIdToUse}`);
+    }
+
+    const priceId = pricesData.data[0].id;
+    console.log('Using price ID:', priceId);
+
     // Create Stripe checkout session
     const stripeResponse = await fetch('https://api.stripe.com/v1/checkout/sessions', {
       method: 'POST',
@@ -68,7 +91,7 @@ serve(async (req) => {
       },
       body: new URLSearchParams({
         'payment_method_types[]': 'card',
-        'line_items[0][price]': price_id,
+        'line_items[0][price]': priceId,
         'line_items[0][quantity]': '1',
         'mode': 'subscription',
         'success_url': success_url || `${req.headers.get('origin')}/success?session_id={CHECKOUT_SESSION_ID}`,
