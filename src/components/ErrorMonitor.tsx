@@ -2,6 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { AlertTriangle, CheckCircle, XCircle } from 'lucide-react';
+import { addPageLifecycleListeners } from '@/utils/eventListenerUtils';
 
 interface ErrorStatus {
   corsErrors: number;
@@ -53,12 +54,29 @@ const ErrorMonitor: React.FC = () => {
       originalWarn.apply(console, args);
     };
 
+    // Use modern page lifecycle events instead of deprecated unload
+    const cleanupPageListeners = addPageLifecycleListeners({
+      onPageHide: () => {
+        // Save any pending error data when page is hidden
+        if (errorStatus.corsErrors > 0 || errorStatus.networkErrors > 0 || errorStatus.tiptapWarnings > 0) {
+          localStorage.setItem('error-monitor-status', JSON.stringify(errorStatus));
+        }
+      },
+      onVisibilityChange: () => {
+        // Refresh error status when tab becomes visible again
+        if (!document.hidden) {
+          setErrorStatus(prev => ({ ...prev, lastUpdated: new Date() }));
+        }
+      }
+    });
+
     // Cleanup
     return () => {
       console.error = originalError;
       console.warn = originalWarn;
+      cleanupPageListeners();
     };
-  }, []);
+  }, [errorStatus.corsErrors, errorStatus.networkErrors, errorStatus.tiptapWarnings]);
 
   const totalErrors = errorStatus.corsErrors + errorStatus.networkErrors + errorStatus.tiptapWarnings;
 

@@ -86,8 +86,24 @@
     <meta name="twitter:creator" content="@onlinenote_ai">
     <meta name="twitter:image:alt" content="OneAI Notes interface showing the note editor and AI assistant">
 
-    <!-- Fonts -->
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Inter:wght@400;500;600&display=swap">
+    <!-- Fonts with Fallback Strategy -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Inter:wght@400;500;600&display=swap" onerror="this.onerror=null;this.href='https://fonts.loli.net/css2?family=Poppins:wght@300;400;500;600;700&family=Inter:wght@400;500;600&display=swap';">
+    
+    <!-- Fallback for when both Google Fonts fail -->
+    <style>
+      @font-face {
+        font-family: 'Inter-fallback';
+        src: local('Arial'), local('Helvetica'), local('sans-serif');
+        font-display: swap;
+      }
+      @font-face {
+        font-family: 'Poppins-fallback';  
+        src: local('Arial'), local('Helvetica'), local('sans-serif');
+        font-display: swap;
+      }
+    </style>
 
     <!-- Canonical URL -->
     <link rel="canonical" href="https://onlinenote.ai/">
@@ -104,6 +120,7 @@
     
     <!-- Only preload critical resources that are immediately used -->
     <link rel="dns-prefetch" href="//fonts.googleapis.com">
+    <link rel="dns-prefetch" href="//fonts.loli.net">
     <link rel="dns-prefetch" href="//www.googletagmanager.com">
   </head>
 
