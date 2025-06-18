@@ -64,12 +64,15 @@ const HeroTextAnimations = ({ className }: HeroTextAnimationsProps) => {
 
   return (
     <motion.h1 
-      className={className}
+      className={`${className} relative z-10`}
+      style={{ color: 'white' }}
     >
-      <span className="h-16 md:h-20 flex items-center justify-center">
-        {displayText}
+      <span className="h-16 md:h-20 flex items-center justify-center text-white">
+        <span className="text-white font-bold text-4xl md:text-6xl">
+          {displayText}
+        </span>
         <motion.span 
-          className="text-noteflow-400"
+          className="text-noteflow-400 ml-1"
           animate={{ opacity: cursorVisible ? 1 : 0 }}
           transition={{ duration: 0.3 }}
         >|</motion.span>

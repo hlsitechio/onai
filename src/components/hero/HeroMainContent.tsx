@@ -23,7 +23,7 @@ const HeroMainContent = () => {
   };
 
   return (
-    <div className="flex flex-col items-center text-center">
+    <div className="flex flex-col items-center text-center relative z-10">
       <HeroFloatingIcons />
 
       {/* Main heading with enhanced animation */}
@@ -36,11 +36,11 @@ const HeroMainContent = () => {
           whileHover={{ scale: 1.02, borderColor: 'rgba(120, 60, 255, 0.3)' }}
           transition={{ duration: 0.3 }}
         >
-          <HeroTextAnimations className="font-poppins font-bold text-4xl md:text-6xl mb-2 text-transparent bg-clip-text bg-gradient-to-r from-white via-noteflow-200 to-purple-300 relative" />
+          <HeroTextAnimations className="font-poppins font-bold relative z-10" />
         </motion.div>
       </motion.div>
       
-      {/* Simplified description with enhanced styling */}
+      {/* Subtitle text */}
       <motion.div 
         className="relative max-w-xl w-full mb-8"
         variants={itemVariants}
@@ -51,12 +51,13 @@ const HeroMainContent = () => {
           transition={{ duration: 0.3 }}
         >
           <motion.p
+            className="text-white relative z-10"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.5, duration: 0.8 }}
           >
-            <span className="font-medium text-white">AI-Enhanced Notes.</span> 
-            <span className="bg-gradient-to-r from-noteflow-400 to-purple-400 bg-clip-text text-transparent font-medium"> Pure Simplicity.</span>
+            <span className="font-medium text-white">AI-Enhanced Notes.</span>{' '}
+            <span className="bg-gradient-to-r from-noteflow-400 to-purple-400 bg-clip-text text-transparent font-medium">Pure Simplicity.</span>
           </motion.p>
         </motion.div>
       </motion.div>
@@ -79,7 +80,7 @@ const HeroMainContent = () => {
           />
           
           <motion.span 
-            className="relative z-10 flex items-center gap-3"
+            className="relative z-10 flex items-center gap-3 text-white font-semibold"
             whileHover={{ scale: 1.05 }}
             transition={{ type: "spring", stiffness: 400 }}
           >
