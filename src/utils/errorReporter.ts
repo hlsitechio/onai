@@ -1,4 +1,4 @@
-import { reportError } from './sentryConfig';
+import { reportError as sentryReportError } from './sentryConfig';
 import { sanitizeError, sanitizeErrorMessage } from './errorSanitization';
 import { logSecurityIncident } from './securityMonitoring';
 
@@ -107,8 +107,8 @@ export class ErrorReporter {
       ...context,
     };
 
-    // Report to Sentry (if configured)
-    reportError(error, enrichedContext);
+    // Report to Sentry (if configured) - using renamed import
+    sentryReportError(error, enrichedContext);
 
     // Log to console in development
     if (import.meta.env.DEV) {
