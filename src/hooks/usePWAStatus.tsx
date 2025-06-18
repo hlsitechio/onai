@@ -22,7 +22,7 @@ export function usePWAStatus() {
     performance: null,
   });
   
-  const { metrics, preloadCriticalResources, optimizeForSlowConnection } = usePWAPerformance();
+  const { metrics, optimizeForSlowConnection } = usePWAPerformance();
 
   useEffect(() => {
     // Update performance in status
@@ -126,18 +126,12 @@ export function usePWAStatus() {
       optimizeForSlowConnection();
     }
 
-    // Preload critical resources
-    preloadCriticalResources([
-      '/lovable-uploads/8a54ca4d-f005-4821-b9d8-3fd2958d340b.png',
-      '/manifest.json',
-    ]);
-
     return () => {
       window.removeEventListener('online', handleOnlineStatus);
       window.removeEventListener('offline', handleOnlineStatus);
       window.removeEventListener('beforeinstallprompt', handleInstallPrompt);
     };
-  }, [metrics, optimizeForSlowConnection, preloadCriticalResources]);
+  }, [metrics, optimizeForSlowConnection]);
 
   const requestUpdate = () => {
     if ('serviceWorker' in navigator) {

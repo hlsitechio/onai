@@ -81,15 +81,6 @@ export function usePWAPerformance() {
     };
   }, []);
 
-  const preloadCriticalResources = (urls: string[]) => {
-    urls.forEach(url => {
-      const link = document.createElement('link');
-      link.rel = 'prefetch';
-      link.href = url;
-      document.head.appendChild(link);
-    });
-  };
-
   const optimizeForSlowConnection = () => {
     if (metrics.isSlowConnection) {
       // Reduce image quality, defer non-critical resources
@@ -99,7 +90,6 @@ export function usePWAPerformance() {
 
   return {
     metrics,
-    preloadCriticalResources,
     optimizeForSlowConnection,
   };
 }

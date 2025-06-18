@@ -55,20 +55,5 @@ export const analyzeBundleSize = () => {
   return null;
 };
 
-// Only preload truly critical resources that are used immediately
-export const preloadCriticalResources = () => {
-  // Only preload resources that are definitely used on initial page load
-  const criticalResources = [
-    // Only preload manifest as it's used by PWA
-    { href: '/manifest.json', as: 'fetch', type: 'application/json' }
-  ];
-  
-  criticalResources.forEach(resource => {
-    const link = document.createElement('link');
-    link.rel = 'preload';
-    link.href = resource.href;
-    link.as = resource.as;
-    if (resource.type) link.type = resource.type;
-    document.head.appendChild(link);
-  });
-};
+// Removed preloadCriticalResources function entirely since it was causing 
+// console warnings about unused preloaded resources
