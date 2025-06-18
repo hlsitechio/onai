@@ -1,7 +1,8 @@
-
 /**
  * Browser compatibility utilities to handle deprecated APIs and improve cross-browser support
  */
+
+import { initializeStandardsModeMonitoring, auditStandardsMode } from './standardsModeValidator';
 
 /**
  * Feature detection for modern browser APIs
@@ -31,8 +32,9 @@ export const checkBrowserCompatibility = () => {
     warnings.push('Page Visibility API not supported');
   }
   
-  // Check for Quirks Mode
-  if (document.compatMode === 'BackCompat') {
+  // Check for Quirks Mode using the new validator
+  const standardsReport = auditStandardsMode();
+  if (!standardsReport.isStandardsMode) {
     warnings.push('Document is in Quirks Mode - ensure proper DOCTYPE is set');
   }
   
@@ -42,7 +44,7 @@ export const checkBrowserCompatibility = () => {
     console.log('Browser compatibility check passed');
   }
   
-  return { compatible: warnings.length === 0, warnings };
+  return { compatible: warnings.length === 0, warnings, standardsReport };
 };
 
 /**
@@ -110,7 +112,7 @@ export const initializeBrowserCompatibility = () => {
   const features = detectBrowserFeatures();
   console.log('Browser features detected:', features);
   
-  // Check compatibility
+  // Check compatibility (now includes Standards Mode validation)
   const compatibility = checkBrowserCompatibility();
   
   // Add polyfills if needed
@@ -118,6 +120,12 @@ export const initializeBrowserCompatibility = () => {
   
   // Check for deprecated API usage
   checkDeprecatedAPIs();
+  
+  // Initialize Standards Mode monitoring
+  const cleanupStandardsMonitoring = initializeStandardsModeMonitoring();
+  
+  // Store cleanup function globally for potential later use
+  (window as any).cleanupStandardsMonitoring = cleanupStandardsMonitoring;
   
   return { features, compatibility };
 };
