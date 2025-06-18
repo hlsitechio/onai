@@ -1,0 +1,136 @@
+
+import * as Sentry from '@sentry/react';
+import { BrowserTracing } from '@sentry/tracing';
+
+// Sentry configuration for production error monitoring
+export const initializeSentry = () => {
+  // Only initialize Sentry in production
+  if (import.meta.env.PROD && import.meta.env.VITE_SENTRY_DSN) {
+    Sentry.init({
+      dsn: import.meta.env.VITE_SENTRY_DSN,
+      integrations: [
+        new BrowserTracing({
+          // Set tracing origins to monitor performance
+          tracePropagationTargets: [
+            'localhost',
+            /^https:\/\/.*\.vercel\.app/,
+            /^https:\/\/.*\.supabase\.co/,
+          ],
+        }),
+      ],
+      
+      // Performance monitoring
+      tracesSampleRate: import.meta.env.DEV ? 1.0 : 0.1,
+      
+      // Error filtering
+      beforeSend(event, hint) {
+        // Filter out common non-critical errors
+        const error = hint.originalException;
+        const errorMessage = typeof error === 'string' ? error : error?.message || '';
+        
+        const ignoredErrors = [
+          'ResizeObserver loop limit exceeded',
+          'Non-passive event listener',
+          'Failed to load resource',
+          'lovable-tagger',
+          'componentTagger',
+          'Unrecognized feature',
+          'iframe which has both allow-scripts and allow-same-origin',
+          'sandbox attribute can escape its sandboxing',
+          'ChunkLoadError',
+          'Loading chunk',
+          'Loading CSS chunk',
+        ];
+        
+        if (ignoredErrors.some(ignored => 
+          errorMessage.toLowerCase().includes(ignored.toLowerCase())
+        )) {
+          return null; // Don't send to Sentry
+        }
+        
+        // Sanitize sensitive data
+        return sanitizeErrorEvent(event);
+      },
+      
+      // Environment and release info
+      environment: import.meta.env.MODE,
+      release: import.meta.env.VITE_APP_VERSION || 'unknown',
+      
+      // Privacy settings
+      sendDefaultPii: false,
+      beforeBreadcrumb(breadcrumb) {
+        // Filter out sensitive breadcrumbs
+        if (breadcrumb.category === 'console' && breadcrumb.level === 'log') {
+          return null; // Don't log console.log as breadcrumbs
+        }
+        return breadcrumb;
+      },
+    });
+
+    console.log('Sentry initialized for production error monitoring');
+  } else if (import.meta.env.DEV) {
+    console.log('Sentry disabled in development mode');
+  }
+};
+
+// Sanitize error events to remove sensitive data
+const sanitizeErrorEvent = (event: Sentry.Event): Sentry.Event => {
+  // Remove sensitive data from error context
+  if (event.contexts?.browser) {
+    delete event.contexts.browser.name;
+    delete event.contexts.browser.version;
+  }
+  
+  // Sanitize user data
+  if (event.user) {
+    delete event.user.email;
+    delete event.user.username;
+    delete event.user.ip_address;
+  }
+  
+  // Remove sensitive tags
+  if (event.tags) {
+    delete event.tags.user_id;
+    delete event.tags.session_id;
+  }
+  
+  // Sanitize exception data
+  if (event.exception?.values) {
+    event.exception.values.forEach(exception => {
+      if (exception.stacktrace?.frames) {
+        exception.stacktrace.frames.forEach(frame => {
+          // Remove sensitive file paths
+          if (frame.filename?.includes('node_modules')) {
+            frame.filename = '[node_modules]';
+          }
+        });
+      }
+    });
+  }
+  
+  return event;
+};
+
+// Manual error reporting with context
+export const reportError = (error: Error, context?: Record<string, any>) => {
+  if (import.meta.env.PROD) {
+    Sentry.withScope(scope => {
+      if (context) {
+        Object.keys(context).forEach(key => {
+          scope.setTag(key, context[key]);
+        });
+      }
+      Sentry.captureException(error);
+    });
+  } else {
+    console.error('Error reported:', error, context);
+  }
+};
+
+// Performance monitoring
+export const startTransaction = (name: string, operation: string) => {
+  if (import.meta.env.PROD) {
+    return Sentry.startTransaction({ name, op: operation });
+  }
+  return null;
+};

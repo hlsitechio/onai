@@ -5,6 +5,11 @@ import App from './App.tsx'
 import './index.css'
 import { initializeFormValidation } from './utils/formValidationUtils'
 import { initializeBrowserCompatibility } from './utils/browserCompatibilityUtils'
+import { initializeSentry } from './utils/sentryConfig'
+import './utils/enhancedConsoleControl' // Initialize enhanced console control
+
+// Initialize Sentry for production error monitoring
+initializeSentry();
 
 // Ensure React is properly loaded before proceeding
 if (!React || typeof React.createElement !== 'function') {
