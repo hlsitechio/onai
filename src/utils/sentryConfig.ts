@@ -20,7 +20,7 @@ export const initializeSentry = () => {
       replaysOnErrorSampleRate: 1.0,
       
       // Error filtering
-      beforeSend(event, hint) {
+      beforeSend(event: Sentry.Event, hint: Sentry.EventHint): Sentry.Event | null {
         // Filter out common non-critical errors
         const error = hint.originalException;
         const errorMessage = typeof error === 'string' ? error : 
@@ -58,7 +58,7 @@ export const initializeSentry = () => {
       
       // Privacy settings
       sendDefaultPii: false,
-      beforeBreadcrumb(breadcrumb) {
+      beforeBreadcrumb(breadcrumb: Sentry.Breadcrumb): Sentry.Breadcrumb | null {
         // Filter out sensitive breadcrumbs
         if (breadcrumb.category === 'console' && breadcrumb.level === 'log') {
           return null; // Don't log console.log as breadcrumbs
