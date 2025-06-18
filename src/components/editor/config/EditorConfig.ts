@@ -1,4 +1,7 @@
-import { lowlight } from 'lowlight';
+
+import { createLowlight } from 'lowlight';
+
+const lowlight = createLowlight();
 
 export const editorClassNames = {
   base: `
