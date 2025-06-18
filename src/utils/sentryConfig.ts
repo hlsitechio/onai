@@ -20,7 +20,7 @@ export const initializeSentry = () => {
       replaysOnErrorSampleRate: 1.0,
       
       // Error filtering
-      beforeSend(event: Sentry.Event, hint: Sentry.EventHint): Sentry.Event | null {
+      beforeSend(event: Sentry.ErrorEvent, hint: Sentry.EventHint): Sentry.ErrorEvent | null {
         // Filter out common non-critical errors
         const error = hint.originalException;
         const errorMessage = typeof error === 'string' ? error : 
@@ -74,7 +74,7 @@ export const initializeSentry = () => {
 };
 
 // Sanitize error events to remove sensitive data
-const sanitizeErrorEvent = (event: Sentry.Event): Sentry.Event => {
+const sanitizeErrorEvent = (event: Sentry.ErrorEvent): Sentry.ErrorEvent => {
   // Remove sensitive data from error context
   if (event.contexts?.browser) {
     delete event.contexts.browser.name;
