@@ -8,14 +8,7 @@ export const initializeSentry = () => {
     Sentry.init({
       dsn: import.meta.env.VITE_SENTRY_DSN,
       integrations: [
-        Sentry.browserTracingIntegration({
-          // Set tracing origins to monitor performance
-          tracePropagationTargets: [
-            'localhost',
-            /^https:\/\/.*\.vercel\.app/,
-            /^https:\/\/.*\.supabase\.co/,
-          ],
-        }),
+        Sentry.browserTracingIntegration(),
         Sentry.replayIntegration(),
       ],
       
@@ -30,7 +23,9 @@ export const initializeSentry = () => {
       beforeSend(event, hint) {
         // Filter out common non-critical errors
         const error = hint.originalException;
-        const errorMessage = typeof error === 'string' ? error : error?.message || '';
+        const errorMessage = typeof error === 'string' ? error : 
+          (error && typeof error === 'object' && 'message' in error && typeof error.message === 'string') ? 
+          error.message : '';
         
         const ignoredErrors = [
           'ResizeObserver loop limit exceeded',
