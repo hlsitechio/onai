@@ -1,4 +1,3 @@
-
 import React, { useRef, useEffect, useState, useCallback } from 'react';
 import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
@@ -30,8 +29,8 @@ const TiptapEditor: React.FC<TiptapEditorProps> = ({
   const editor = useEditor({
     extensions: [
       StarterKit.configure({
-        // Disable dropCursor from StarterKit to avoid duplication
-        dropCursor: false,
+        // Disable dropcursor from StarterKit to avoid duplication
+        dropcursor: false,
         heading: {
           levels: [1, 2, 3],
           HTMLAttributes: {
