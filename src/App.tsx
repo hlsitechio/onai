@@ -19,7 +19,7 @@ function App() {
       <ErrorBoundaryWrapper>
         <AuthProvider>
           <Router>
-            <div className="App">
+            <div className="App w-full min-h-screen">
               <Routes>
                 <Route path="/auth" element={<Auth />} />
                 <Route path="/signin" element={<SignIn />} />
