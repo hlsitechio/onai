@@ -1,6 +1,5 @@
 
 import * as Sentry from '@sentry/react';
-import { BrowserTracing } from '@sentry/tracing';
 
 // Sentry configuration for production error monitoring
 export const initializeSentry = () => {
@@ -9,7 +8,7 @@ export const initializeSentry = () => {
     Sentry.init({
       dsn: import.meta.env.VITE_SENTRY_DSN,
       integrations: [
-        new BrowserTracing({
+        Sentry.browserTracingIntegration({
           // Set tracing origins to monitor performance
           tracePropagationTargets: [
             'localhost',
@@ -17,10 +16,15 @@ export const initializeSentry = () => {
             /^https:\/\/.*\.supabase\.co/,
           ],
         }),
+        Sentry.replayIntegration(),
       ],
       
       // Performance monitoring
       tracesSampleRate: import.meta.env.DEV ? 1.0 : 0.1,
+      
+      // Session replay
+      replaysSessionSampleRate: 0.1,
+      replaysOnErrorSampleRate: 1.0,
       
       // Error filtering
       beforeSend(event, hint) {
@@ -40,6 +44,7 @@ export const initializeSentry = () => {
           'ChunkLoadError',
           'Loading chunk',
           'Loading CSS chunk',
+          'useContext',
         ];
         
         if (ignoredErrors.some(ignored => 
@@ -130,7 +135,7 @@ export const reportError = (error: Error, context?: Record<string, any>) => {
 // Performance monitoring
 export const startTransaction = (name: string, operation: string) => {
   if (import.meta.env.PROD) {
-    return Sentry.startTransaction({ name, op: operation });
+    return Sentry.startSpan({ name, op: operation }, () => {});
   }
   return null;
 };

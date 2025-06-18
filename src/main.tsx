@@ -5,11 +5,7 @@ import App from './App.tsx'
 import './index.css'
 import { initializeFormValidation } from './utils/formValidationUtils'
 import { initializeBrowserCompatibility } from './utils/browserCompatibilityUtils'
-import { initializeSentry } from './utils/sentryConfig'
 import './utils/enhancedConsoleControl' // Initialize enhanced console control
-
-// Initialize Sentry for production error monitoring
-initializeSentry();
 
 // Ensure React is properly loaded before proceeding
 if (!React || typeof React.createElement !== 'function') {
@@ -43,12 +39,38 @@ console.log('Starting OneAI Notes application...');
 initializeBrowserCompatibility();
 initializeFormValidation();
 
-const root = ReactDOM.createRoot(rootElement);
+// Initialize Sentry only after React is ready and DOM is loaded
+const initializeApp = async () => {
+  try {
+    // Only initialize Sentry after React is confirmed to be working
+    const { initializeSentry } = await import('./utils/sentryConfig');
+    initializeSentry();
+    
+    const root = ReactDOM.createRoot(rootElement);
 
-root.render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>
-);
+    root.render(
+      <React.StrictMode>
+        <App />
+      </React.StrictMode>
+    );
 
-console.log('App rendered successfully');
+    console.log('App rendered successfully');
+  } catch (error) {
+    console.error('Failed to initialize app:', error);
+    
+    // Fallback rendering without Sentry
+    const root = ReactDOM.createRoot(rootElement);
+    root.render(
+      <React.StrictMode>
+        <App />
+      </React.StrictMode>
+    );
+  }
+};
+
+// Wait for DOM to be ready before initializing
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initializeApp);
+} else {
+  initializeApp();
+}
