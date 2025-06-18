@@ -65,7 +65,6 @@ const HeroMainContent = () => {
         <motion.div 
           className="relative text-gray-300 text-base md:text-lg p-4 rounded-xl bg-gradient-to-r from-black/20 via-black/30 to-black/20 backdrop-blur-xl border border-white/10"
           whileHover={{ scale: 1.01 }}
-          transition={{ duration: 0.3 }}
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.7, duration: 0.8 }}
