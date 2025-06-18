@@ -1,4 +1,6 @@
 
+import { lowlight } from 'lowlight';
+
 export const editorClassNames = {
   base: `
     prose prose-invert max-w-none
@@ -34,3 +36,5 @@ export const loadingComponent = {
   spinnerClass: "animate-spin rounded-full h-8 w-8 border-b-2 border-noteflow-400 mb-4",
   text: "Loading editor...",
 };
+
+export { lowlight };

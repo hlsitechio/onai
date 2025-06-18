@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Editor } from '@tiptap/react';
 import { Button } from '@/components/ui/button';
@@ -16,7 +15,7 @@ import {
   Undo,
   Redo,
   Link,
-  Highlight
+  Highlighter
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -85,7 +84,7 @@ const TiptapEnhancedToolbar: React.FC<TiptapEnhancedToolbarProps> = ({ editor })
           isActive={editor.isActive('highlight')}
           title="Highlight"
         >
-          <Highlight className="h-4 w-4" />
+          <Highlighter className="h-4 w-4" />
         </ToolbarButton>
       </div>
 
