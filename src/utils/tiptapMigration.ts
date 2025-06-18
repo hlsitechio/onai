@@ -56,7 +56,6 @@ export const createCommandChain = (editor: Editor) => {
       setHeading: (level: 1 | 2 | 3 | 4 | 5 | 6) => editor.chain().focus().toggleHeading({ level }),
       setTextAlign: (alignment: string) => editor.chain().focus().setTextAlign(alignment),
       insertTable: () => editor.chain().focus().insertTable({ rows: 3, cols: 3, withHeaderRow: true }),
-      setColor: (color: string) => editor.chain().focus().setColor(color),
       setHighlight: (color?: string) => {
         // Fix: Properly handle optional color parameter
         if (color) {

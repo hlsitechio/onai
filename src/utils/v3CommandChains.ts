@@ -161,16 +161,8 @@ export const createV3CommandChain = (editor: Editor, options: V3CommandOptions =
       }
     },
 
-    // Color Commands
+    // Highlight Commands (removed setColor as it's not available)
     colors: {
-      setColor: (color: string) => {
-        if (config.validateBeforeRun && !editor.can().setColor(color)) {
-          console.warn('Set color command not available');
-          return false;
-        }
-        return editor.chain().focus().setColor(color).run();
-      },
-      
       setHighlight: (color?: string) => {
         if (color) {
           if (config.validateBeforeRun && !editor.can().setHighlight({ color })) {
