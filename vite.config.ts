@@ -48,23 +48,9 @@ export default defineConfig(({ mode }) => ({
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
-      // Force all React imports to use the same instance - more aggressive
-      "react": path.resolve(__dirname, "./node_modules/react"),
-      "react-dom": path.resolve(__dirname, "./node_modules/react-dom"),
-      // Force Radix UI to use the same React instance
-      "react/jsx-runtime": path.resolve(__dirname, "./node_modules/react/jsx-runtime"),
-      "react/jsx-dev-runtime": path.resolve(__dirname, "./node_modules/react/jsx-dev-runtime"),
     },
-    // Ensure single React instance with more aggressive deduplication
-    dedupe: [
-      'react', 
-      'react-dom', 
-      '@tanstack/react-query',
-      // Add all Radix UI packages to deduplication
-      '@radix-ui/react-tooltip',
-      '@radix-ui/react-slot',
-      '@radix-ui/react-toast'
-    ],
+    // Ensure single React instance with simplified deduplication
+    dedupe: ['react', 'react-dom'],
   },
   build: {
     rollupOptions: {
@@ -128,7 +114,7 @@ export default defineConfig(({ mode }) => ({
   },
   define: {
     global: 'globalThis',
-    // Ensure React is available globally for Radix components
+    // Ensure React is available globally for consistency
     'process.env.NODE_ENV': JSON.stringify(mode),
   },
 }));
