@@ -2,8 +2,10 @@
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Sparkles, InfoIcon, AlertTriangle, ShieldCheck, Clock, Bot, ExternalLink } from "lucide-react";
+import { Sparkles, InfoIcon, AlertTriangle, ShieldCheck, Clock, Bot, ExternalLink, Crown } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
 import AIDisclaimer from "./AIDisclaimer";
 import OCRButton from "../ocr/OCRButton";
 import OCRPopup from "../ocr/OCRPopup";
@@ -23,7 +25,9 @@ const AISidebar: React.FC<AISidebarProps> = ({
   const [isDisclaimerOpen, setIsDisclaimerOpen] = useState(false);
   const [isOCROpen, setIsOCROpen] = useState(false);
   const [usageStats] = useState(() => getUsageStats());
+  const [loading, setLoading] = useState(false);
   const { toast } = useToast();
+  const { user } = useAuth();
 
   const handleOCRTextExtracted = (text: string) => {
     onApplyChanges(content + (content.endsWith('\n') || content === '' ? '' : '\n') + text);
@@ -31,6 +35,61 @@ const AISidebar: React.FC<AISidebarProps> = ({
       title: "OCR text inserted",
       description: "Extracted text has been added to your note."
     });
+  };
+
+  const handleUpgradeToPro = async () => {
+    if (!user) {
+      toast({
+        title: "Authentication required",
+        description: "Please sign in to upgrade to Pro.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    setLoading(true);
+
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      if (!session) {
+        throw new Error('No active session');
+      }
+
+      const { data, error } = await supabase.functions.invoke('stripe-checkout', {
+        body: {
+          price_id: 'price_1QUzaDF4QdBZ7yYeVqB9KRxA', // Pro plan price ID
+          success_url: `${window.location.origin}/success`,
+          cancel_url: window.location.href,
+        },
+        headers: {
+          Authorization: `Bearer ${session.access_token}`,
+        },
+      });
+
+      if (error) {
+        throw error;
+      }
+
+      if (data?.url) {
+        // Open Stripe checkout in a new tab
+        window.open(data.url, '_blank');
+        
+        toast({
+          title: "Redirecting to payment",
+          description: "Opening Stripe checkout in a new tab..."
+        });
+      }
+    } catch (error) {
+      console.error('Upgrade error:', error);
+      toast({
+        title: "Upgrade failed",
+        description: "There was an error processing your upgrade. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -68,6 +127,39 @@ const AISidebar: React.FC<AISidebarProps> = ({
           <div className="flex items-center text-xs space-x-1.5">
             <AlertTriangle className="h-3 w-3 text-amber-400" />
             <span className="text-xs text-amber-300/80">AI may produce inaccurate content</span>
+          </div>
+        </div>
+
+        {/* Upgrade to Pro Section */}
+        <div className="p-4 bg-gradient-to-r from-purple-500/20 to-blue-500/20 rounded-lg border border-purple-500/30">
+          <div className="flex items-start gap-3">
+            <Crown className="h-5 w-5 text-purple-400 mt-0.5" />
+            <div className="flex-1">
+              <h4 className="text-sm font-medium text-white mb-1">
+                Upgrade to Professional
+              </h4>
+              <p className="text-xs text-slate-300 mb-3 leading-relaxed">
+                Get 500 AI requests per day, advanced features, and priority support for just $9.99/month.
+              </p>
+              <Button
+                onClick={handleUpgradeToPro}
+                disabled={loading}
+                className="w-full bg-purple-500 hover:bg-purple-600 text-white text-xs py-2"
+                size="sm"
+              >
+                {loading ? (
+                  <>
+                    <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-white mr-2"></div>
+                    Processing...
+                  </>
+                ) : (
+                  <>
+                    <Crown className="h-3 w-3 mr-2" />
+                    Upgrade to Pro
+                  </>
+                )}
+              </Button>
+            </div>
           </div>
         </div>
 
