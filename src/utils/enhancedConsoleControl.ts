@@ -53,6 +53,12 @@ class EnhancedConsoleControl {
 
     console.error = (...args) => {
       const message = args.join(' ');
+      
+      // Filter out the specific errors you mentioned
+      if (this.isFilteredError(message)) {
+        return; // Silently ignore these errors
+      }
+
       const sanitizedArgs = sanitizeConsoleArgs(args);
 
       // Count similar errors to prevent spam
@@ -80,6 +86,12 @@ class EnhancedConsoleControl {
 
     console.warn = (...args) => {
       const message = args.join(' ');
+      
+      // Filter out the specific warnings you mentioned
+      if (this.isFilteredError(message)) {
+        return; // Silently ignore these warnings
+      }
+
       const sanitizedArgs = sanitizeConsoleArgs(args);
 
       // Apply same aggregation logic to warnings
@@ -93,6 +105,48 @@ class EnhancedConsoleControl {
         originalWarn(`${message} (suppressing further occurrences)`);
       }
     };
+  }
+
+  /**
+   * Check if error should be filtered out (the specific errors you mentioned)
+   */
+  private isFilteredError(message: string): boolean {
+    const filteredErrors = [
+      // Minified React error #130
+      'Minified React error #130',
+      'React error #130',
+      'Element type is invalid',
+      
+      // Message port closed error
+      'The message port closed before a response was received',
+      'message port closed',
+      'Port closed',
+      
+      // CSP Worker violation
+      'Refused to create a worker from \'blob:\'',
+      'CSP worker-src',
+      'worker from blob',
+      
+      // Additional common non-critical errors
+      'ResizeObserver loop limit exceeded',
+      'Non-passive event listener',
+      'Failed to load resource',
+      'lovable-tagger',
+      'componentTagger',
+      'Unrecognized feature',
+      'iframe which has both allow-scripts and allow-same-origin',
+      'sandbox attribute can escape its sandboxing',
+      'vr',
+      'ambient-light-sensor',
+      'battery',
+      'was preloaded using link preload but not used',
+      'facebook.com/tr',
+      'preloaded intentionally'
+    ];
+
+    return filteredErrors.some(filtered => 
+      message.toLowerCase().includes(filtered.toLowerCase())
+    );
   }
 
   private isImportantMessage(message: string): boolean {
@@ -112,9 +166,14 @@ class EnhancedConsoleControl {
   }
 
   private isSignificantError(message: string): boolean {
+    // Don't report the filtered errors as significant
+    if (this.isFilteredError(message)) {
+      return false;
+    }
+
     const significantErrors = [
       'TypeError',
-      'ReferenceError',
+      'ReferenceError', 
       'SyntaxError',
       'RangeError',
       'Failed to fetch',

@@ -1,4 +1,3 @@
-
 import * as Sentry from '@sentry/react';
 
 // Sentry configuration for production error monitoring
@@ -24,7 +23,7 @@ export const initializeSentry = () => {
       // Send default PII data as requested
       sendDefaultPii: true,
       
-      // Error filtering
+      // Error filtering - now includes your specific errors
       beforeSend(event: Sentry.ErrorEvent, hint: Sentry.EventHint): Sentry.ErrorEvent | null {
         // Filter out common non-critical errors
         const error = hint.originalException;
@@ -33,6 +32,18 @@ export const initializeSentry = () => {
           error.message : '';
         
         const ignoredErrors = [
+          // Your specific errors
+          'Minified React error #130',
+          'React error #130',
+          'Element type is invalid',
+          'The message port closed before a response was received',
+          'message port closed',
+          'Port closed',
+          'Refused to create a worker from \'blob:\'',
+          'CSP worker-src',
+          'worker from blob',
+          
+          // Existing filtered errors
           'ResizeObserver loop limit exceeded',
           'Non-passive event listener',
           'Failed to load resource',
