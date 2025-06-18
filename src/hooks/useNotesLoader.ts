@@ -1,9 +1,17 @@
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
-import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import type { Note } from './useNotesManager';
+import { supabase } from '@/integrations/supabase/client';
+
+export interface Note {
+  id: string;
+  title: string;
+  content: string;
+  created_at: string;
+  updated_at: string;
+  user_id: string;
+}
 
 export const useNotesLoader = () => {
   const [notes, setNotes] = useState<Note[]>([]);
@@ -11,47 +19,55 @@ export const useNotesLoader = () => {
   const { user } = useAuth();
   const { toast } = useToast();
 
-  const loadNotes = useCallback(async () => {
+  const loadNotes = async () => {
     if (!user) {
-      setNotes([]);
       setLoading(false);
-      return [];
+      return;
     }
 
     try {
       setLoading(true);
       const { data, error } = await supabase
-        .from('notes')
+        .from('notes_v2')
         .select('*')
         .eq('user_id', user.id)
         .order('updated_at', { ascending: false });
 
-      if (error) throw error;
+      if (error) {
+        console.error('Error loading notes:', error);
+        toast({
+          title: 'Error loading notes',
+          description: 'Failed to load your notes. Please try again.',
+          variant: 'destructive',
+        });
+        return;
+      }
 
-      const loadedNotes = data || [];
-      setNotes(loadedNotes);
-      return loadedNotes;
+      setNotes(data || []);
     } catch (error) {
-      console.error('Error loading notes:', error);
+      console.error('Unexpected error loading notes:', error);
       toast({
-        title: 'Error loading notes',
-        description: error instanceof Error ? error.message : 'Unknown error',
+        title: 'Error',
+        description: 'An unexpected error occurred while loading notes.',
         variant: 'destructive',
       });
-      return [];
     } finally {
       setLoading(false);
     }
-  }, [user, toast]);
+  };
+
+  const refreshNotes = () => {
+    loadNotes();
+  };
 
   useEffect(() => {
     loadNotes();
-  }, [loadNotes]);
+  }, [user]);
 
   return {
     notes,
     setNotes,
     loading,
-    refreshNotes: loadNotes,
+    refreshNotes,
   };
 };

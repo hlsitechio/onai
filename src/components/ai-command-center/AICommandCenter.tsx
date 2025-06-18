@@ -1,37 +1,20 @@
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState } from 'react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { ScrollArea } from '@/components/ui/scroll-area';
-import { 
-  Sparkles, 
-  Wand2, 
-  TrendingUp, 
-  MessageSquare,
-  ChevronRight,
-  Plus,
-  Bot,
-  FileText,
-  Clock,
-  X,
-  Minimize2,
-  Maximize2
-} from 'lucide-react';
+import { Textarea } from '@/components/ui/textarea';
+import { Sparkles, X, Send, Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { useToast } from '@/hooks/use-toast';
-import AIQuickActions from './AIQuickActions';
-import AISuggestionsList from './AISuggestionsList';
-import AIProcessingArea from './AIProcessingArea';
-import { useAICommandCenter } from '@/hooks/useAICommandCenter';
+import { AIPosition } from '@/hooks/useAIAgent';
 
 interface AICommandCenterProps {
   content: string;
-  onContentChange: (newContent: string) => void;
+  onContentChange: (content: string) => void;
   selectedText: string;
   cursorPosition: number;
   isVisible: boolean;
   onClose: () => void;
-  position: { x: number; y: number };
+  position: AIPosition;
 }
 
 const AICommandCenter: React.FC<AICommandCenterProps> = ({
@@ -43,163 +26,113 @@ const AICommandCenter: React.FC<AICommandCenterProps> = ({
   onClose,
   position
 }) => {
-  const [isMinimized, setIsMinimized] = useState(false);
-  const [activeTab, setActiveTab] = useState<'quick' | 'suggestions' | 'process'>('quick');
-  const containerRef = useRef<HTMLDivElement>(null);
-  const { toast } = useToast();
+  const [prompt, setPrompt] = useState('');
+  const [isProcessing, setIsProcessing] = useState(false);
 
-  const {
-    suggestions,
-    isProcessing,
-    result,
-    streamingResult,
-    generateSuggestions,
-    applySuggestion,
-    processAI,
-    clearResult,
-    stopProcessing
-  } = useAICommandCenter({
-    content,
-    selectedText,
-    cursorPosition,
-    onContentChange
-  });
+  const handleSubmit = async () => {
+    if (!prompt.trim()) return;
 
-  // Close on click outside
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
-        onClose();
-      }
-    };
-
-    if (isVisible && !isMinimized) {
-      document.addEventListener('mousedown', handleClickOutside);
+    setIsProcessing(true);
+    try {
+      // Simulate AI processing
+      await new Promise(resolve => setTimeout(resolve, 1500));
+      
+      // For now, just append the prompt as a response
+      const aiResponse = `\n\n**AI Response to "${prompt}":**\n${selectedText ? `Based on your selected text: "${selectedText}"` : 'Processing your request...'}\n\nThis is a simulated response. The AI integration will be implemented in the next phase.\n`;
+      
+      onContentChange(content + aiResponse);
+      setPrompt('');
+      onClose();
+    } catch (error) {
+      console.error('AI processing error:', error);
+    } finally {
+      setIsProcessing(false);
     }
-
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
-  }, [isVisible, isMinimized, onClose]);
+  };
 
   if (!isVisible) return null;
 
   return (
-    <div
-      ref={containerRef}
-      className={cn(
-        "fixed z-50 bg-black/95 backdrop-blur-xl border border-white/20 rounded-xl shadow-2xl transition-all duration-300",
-        isMinimized ? "w-64 h-12" : "w-96 max-h-[80vh]"
-      )}
+    <div 
+      className="fixed z-50 w-96 max-w-[calc(100vw-2rem)]"
       style={{
-        left: `${Math.min(position.x, window.innerWidth - (isMinimized ? 256 : 384))}px`,
-        top: `${Math.min(position.y, window.innerHeight - (isMinimized ? 48 : 600))}px`,
+        left: Math.min(position.x, window.innerWidth - 400),
+        top: Math.min(position.y, window.innerHeight - 300),
       }}
     >
-      {/* Header */}
-      <div className="flex items-center justify-between p-3 border-b border-white/10">
-        <div className="flex items-center gap-2">
-          <Bot className="h-4 w-4 text-noteflow-400" />
-          <span className="text-sm font-medium text-white">AI Command Center</span>
-          <Badge variant="outline" className="bg-noteflow-500/20 text-noteflow-300 border-noteflow-500/30 text-xs">
-            Active
-          </Badge>
-        </div>
-        
-        <div className="flex items-center gap-1">
-          <Button
-            onClick={() => setIsMinimized(!isMinimized)}
-            variant="ghost"
-            size="sm"
-            className="h-6 w-6 p-0 hover:bg-white/10"
-          >
-            {isMinimized ? (
-              <Maximize2 className="h-3 w-3" />
-            ) : (
-              <Minimize2 className="h-3 w-3" />
-            )}
-          </Button>
-          <Button
-            onClick={onClose}
-            variant="ghost"
-            size="sm"
-            className="h-6 w-6 p-0 hover:bg-white/10"
-          >
-            <X className="h-3 w-3" />
-          </Button>
-        </div>
-      </div>
-
-      {!isMinimized && (
-        <>
-          {/* Tab Navigation */}
-          <div className="flex border-b border-white/10">
-            {[
-              { id: 'quick', label: 'Quick', icon: Sparkles },
-              { id: 'suggestions', label: 'Ideas', icon: MessageSquare },
-              { id: 'process', label: 'Process', icon: Wand2 }
-            ].map((tab) => {
-              const Icon = tab.icon;
-              return (
-                <button
-                  key={tab.id}
-                  onClick={() => setActiveTab(tab.id as any)}
-                  className={cn(
-                    "flex-1 flex items-center justify-center gap-2 py-2 px-3 text-sm transition-colors",
-                    activeTab === tab.id
-                      ? "bg-noteflow-500/20 text-noteflow-300 border-b border-noteflow-500"
-                      : "text-white/70 hover:text-white hover:bg-white/5"
-                  )}
-                >
-                  <Icon className="h-3 w-3" />
-                  {tab.label}
-                </button>
-              );
-            })}
+      <Card className="bg-black/90 backdrop-blur-xl border-noteflow-500/30 shadow-2xl">
+        <CardHeader className="pb-3">
+          <div className="flex items-center justify-between">
+            <CardTitle className="text-lg font-semibold text-white flex items-center gap-2">
+              <Sparkles className="h-5 w-5 text-noteflow-400" />
+              AI Assistant
+            </CardTitle>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={onClose}
+              className="text-gray-400 hover:text-white hover:bg-white/10 p-1 h-6 w-6"
+            >
+              <X className="h-4 w-4" />
+            </Button>
+          </div>
+          {selectedText && (
+            <div className="text-xs text-gray-400 bg-white/5 rounded p-2 mt-2">
+              Selected: "{selectedText.substring(0, 50)}..."
+            </div>
+          )}
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div>
+            <Textarea
+              value={prompt}
+              onChange={(e) => setPrompt(e.target.value)}
+              placeholder="Ask AI to help with your writing..."
+              className="bg-white/5 border-white/10 text-white placeholder-gray-400 resize-none"
+              rows={3}
+              disabled={isProcessing}
+            />
+          </div>
+          
+          <div className="flex gap-2">
+            <Button
+              onClick={handleSubmit}
+              disabled={!prompt.trim() || isProcessing}
+              className="flex-1 bg-noteflow-500 hover:bg-noteflow-600 text-white"
+            >
+              {isProcessing ? (
+                <>
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  Processing...
+                </>
+              ) : (
+                <>
+                  <Send className="h-4 w-4 mr-2" />
+                  Send
+                </>
+              )}
+            </Button>
           </div>
 
-          {/* Content Area */}
-          <ScrollArea className="max-h-96">
-            <div className="p-4">
-              {activeTab === 'quick' && (
-                <AIQuickActions
-                  selectedText={selectedText}
-                  onTextReplace={onContentChange}
-                  onTextInsert={(text) => {
-                    const beforeCursor = content.slice(0, cursorPosition);
-                    const afterCursor = content.slice(cursorPosition);
-                    onContentChange(beforeCursor + (beforeCursor.endsWith(' ') ? '' : ' ') + text + ' ' + afterCursor);
-                  }}
-                  isProcessing={isProcessing}
-                />
-              )}
-
-              {activeTab === 'suggestions' && (
-                <AISuggestionsList
-                  suggestions={suggestions}
-                  onGenerateSuggestions={generateSuggestions}
-                  onApplySuggestion={applySuggestion}
-                  isProcessing={isProcessing}
-                  hasContent={!!content.trim()}
-                />
-              )}
-
-              {activeTab === 'process' && (
-                <AIProcessingArea
-                  content={content}
-                  result={result}
-                  streamingResult={streamingResult}
-                  onProcess={processAI}
-                  onClearResult={clearResult}
-                  onStopProcessing={stopProcessing}
-                  onApplyChanges={onContentChange}
-                  isProcessing={isProcessing}
-                />
-              )}
+          <div className="text-xs text-gray-500 space-y-1">
+            <p>Quick actions:</p>
+            <div className="flex flex-wrap gap-1">
+              {['Improve writing', 'Fix grammar', 'Summarize', 'Expand'].map((action) => (
+                <Button
+                  key={action}
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setPrompt(action)}
+                  className="text-xs h-6 px-2 border-white/20 text-gray-300 hover:bg-white/10"
+                  disabled={isProcessing}
+                >
+                  {action}
+                </Button>
+              ))}
             </div>
-          </ScrollArea>
-        </>
-      )}
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 };

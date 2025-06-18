@@ -15,7 +15,6 @@ const EditorManager: React.FC = () => {
   const [content, setContent] = useState('');
   const [isLeftSidebarOpen, setIsLeftSidebarOpen] = useState(true);
   const [isAISidebarOpen, setIsAISidebarOpen] = useState(true);
-  const [isAIDialogOpen, setIsAIDialogOpen] = useState(false);
   const [lastSaved, setLastSaved] = useState<Date | null>(null);
   
   const { toast } = useToast();
@@ -61,7 +60,7 @@ const EditorManager: React.FC = () => {
           });
           break;
         case 'pwa:open-ai':
-          setIsAIDialogOpen(true);
+          setIsAISidebarOpen(true);
           toast({
             title: 'AI Assistant',
             description: 'AI assistant opened from app shortcut.',
@@ -90,11 +89,6 @@ const EditorManager: React.FC = () => {
       if (event.key === 'F11') {
         event.preventDefault();
         toggleFocusMode();
-      }
-      
-      if (event.ctrlKey && event.shiftKey && event.key === 'A') {
-        event.preventDefault();
-        setIsAIDialogOpen(true);
       }
     };
 
@@ -218,9 +212,6 @@ const EditorManager: React.FC = () => {
     allNotes[note.id] = note.content;
   });
 
-  // Check if content is empty (only contains empty paragraph tags or is truly empty)
-  const isContentEmpty = !content || content === '<p></p>' || content.trim() === '';
-
   return (
     <div className={cn(
       "min-h-screen w-full relative",
@@ -300,52 +291,11 @@ const EditorManager: React.FC = () => {
 
                 {/* Main Editor Area */}
                 <div className="flex-1 relative overflow-hidden">
-                  <div className={cn(
-                    "relative h-full w-full mx-auto",
-                    "bg-gradient-to-br from-[#03010a] to-[#0a0518]",
-                    "rounded-lg border border-white/5"
-                  )}>
-                    <TiptapEditor
-                      content={content}
-                      setContent={setContent}
-                      isFocusMode={isFocusMode}
-                    />
-                  </div>
-                  
-                  {/* Centralized Empty State - Only show when content is truly empty */}
-                  {isContentEmpty && (
-                    <div className="absolute inset-0 pointer-events-none">
-                      <div className="flex items-center justify-center h-full">
-                        <div className="text-center max-w-md px-6">
-                          <div className="mb-6 opacity-60">
-                            <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-gradient-to-br from-noteflow-400 to-noteflow-600 flex items-center justify-center">
-                              <span className="text-2xl">✨</span>
-                            </div>
-                          </div>
-                          <h3 className="text-xl font-medium text-white mb-3">
-                            Start writing with AI assistance
-                          </h3>
-                          <p className="text-sm text-slate-400 mb-6 leading-relaxed">
-                            Type your thoughts, select text for AI enhancements, or use keyboard shortcuts for quick actions.
-                          </p>
-                          <div className="text-xs text-slate-500 space-y-2">
-                            <div className="flex items-center justify-center gap-2">
-                              <span>•</span>
-                              <span>Select text to see AI options</span>
-                            </div>
-                            <div className="flex items-center justify-center gap-2">
-                              <span>•</span>
-                              <span>Press <kbd className="bg-white/10 px-1.5 py-0.5 rounded text-noteflow-200">Ctrl+Shift+A</kbd> for AI Agent</span>
-                            </div>
-                            <div className="flex items-center justify-center gap-2">
-                              <span>•</span>
-                              <span>Use formatting buttons in the toolbar</span>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  )}
+                  <TiptapEditor
+                    content={content}
+                    setContent={setContent}
+                    isFocusMode={isFocusMode}
+                  />
                 </div>
               </div>
             </ResizablePanel>
