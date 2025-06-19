@@ -14,7 +14,7 @@ export const useTiptapAIAgent = (editor: Editor | null, selectedText: string) =>
     updateCursorPosition
   } = useAIAgent(editor);
 
-  // Handle keyboard shortcuts
+  // Handle keyboard shortcuts only
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.ctrlKey && event.shiftKey && event.key === 'A') {
@@ -31,18 +31,7 @@ export const useTiptapAIAgent = (editor: Editor | null, selectedText: string) =>
     return () => document.removeEventListener('keydown', handleKeyDown);
   }, [toggleAIAgent, hideAIAgent]);
 
-  // Handle text selection for AI agent positioning
-  useEffect(() => {
-    if (selectedText.trim() && editor) {
-      const { from, to } = editor.state.selection;
-      handleTextSelection({
-        text: selectedText,
-        start: from,
-        end: to
-      });
-      updateCursorPosition(from);
-    }
-  }, [selectedText, editor, handleTextSelection, updateCursorPosition]);
+  // Remove automatic text selection handling - users will trigger AI manually
 
   return {
     isAIAgentVisible,

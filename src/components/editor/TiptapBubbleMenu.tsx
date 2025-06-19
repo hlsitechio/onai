@@ -2,7 +2,7 @@
 import React from 'react';
 import { BubbleMenu, Editor } from '@tiptap/react';
 import { Button } from '@/components/ui/button';
-import { Bold, Italic, Underline, Sparkles } from 'lucide-react';
+import { Bold, Italic, Underline } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface TiptapBubbleMenuProps {
@@ -63,22 +63,6 @@ const TiptapBubbleMenu: React.FC<TiptapBubbleMenuProps> = ({
       >
         <Underline className="h-4 w-4" />
       </Button>
-
-      {selectedText && (
-        <>
-          <div className="w-px h-6 bg-white/20 mx-1" />
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={onShowAIAgent}
-            disabled={isProcessingAI}
-            className="h-8 px-2 text-white hover:bg-noteflow-500/20 text-xs"
-          >
-            <Sparkles className="h-3 w-3 mr-1" />
-            AI
-          </Button>
-        </>
-      )}
     </BubbleMenu>
   );
 };

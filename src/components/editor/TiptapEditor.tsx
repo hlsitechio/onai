@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useTiptapEditor } from '@/hooks/useTiptapEditor';
-import { useTiptapAIAgent } from '@/hooks/useTiptapAIAgent';
+import { useAIAgent } from '@/hooks/useAIAgent';
 import { useStylusDetection } from '@/hooks/useStylusDetection';
 import TiptapEnhancedToolbar from './toolbar/TiptapEnhancedToolbar';
 import EditorLoadingState from './EditorLoadingState';
@@ -22,7 +22,6 @@ const TiptapEditor: React.FC<TiptapEditorProps> = ({
   setContent,
   isFocusMode = false
 }) => {
-  // Always call hooks in the same order - no conditional calls
   const [inputMode, setInputMode] = useState<'text' | 'handwriting'>('text');
   const { hasStylus, isUsingStylus } = useStylusDetection();
 
@@ -33,12 +32,13 @@ const TiptapEditor: React.FC<TiptapEditorProps> = ({
     handleContentChange
   } = useTiptapEditor({ content, setContent, isFocusMode });
 
+  // Use AI Agent hook but without automatic text selection triggering
   const {
     isAIAgentVisible,
     aiPosition,
     showAIAgent,
     hideAIAgent
-  } = useTiptapAIAgent(editor, selectedText);
+  } = useAIAgent(editor);
 
   // Auto-switch to handwriting mode when stylus is detected
   useEffect(() => {
@@ -61,6 +61,21 @@ const TiptapEditor: React.FC<TiptapEditorProps> = ({
     }
   };
 
+  // Manual AI trigger function
+  const handleManualAITrigger = () => {
+    if (editor) {
+      const { from } = editor.state.selection;
+      const coords = editor.view.coordsAtPos(from);
+      
+      showAIAgent({
+        x: coords.left,
+        y: coords.top - 50,
+      });
+    } else {
+      showAIAgent();
+    }
+  };
+
   if (isLoading) {
     return <EditorLoadingState />;
   }
@@ -71,10 +86,13 @@ const TiptapEditor: React.FC<TiptapEditorProps> = ({
 
   return (
     <div className="relative h-full flex flex-col">
-      {/* Enhanced Toolbar with handwriting toggle */}
+      {/* Enhanced Toolbar with AI button and handwriting toggle */}
       {!isFocusMode && (
         <div className="flex items-center justify-between border-b border-white/10 p-2">
-          <TiptapEnhancedToolbar editor={editor} />
+          <TiptapEnhancedToolbar 
+            editor={editor} 
+            onAIClick={handleManualAITrigger}
+          />
           
           {hasStylus && (
             <div className="flex space-x-2 ml-4">
@@ -111,7 +129,7 @@ const TiptapEditor: React.FC<TiptapEditorProps> = ({
           isAIAgentVisible={isAIAgentVisible}
           aiPosition={aiPosition}
           hideAIAgent={hideAIAgent}
-          showAIAgent={showAIAgent}
+          showAIAgent={handleManualAITrigger}
           isFocusMode={isFocusMode}
         />
       ) : (

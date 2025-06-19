@@ -1,177 +1,75 @@
+
 import React from 'react';
 import { Editor } from '@tiptap/react';
 import { Button } from '@/components/ui/button';
-import { 
-  Bold, 
-  Italic, 
-  Underline, 
-  Heading1, 
-  Heading2, 
-  Heading3,
-  List,
-  ListOrdered,
-  Quote,
-  Code,
-  Undo,
-  Redo,
-  Link,
-  Highlighter
-} from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { Separator } from '@/components/ui/separator';
+import { Sparkles } from 'lucide-react';
+import FormatControls from './FormatControls';
+import HeadingControls from './HeadingControls';
+import ListControls from './ListControls';
+import AlignmentControls from './AlignmentControls';
+import InsertControls from './InsertControls';
+import HistoryControls from './HistoryControls';
 
 interface TiptapEnhancedToolbarProps {
   editor: Editor;
+  onAIClick?: () => void;
 }
 
-const TiptapEnhancedToolbar: React.FC<TiptapEnhancedToolbarProps> = ({ editor }) => {
+const TiptapEnhancedToolbar: React.FC<TiptapEnhancedToolbarProps> = ({ 
+  editor, 
+  onAIClick 
+}) => {
   if (!editor) return null;
 
-  const ToolbarButton = ({ 
-    onClick, 
-    isActive = false, 
-    children, 
-    title 
-  }: { 
-    onClick: () => void; 
-    isActive?: boolean; 
-    children: React.ReactNode;
-    title: string;
-  }) => (
-    <Button
-      variant="ghost"
-      size="sm"
-      onClick={onClick}
-      className={cn(
-        "h-8 w-8 p-0 text-gray-400 hover:text-white hover:bg-white/10",
-        isActive && "bg-white/20 text-white"
-      )}
-      title={title}
-    >
-      {children}
-    </Button>
-  );
-
   return (
-    <div className="flex items-center gap-1 p-2 border-b border-white/10 bg-black/20 backdrop-blur-sm">
-      {/* Text formatting */}
-      <div className="flex items-center gap-1">
-        <ToolbarButton
-          onClick={() => editor.chain().focus().toggleBold().run()}
-          isActive={editor.isActive('bold')}
-          title="Bold (Ctrl+B)"
-        >
-          <Bold className="h-4 w-4" />
-        </ToolbarButton>
-        
-        <ToolbarButton
-          onClick={() => editor.chain().focus().toggleItalic().run()}
-          isActive={editor.isActive('italic')}
-          title="Italic (Ctrl+I)"
-        >
-          <Italic className="h-4 w-4" />
-        </ToolbarButton>
-        
-        <ToolbarButton
-          onClick={() => editor.chain().focus().toggleUnderline().run()}
-          isActive={editor.isActive('underline')}
-          title="Underline (Ctrl+U)"
-        >
-          <Underline className="h-4 w-4" />
-        </ToolbarButton>
-        
-        <ToolbarButton
-          onClick={() => editor.chain().focus().toggleHighlight().run()}
-          isActive={editor.isActive('highlight')}
-          title="Highlight"
-        >
-          <Highlighter className="h-4 w-4" />
-        </ToolbarButton>
+    <div className="flex items-center gap-1 p-1 bg-black/20 rounded-lg flex-wrap">
+      {/* AI Assistant Button */}
+      {onAIClick && (
+        <>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={onAIClick}
+            className="text-noteflow-400 hover:text-noteflow-300 hover:bg-noteflow-500/20 flex items-center gap-1.5"
+            title="Open AI Assistant (Ctrl+Shift+A)"
+          >
+            <Sparkles className="h-4 w-4" />
+            <span className="hidden sm:inline text-xs">AI</span>
+          </Button>
+          <Separator orientation="vertical" className="h-6 bg-white/20" />
+        </>
+      )}
+
+      {/* Format Controls */}
+      <FormatControls editor={editor} />
+      
+      <Separator orientation="vertical" className="h-6 bg-white/20" />
+      
+      {/* Heading Controls */}
+      <HeadingControls editor={editor} />
+      
+      <Separator orientation="vertical" className="h-6 bg-white/20" />
+      
+      {/* List Controls */}
+      <ListControls editor={editor} />
+      
+      <Separator orientation="vertical" className="h-6 bg-white/20" />
+      
+      {/* Alignment Controls - Hidden on mobile */}
+      <div className="hidden md:flex items-center gap-1">
+        <AlignmentControls editor={editor} />
+        <Separator orientation="vertical" className="h-6 bg-white/20" />
       </div>
-
-      <div className="w-px h-6 bg-white/20" />
-
-      {/* Headings */}
-      <div className="flex items-center gap-1">
-        <ToolbarButton
-          onClick={() => editor.chain().focus().toggleHeading({ level: 1 }).run()}
-          isActive={editor.isActive('heading', { level: 1 })}
-          title="Heading 1"
-        >
-          <Heading1 className="h-4 w-4" />
-        </ToolbarButton>
-        
-        <ToolbarButton
-          onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}
-          isActive={editor.isActive('heading', { level: 2 })}
-          title="Heading 2"
-        >
-          <Heading2 className="h-4 w-4" />
-        </ToolbarButton>
-        
-        <ToolbarButton
-          onClick={() => editor.chain().focus().toggleHeading({ level: 3 }).run()}
-          isActive={editor.isActive('heading', { level: 3 })}
-          title="Heading 3"
-        >
-          <Heading3 className="h-4 w-4" />
-        </ToolbarButton>
+      
+      {/* Insert Controls - Hidden on small screens */}
+      <div className="hidden lg:flex items-center gap-1">
+        <InsertControls editor={editor} />
+        <Separator orientation="vertical" className="h-6 bg-white/20" />
       </div>
-
-      <div className="w-px h-6 bg-white/20" />
-
-      {/* Lists and blocks */}
-      <div className="flex items-center gap-1">
-        <ToolbarButton
-          onClick={() => editor.chain().focus().toggleBulletList().run()}
-          isActive={editor.isActive('bulletList')}
-          title="Bullet List"
-        >
-          <List className="h-4 w-4" />
-        </ToolbarButton>
-        
-        <ToolbarButton
-          onClick={() => editor.chain().focus().toggleOrderedList().run()}
-          isActive={editor.isActive('orderedList')}
-          title="Numbered List"
-        >
-          <ListOrdered className="h-4 w-4" />
-        </ToolbarButton>
-        
-        <ToolbarButton
-          onClick={() => editor.chain().focus().toggleBlockquote().run()}
-          isActive={editor.isActive('blockquote')}
-          title="Quote"
-        >
-          <Quote className="h-4 w-4" />
-        </ToolbarButton>
-        
-        <ToolbarButton
-          onClick={() => editor.chain().focus().toggleCodeBlock().run()}
-          isActive={editor.isActive('codeBlock')}
-          title="Code Block"
-        >
-          <Code className="h-4 w-4" />
-        </ToolbarButton>
-      </div>
-
-      <div className="w-px h-6 bg-white/20" />
-
-      {/* Undo/Redo */}
-      <div className="flex items-center gap-1">
-        <ToolbarButton
-          onClick={() => editor.chain().focus().undo().run()}
-          title="Undo (Ctrl+Z)"
-        >
-          <Undo className="h-4 w-4" />
-        </ToolbarButton>
-        
-        <ToolbarButton
-          onClick={() => editor.chain().focus().redo().run()}
-          title="Redo (Ctrl+Y)"
-        >
-          <Redo className="h-4 w-4" />
-        </ToolbarButton>
-      </div>
+      
+      {/* History Controls */}
+      <HistoryControls editor={editor} />
     </div>
   );
 };

@@ -14,7 +14,7 @@ interface EditorContentAreaProps {
   isAIAgentVisible: boolean;
   aiPosition: { x: number; y: number };
   hideAIAgent: () => void;
-  showAIAgent: (position?: { x: number; y: number }) => void;
+  showAIAgent: () => void;
   isFocusMode: boolean;
 }
 
@@ -39,7 +39,7 @@ const EditorContentArea: React.FC<EditorContentAreaProps> = ({
         className="h-full overflow-y-auto focus-within:outline-none p-4"
       />
 
-      {/* Bubble Menu for text selection */}
+      {/* Bubble Menu for text selection - simplified without AI button */}
       <TiptapBubbleMenu
         editor={editor}
         selectedText={selectedText}
