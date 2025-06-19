@@ -22,6 +22,13 @@ const SponsorsWallOfFame = () => {
       sponsorshipLevel: "$250+"
     },
     {
+      name: "React",
+      logo: "/lovable-uploads/15e5d185-78c3-448d-85bc-6b1a26093800.png",
+      website: "https://react.dev",
+      tier: "platinum",
+      sponsorshipLevel: "$500+"
+    },
+    {
       name: "Google Gemini",
       logo: "https://upload.wikimedia.org/wikipedia/commons/8/8a/Google_Gemini_logo.svg",
       website: "https://gemini.google.com",
