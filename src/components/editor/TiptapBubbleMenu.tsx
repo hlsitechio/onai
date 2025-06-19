@@ -27,13 +27,18 @@ const TiptapBubbleMenu: React.FC<TiptapBubbleMenuProps> = ({
       editor={editor}
       tippyOptions={{ duration: 100 }}
       className="flex items-center gap-1 bg-black/90 backdrop-blur-xl border border-white/20 rounded-lg p-1 shadow-xl"
+      shouldShow={({ editor }) => {
+        // Only show when text is selected
+        const { from, to } = editor.state.selection;
+        return from !== to;
+      }}
     >
       <Button
         variant="ghost"
         size="sm"
         onClick={() => editor.chain().focus().toggleBold().run()}
         className={cn(
-          "h-8 w-8 p-0 text-white hover:bg-white/20",
+          "h-8 w-8 p-0 text-white hover:bg-white/20 transition-colors",
           editor.isActive('bold') && "bg-white/20"
         )}
       >
@@ -45,7 +50,7 @@ const TiptapBubbleMenu: React.FC<TiptapBubbleMenuProps> = ({
         size="sm"
         onClick={() => editor.chain().focus().toggleItalic().run()}
         className={cn(
-          "h-8 w-8 p-0 text-white hover:bg-white/20",
+          "h-8 w-8 p-0 text-white hover:bg-white/20 transition-colors",
           editor.isActive('italic') && "bg-white/20"
         )}
       >
@@ -57,7 +62,7 @@ const TiptapBubbleMenu: React.FC<TiptapBubbleMenuProps> = ({
         size="sm"
         onClick={() => editor.chain().focus().toggleUnderline().run()}
         className={cn(
-          "h-8 w-8 p-0 text-white hover:bg-white/20",
+          "h-8 w-8 p-0 text-white hover:bg-white/20 transition-colors",
           editor.isActive('underline') && "bg-white/20"
         )}
       >

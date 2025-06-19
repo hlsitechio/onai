@@ -1,7 +1,7 @@
 
 import { useEditor } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
-import Underline from '@tiptap/extension-underline';
+import { getFormattingExtensions } from '@/components/editor/config/V3FormattingExtensions';
 import { useCallback, useEffect, useState } from 'react';
 
 interface UseTiptapEditorProps {
@@ -23,7 +23,7 @@ export const useTiptapEditor = ({ content, setContent, isFocusMode }: UseTiptapE
           levels: [1, 2, 3],
         },
       }),
-      Underline,
+      ...getFormattingExtensions(),
     ],
     content: content || '<p></p>',
     onUpdate: ({ editor }) => {

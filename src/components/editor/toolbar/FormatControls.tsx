@@ -52,6 +52,7 @@ const FormatControls: React.FC<FormatControlsProps> = ({ editor }) => {
     <div className="flex items-center gap-1">
       {formatButtons.map((button, index) => {
         const Icon = button.icon;
+        const isActive = button.isActive();
         return (
           <Button
             key={index}
@@ -59,8 +60,8 @@ const FormatControls: React.FC<FormatControlsProps> = ({ editor }) => {
             size="sm"
             onClick={button.onClick}
             className={cn(
-              "h-8 w-8 p-0 hover:bg-white/10",
-              button.isActive() 
+              "h-8 w-8 p-0 hover:bg-white/10 transition-colors",
+              isActive 
                 ? "bg-white/20 text-white" 
                 : "text-gray-300 hover:text-white"
             )}

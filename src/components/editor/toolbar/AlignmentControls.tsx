@@ -14,7 +14,7 @@ const AlignmentControls: React.FC<AlignmentControlsProps> = ({ editor }) => {
     {
       icon: AlignLeft,
       alignment: 'left',
-      isActive: () => editor.isActive({ textAlign: 'left' }),
+      isActive: () => editor.isActive({ textAlign: 'left' }) || (!editor.isActive({ textAlign: 'center' }) && !editor.isActive({ textAlign: 'right' }) && !editor.isActive({ textAlign: 'justify' })),
       onClick: () => editor.chain().focus().setTextAlign('left').run(),
       title: 'Align Left'
     },
@@ -45,6 +45,7 @@ const AlignmentControls: React.FC<AlignmentControlsProps> = ({ editor }) => {
     <div className="flex items-center gap-1">
       {alignmentButtons.map((button) => {
         const Icon = button.icon;
+        const isActive = button.isActive();
         return (
           <Button
             key={button.alignment}
@@ -52,8 +53,8 @@ const AlignmentControls: React.FC<AlignmentControlsProps> = ({ editor }) => {
             size="sm"
             onClick={button.onClick}
             className={cn(
-              "h-8 w-8 p-0 hover:bg-white/10",
-              button.isActive() 
+              "h-8 w-8 p-0 hover:bg-white/10 transition-colors",
+              isActive 
                 ? "bg-white/20 text-white" 
                 : "text-gray-300 hover:text-white"
             )}
