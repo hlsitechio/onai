@@ -12,15 +12,19 @@ export interface Folder {
 
 export const getUserFolders = async (userId: string): Promise<Folder[]> => {
   try {
-    // Direct query to folders table
+    // Direct query to folders table using proper typing
     const { data, error } = await supabase
-      .from('folders' as any)
+      .from('folders')
       .select('*')
       .eq('user_id', userId)
       .order('name', { ascending: true });
 
-    if (error) throw error;
-    return data || [];
+    if (error) {
+      console.error('Error fetching folders:', error);
+      return [];
+    }
+
+    return (data || []) as Folder[];
   } catch (error) {
     console.error('Error fetching folders:', error);
     return [];
@@ -34,7 +38,7 @@ export const createFolder = async (
 ): Promise<Folder | null> => {
   try {
     const { data, error } = await supabase
-      .from('folders' as any)
+      .from('folders')
       .insert({
         name: name.trim(),
         parent_id: parentId,
@@ -43,7 +47,11 @@ export const createFolder = async (
       .select()
       .single();
 
-    if (error) throw error;
+    if (error) {
+      console.error('Error creating folder:', error);
+      return null;
+    }
+
     return data as Folder;
   } catch (error) {
     console.error('Error creating folder:', error);

@@ -4,15 +4,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { v4 as uuidv4 } from 'uuid';
-
-interface Folder {
-  id: string;
-  name: string;
-  parent_id: string | null;
-  created_at: string;
-  updated_at: string;
-  user_id: string;
-}
+import { getUserFolders, createFolder as createFolderUtil, Folder } from '@/utils/folderUtils';
 
 export function useFolderManager() {
   const { user } = useAuth();
@@ -35,24 +27,8 @@ export function useFolderManager() {
 
     try {
       setLoading(true);
-      // Use raw SQL query to avoid TypeScript issues with the new table
-      const { data, error } = await supabase.rpc('get_user_folders', {
-        user_uuid: user.id
-      });
-
-      if (error) {
-        // Fallback to direct query if RPC doesn't exist
-        const { data: fallbackData, error: fallbackError } = await supabase
-          .from('folders' as any)
-          .select('*')
-          .eq('user_id', user.id)
-          .order('name', { ascending: true });
-
-        if (fallbackError) throw fallbackError;
-        setFolders(fallbackData || []);
-      } else {
-        setFolders(data || []);
-      }
+      const folderData = await getUserFolders(user.id);
+      setFolders(folderData);
     } catch (error) {
       console.error('Error loading folders:', error);
       toast({
@@ -76,28 +52,16 @@ export function useFolderManager() {
     }
 
     try {
-      const newFolder = {
-        id: uuidv4(),
-        name: name.trim(),
-        parent_id: parentId,
-        user_id: user.id,
-      };
-
-      const { data, error } = await supabase
-        .from('folders' as any)
-        .insert(newFolder)
-        .select()
-        .single();
-
-      if (error) throw error;
-
-      const createdFolder = data as Folder;
-      setFolders(prev => [...prev, createdFolder]);
+      const createdFolder = await createFolderUtil(name, user.id, parentId);
       
-      toast({
-        title: 'Folder created',
-        description: `Folder "${name}" created successfully.`,
-      });
+      if (createdFolder) {
+        setFolders(prev => [...prev, createdFolder]);
+        
+        toast({
+          title: 'Folder created',
+          description: `Folder "${name}" created successfully.`,
+        });
+      }
 
       return createdFolder;
     } catch (error) {
@@ -116,7 +80,7 @@ export function useFolderManager() {
 
     try {
       const { data, error } = await supabase
-        .from('folders' as any)
+        .from('folders')
         .update({ 
           name: newName.trim(),
           updated_at: new Date().toISOString()
@@ -130,7 +94,7 @@ export function useFolderManager() {
 
       setFolders(prev => 
         prev.map(folder => 
-          folder.id === folderId ? { ...folder, ...data } : folder
+          folder.id === folderId ? { ...folder, name: newName.trim(), updated_at: new Date().toISOString() } : folder
         )
       );
 
@@ -164,7 +128,7 @@ export function useFolderManager() {
 
       // Delete the folder
       const { error } = await supabase
-        .from('folders' as any)
+        .from('folders')
         .delete()
         .eq('id', folderId)
         .eq('user_id', user.id);
