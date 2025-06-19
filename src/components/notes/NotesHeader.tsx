@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Button } from "@/components/ui/button";
-import { Plus, Search, FolderOpen, Keyboard, SortAsc, Filter, MoreVertical, Download, Upload } from "lucide-react";
+import { Plus, Search, Keyboard, SortAsc, Filter, MoreVertical, Download, Upload } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -37,7 +37,11 @@ const NotesHeader: React.FC<NotesHeaderProps> = ({
       {/* Main header */}
       <div className="flex items-center justify-between animate-slideDown" style={{animationDelay: '0.1s'}}>
         <h3 className="text-sm sm:text-base font-semibold text-white flex items-center">
-          <FolderOpen className="h-4 w-4 mr-2 text-noteflow-400" />
+          <img 
+            src="/lovable-uploads/fccad14b-dab2-4cbe-82d9-fe30b6f82787.png" 
+            alt="ONAI Logo" 
+            className="h-4 w-4 mr-2 object-contain"
+          />
           My Notes
         </h3>
         <div className="flex space-x-1">

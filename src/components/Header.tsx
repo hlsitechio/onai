@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
-import { Coffee, FileText, Zap, Brain, Settings } from 'lucide-react';
+import { Coffee, FileText, Zap, Settings } from 'lucide-react';
 import { Github } from 'lucide-react';
 import UserMenu from './UserMenu';
 import AuthModal from './AuthModal';
@@ -31,8 +31,12 @@ const Header = () => {
           {/* Logo and Brand */}
           <div className="flex items-center space-x-2">
             <div className="flex items-center space-x-2">
-              <div className="w-8 h-8 bg-gradient-to-br from-noteflow-400 to-purple-500 rounded-lg flex items-center justify-center">
-                <Brain className="w-5 h-5 text-white" />
+              <div className="w-8 h-8 flex items-center justify-center">
+                <img 
+                  src="/lovable-uploads/fccad14b-dab2-4cbe-82d9-fe30b6f82787.png" 
+                  alt="ONAI Logo" 
+                  className="w-8 h-8 object-contain"
+                />
               </div>
               <span className="text-xl font-bold bg-gradient-to-r from-noteflow-400 to-purple-400 bg-clip-text text-transparent">
                 Online Note AI
