@@ -1,3 +1,4 @@
+
 import * as Sentry from '@sentry/react';
 
 // Sentry configuration for production error monitoring
@@ -23,43 +24,61 @@ export const initializeSentry = () => {
       // Send default PII data as requested
       sendDefaultPii: true,
       
-      // Error filtering - now includes your specific errors
+      // Enhanced error filtering
       beforeSend(event: Sentry.ErrorEvent, hint: Sentry.EventHint): Sentry.ErrorEvent | null {
-        // Filter out common non-critical errors
         const error = hint.originalException;
         const errorMessage = typeof error === 'string' ? error : 
           (error && typeof error === 'object' && 'message' in error && typeof error.message === 'string') ? 
           error.message : '';
         
-        const ignoredErrors = [
-          // Your specific errors
-          'Minified React error #130',
-          'React error #130',
-          'Element type is invalid',
-          'The message port closed before a response was received',
+        // Get error message from various sources
+        const fullErrorText = [
+          errorMessage,
+          event.message,
+          event.exception?.values?.[0]?.value,
+          event.exception?.values?.[0]?.type,
+        ].filter(Boolean).join(' ').toLowerCase();
+        
+        const ignoredErrorPatterns = [
+          // Message port errors (browser extensions)
+          'the message port closed before a response was received',
+          'message port closed before a response was received',
           'message port closed',
-          'Port closed',
-          'Refused to create a worker from \'blob:\'',
-          'CSP worker-src',
+          'port closed',
+          
+          // CSP Worker violations (Sentry itself)
+          'refused to create a worker from \'blob:',
+          'refused to create a worker from "blob:',
+          'refused to create a worker',
+          'violates the following content security policy directive',
+          'worker-src',
+          'script-src',
+          'csp worker-src',
           'worker from blob',
           
-          // Existing filtered errors
-          'ResizeObserver loop limit exceeded',
-          'Non-passive event listener',
-          'Failed to load resource',
+          // Minified React errors
+          'minified react error #130',
+          'react error #130',
+          'element type is invalid',
+          
+          // Additional filtered errors
+          'resizeobserver loop limit exceeded',
+          'non-passive event listener',
+          'failed to load resource',
           'lovable-tagger',
-          'componentTagger',
-          'Unrecognized feature',
+          'componenttagger',
+          'unrecognized feature',
           'iframe which has both allow-scripts and allow-same-origin',
           'sandbox attribute can escape its sandboxing',
-          'ChunkLoadError',
-          'Loading chunk',
-          'Loading CSS chunk',
-          'useContext',
+          'chunkloaderror',
+          'loading chunk',
+          'loading css chunk',
+          'usecontext',
         ];
         
-        if (ignoredErrors.some(ignored => 
-          errorMessage.toLowerCase().includes(ignored.toLowerCase())
+        // Filter out errors that match any of the ignored patterns
+        if (ignoredErrorPatterns.some(pattern => 
+          fullErrorText.includes(pattern)
         )) {
           return null; // Don't send to Sentry
         }
@@ -78,11 +97,27 @@ export const initializeSentry = () => {
         if (breadcrumb.category === 'console' && breadcrumb.level === 'log') {
           return null; // Don't log console.log as breadcrumbs
         }
+        
+        // Filter out breadcrumbs related to the errors we're ignoring
+        if (breadcrumb.message) {
+          const messageText = breadcrumb.message.toLowerCase();
+          const filteredBreadcrumbs = [
+            'message port closed',
+            'worker from blob',
+            'csp violation',
+            'refused to create a worker',
+          ];
+          
+          if (filteredBreadcrumbs.some(pattern => messageText.includes(pattern))) {
+            return null;
+          }
+        }
+        
         return breadcrumb;
       },
     });
 
-    console.log('Sentry initialized for OneAI Notes with PII collection enabled');
+    console.log('Sentry initialized for OneAI Notes with enhanced error filtering');
   } else if (import.meta.env.DEV) {
     console.log('Sentry disabled in development mode');
   }

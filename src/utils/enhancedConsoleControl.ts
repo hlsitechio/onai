@@ -54,7 +54,7 @@ class EnhancedConsoleControl {
     console.error = (...args) => {
       const message = args.join(' ');
       
-      // Filter out the specific errors you mentioned
+      // Filter out the specific errors - with exact matching
       if (this.isFilteredError(message)) {
         return; // Silently ignore these errors
       }
@@ -87,7 +87,7 @@ class EnhancedConsoleControl {
     console.warn = (...args) => {
       const message = args.join(' ');
       
-      // Filter out the specific warnings you mentioned
+      // Filter out the specific warnings
       if (this.isFilteredError(message)) {
         return; // Silently ignore these warnings
       }
@@ -111,29 +111,35 @@ class EnhancedConsoleControl {
    * Check if error should be filtered out (the specific errors you mentioned)
    */
   private isFilteredError(message: string): boolean {
-    const filteredErrors = [
-      // Minified React error #130
-      'Minified React error #130',
-      'React error #130',
-      'Element type is invalid',
-      
-      // Message port closed error
-      'The message port closed before a response was received',
+    const messageStr = message.toLowerCase();
+    
+    // Exact patterns for the specific errors you want to filter
+    const filteredPatterns = [
+      // Message port errors (browser extensions)
+      'the message port closed before a response was received',
+      'message port closed before a response was received',
       'message port closed',
-      'Port closed',
       
-      // CSP Worker violation
-      'Refused to create a worker from \'blob:\'',
-      'CSP worker-src',
-      'worker from blob',
+      // CSP Worker violations (Sentry)
+      'refused to create a worker from \'blob:',
+      'refused to create a worker from "blob:',
+      'refused to create a worker',
+      'violates the following content security policy directive',
+      'worker-src',
+      'script-src',
+      
+      // Minified React errors
+      'minified react error #130',
+      'react error #130',
+      'element type is invalid',
       
       // Additional common non-critical errors
-      'ResizeObserver loop limit exceeded',
-      'Non-passive event listener',
-      'Failed to load resource',
+      'resizeobserver loop limit exceeded',
+      'non-passive event listener',
+      'failed to load resource',
       'lovable-tagger',
-      'componentTagger',
-      'Unrecognized feature',
+      'componenttagger',
+      'unrecognized feature',
       'iframe which has both allow-scripts and allow-same-origin',
       'sandbox attribute can escape its sandboxing',
       'vr',
@@ -141,12 +147,12 @@ class EnhancedConsoleControl {
       'battery',
       'was preloaded using link preload but not used',
       'facebook.com/tr',
-      'preloaded intentionally'
+      'preloaded intentionally',
+      'understand this error', // Chrome DevTools link text
     ];
 
-    return filteredErrors.some(filtered => 
-      message.toLowerCase().includes(filtered.toLowerCase())
-    );
+    // Check if message contains any of the filtered patterns
+    return filteredPatterns.some(pattern => messageStr.includes(pattern));
   }
 
   private isImportantMessage(message: string): boolean {
@@ -194,6 +200,7 @@ class EnhancedConsoleControl {
       .replace(/\d+/g, '[NUMBER]') // Replace numbers
       .replace(/https?:\/\/[^\s]+/g, '[URL]') // Replace URLs
       .replace(/[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}/g, '[UUID]') // Replace UUIDs
+      .replace(/blob:[^\s]+/g, '[BLOB_URL]') // Replace blob URLs
       .substring(0, 100); // Limit length
   }
 
