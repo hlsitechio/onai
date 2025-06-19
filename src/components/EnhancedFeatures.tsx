@@ -44,7 +44,7 @@ const EnhancedFeatures = () => {
             viewport={{ once: true }}
             transition={{ delay: 0.3, duration: 0.8 }}
           >
-            AI-powered tools that enhance your writing experience
+            AI tools that work
           </motion.p>
         </motion.div>
 

@@ -7,26 +7,26 @@ const HowItWorks = () => {
   const steps = [
     {
       icon: MousePointer,
-      title: "Open & Start",
-      description: "No registration required",
+      title: "Open",
+      description: "No signup",
       step: "01"
     },
     {
       icon: Type,
-      title: "Write Naturally",
-      description: "AI adapts to your style",
+      title: "Write",
+      description: "AI adapts",
       step: "02"
     },
     {
       icon: Sparkles,
-      title: "AI Enhancement",
+      title: "Enhance",
       description: "Smart suggestions",
       step: "03"
     },
     {
       icon: Save,
-      title: "Auto-Save",
-      description: "Never lose your work",
+      title: "Save",
+      description: "Auto-saved",
       step: "04"
     }
   ];
@@ -96,7 +96,7 @@ const HowItWorks = () => {
             viewport={{ once: true }}
             transition={{ delay: 0.3, duration: 0.8 }}
           >
-            Start writing in seconds with our streamlined process
+            Start in seconds
           </motion.p>
         </motion.div>
 

@@ -8,19 +8,19 @@ const Features = () => {
     {
       icon: Zap,
       title: "Lightning Fast",
-      description: "Start writing instantly",
+      description: "Start instantly",
       gradient: "from-yellow-400 to-orange-500"
     },
     {
       icon: Brain,
       title: "AI-Powered",
-      description: "Smart suggestions",
+      description: "Smart writing",
       gradient: "from-noteflow-400 to-purple-500"
     },
     {
       icon: Shield,
       title: "Privacy First", 
-      description: "Your notes stay private",
+      description: "Data stays private",
       gradient: "from-green-400 to-blue-500"
     }
   ];
@@ -90,7 +90,7 @@ const Features = () => {
             viewport={{ once: true }}
             transition={{ delay: 0.3, duration: 0.8 }}
           >
-            Everything you need for productive note-taking
+            Smart. Fast. Private.
           </motion.p>
         </motion.div>
 
