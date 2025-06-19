@@ -738,7 +738,11 @@ export type Database = {
         Args:
           | Record<PropertyKey, never>
           | { user_uuid: string; usage_date?: string }
-        Returns: number
+        Returns: {
+          user_id: string
+          daily_count: number
+          usage_date: string
+        }[]
       }
     }
     Enums: {
