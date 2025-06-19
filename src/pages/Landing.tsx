@@ -6,7 +6,6 @@ import Hero from "@/components/Hero";
 import EnhancedFeatures from "@/components/EnhancedFeatures";
 import FeatureShowcase from "@/components/FeatureShowcase";
 import SponsorsWallOfFame from "@/components/SponsorsWallOfFame";
-import Testimonials from "@/components/Testimonials";
 import Footer from "@/components/Footer";
 import PWAInstaller from "@/components/pwa/PWAInstaller";
 import PWAUpdateNotifier from "@/components/pwa/PWAUpdateNotifier";
@@ -52,7 +51,6 @@ const Landing = () => {
           <SponsorsWallOfFame />
           <EnhancedFeatures />
           <FeatureShowcase />
-          <Testimonials />
           <PricingSection />
           <Footer />
           <PWAInstaller />

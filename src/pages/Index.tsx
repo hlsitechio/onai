@@ -9,7 +9,6 @@ import Features from '@/components/Features';
 import EnhancedFeatures from '@/components/EnhancedFeatures';
 import WhyChooseUs from '@/components/WhyChooseUs';
 import HowItWorks from '@/components/HowItWorks';
-import Testimonials from '@/components/Testimonials';
 import SponsorsWallOfFame from '@/components/SponsorsWallOfFame';
 import PricingSection from '@/components/PricingSection';
 import NewsletterSection from '@/components/NewsletterSection';
@@ -41,7 +40,6 @@ const Index = () => {
       <EnhancedFeatures />
       <WhyChooseUs />
       <HowItWorks />
-      <Testimonials />
       <SponsorsWallOfFame />
       <PricingSection />
       <NewsletterSection />

@@ -71,19 +71,19 @@ const HeroTextAnimations: React.FC<HeroTextAnimationsProps> = ({ className = "" 
 
   return (
     <div className={className}>
-      {/* Main Title */}
+      {/* Main Title - Reduced size */}
       <motion.div
         variants={titleVariants}
         initial="hidden"
         animate="visible"
-        className="mb-4"
+        className="mb-3"
       >
-        <div className="text-5xl md:text-7xl lg:text-8xl leading-tight">
+        <div className="text-3xl md:text-5xl lg:text-6xl leading-tight">
           {words.map((word, index) => (
             <motion.span
               key={word}
               variants={wordVariants}
-              className={`inline-block mr-4 md:mr-6 font-bold ${
+              className={`inline-block mr-3 md:mr-4 font-bold ${
                 index === 0 
                   ? "bg-gradient-to-r from-white via-blue-200 to-cyan-300 bg-clip-text text-transparent"
                   : index === 1
@@ -93,8 +93,8 @@ const HeroTextAnimations: React.FC<HeroTextAnimationsProps> = ({ className = "" 
                   : "bg-gradient-to-r from-purple-400 via-pink-400 to-cyan-400 bg-clip-text text-transparent"
               }`}
               whileHover={{
-                scale: 1.1,
-                rotate: [0, -2, 2, 0],
+                scale: 1.05,
+                rotate: [0, -1, 1, 0],
                 transition: { duration: 0.3 }
               }}
               style={{
@@ -107,21 +107,21 @@ const HeroTextAnimations: React.FC<HeroTextAnimationsProps> = ({ className = "" 
         </div>
       </motion.div>
 
-      {/* Animated Subtitle */}
+      {/* Animated Subtitle - Reduced size */}
       <motion.div
         variants={subtitleVariants}
         initial="hidden"
         animate={["visible", "glow"]}
-        className="text-xl md:text-2xl lg:text-3xl"
+        className="text-lg md:text-xl lg:text-2xl"
       >
         <span className="bg-gradient-to-r from-white via-blue-100 to-cyan-200 bg-clip-text text-transparent font-light tracking-wide">
           {subtitle}
         </span>
       </motion.div>
 
-      {/* Decorative Elements */}
+      {/* Decorative Elements - Smaller */}
       <motion.div
-        className="absolute -top-8 -left-8 w-4 h-4 bg-cyan-400 rounded-full"
+        className="absolute -top-6 -left-6 w-3 h-3 bg-cyan-400 rounded-full"
         animate={{
           scale: [1, 1.5, 1],
           opacity: [0.5, 1, 0.5],
@@ -135,7 +135,7 @@ const HeroTextAnimations: React.FC<HeroTextAnimationsProps> = ({ className = "" 
       />
 
       <motion.div
-        className="absolute -bottom-6 -right-6 w-3 h-3 bg-purple-400 rounded-full"
+        className="absolute -bottom-4 -right-4 w-2 h-2 bg-purple-400 rounded-full"
         animate={{
           scale: [1, 1.8, 1],
           opacity: [0.4, 0.9, 0.4],
@@ -150,12 +150,12 @@ const HeroTextAnimations: React.FC<HeroTextAnimationsProps> = ({ className = "" 
       />
 
       <motion.div
-        className="absolute top-1/2 -right-12 w-2 h-2 bg-pink-400 rounded-full"
+        className="absolute top-1/2 -right-8 w-1.5 h-1.5 bg-pink-400 rounded-full"
         animate={{
           scale: [1, 2, 1],
           opacity: [0.3, 0.8, 0.3],
-          x: [0, 10, 0],
-          y: [0, -10, 0]
+          x: [0, 8, 0],
+          y: [0, -8, 0]
         }}
         transition={{
           duration: 6,
