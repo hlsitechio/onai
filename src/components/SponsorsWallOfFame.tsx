@@ -5,7 +5,7 @@ import CompanySponsorsSection from './sponsors/CompanySponsorsSection';
 import DotGridBackground from './DotGridBackground';
 
 const SponsorsWallOfFame = () => {
-  // Company sponsors with updated list - removed Vercel, added Supabase
+  // Company sponsors with updated list - fixed Supabase logo to use white version
   const companySponsors = [
     {
       name: "IONOS",
@@ -16,7 +16,7 @@ const SponsorsWallOfFame = () => {
     },
     {
       name: "Supabase",
-      logo: "https://supabase.com/brand-assets/supabase-logo-wordmark--light.png",
+      logo: "https://supabase.com/brand-assets/supabase-logo-wordmark--dark.png",
       website: "https://supabase.com",
       tier: "gold",
       sponsorshipLevel: "$250+"

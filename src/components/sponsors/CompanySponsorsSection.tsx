@@ -44,7 +44,11 @@ const CompanySponsorsSection: React.FC<CompanySponsorsSectionProps> = ({ sponsor
                     <img 
                       src={sponsor.logo} 
                       alt={`${sponsor.name} logo`}
-                      className="max-w-full max-h-full object-contain filter brightness-0 invert group-hover:brightness-100 group-hover:invert-0 transition-all duration-300 opacity-70 group-hover:opacity-100"
+                      className={`max-w-full max-h-full object-contain transition-all duration-300 opacity-70 group-hover:opacity-100 ${
+                        sponsor.name === 'Supabase' 
+                          ? '' // Supabase logo is already white, no filter needed
+                          : 'filter brightness-0 invert group-hover:brightness-100 group-hover:invert-0'
+                      }`}
                     />
                   </div>
                   <div className="text-center mt-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
@@ -77,7 +81,11 @@ const CompanySponsorsSection: React.FC<CompanySponsorsSectionProps> = ({ sponsor
                     <img 
                       src={sponsor.logo} 
                       alt={`${sponsor.name} logo`}
-                      className="max-w-full max-h-full object-contain filter brightness-0 invert group-hover:brightness-100 group-hover:invert-0 transition-all duration-300 opacity-70 group-hover:opacity-100"
+                      className={`max-w-full max-h-full object-contain transition-all duration-300 opacity-70 group-hover:opacity-100 ${
+                        sponsor.name === 'Supabase' 
+                          ? '' // Supabase logo is already white, no filter needed
+                          : 'filter brightness-0 invert group-hover:brightness-100 group-hover:invert-0'
+                      }`}
                     />
                   </div>
                   <div className="text-center mt-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
