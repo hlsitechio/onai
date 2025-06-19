@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -9,23 +8,23 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2, Plus, RefreshCw, Globe, Settings, Zap } from 'lucide-react';
 import { 
-  getIonosDomains, 
+  getIonosZones, 
   getIonosDnsRecords, 
   createIonosDnsRecord, 
   isValidDomain, 
   validateDnsRecordContent,
-  type IonosDomain, 
+  type IonosZone, 
   type IonosDnsRecord 
 } from '@/utils/ionosService';
 import DeploymentSettings from './DeploymentSettings';
 import QuickSetup from './QuickSetup';
 
 const IonosIntegration = () => {
-  const [domains, setDomains] = useState<IonosDomain[]>([]);
-  const [selectedDomain, setSelectedDomain] = useState<string>('');
+  const [zones, setZones] = useState<IonosZone[]>([]);
+  const [selectedZone, setSelectedZone] = useState<string>('');
   const [dnsRecords, setDnsRecords] = useState<IonosDnsRecord[]>([]);
   const [loading, setLoading] = useState({
-    domains: false,
+    zones: false,
     records: false,
     creating: false
   });
@@ -36,56 +35,57 @@ const IonosIntegration = () => {
     name: '',
     content: '',
     ttl: 3600,
-    priority: 10
+    prio: 10
   });
 
   const { toast } = useToast();
 
   useEffect(() => {
-    loadDomains();
+    loadZones();
   }, []);
 
   useEffect(() => {
-    if (selectedDomain) {
-      loadDnsRecords(selectedDomain);
+    if (selectedZone) {
+      loadDnsRecords(selectedZone);
     }
-  }, [selectedDomain]);
+  }, [selectedZone]);
 
-  const loadDomains = async () => {
-    setLoading(prev => ({ ...prev, domains: true }));
+  const loadZones = async () => {
+    setLoading(prev => ({ ...prev, zones: true }));
     try {
-      const fetchedDomains = await getIonosDomains();
-      setDomains(fetchedDomains);
+      const fetchedZones = await getIonosZones();
+      setZones(fetchedZones);
       
-      if (fetchedDomains.length > 0 && !selectedDomain) {
-        setSelectedDomain(fetchedDomains[0].name);
+      if (fetchedZones.length > 0 && !selectedZone) {
+        setSelectedZone(fetchedZones[0].id);
       }
       
       toast({
-        title: "Domains loaded",
-        description: `Found ${fetchedDomains.length} domains`,
+        title: "Zones loaded",
+        description: `Found ${fetchedZones.length} zones`,
       });
     } catch (error) {
-      console.error('Error loading domains:', error);
+      console.error('Error loading zones:', error);
       toast({
-        title: "Error loading domains",
-        description: error instanceof Error ? error.message : "Failed to load domains",
+        title: "Error loading zones",
+        description: error instanceof Error ? error.message : "Failed to load zones",
         variant: "destructive",
       });
     } finally {
-      setLoading(prev => ({ ...prev, domains: false }));
+      setLoading(prev => ({ ...prev, zones: false }));
     }
   };
 
-  const loadDnsRecords = async (domain: string) => {
+  const loadDnsRecords = async (zoneId: string) => {
     setLoading(prev => ({ ...prev, records: true }));
     try {
-      const records = await getIonosDnsRecords(domain);
+      const records = await getIonosDnsRecords(zoneId);
       setDnsRecords(records);
       
+      const zoneName = zones.find(z => z.id === zoneId)?.name || zoneId;
       toast({
         title: "DNS records loaded",
-        description: `Found ${records.length} DNS records for ${domain}`,
+        description: `Found ${records.length} DNS records for ${zoneName}`,
       });
     } catch (error) {
       console.error('Error loading DNS records:', error);
@@ -100,10 +100,10 @@ const IonosIntegration = () => {
   };
 
   const handleCreateRecord = async () => {
-    if (!selectedDomain) {
+    if (!selectedZone) {
       toast({
-        title: "No domain selected",
-        description: "Please select a domain first",
+        title: "No zone selected",
+        description: "Please select a zone first",
         variant: "destructive",
       });
       return;
@@ -130,12 +130,12 @@ const IonosIntegration = () => {
     setLoading(prev => ({ ...prev, creating: true }));
     try {
       await createIonosDnsRecord({
-        domain: selectedDomain,
+        zoneId: selectedZone,
         recordType: newRecord.type,
         name: newRecord.name,
         content: newRecord.content,
         ttl: newRecord.ttl,
-        priority: newRecord.type === 'MX' ? newRecord.priority : undefined
+        prio: newRecord.type === 'MX' ? newRecord.prio : undefined
       });
 
       toast({
@@ -149,11 +149,11 @@ const IonosIntegration = () => {
         name: '',
         content: '',
         ttl: 3600,
-        priority: 10
+        prio: 10
       });
 
       // Reload DNS records
-      loadDnsRecords(selectedDomain);
+      loadDnsRecords(selectedZone);
     } catch (error) {
       console.error('Error creating DNS record:', error);
       toast({
@@ -172,18 +172,18 @@ const IonosIntegration = () => {
         <Globe className="h-8 w-8 text-blue-600" />
         <div>
           <h1 className="text-3xl font-bold">IONOS Integration</h1>
-          <p className="text-gray-600">Manage your IONOS domains and DNS records</p>
+          <p className="text-gray-600">Manage your IONOS DNS zones and records</p>
         </div>
       </div>
 
       {/* Quick Setup Section */}
       <QuickSetup />
 
-      <Tabs defaultValue="domains" className="w-full">
+      <Tabs defaultValue="zones" className="w-full">
         <TabsList className="grid w-full grid-cols-2">
-          <TabsTrigger value="domains" className="flex items-center gap-2">
+          <TabsTrigger value="zones" className="flex items-center gap-2">
             <Settings className="h-4 w-4" />
-            Domain Management
+            Zone Management
           </TabsTrigger>
           <TabsTrigger value="deployment" className="flex items-center gap-2">
             <Zap className="h-4 w-4" />
@@ -191,55 +191,55 @@ const IonosIntegration = () => {
           </TabsTrigger>
         </TabsList>
 
-        <TabsContent value="domains" className="space-y-6">
-          {/* Domains Section */}
+        <TabsContent value="zones" className="space-y-6">
+          {/* Zones Section */}
           <Card>
             <CardHeader>
               <div className="flex items-center justify-between">
                 <div>
                   <CardTitle className="flex items-center gap-2">
                     <Settings className="h-5 w-5" />
-                    Domains
+                    DNS Zones
                   </CardTitle>
-                  <CardDescription>Select a domain to manage its DNS records</CardDescription>
+                  <CardDescription>Select a zone to manage its DNS records</CardDescription>
                 </div>
-                <Button onClick={loadDomains} disabled={loading.domains} variant="outline">
-                  {loading.domains ? <Loader2 className="h-4 w-4 animate-spin" /> : <RefreshCw className="h-4 w-4" />}
+                <Button onClick={loadZones} disabled={loading.zones} variant="outline">
+                  {loading.zones ? <Loader2 className="h-4 w-4 animate-spin" /> : <RefreshCw className="h-4 w-4" />}
                   Refresh
                 </Button>
               </div>
             </CardHeader>
             <CardContent>
-              {domains.length > 0 ? (
-                <Select value={selectedDomain} onValueChange={setSelectedDomain}>
+              {zones.length > 0 ? (
+                <Select value={selectedZone} onValueChange={setSelectedZone}>
                   <SelectTrigger className="w-full">
-                    <SelectValue placeholder="Select a domain" />
+                    <SelectValue placeholder="Select a zone" />
                   </SelectTrigger>
                   <SelectContent>
-                    {domains.map((domain) => (
-                      <SelectItem key={domain.id} value={domain.name}>
-                        {domain.name} ({domain.status})
+                    {zones.map((zone) => (
+                      <SelectItem key={zone.id} value={zone.id}>
+                        {zone.name} ({zone.type})
                       </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
               ) : (
                 <p className="text-gray-500">
-                  {loading.domains ? 'Loading domains...' : 'No domains found'}
+                  {loading.zones ? 'Loading zones...' : 'No zones found'}
                 </p>
               )}
             </CardContent>
           </Card>
 
           {/* Create DNS Record Section */}
-          {selectedDomain && (
+          {selectedZone && (
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <Plus className="h-5 w-5" />
-                  Create DNS Record for {selectedDomain}
+                  Create DNS Record for {zones.find(z => z.id === selectedZone)?.name}
                 </CardTitle>
-                <CardDescription>Add a new DNS record to your domain</CardDescription>
+                <CardDescription>Add a new DNS record to your zone</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -265,7 +265,7 @@ const IonosIntegration = () => {
                       id="record-name"
                       value={newRecord.name}
                       onChange={(e) => setNewRecord(prev => ({ ...prev, name: e.target.value }))}
-                      placeholder="www, mail, @"
+                      placeholder="www, mail, or full domain name"
                     />
                   </div>
 
@@ -303,8 +303,8 @@ const IonosIntegration = () => {
                       <Input
                         id="record-priority"
                         type="number"
-                        value={newRecord.priority}
-                        onChange={(e) => setNewRecord(prev => ({ ...prev, priority: parseInt(e.target.value) || 10 }))}
+                        value={newRecord.prio}
+                        onChange={(e) => setNewRecord(prev => ({ ...prev, prio: parseInt(e.target.value) || 10 }))}
                         min="0"
                         max="65535"
                       />
@@ -321,15 +321,15 @@ const IonosIntegration = () => {
           )}
 
           {/* DNS Records List */}
-          {selectedDomain && (
+          {selectedZone && (
             <Card>
               <CardHeader>
                 <div className="flex items-center justify-between">
                   <div>
-                    <CardTitle>DNS Records for {selectedDomain}</CardTitle>
+                    <CardTitle>DNS Records for {zones.find(z => z.id === selectedZone)?.name}</CardTitle>
                     <CardDescription>Current DNS configuration</CardDescription>
                   </div>
-                  <Button onClick={() => loadDnsRecords(selectedDomain)} disabled={loading.records} variant="outline">
+                  <Button onClick={() => loadDnsRecords(selectedZone)} disabled={loading.records} variant="outline">
                     {loading.records ? <Loader2 className="h-4 w-4 animate-spin" /> : <RefreshCw className="h-4 w-4" />}
                     Refresh
                   </Button>
@@ -360,14 +360,14 @@ const IonosIntegration = () => {
                             <td className="border border-gray-200 px-4 py-2">{record.name}</td>
                             <td className="border border-gray-200 px-4 py-2 break-all">{record.content}</td>
                             <td className="border border-gray-200 px-4 py-2">{record.ttl}</td>
-                            <td className="border border-gray-200 px-4 py-2">{record.priority || '-'}</td>
+                            <td className="border border-gray-200 px-4 py-2">{record.prio || '-'}</td>
                           </tr>
                         ))}
                       </tbody>
                     </table>
                   </div>
                 ) : (
-                  <p className="text-gray-500 text-center py-8">No DNS records found for this domain</p>
+                  <p className="text-gray-500 text-center py-8">No DNS records found for this zone</p>
                 )}
               </CardContent>
             </Card>

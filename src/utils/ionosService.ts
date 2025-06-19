@@ -1,64 +1,65 @@
 
 import { supabase } from '@/integrations/supabase/client';
 
-export interface IonosDomain {
+export interface IonosZone {
   id: string;
   name: string;
-  status: string;
-  created?: string;
-  expires?: string;
+  type: string;
 }
 
 export interface IonosDnsRecord {
-  id: string;
-  type: string;
+  id?: string;
   name: string;
+  rootName?: string;
+  type: string;
   content: string;
   ttl: number;
-  priority?: number;
+  prio?: number;
+  disabled?: boolean;
+  changeDate?: string;
 }
 
 export interface CreateDnsRecordRequest {
-  domain: string;
+  zoneId: string;
   recordType: string;
   name: string;
   content: string;
   ttl?: number;
-  priority?: number;
+  prio?: number;
 }
 
 /**
- * Get all domains from IONOS
+ * Get all zones from IONOS
  */
-export const getIonosDomains = async (): Promise<IonosDomain[]> => {
+export const getIonosZones = async (): Promise<IonosZone[]> => {
   try {
-    const { data, error } = await supabase.functions.invoke('ionos-api', {
+    const { data, error } = await supabase.functions.invoke('ionos-dns-api', {
       body: JSON.stringify({
-        action: 'list_domains'
+        action: 'list_zones'
       }),
     });
 
     if (error) {
-      console.error('Failed to fetch IONOS domains:', error);
-      throw new Error(`Failed to fetch domains: ${error.message}`);
+      console.error('Failed to fetch IONOS zones:', error);
+      throw new Error(`Failed to fetch zones: ${error.message}`);
     }
 
     return data || [];
   } catch (error) {
-    console.error('Error fetching IONOS domains:', error);
+    console.error('Error fetching IONOS zones:', error);
     throw error;
   }
 };
 
 /**
- * Get DNS records for a specific domain
+ * Get DNS records for a specific zone
  */
-export const getIonosDnsRecords = async (domain: string): Promise<IonosDnsRecord[]> => {
+export const getIonosDnsRecords = async (zoneId: string): Promise<IonosDnsRecord[]> => {
   try {
-    const { data, error } = await supabase.functions.invoke('ionos-api', {
+    const { data, error } = await supabase.functions.invoke('ionos-dns-api', {
       body: JSON.stringify({
-        action: 'list_dns_records',
-        domain
+        action: 'get_zone_records',
+        zoneId
       }),
     });
 
@@ -67,7 +68,7 @@ export const getIonosDnsRecords = async (domain: string): Promise<IonosDnsRecord
       throw new Error(`Failed to fetch DNS records: ${error.message}`);
     }
 
-    return data || [];
+    return data?.records || [];
   } catch (error) {
     console.error('Error fetching IONOS DNS records:', error);
     throw error;
@@ -75,19 +76,22 @@ export const getIonosDnsRecords = async (domain: string): Promise<IonosDnsRecord
 };
 
 /**
- * Create a new DNS record
+ * Create new DNS records
  */
-export const createIonosDnsRecord = async (request: CreateDnsRecordRequest): Promise<IonosDnsRecord> => {
+export const createIonosDnsRecord = async (request: CreateDnsRecordRequest): Promise<IonosDnsRecord[]> => {
   try {
-    const { data, error } = await supabase.functions.invoke('ionos-api', {
+    const { data, error } = await supabase.functions.invoke('ionos-dns-api', {
       body: JSON.stringify({
-        action: 'create_dns_record',
-        domain: request.domain,
-        recordType: request.recordType,
-        name: request.name,
-        content: request.content,
-        ttl: request.ttl,
-        priority: request.priority
+        action: 'create_dns_records',
+        zoneId: request.zoneId,
+        records: [{
+          name: request.name,
+          type: request.recordType,
+          content: request.content,
+          ttl: request.ttl || 3600,
+          prio: request.prio || 0,
+          disabled: false
+        }]
       }),
     });
 
@@ -133,3 +137,7 @@ export const validateDnsRecordContent = (type: string, content: string): boolean
       return true; // Allow other record types
   }
 };
+
+// Legacy compatibility exports
+export const getIonosDomains = getIonosZones;
+export type IonosDomain = IonosZone;
