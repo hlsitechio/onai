@@ -14,29 +14,51 @@ const AlignmentControls: React.FC<AlignmentControlsProps> = ({ editor }) => {
     {
       icon: AlignLeft,
       alignment: 'left',
-      isActive: () => editor.isActive({ textAlign: 'left' }) || (!editor.isActive({ textAlign: 'center' }) && !editor.isActive({ textAlign: 'right' }) && !editor.isActive({ textAlign: 'justify' })),
-      onClick: () => editor.chain().focus().setTextAlign('left').run(),
+      isActive: () => {
+        if (!editor) return false;
+        return editor.isActive({ textAlign: 'left' }) || 
+               (!editor.isActive({ textAlign: 'center' }) && 
+                !editor.isActive({ textAlign: 'right' }) && 
+                !editor.isActive({ textAlign: 'justify' }));
+      },
+      onClick: () => {
+        if (editor) {
+          editor.chain().focus().setTextAlign('left').run();
+        }
+      },
       title: 'Align Left'
     },
     {
       icon: AlignCenter,
       alignment: 'center',
-      isActive: () => editor.isActive({ textAlign: 'center' }),
-      onClick: () => editor.chain().focus().setTextAlign('center').run(),
+      isActive: () => editor?.isActive({ textAlign: 'center' }) || false,
+      onClick: () => {
+        if (editor) {
+          editor.chain().focus().setTextAlign('center').run();
+        }
+      },
       title: 'Align Center'
     },
     {
       icon: AlignRight,
       alignment: 'right',
-      isActive: () => editor.isActive({ textAlign: 'right' }),
-      onClick: () => editor.chain().focus().setTextAlign('right').run(),
+      isActive: () => editor?.isActive({ textAlign: 'right' }) || false,
+      onClick: () => {
+        if (editor) {
+          editor.chain().focus().setTextAlign('right').run();
+        }
+      },
       title: 'Align Right'
     },
     {
       icon: AlignJustify,
       alignment: 'justify',
-      isActive: () => editor.isActive({ textAlign: 'justify' }),
-      onClick: () => editor.chain().focus().setTextAlign('justify').run(),
+      isActive: () => editor?.isActive({ textAlign: 'justify' }) || false,
+      onClick: () => {
+        if (editor) {
+          editor.chain().focus().setTextAlign('justify').run();
+        }
+      },
       title: 'Justify'
     }
   ];

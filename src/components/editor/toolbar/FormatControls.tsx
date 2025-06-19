@@ -13,36 +13,56 @@ const FormatControls: React.FC<FormatControlsProps> = ({ editor }) => {
   const formatButtons = [
     {
       icon: Bold,
-      isActive: () => editor.isActive('bold'),
-      onClick: () => editor.chain().focus().toggleBold().run(),
+      isActive: () => editor?.isActive('bold') || false,
+      onClick: () => {
+        if (editor) {
+          editor.chain().focus().toggleBold().run();
+        }
+      },
       title: 'Bold (Ctrl+B)',
       shortcut: 'Ctrl+B'
     },
     {
       icon: Italic,
-      isActive: () => editor.isActive('italic'),
-      onClick: () => editor.chain().focus().toggleItalic().run(),
+      isActive: () => editor?.isActive('italic') || false,
+      onClick: () => {
+        if (editor) {
+          editor.chain().focus().toggleItalic().run();
+        }
+      },
       title: 'Italic (Ctrl+I)',
       shortcut: 'Ctrl+I'
     },
     {
       icon: Underline,
-      isActive: () => editor.isActive('underline'),
-      onClick: () => editor.chain().focus().toggleUnderline().run(),
+      isActive: () => editor?.isActive('underline') || false,
+      onClick: () => {
+        if (editor) {
+          editor.chain().focus().toggleUnderline().run();
+        }
+      },
       title: 'Underline (Ctrl+U)',
       shortcut: 'Ctrl+U'
     },
     {
       icon: Strikethrough,
-      isActive: () => editor.isActive('strike'),
-      onClick: () => editor.chain().focus().toggleStrike().run(),
+      isActive: () => editor?.isActive('strike') || false,
+      onClick: () => {
+        if (editor) {
+          editor.chain().focus().toggleStrike().run();
+        }
+      },
       title: 'Strikethrough',
       shortcut: null
     },
     {
       icon: Code,
-      isActive: () => editor.isActive('code'),
-      onClick: () => editor.chain().focus().toggleCode().run(),
+      isActive: () => editor?.isActive('code') || false,
+      onClick: () => {
+        if (editor) {
+          editor.chain().focus().toggleCode().run();
+        }
+      },
       title: 'Inline Code',
       shortcut: null
     }

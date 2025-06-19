@@ -1,8 +1,21 @@
 
 import { useEditor } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
-import { getFormattingExtensions } from '@/components/editor/config/V3FormattingExtensions';
 import { useCallback, useEffect, useState } from 'react';
+
+// Import all necessary extensions
+import Link from '@tiptap/extension-link';
+import Underline from '@tiptap/extension-underline';
+import TextAlign from '@tiptap/extension-text-align';
+import Highlight from '@tiptap/extension-highlight';
+import Typography from '@tiptap/extension-typography';
+import TaskList from '@tiptap/extension-task-list';
+import TaskItem from '@tiptap/extension-task-item';
+import Image from '@tiptap/extension-image';
+import Table from '@tiptap/extension-table';
+import TableRow from '@tiptap/extension-table-row';
+import TableCell from '@tiptap/extension-table-cell';
+import TableHeader from '@tiptap/extension-table-header';
 
 interface UseTiptapEditorProps {
   content: string;
@@ -11,7 +24,6 @@ interface UseTiptapEditorProps {
 }
 
 export const useTiptapEditor = ({ content, setContent, isFocusMode }: UseTiptapEditorProps) => {
-  // Always call all hooks in the same order - no conditional calls
   const [isLoading, setIsLoading] = useState(true);
   const [selectedText, setSelectedText] = useState('');
   const [editorReady, setEditorReady] = useState(false);
@@ -22,13 +34,61 @@ export const useTiptapEditor = ({ content, setContent, isFocusMode }: UseTiptapE
         heading: {
           levels: [1, 2, 3],
         },
+        bulletList: {
+          keepMarks: true,
+          keepAttributes: false,
+        },
+        orderedList: {
+          keepMarks: true,
+          keepAttributes: false,
+        },
       }),
-      ...getFormattingExtensions(),
+      Link.configure({
+        openOnClick: false,
+        HTMLAttributes: {
+          class: 'text-noteflow-400 underline hover:text-noteflow-300 cursor-pointer',
+        },
+      }),
+      Underline.configure({
+        HTMLAttributes: {
+          class: 'underline',
+        },
+      }),
+      TextAlign.configure({
+        types: ['heading', 'paragraph'],
+      }),
+      Highlight.configure({
+        HTMLAttributes: {
+          class: 'bg-yellow-200 text-black px-1 rounded',
+        },
+      }),
+      Typography,
+      TaskList.configure({
+        HTMLAttributes: {
+          class: 'task-list',
+        },
+      }),
+      TaskItem.configure({
+        nested: true,
+        HTMLAttributes: {
+          class: 'task-item',
+        },
+      }),
+      Image.configure({
+        HTMLAttributes: {
+          class: 'max-w-full h-auto rounded-lg',
+        },
+      }),
+      Table.configure({
+        resizable: true,
+      }),
+      TableRow,
+      TableHeader,
+      TableCell,
     ],
     content: content || '<p></p>',
     onUpdate: ({ editor }) => {
       const html = editor.getHTML();
-      // Improve content detection - check for actual text content, not just HTML tags
       const textContent = editor.getText().trim();
       const hasRealContent = textContent.length > 0 && textContent !== '';
       
@@ -52,15 +112,12 @@ export const useTiptapEditor = ({ content, setContent, isFocusMode }: UseTiptapE
     },
   });
 
-  // Update editor content when content prop changes - always run this effect
   useEffect(() => {
-    // Only update if editor exists, is ready, and content is different
     if (editor && editorReady && content !== editor.getHTML()) {
       editor.commands.setContent(content || '<p></p>', false);
     }
   }, [content, editor, editorReady]);
 
-  // Cleanup effect - always run
   useEffect(() => {
     return () => {
       if (editor) {

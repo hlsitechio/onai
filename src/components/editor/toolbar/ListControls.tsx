@@ -13,14 +13,22 @@ const ListControls: React.FC<ListControlsProps> = ({ editor }) => {
   const listButtons = [
     {
       icon: List,
-      isActive: () => editor.isActive('bulletList'),
-      onClick: () => editor.chain().focus().toggleBulletList().run(),
+      isActive: () => editor?.isActive('bulletList') || false,
+      onClick: () => {
+        if (editor) {
+          editor.chain().focus().toggleBulletList().run();
+        }
+      },
       title: 'Bullet List'
     },
     {
       icon: ListOrdered,
-      isActive: () => editor.isActive('orderedList'),
-      onClick: () => editor.chain().focus().toggleOrderedList().run(),
+      isActive: () => editor?.isActive('orderedList') || false,
+      onClick: () => {
+        if (editor) {
+          editor.chain().focus().toggleOrderedList().run();
+        }
+      },
       title: 'Numbered List'
     }
   ];

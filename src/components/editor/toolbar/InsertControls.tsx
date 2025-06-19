@@ -20,7 +20,9 @@ const InsertControls: React.FC<InsertControlsProps> = ({ editor }) => {
         const reader = new FileReader();
         reader.onload = (event) => {
           const url = event.target?.result as string;
-          editor.chain().focus().setImage({ src: url }).run();
+          if (url && editor) {
+            editor.chain().focus().setImage({ src: url }).run();
+          }
         };
         reader.readAsDataURL(file);
       }
@@ -30,31 +32,40 @@ const InsertControls: React.FC<InsertControlsProps> = ({ editor }) => {
 
   const handleLinkInsert = () => {
     const url = window.prompt('Enter URL:');
-    if (url) {
-      editor.chain().focus().setLink({ href: url }).run();
+    if (url && editor) {
+      if (editor.state.selection.empty) {
+        const text = window.prompt('Enter link text:') || url;
+        editor.chain().focus().insertContent(`<a href="${url}">${text}</a>`).run();
+      } else {
+        editor.chain().focus().setLink({ href: url }).run();
+      }
     }
   };
 
   const handleTableInsert = () => {
-    editor.chain().focus().insertTable({ rows: 3, cols: 3, withHeaderRow: true }).run();
+    if (editor) {
+      editor.chain().focus().insertTable({ rows: 3, cols: 3, withHeaderRow: true }).run();
+    }
   };
 
   const insertButtons = [
     {
       icon: Image,
       onClick: handleImageUpload,
-      title: 'Insert Image'
+      title: 'Insert Image',
+      isActive: () => false
     },
     {
       icon: Link,
       onClick: handleLinkInsert,
       title: 'Insert Link',
-      isActive: () => editor.isActive('link')
+      isActive: () => editor?.isActive('link') || false
     },
     {
       icon: Table,
       onClick: handleTableInsert,
-      title: 'Insert Table'
+      title: 'Insert Table',
+      isActive: () => editor?.isActive('table') || false
     }
   ];
 
@@ -62,6 +73,7 @@ const InsertControls: React.FC<InsertControlsProps> = ({ editor }) => {
     <div className="flex items-center gap-1">
       {insertButtons.map((button, index) => {
         const Icon = button.icon;
+        const isActive = button.isActive();
         return (
           <Button
             key={index}
@@ -69,8 +81,8 @@ const InsertControls: React.FC<InsertControlsProps> = ({ editor }) => {
             size="sm"
             onClick={button.onClick}
             className={cn(
-              "h-8 w-8 p-0 hover:bg-white/10",
-              button.isActive?.() 
+              "h-8 w-8 p-0 hover:bg-white/10 transition-colors",
+              isActive 
                 ? "bg-white/20 text-white" 
                 : "text-gray-300 hover:text-white"
             )}

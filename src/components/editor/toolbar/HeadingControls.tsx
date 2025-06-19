@@ -14,22 +14,34 @@ const HeadingControls: React.FC<HeadingControlsProps> = ({ editor }) => {
     {
       icon: Heading1,
       level: 1 as const,
-      isActive: () => editor.isActive('heading', { level: 1 }),
-      onClick: () => editor.chain().focus().toggleHeading({ level: 1 }).run(),
+      isActive: () => editor?.isActive('heading', { level: 1 }) || false,
+      onClick: () => {
+        if (editor) {
+          editor.chain().focus().toggleHeading({ level: 1 }).run();
+        }
+      },
       title: 'Heading 1'
     },
     {
       icon: Heading2,
       level: 2 as const,
-      isActive: () => editor.isActive('heading', { level: 2 }),
-      onClick: () => editor.chain().focus().toggleHeading({ level: 2 }).run(),
+      isActive: () => editor?.isActive('heading', { level: 2 }) || false,
+      onClick: () => {
+        if (editor) {
+          editor.chain().focus().toggleHeading({ level: 2 }).run();
+        }
+      },
       title: 'Heading 2'
     },
     {
       icon: Heading3,
       level: 3 as const,
-      isActive: () => editor.isActive('heading', { level: 3 }),
-      onClick: () => editor.chain().focus().toggleHeading({ level: 3 }).run(),
+      isActive: () => editor?.isActive('heading', { level: 3 }) || false,
+      onClick: () => {
+        if (editor) {
+          editor.chain().focus().toggleHeading({ level: 3 }).run();
+        }
+      },
       title: 'Heading 3'
     }
   ];
