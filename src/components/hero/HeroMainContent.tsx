@@ -129,10 +129,7 @@ const HeroMainContent = () => {
       delay: 1.1,
       duration: 0.8
     }}>
-        <Button variant="outline" className="border-white/20 text-gray-300 hover:text-white hover:bg-white/10 rounded-full px-6 py-3 flex items-center gap-2 transition-all duration-300">
-          <Zap className="h-4 w-4" />
-          Features
-        </Button>
+        
         
         <Button variant="outline" className="border-white/20 text-gray-300 hover:text-white hover:bg-white/10 rounded-full px-6 py-3 flex items-center gap-2 transition-all duration-300">
           <Layers className="h-4 w-4" />
