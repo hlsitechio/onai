@@ -45,37 +45,24 @@ const getIonosApiKey = async (): Promise<string> => {
 };
 
 /**
- * Get all zones from IONOS
+ * Get all zones from IONOS using the edge function
  */
 export const getIonosZones = async (): Promise<IonosZone[]> => {
   try {
-    const apiKey = await getIonosApiKey();
+    console.log('Fetching IONOS zones via edge function...');
     
-    const response = await fetch('https://api.hosting.ionos.com/dns/v1/zones', {
-      headers: {
-        'X-API-Key': apiKey,
-        'Accept': 'application/json'
+    const { data, error } = await supabase.functions.invoke('ionos-dns-api', {
+      body: {
+        action: 'list_zones'
       }
     });
 
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error('IONOS zones API error:', {
-        status: response.status,
-        statusText: response.statusText,
-        body: errorText
-      });
-      throw new Error(`IONOS API error: ${response.status} ${errorText}`);
+    if (error) {
+      console.error('Supabase function error:', error);
+      throw new Error(`Supabase function error: ${error.message}`);
     }
 
-    const data = await response.json();
-    console.log('Zones API response:', {
-      status: response.status,
-      dataType: typeof data,
-      dataLength: Array.isArray(data) ? data.length : 'not array',
-      firstZone: Array.isArray(data) && data.length > 0 ? data[0] : null
-    });
-
+    console.log('Zones response:', data);
     return data || [];
   } catch (error) {
     console.error('Error fetching IONOS zones:', error);
@@ -84,44 +71,26 @@ export const getIonosZones = async (): Promise<IonosZone[]> => {
 };
 
 /**
- * Get DNS records for a specific zone (returns customer-zone object)
+ * Get DNS records for a specific zone using the edge function
  */
 export const getIonosDnsRecords = async (zoneId: string): Promise<IonosDnsRecord[]> => {
   try {
-    const apiKey = await getIonosApiKey();
+    console.log('Fetching DNS records for zone:', zoneId);
     
-    const response = await fetch(`https://api.hosting.ionos.com/dns/v1/zones/${zoneId}`, {
-      headers: {
-        'X-API-Key': apiKey,
-        'Accept': 'application/json'
+    const { data, error } = await supabase.functions.invoke('ionos-dns-api', {
+      body: {
+        action: 'get_zone_records',
+        zoneId: zoneId
       }
     });
 
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error('IONOS zone records API error:', {
-        status: response.status,
-        statusText: response.statusText,
-        body: errorText,
-        zoneId
-      });
-      throw new Error(`IONOS API error: ${response.status} ${errorText}`);
+    if (error) {
+      console.error('Supabase function error:', error);
+      throw new Error(`Supabase function error: ${error.message}`);
     }
 
-    const data = await response.json();
-    console.log('Zone records API response:', {
-      status: response.status,
-      zoneId,
-      dataType: typeof data,
-      hasRecords: data?.records ? data.records.length : 'no records field',
-      zoneInfo: {
-        id: data?.id,
-        name: data?.name,
-        type: data?.type
-      }
-    });
-
-    // The API returns a customer-zone object with records array
+    console.log('Zone records response:', data);
+    // The edge function returns the full customer-zone object
     return data?.records || [];
   } catch (error) {
     console.error('Error fetching IONOS DNS records:', error);
@@ -130,12 +99,10 @@ export const getIonosDnsRecords = async (zoneId: string): Promise<IonosDnsRecord
 };
 
 /**
- * Create new DNS records
+ * Create new DNS records using the edge function
  */
 export const createIonosDnsRecord = async (request: CreateDnsRecordRequest): Promise<IonosDnsRecord[]> => {
   try {
-    const apiKey = await getIonosApiKey();
-    
     const records = [{
       name: request.name,
       type: request.recordType,
@@ -145,36 +112,25 @@ export const createIonosDnsRecord = async (request: CreateDnsRecordRequest): Pro
       disabled: false
     }];
 
-    console.log('Creating DNS records for zone:', request.zoneId, 'Records:', records);
-
-    const response = await fetch(`https://api.hosting.ionos.com/dns/v1/zones/${request.zoneId}/records`, {
-      method: 'POST',
-      headers: {
-        'X-API-Key': apiKey,
-        'Content-Type': 'application/json',
-        'Accept': 'application/json'
-      },
-      body: JSON.stringify(records)
+    console.log('Creating DNS records via edge function:', {
+      zoneId: request.zoneId,
+      records: records
     });
 
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error('IONOS create DNS records API error:', {
-        status: response.status,
-        statusText: response.statusText,
-        body: errorText,
+    const { data, error } = await supabase.functions.invoke('ionos-dns-api', {
+      body: {
+        action: 'create_dns_records',
         zoneId: request.zoneId,
-        records
-      });
-      throw new Error(`IONOS API error: ${response.status} ${errorText}`);
+        records: records
+      }
+    });
+
+    if (error) {
+      console.error('Supabase function error:', error);
+      throw new Error(`Supabase function error: ${error.message}`);
     }
 
-    const data = await response.json();
-    console.log('DNS records created successfully:', {
-      status: response.status,
-      responseData: data
-    });
-
+    console.log('DNS records created successfully:', data);
     return data;
   } catch (error) {
     console.error('Error creating IONOS DNS record:', error);
