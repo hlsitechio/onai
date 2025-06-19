@@ -39,8 +39,20 @@ const HeroTextAnimations: React.FC<HeroTextAnimationsProps> = ({ className = "" 
     }
   };
 
-  const glowVariants = {
-    animate: {
+  const subtitleVariants = {
+    hidden: { opacity: 0, y: 30, scale: 0.9 },
+    visible: { 
+      opacity: 1, 
+      y: 0, 
+      scale: 1,
+      transition: { 
+        delay: 0.8, 
+        duration: 0.8,
+        type: "spring",
+        stiffness: 100
+      }
+    },
+    glow: {
       textShadow: [
         "0 0 20px rgba(96, 165, 250, 0.5), 0 0 40px rgba(147, 51, 234, 0.3)",
         "0 0 30px rgba(147, 51, 234, 0.6), 0 0 60px rgba(96, 165, 250, 0.4)",
@@ -94,16 +106,9 @@ const HeroTextAnimations: React.FC<HeroTextAnimationsProps> = ({ className = "" 
 
       {/* Animated Subtitle */}
       <motion.div
-        initial={{ opacity: 0, y: 30, scale: 0.9 }}
-        animate={{ opacity: 1, y: 0, scale: 1 }}
-        transition={{ 
-          delay: 0.8, 
-          duration: 0.8,
-          type: "spring",
-          stiffness: 100
-        }}
-        variants={glowVariants}
-        animate="animate"
+        variants={subtitleVariants}
+        initial="hidden"
+        animate={["visible", "glow"]}
         className="text-xl md:text-2xl lg:text-3xl"
       >
         <span className="bg-gradient-to-r from-gray-300 via-white to-gray-300 bg-clip-text text-transparent font-light tracking-wide">
