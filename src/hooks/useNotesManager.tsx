@@ -199,18 +199,23 @@ export function useNotesManager() {
         result = data;
       } else {
         // Note doesn't exist, create a new one with the same ID
+        // Ensure required fields are properly set
+        const noteToInsert = {
+          id: noteId,
+          title: finalUpdates.title || generateTitleFromContent(content),
+          content: content,
+          user_id: user.id,
+          content_type: 'html',
+          is_public: false,
+          is_encrypted: false,
+          parent_id: finalUpdates.parent_id || null,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+        };
+
         const { data, error } = await supabase
           .from('notes_v2')
-          .insert({
-            id: noteId,
-            ...finalUpdates,
-            user_id: user.id,
-            content_type: 'html',
-            is_public: false,
-            is_encrypted: false,
-            created_at: new Date().toISOString(),
-            updated_at: new Date().toISOString(),
-          })
+          .insert(noteToInsert)
           .select()
           .single();
 
