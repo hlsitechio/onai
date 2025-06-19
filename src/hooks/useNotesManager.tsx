@@ -10,6 +10,7 @@ interface Note {
   content: string;
   created_at: string;
   updated_at: string;
+  parent_id?: string | null; // Add parent_id for folder support
 }
 
 export function useNotesManager() {
@@ -107,6 +108,7 @@ export function useNotesManager() {
         content_type: 'html',
         is_public: false,
         is_encrypted: false,
+        parent_id: null, // New notes start in root
       };
 
       const { data, error } = await supabase

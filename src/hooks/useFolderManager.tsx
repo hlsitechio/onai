@@ -35,14 +35,24 @@ export function useFolderManager() {
 
     try {
       setLoading(true);
-      const { data, error } = await supabase
-        .from('folders')
-        .select('*')
-        .eq('user_id', user.id)
-        .order('name', { ascending: true });
+      // Use raw SQL query to avoid TypeScript issues with the new table
+      const { data, error } = await supabase.rpc('get_user_folders', {
+        user_uuid: user.id
+      });
 
-      if (error) throw error;
-      setFolders(data || []);
+      if (error) {
+        // Fallback to direct query if RPC doesn't exist
+        const { data: fallbackData, error: fallbackError } = await supabase
+          .from('folders' as any)
+          .select('*')
+          .eq('user_id', user.id)
+          .order('name', { ascending: true });
+
+        if (fallbackError) throw fallbackError;
+        setFolders(fallbackData || []);
+      } else {
+        setFolders(data || []);
+      }
     } catch (error) {
       console.error('Error loading folders:', error);
       toast({
@@ -74,7 +84,7 @@ export function useFolderManager() {
       };
 
       const { data, error } = await supabase
-        .from('folders')
+        .from('folders' as any)
         .insert(newFolder)
         .select()
         .single();
@@ -106,7 +116,7 @@ export function useFolderManager() {
 
     try {
       const { data, error } = await supabase
-        .from('folders')
+        .from('folders' as any)
         .update({ 
           name: newName.trim(),
           updated_at: new Date().toISOString()
@@ -154,7 +164,7 @@ export function useFolderManager() {
 
       // Delete the folder
       const { error } = await supabase
-        .from('folders')
+        .from('folders' as any)
         .delete()
         .eq('id', folderId)
         .eq('user_id', user.id);
