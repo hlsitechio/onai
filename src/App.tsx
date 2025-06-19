@@ -13,6 +13,7 @@ import Success from '@/pages/Success';
 import NotFound from '@/pages/NotFound';
 import PrivacyPolicy from '@/pages/privacy-policy';
 import TermsOfUse from '@/pages/terms-of-use';
+import IonosManagement from '@/pages/IonosManagement';
 import ErrorBoundaryWrapper from '@/components/ErrorBoundaryWrapper';
 import ReactCompatibilityCheck from '@/components/ReactCompatibilityCheck';
 
@@ -30,6 +31,11 @@ function App() {
                 <Route path="/success" element={<Success />} />
                 <Route path="/privacy-policy" element={<PrivacyPolicy />} />
                 <Route path="/terms-of-use" element={<TermsOfUse />} />
+                <Route path="/ionos" element={
+                  <AuthGuard>
+                    <IonosManagement />
+                  </AuthGuard>
+                } />
                 <Route path="/app" element={
                   <AuthGuard>
                     <AppPage />

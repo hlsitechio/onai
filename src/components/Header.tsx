@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
-import { Coffee, FileText, Zap, Brain } from 'lucide-react';
+import { Coffee, FileText, Zap, Brain, Settings } from 'lucide-react';
 import { Github } from 'lucide-react';
 import UserMenu from './UserMenu';
 import AuthModal from './AuthModal';
@@ -42,6 +42,18 @@ const Header = () => {
 
           {/* Navigation */}
           <nav className="hidden md:flex items-center space-x-6">
+            {user && (
+              <>
+                <Link 
+                  to="/ionos"
+                  className="flex items-center space-x-2 text-gray-300 hover:text-white transition-colors cursor-pointer"
+                >
+                  <Settings className="w-4 h-4" />
+                  <span>Domain Manager</span>
+                </Link>
+                <Separator orientation="vertical" className="h-6 bg-white/10" />
+              </>
+            )}
             <Link 
               to="/privacy-policy"
               className="text-gray-300 hover:text-white transition-colors cursor-pointer"
