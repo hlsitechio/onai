@@ -47,12 +47,19 @@ export const useSubscription = () => {
         console.warn('Error checking AI request permission:', permissionError);
       }
 
-      const { data: dailyUsage, error: usageError } = await supabase
-        .rpc('get_daily_ai_usage', { user_uuid: user.id });
+      // Fix: Explicitly call the function with parameters and ensure we get a number
+      const { data: dailyUsageResult, error: usageError } = await supabase
+        .rpc('get_daily_ai_usage', { 
+          user_uuid: user.id,
+          usage_date: new Date().toISOString().split('T')[0] // Today's date in YYYY-MM-DD format
+        });
 
       if (usageError) {
         console.warn('Error getting daily usage:', usageError);
       }
+
+      // Ensure we have a number for daily usage
+      const dailyUsage = typeof dailyUsageResult === 'number' ? dailyUsageResult : 0;
 
       const tier = subscriberData?.subscription_tier || 'starter';
       const usageLimit = tier === 'professional' ? 500 : 10;
@@ -61,7 +68,7 @@ export const useSubscription = () => {
         subscribed: subscriberData?.subscribed || false,
         subscription_tier: tier,
         subscription_end: subscriberData?.subscription_end || null,
-        daily_usage: dailyUsage || 0,
+        daily_usage: dailyUsage,
         usage_limit: usageLimit,
         can_make_request: canMakeRequest !== false,
       });
