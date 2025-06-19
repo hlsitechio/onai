@@ -29,22 +29,42 @@ export class ErrorFiltering {
       'react error #130',
       'element type is invalid',
       
+      // Browser feature warnings (your new requests)
+      'unrecognized feature',
+      'understand this warning',
+      'understand this error',
+      "'vr'",
+      "'ambient-light-sensor'",
+      "'battery'",
+      'iframe which has both allow-scripts and allow-same-origin',
+      'sandbox attribute can escape its sandboxing',
+      'can escape its sandboxing',
+      
+      // Preload warnings
+      'was preloaded using link preload but not used',
+      'preloaded using link preload but not used',
+      'facebook.com/tr',
+      'preloaded intentionally',
+      'please make sure it has an appropriate',
+      
+      // Form validation and accessibility warnings
+      'form validation found',
+      'accessibility issues',
+      'missing id attribute',
+      'missing name attribute',
+      'missing label or aria-label',
+      
+      // Google Fonts performance warnings
+      'google fonts link missing display=swap',
+      'deprecated api usage detected',
+      
       // Additional common non-critical errors
       'resizeobserver loop limit exceeded',
       'non-passive event listener',
       'failed to load resource',
       'lovable-tagger',
       'componenttagger',
-      'unrecognized feature',
-      'iframe which has both allow-scripts and allow-same-origin',
-      'sandbox attribute can escape its sandboxing',
-      'vr',
-      'ambient-light-sensor',
-      'battery',
-      'was preloaded using link preload but not used',
-      'facebook.com/tr',
-      'preloaded intentionally',
-      'understand this error', // Chrome DevTools link text
+      'about:blank',
     ];
 
     // Check if message contains any of the filtered patterns
