@@ -42,18 +42,18 @@ const Header = () => {
 
           {/* Navigation */}
           <nav className="hidden md:flex items-center space-x-6">
-            <a 
-              href="/privacy-policy"
+            <Link 
+              to="/privacy-policy"
               className="text-gray-300 hover:text-white transition-colors cursor-pointer"
             >
               Privacy Policy
-            </a>
-            <a 
-              href="/terms-of-use"
+            </Link>
+            <Link 
+              to="/terms-of-use"
               className="text-gray-300 hover:text-white transition-colors cursor-pointer"
             >
               Terms of Use
-            </a>
+            </Link>
             <Separator orientation="vertical" className="h-6 bg-white/10" />
             <a 
               href="https://github.com/hlsitechio/onai/" 
