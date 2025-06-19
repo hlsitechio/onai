@@ -1,57 +1,52 @@
 
-import React from "react";
-import DebugWrapper from "@/components/DebugWrapper";
-import Header from "@/components/Header";
-import Hero from "@/components/Hero";
-import EnhancedFeatures from "@/components/EnhancedFeatures";
-import FeatureShowcase from "@/components/FeatureShowcase";
-import SponsorsWallOfFame from "@/components/SponsorsWallOfFame";
-import Footer from "@/components/Footer";
-import PWAInstaller from "@/components/pwa/PWAInstaller";
-import PWAUpdateNotifier from "@/components/pwa/PWAUpdateNotifier";
-import PricingSection from "@/components/PricingSection";
-import { useAuth } from "@/contexts/AuthContext";
-import { Navigate } from "react-router-dom";
+import React, { useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import Header from '@/components/Header';
+import Hero from '@/components/Hero';
+import FeatureShowcase from '@/components/FeatureShowcase';
+import InteractiveFeatureShowcase from '@/components/features/InteractiveFeatureShowcase';
+import Features from '@/components/Features';
+import EnhancedFeatures from '@/components/EnhancedFeatures';
+import WhyChooseUs from '@/components/WhyChooseUs';
+import HowItWorks from '@/components/HowItWorks';
+import Testimonials from '@/components/Testimonials';
+import SponsorsWallOfFame from '@/components/SponsorsWallOfFame';
+import PricingSection from '@/components/PricingSection';
+import NewsletterSection from '@/components/NewsletterSection';
+import Footer from '@/components/Footer';
+import NotesEditor from '@/components/notes/NotesEditor';
+import { useAuth } from '@/contexts/AuthContext';
 
 const Index = () => {
-  const { user, loading } = useAuth();
+  const { user } = useAuth();
+  const navigate = useNavigate();
 
-  // If user is authenticated, redirect to the app
-  if (user && !loading) {
-    return <Navigate to="/app" replace />;
-  }
+  // Redirect authenticated users to the app
+  useEffect(() => {
+    if (user) {
+      navigate('/app');
+    }
+  }, [user, navigate]);
 
-  // Show landing page for non-authenticated users
   return (
-    <DebugWrapper componentName="Index">
-      <div className="min-h-screen bg-gradient-to-br from-[#020010] via-[#050520] to-[#0a0518] relative">
-        {/* Global animated background overlay */}
-        <div className="fixed inset-0 z-0 pointer-events-none">
-          <div 
-            className="absolute inset-0 opacity-30"
-            style={{
-              background: `
-                radial-gradient(circle at 20% 50%, rgba(120, 60, 255, 0.15) 0%, transparent 50%),
-                radial-gradient(circle at 80% 20%, rgba(255, 60, 120, 0.1) 0%, transparent 50%),
-                radial-gradient(circle at 40% 80%, rgba(60, 255, 200, 0.08) 0%, transparent 50%)
-              `
-            }}
-          />
-        </div>
-        
-        <div className="relative z-10">
-          <Header />
-          <Hero />
-          <SponsorsWallOfFame />
-          <EnhancedFeatures />
-          <FeatureShowcase />
-          <PricingSection />
-          <Footer />
-          <PWAInstaller />
-          <PWAUpdateNotifier />
-        </div>
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-800">
+      <Header />
+      <Hero />
+      <InteractiveFeatureShowcase />
+      <div id="editor-section">
+        <NotesEditor />
       </div>
-    </DebugWrapper>
+      <FeatureShowcase />
+      <Features />
+      <EnhancedFeatures />
+      <WhyChooseUs />
+      <HowItWorks />
+      <Testimonials />
+      <SponsorsWallOfFame />
+      <PricingSection />
+      <NewsletterSection />
+      <Footer />
+    </div>
   );
 };
 
