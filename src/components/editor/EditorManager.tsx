@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useCallback } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { useNotesManager } from '@/hooks/useNotesManager.tsx';
@@ -67,9 +66,16 @@ const EditorManager: React.FC = () => {
     );
   }
 
-  // Auto-save functionality
+  // Auto-save functionality with improved content detection
   useEffect(() => {
-    if (content.trim() && content !== '<p></p>' && currentNote && content !== currentNote.content) {
+    if (!currentNote || !content.trim()) return;
+    
+    // Better content validation
+    const tempDiv = document.createElement('div');
+    tempDiv.innerHTML = content;
+    const textContent = tempDiv.textContent || tempDiv.innerText || '';
+    
+    if (textContent.trim() && content !== '<p></p>' && content !== currentNote.content) {
       const timer = setTimeout(() => {
         handleSave();
       }, 2000);
@@ -80,9 +86,18 @@ const EditorManager: React.FC = () => {
   // Update content when current note changes
   useEffect(() => {
     if (currentNote) {
-      setContent(currentNote.content);
+      setContent(currentNote.content || '');
+    } else {
+      setContent('');
     }
   }, [currentNote]);
+
+  // Create initial note for new users
+  useEffect(() => {
+    if (user && !loading && notes.length === 0 && !currentNote) {
+      createNewNote();
+    }
+  }, [user, loading, notes.length, currentNote]);
 
   // PWA shortcuts handling
   useEffect(() => {
@@ -133,22 +148,39 @@ const EditorManager: React.FC = () => {
   }, [toggleFocusMode]);
 
   const handleSave = useCallback(async () => {
-    if (!currentNote || !content.trim() || content === '<p></p>') {
+    if (!currentNote) {
+      // If no current note, create a new one
+      const newNote = await createNote();
+      if (newNote) {
+        setCurrentNote(newNote);
+        await saveNote(newNote.id, { content });
+      }
+      return;
+    }
+
+    // Improved content validation
+    const tempDiv = document.createElement('div');
+    tempDiv.innerHTML = content;
+    const textContent = tempDiv.textContent || tempDiv.innerText || '';
+    
+    if (!textContent.trim() && content === '<p></p>') {
       toast({
-        title: "Nothing to save",
-        description: "Your note is empty.",
+        title: "Cannot save empty note",
+        description: "Please add some content before saving.",
         variant: "destructive"
       });
       return;
     }
 
     try {
-      await saveNote(currentNote.id, { content });
-      setLastSaved(new Date());
-      toast({
-        title: "Note saved",
-        description: "Your note has been saved successfully."
-      });
+      const success = await saveNote(currentNote.id, { content });
+      if (success) {
+        setLastSaved(new Date());
+        toast({
+          title: "Note saved",
+          description: "Your note has been saved successfully."
+        });
+      }
     } catch (error) {
       console.error('Save error:', error);
       toast({
@@ -157,7 +189,7 @@ const EditorManager: React.FC = () => {
         variant: "destructive"
       });
     }
-  }, [content, currentNote, saveNote, toast]);
+  }, [content, currentNote, saveNote, createNote, toast]);
 
   const handleNoteLoad = useCallback((noteContent: string) => {
     setContent(noteContent);
@@ -172,15 +204,19 @@ const EditorManager: React.FC = () => {
           description: "The note has been deleted successfully."
         });
         
-        // If we deleted the current note, select another one
+        // If we deleted the current note, select another one or create a new one
         if (currentNote?.id === noteId) {
           const remainingNotes = notes.filter(note => note.id !== noteId);
           if (remainingNotes.length > 0) {
             setCurrentNote(remainingNotes[0]);
             setContent(remainingNotes[0].content);
           } else {
-            setCurrentNote(null);
-            setContent('');
+            // Create a new note if no notes remain
+            const newNote = await createNote();
+            if (newNote) {
+              setCurrentNote(newNote);
+              setContent('');
+            }
           }
         }
       }
@@ -194,13 +230,13 @@ const EditorManager: React.FC = () => {
       });
       return false;
     }
-  }, [deleteNote, toast, currentNote, notes, setCurrentNote]);
+  }, [deleteNote, toast, currentNote, notes, setCurrentNote, createNote]);
 
   const createNewNote = useCallback(async () => {
     const newNote = await createNote();
     if (newNote) {
       setCurrentNote(newNote);
-      setContent(newNote.content);
+      setContent('');
       setLastSaved(null);
     }
   }, [createNote, setCurrentNote]);
