@@ -35,21 +35,46 @@ export interface CreateDnsRecordRequest {
   prio?: number;
 }
 
+// Get IONOS API key from Supabase secrets
+const getIonosApiKey = async (): Promise<string> => {
+  const { data, error } = await supabase.functions.invoke('get-ionos-key');
+  if (error || !data?.apiKey) {
+    throw new Error('IONOS API key not configured');
+  }
+  return data.apiKey;
+};
+
 /**
  * Get all zones from IONOS
  */
 export const getIonosZones = async (): Promise<IonosZone[]> => {
   try {
-    const { data, error } = await supabase.functions.invoke('ionos-dns-api', {
-      body: JSON.stringify({
-        action: 'list_zones'
-      }),
+    const apiKey = await getIonosApiKey();
+    
+    const response = await fetch('https://api.hosting.ionos.com/dns/v1/zones', {
+      headers: {
+        'X-API-Key': apiKey,
+        'Accept': 'application/json'
+      }
     });
 
-    if (error) {
-      console.error('Failed to fetch IONOS zones:', error);
-      throw new Error(`Failed to fetch zones: ${error.message}`);
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('IONOS zones API error:', {
+        status: response.status,
+        statusText: response.statusText,
+        body: errorText
+      });
+      throw new Error(`IONOS API error: ${response.status} ${errorText}`);
     }
+
+    const data = await response.json();
+    console.log('Zones API response:', {
+      status: response.status,
+      dataType: typeof data,
+      dataLength: Array.isArray(data) ? data.length : 'not array',
+      firstZone: Array.isArray(data) && data.length > 0 ? data[0] : null
+    });
 
     return data || [];
   } catch (error) {
@@ -63,17 +88,38 @@ export const getIonosZones = async (): Promise<IonosZone[]> => {
  */
 export const getIonosDnsRecords = async (zoneId: string): Promise<IonosDnsRecord[]> => {
   try {
-    const { data, error } = await supabase.functions.invoke('ionos-dns-api', {
-      body: JSON.stringify({
-        action: 'get_zone_records',
-        zoneId
-      }),
+    const apiKey = await getIonosApiKey();
+    
+    const response = await fetch(`https://api.hosting.ionos.com/dns/v1/zones/${zoneId}`, {
+      headers: {
+        'X-API-Key': apiKey,
+        'Accept': 'application/json'
+      }
     });
 
-    if (error) {
-      console.error('Failed to fetch IONOS DNS records:', error);
-      throw new Error(`Failed to fetch DNS records: ${error.message}`);
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('IONOS zone records API error:', {
+        status: response.status,
+        statusText: response.statusText,
+        body: errorText,
+        zoneId
+      });
+      throw new Error(`IONOS API error: ${response.status} ${errorText}`);
     }
+
+    const data = await response.json();
+    console.log('Zone records API response:', {
+      status: response.status,
+      zoneId,
+      dataType: typeof data,
+      hasRecords: data?.records ? data.records.length : 'no records field',
+      zoneInfo: {
+        id: data?.id,
+        name: data?.name,
+        type: data?.type
+      }
+    });
 
     // The API returns a customer-zone object with records array
     return data?.records || [];
@@ -88,25 +134,46 @@ export const getIonosDnsRecords = async (zoneId: string): Promise<IonosDnsRecord
  */
 export const createIonosDnsRecord = async (request: CreateDnsRecordRequest): Promise<IonosDnsRecord[]> => {
   try {
-    const { data, error } = await supabase.functions.invoke('ionos-dns-api', {
-      body: JSON.stringify({
-        action: 'create_dns_records',
-        zoneId: request.zoneId,
-        records: [{
-          name: request.name,
-          type: request.recordType,
-          content: request.content,
-          ttl: request.ttl || 3600,
-          prio: request.prio || 0,
-          disabled: false
-        }]
-      }),
+    const apiKey = await getIonosApiKey();
+    
+    const records = [{
+      name: request.name,
+      type: request.recordType,
+      content: request.content,
+      ttl: request.ttl || 3600,
+      prio: request.prio || 0,
+      disabled: false
+    }];
+
+    console.log('Creating DNS records for zone:', request.zoneId, 'Records:', records);
+
+    const response = await fetch(`https://api.hosting.ionos.com/dns/v1/zones/${request.zoneId}/records`, {
+      method: 'POST',
+      headers: {
+        'X-API-Key': apiKey,
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
+      },
+      body: JSON.stringify(records)
     });
 
-    if (error) {
-      console.error('Failed to create IONOS DNS record:', error);
-      throw new Error(`Failed to create DNS record: ${error.message}`);
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('IONOS create DNS records API error:', {
+        status: response.status,
+        statusText: response.statusText,
+        body: errorText,
+        zoneId: request.zoneId,
+        records
+      });
+      throw new Error(`IONOS API error: ${response.status} ${errorText}`);
     }
+
+    const data = await response.json();
+    console.log('DNS records created successfully:', {
+      status: response.status,
+      responseData: data
+    });
 
     return data;
   } catch (error) {
