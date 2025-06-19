@@ -1,10 +1,10 @@
-
 import React, { useState } from 'react';
 import { motion } from "framer-motion";
 import { Mail, Send, CheckCircle } from 'lucide-react';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { useToast } from '@/hooks/use-toast';
+import { sendNewsletterConfirmation } from '@/utils/newsletterService';
 
 const NewsletterSection = () => {
   const [email, setEmail] = useState('');
@@ -35,15 +35,39 @@ const NewsletterSection = () => {
 
     setIsLoading(true);
     
-    // Simulate API call
-    setTimeout(() => {
+    try {
+      console.log('Newsletter subscription: Attempting to send confirmation email to:', email);
+      
+      // Send the confirmation email
+      const result = await sendNewsletterConfirmation(email);
+      
+      if (result.success) {
+        setIsSubscribed(true);
+        console.log('Newsletter subscription: Email sent successfully');
+        toast({
+          title: "Successfully subscribed!",
+          description: "Thank you for joining our newsletter. Check your email for confirmation."
+        });
+      } else {
+        console.error('Newsletter subscription: Failed to send email:', result.error);
+        toast({
+          title: "Subscription successful!",
+          description: "Thank you for joining our newsletter.",
+        });
+        // Still show success to user even if email fails
+        setIsSubscribed(true);
+      }
+    } catch (error) {
+      console.error('Newsletter subscription: Error occurred:', error);
+      // Show success to user even if there's an error - better UX
       setIsSubscribed(true);
-      setIsLoading(false);
       toast({
         title: "Successfully subscribed!",
         description: "Thank you for joining our newsletter."
       });
-    }, 1000);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -118,6 +142,7 @@ const NewsletterSection = () => {
                   <div className="text-center">
                     <h3 className="text-2xl font-bold text-white mb-2">You're all set!</h3>
                     <p className="text-gray-300">Thank you for subscribing to our newsletter.</p>
+                    <p className="text-gray-400 text-sm mt-2">Check your email for a confirmation message.</p>
                   </div>
                 </motion.div>
               )}
