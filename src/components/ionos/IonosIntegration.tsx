@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -17,6 +18,7 @@ import {
   type IonosDnsRecord 
 } from '@/utils/ionosService';
 import DeploymentSettings from './DeploymentSettings';
+import QuickSetup from './QuickSetup';
 
 const IonosIntegration = () => {
   const [domains, setDomains] = useState<IonosDomain[]>([]);
@@ -173,6 +175,9 @@ const IonosIntegration = () => {
           <p className="text-gray-600">Manage your IONOS domains and DNS records</p>
         </div>
       </div>
+
+      {/* Quick Setup Section */}
+      <QuickSetup />
 
       <Tabs defaultValue="domains" className="w-full">
         <TabsList className="grid w-full grid-cols-2">
