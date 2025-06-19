@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useTiptapEditor } from '@/hooks/useTiptapEditor';
 import { useTiptapAIAgent } from '@/hooks/useTiptapAIAgent';
 import { useStylusDetection } from '@/hooks/useStylusDetection';
@@ -22,6 +22,7 @@ const TiptapEditor: React.FC<TiptapEditorProps> = ({
   setContent,
   isFocusMode = false
 }) => {
+  // Always call hooks in the same order - no conditional calls
   const [inputMode, setInputMode] = useState<'text' | 'handwriting'>('text');
   const { hasStylus, isUsingStylus } = useStylusDetection();
 
@@ -40,7 +41,7 @@ const TiptapEditor: React.FC<TiptapEditorProps> = ({
   } = useTiptapAIAgent(editor, selectedText);
 
   // Auto-switch to handwriting mode when stylus is detected
-  React.useEffect(() => {
+  useEffect(() => {
     if (isUsingStylus && inputMode === 'text') {
       setInputMode('handwriting');
     }

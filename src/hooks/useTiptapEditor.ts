@@ -10,8 +10,10 @@ interface UseTiptapEditorProps {
 }
 
 export const useTiptapEditor = ({ content, setContent, isFocusMode }: UseTiptapEditorProps) => {
+  // Always call all hooks in the same order - no conditional calls
   const [isLoading, setIsLoading] = useState(true);
   const [selectedText, setSelectedText] = useState('');
+  const [editorReady, setEditorReady] = useState(false);
 
   const editor = useEditor({
     extensions: [
@@ -39,6 +41,7 @@ export const useTiptapEditor = ({ content, setContent, isFocusMode }: UseTiptapE
     },
     onCreate: () => {
       setIsLoading(false);
+      setEditorReady(true);
     },
     editorProps: {
       attributes: {
@@ -47,12 +50,22 @@ export const useTiptapEditor = ({ content, setContent, isFocusMode }: UseTiptapE
     },
   });
 
-  // Update editor content when content prop changes
+  // Update editor content when content prop changes - always run this effect
   useEffect(() => {
-    if (editor && content !== editor.getHTML()) {
+    // Only update if editor exists, is ready, and content is different
+    if (editor && editorReady && content !== editor.getHTML()) {
       editor.commands.setContent(content || '<p></p>', false);
     }
-  }, [content, editor]);
+  }, [content, editor, editorReady]);
+
+  // Cleanup effect - always run
+  useEffect(() => {
+    return () => {
+      if (editor) {
+        editor.destroy();
+      }
+    };
+  }, [editor]);
 
   const handleContentChange = useCallback((newContent: string) => {
     setContent(newContent);
