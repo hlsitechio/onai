@@ -35,8 +35,8 @@ const HandwritingCanvas: React.FC<HandwritingCanvasProps> = ({
   const [strokes, setStrokes] = useState<Stroke[]>([]);
   const [currentStroke, setCurrentStroke] = useState<Point[]>([]);
   const [tool, setTool] = useState<'pen' | 'eraser'>('pen');
-  const [penColor, setPenColor] = useState('#000000');
-  const [penWidth, setPenWidth] = useState(2);
+  const [penColor, setPenColor] = useState('#ffffff');
+  const [penWidth, setPenWidth] = useState(3);
   const [history, setHistory] = useState<Stroke[][]>([]);
   const [historyIndex, setHistoryIndex] = useState(-1);
 
@@ -61,7 +61,15 @@ const HandwritingCanvas: React.FC<HandwritingCanvasProps> = ({
   }, []);
 
   const startDrawing = useCallback((event: React.PointerEvent<HTMLCanvasElement>) => {
+    // Only start drawing with pen or primary pointer (to avoid palm rejection issues)
+    if (event.pointerType === 'touch' && !event.isPrimary) return;
     if (event.pointerType === 'mouse' && event.buttons !== 1) return;
+    
+    console.log('Starting drawing with:', {
+      pointerType: event.pointerType,
+      pressure: event.pressure,
+      isPrimary: event.isPrimary
+    });
     
     setIsDrawing(true);
     const pos = getEventPos(event);
@@ -73,6 +81,9 @@ const HandwritingCanvas: React.FC<HandwritingCanvasProps> = ({
       pressure,
       timestamp: Date.now()
     }]);
+
+    // Prevent scrolling while drawing
+    event.preventDefault();
   }, [getEventPos]);
 
   const draw = useCallback((event: React.PointerEvent<HTMLCanvasElement>) => {
@@ -98,22 +109,29 @@ const HandwritingCanvas: React.FC<HandwritingCanvasProps> = ({
     if (tool === 'pen') {
       ctx.globalCompositeOperation = 'source-over';
       ctx.strokeStyle = penColor;
-      ctx.lineWidth = penWidth * (pressure * 2);
+      // Enhanced pressure sensitivity for Samsung S Pen
+      const pressureMultiplier = event.pointerType === 'pen' ? pressure * 3 : 1;
+      ctx.lineWidth = Math.max(1, penWidth * pressureMultiplier);
     } else {
       ctx.globalCompositeOperation = 'destination-out';
-      ctx.lineWidth = penWidth * 3;
+      ctx.lineWidth = penWidth * 4;
     }
     
     ctx.beginPath();
     const lastPoint = currentStroke[currentStroke.length - 1];
-    ctx.moveTo(lastPoint.x, lastPoint.y);
-    ctx.lineTo(pos.x, pos.y);
-    ctx.stroke();
+    if (lastPoint) {
+      ctx.moveTo(lastPoint.x, lastPoint.y);
+      ctx.lineTo(pos.x, pos.y);
+      ctx.stroke();
+    }
+
+    event.preventDefault();
   }, [isDrawing, getEventPos, getContext, currentStroke, tool, penColor, penWidth]);
 
-  const stopDrawing = useCallback(() => {
+  const stopDrawing = useCallback((event: React.PointerEvent<HTMLCanvasElement>) => {
     if (!isDrawing || currentStroke.length === 0) return;
     
+    console.log('Stopping drawing');
     setIsDrawing(false);
     
     const newStroke: Stroke = {
@@ -131,13 +149,17 @@ const HandwritingCanvas: React.FC<HandwritingCanvasProps> = ({
     newHistory.push(newStrokes);
     setHistory(newHistory);
     setHistoryIndex(newHistory.length - 1);
+
+    event.preventDefault();
   }, [isDrawing, currentStroke, strokes, penColor, penWidth, history, historyIndex]);
 
   const redrawCanvas = useCallback(() => {
     const ctx = getContext();
     if (!ctx) return;
     
-    ctx.clearRect(0, 0, width, height);
+    // Set dark background for better visibility
+    ctx.fillStyle = '#1a1a1a';
+    ctx.fillRect(0, 0, width, height);
     
     strokes.forEach(stroke => {
       if (stroke.points.length < 2) return;
@@ -223,7 +245,7 @@ const HandwritingCanvas: React.FC<HandwritingCanvasProps> = ({
           <input
             type="range"
             min="1"
-            max="10"
+            max="8"
             value={penWidth}
             onChange={(e) => setPenWidth(Number(e.target.value))}
             className="w-20"
@@ -262,7 +284,7 @@ const HandwritingCanvas: React.FC<HandwritingCanvasProps> = ({
       </div>
 
       {/* Canvas */}
-      <div className="relative border border-white/20 rounded-lg overflow-hidden bg-white/5">
+      <div className="relative border border-white/20 rounded-lg overflow-hidden bg-gray-900">
         <canvas
           ref={canvasRef}
           width={width}
@@ -282,8 +304,8 @@ const HandwritingCanvas: React.FC<HandwritingCanvasProps> = ({
         {strokes.length === 0 && (
           <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
             <p className="text-gray-400 text-center">
-              Start writing with your pen or stylus<br />
-              <span className="text-sm">Supports pressure sensitivity</span>
+              Draw with your S Pen or stylus<br />
+              <span className="text-sm">Supports pressure sensitivity and palm rejection</span>
             </p>
           </div>
         )}
