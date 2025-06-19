@@ -56,7 +56,7 @@ export function useNotesManager() {
     }
   }, [user]);
 
-  const loadNotes = async () => {
+  const loadNotes = useCallback(async () => {
     if (!user) return;
 
     try {
@@ -69,6 +69,7 @@ export function useNotesManager() {
 
       if (error) throw error;
 
+      console.log('Loaded notes:', data); // Debug log
       setNotes(data || []);
       
       // Set current note to the most recent one if none is selected
@@ -85,7 +86,7 @@ export function useNotesManager() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [user, toast, currentNote]);
 
   const createNote = async (title?: string, content?: string) => {
     if (!user) {
@@ -240,6 +241,11 @@ export function useNotesManager() {
       if (currentNote?.id === noteId) {
         setCurrentNote(prev => prev ? { ...prev, ...result } : result as Note);
       }
+
+      // Trigger a reload of notes to ensure UI is in sync
+      setTimeout(() => {
+        loadNotes();
+      }, 100);
 
       return true;
     } catch (error) {

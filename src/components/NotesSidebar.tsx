@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNotesManager } from '@/hooks/useNotesManager.tsx';
 import { useNotesImportExport } from "@/utils/notesImportExport";
 import ShareNoteDrawer from './notes/ShareNoteDrawer';
@@ -45,12 +45,22 @@ const NotesSidebar: React.FC<NotesSidebarProps> = ({
     createNote,
     saveNote,
     deleteNote,
+    loadNotes,
   } = useNotesManager();
 
-  const {
-    handleExportNotes,
-    handleImportNotes
-  } = useNotesImportExport();
+  // Reload notes when component mounts or when save is triggered
+  useEffect(() => {
+    loadNotes();
+  }, [loadNotes]);
+
+  // Refresh notes list when a save operation happens
+  const handleSaveWithRefresh = async () => {
+    await onSave();
+    // Refresh the notes list after save
+    setTimeout(() => {
+      loadNotes();
+    }, 500); // Small delay to ensure the save is complete
+  };
 
   // Convert modern notes to legacy format for compatibility
   const modernNotesAsLegacy: Record<string, string> = {};
@@ -73,7 +83,12 @@ const NotesSidebar: React.FC<NotesSidebarProps> = ({
 
   const handleDeleteNoteModern = async (noteId: string, e: React.MouseEvent) => {
     e.stopPropagation();
-    return await deleteNote(noteId);
+    const success = await deleteNote(noteId);
+    if (success) {
+      // Refresh the notes list after deletion
+      loadNotes();
+    }
+    return success;
   };
 
   const handleCreateNewModern = async () => {
@@ -81,6 +96,8 @@ const NotesSidebar: React.FC<NotesSidebarProps> = ({
     if (newNote) {
       setCurrentNote(newNote);
       onLoadNote(newNote.content);
+      // Refresh the notes list after creation
+      loadNotes();
     }
   };
 
@@ -127,6 +144,11 @@ const NotesSidebar: React.FC<NotesSidebarProps> = ({
     return result.shareUrl || "";
   };
 
+  const {
+    handleExportNotes,
+    handleImportNotes
+  } = useNotesImportExport();
+
   const handleImportNotesWithMerge = () => {
     handleImportNotes(async importedNotes => {
       try {
@@ -138,6 +160,8 @@ const NotesSidebar: React.FC<NotesSidebarProps> = ({
         } else {
           console.log('Imported notes (no parent handler):', importedNotes);
         }
+        // Refresh notes list after import
+        loadNotes();
       } catch (error) {
         console.error('Error during import merge:', error);
       }
@@ -168,7 +192,7 @@ const NotesSidebar: React.FC<NotesSidebarProps> = ({
       />
 
       <div className="flex-1 overflow-auto custom-scrollbar bg-[#03010a]">
-        <SaveNotesSection onSave={onSave} />
+        <SaveNotesSection onSave={handleSaveWithRefresh} />
         
         <div className="px-4 pb-4">
           <NotesContent
