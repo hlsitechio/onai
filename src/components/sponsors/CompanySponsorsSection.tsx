@@ -4,9 +4,8 @@ import {
   Carousel,
   CarouselContent,
   CarouselItem,
-  CarouselNext,
-  CarouselPrevious,
 } from "@/components/ui/carousel";
+import Autoplay from "embla-carousel-autoplay";
 
 interface CompanySponsor {
   name: string;
@@ -30,12 +29,17 @@ const CompanySponsorsSection: React.FC<CompanySponsorsSectionProps> = ({ sponsor
       </div>
       
       {/* Carousel Container */}
-      <div className="relative px-12">
+      <div className="relative">
         <Carousel
           opts={{
             align: "start",
             loop: true,
           }}
+          plugins={[
+            Autoplay({
+              delay: 2000,
+            }),
+          ]}
           className="w-full max-w-5xl mx-auto"
         >
           <CarouselContent className="-ml-2 md:-ml-4">
@@ -70,8 +74,6 @@ const CompanySponsorsSection: React.FC<CompanySponsorsSectionProps> = ({ sponsor
               </CarouselItem>
             ))}
           </CarouselContent>
-          <CarouselPrevious className="text-white border-white/20 hover:bg-white/10" />
-          <CarouselNext className="text-white border-white/20 hover:bg-white/10" />
         </Carousel>
       </div>
     </div>
