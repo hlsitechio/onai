@@ -1,4 +1,3 @@
-
 import { v4 as uuidv4 } from 'uuid';
 
 export interface ShareOptions {
@@ -281,7 +280,7 @@ export const downloadAsFile = (content: string, options: ShareOptions = {}): Sha
   }
 };
 
-// Native device sharing
+// Native device sharing - Fixed to handle permissions properly
 export const shareNatively = async (content: string, options: ShareOptions = {}): Promise<ShareResult> => {
   if (!navigator.share) {
     return {
@@ -292,26 +291,25 @@ export const shareNatively = async (content: string, options: ShareOptions = {})
 
   try {
     const title = extractTitle(content) || options.title || 'Shared Note';
-    const format = options.format || 'txt';
     
-    // Try file sharing first (better for note apps)
-    try {
-      const formattedContent = formatContent(content, format, options);
-      const file = new File([formattedContent], `${title}.${format}`, { 
-        type: format === 'html' ? 'text/html' : 'text/plain' 
-      });
-      
+    // Check if we can share files first
+    const formattedContent = formatContent(content, options.format || 'txt', options);
+    const file = new File([formattedContent], `${title}.${options.format || 'txt'}`, { 
+      type: options.format === 'html' ? 'text/html' : 'text/plain' 
+    });
+    
+    // Check if file sharing is supported
+    if (navigator.canShare && navigator.canShare({ files: [file] })) {
       await navigator.share({
         title,
-        text: content.substring(0, 100) + (content.length > 100 ? '...' : ''),
         files: [file]
       });
-    } catch (fileError) {
-      // Fallback to text sharing
+    } else {
+      // Fallback to text sharing only
+      const textToShare = content.substring(0, 200) + (content.length > 200 ? '...' : '');
       await navigator.share({
         title,
-        text: content,
-        url: window.location.href
+        text: textToShare
       });
     }
 
@@ -320,6 +318,21 @@ export const shareNatively = async (content: string, options: ShareOptions = {})
       method: 'native'
     };
   } catch (error) {
+    // Handle specific permission errors
+    if (error instanceof Error) {
+      if (error.name === 'NotAllowedError') {
+        return {
+          success: false,
+          error: 'Permission denied - sharing requires user interaction'
+        };
+      } else if (error.name === 'AbortError') {
+        return {
+          success: false,
+          error: 'Share cancelled by user'
+        };
+      }
+    }
+    
     return {
       success: false,
       error: error instanceof Error ? error.message : 'Native sharing failed'

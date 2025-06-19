@@ -39,16 +39,17 @@ const QuickShareButtons: React.FC<QuickShareButtonsProps> = ({
     includeMetadata: true
   };
 
-  const handleUrlShare = () => {
-    handleQuickShare(content, 'url', shareOptions);
+  const handleUrlShare = async () => {
+    await handleQuickShare(content, 'url', shareOptions);
   };
 
-  const handleDownload = () => {
-    handleQuickShare(content, 'download', shareOptions);
+  const handleDownload = async () => {
+    await handleQuickShare(content, 'download', shareOptions);
   };
 
-  const handleNativeShare = () => {
-    handleQuickShare(content, 'native', shareOptions);
+  const handleNativeShare = async () => {
+    // Ensure this is called from a user interaction
+    await handleQuickShare(content, 'native', shareOptions);
   };
 
   const handleAdvancedShare = () => {
