@@ -5,7 +5,7 @@ import { useFocusModeManager } from '@/hooks/useFocusModeManager';
 import { useDeviceDetection } from '@/hooks/useDeviceDetection';
 import TiptapEditor from '../editor/TiptapEditor';
 import MobileLayout from '../mobile/MobileLayout';
-import { Loader2, FileText } from 'lucide-react';
+import { Loader2, PenTool } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 const NotesEditor: React.FC = () => {
@@ -56,17 +56,17 @@ const NotesEditor: React.FC = () => {
     );
   }
 
-  // Empty state when no note is selected
+  // Empty state when no note is selected - now shows clean interface
   if (!currentNote) {
     return (
       <div className="flex-1 flex items-center justify-center bg-black/10">
         <div className="text-center max-w-md px-6">
-          <FileText className="h-16 w-16 text-gray-500 mx-auto mb-4" />
+          <PenTool className="h-16 w-16 text-gray-500 mx-auto mb-4" />
           <h3 className="text-xl font-medium text-white mb-3">
-            No note selected
+            Ready to write
           </h3>
-          <p className="text-gray-400 mb-6">
-            Select a note from the sidebar to start editing, or create a new note.
+          <p className="text-gray-400">
+            Create a new note or select one from the sidebar to begin.
           </p>
         </div>
       </div>

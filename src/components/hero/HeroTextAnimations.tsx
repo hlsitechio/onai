@@ -67,7 +67,7 @@ const HeroTextAnimations: React.FC<HeroTextAnimationsProps> = ({ className = "" 
   };
 
   const words = ["Write", "Smarter", "with", "AI"];
-  const subtitle = "The Ultimate Note-Taking Experience";
+  const subtitle = "Everything you need for productive, intelligent note-taking in one seamless experience";
 
   return (
     <div className={className}>
