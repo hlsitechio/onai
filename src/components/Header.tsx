@@ -95,22 +95,24 @@ const Header = () => {
               <UserMenu />
             ) : (
               <>
-                <Button 
-                  variant="ghost" 
-                  size="sm" 
-                  onClick={openSignInModal}
-                  className="text-gray-300 hover:text-white hover:bg-white/10"
-                >
-                  Sign In
-                </Button>
-                <Button 
-                  variant="outline" 
-                  size="sm" 
-                  onClick={openSignUpModal}
-                  className="border-noteflow-400 text-noteflow-400 hover:bg-noteflow-400 hover:text-white"
-                >
-                  Sign Up
-                </Button>
+                <Link to="/auth">
+                  <Button 
+                    variant="ghost" 
+                    size="sm" 
+                    className="text-gray-300 hover:text-white hover:bg-white/10"
+                  >
+                    Sign In
+                  </Button>
+                </Link>
+                <Link to="/auth">
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    className="border-noteflow-400 text-noteflow-400 hover:bg-noteflow-400 hover:text-white"
+                  >
+                    Sign Up
+                  </Button>
+                </Link>
               </>
             )}
           </div>
