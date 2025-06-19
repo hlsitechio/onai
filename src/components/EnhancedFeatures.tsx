@@ -18,38 +18,38 @@ const EnhancedFeatures = () => {
   };
 
   return (
-    <section className="py-16 px-4 relative overflow-hidden">
+    <section className="py-20 px-4 relative overflow-hidden">
       {/* Enhanced animated background elements */}
       <FeaturesBackgroundAnimations />
 
       <div className="container mx-auto max-w-6xl relative z-10">
         <motion.div 
-          className="text-center mb-12"
+          className="text-center mb-16"
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6 }}
         >
           <motion.h2 
-            className="text-3xl md:text-5xl font-bold bg-gradient-to-r from-white via-noteflow-200 to-purple-300 bg-clip-text text-transparent mb-4"
+            className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-white via-noteflow-200 to-purple-300 bg-clip-text text-transparent mb-6"
             whileHover={{ scale: 1.02 }}
             transition={{ duration: 0.3 }}
           >
-            Why Choose Us?
+            Powerful Features
           </motion.h2>
           <motion.p 
-            className="text-lg text-gray-300 max-w-2xl mx-auto"
+            className="text-xl text-gray-300 max-w-2xl mx-auto"
             initial={{ opacity: 0 }}
             whileInView={{ opacity: 1 }}
             viewport={{ once: true }}
             transition={{ delay: 0.3, duration: 0.8 }}
           >
-            Everything you need in one seamless experience
+            AI-powered tools that enhance your writing experience
           </motion.p>
         </motion.div>
 
         <motion.div 
-          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
           variants={containerVariants}
           initial="hidden"
           whileInView="visible"

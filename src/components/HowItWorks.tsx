@@ -8,25 +8,25 @@ const HowItWorks = () => {
     {
       icon: MousePointer,
       title: "Open & Start",
-      description: "Simply open the app and start typing. No registration, no setup required.",
+      description: "No registration required",
       step: "01"
     },
     {
       icon: Type,
       title: "Write Naturally",
-      description: "Type your thoughts naturally. The editor adapts to your writing style.",
+      description: "AI adapts to your style",
       step: "02"
     },
     {
       icon: Sparkles,
       title: "AI Enhancement",
-      description: "Select text for AI suggestions, improvements, and smart formatting.",
+      description: "Smart suggestions",
       step: "03"
     },
     {
       icon: Save,
       title: "Auto-Save",
-      description: "Your work is automatically saved locally and synced if you choose.",
+      description: "Never lose your work",
       step: "04"
     }
   ];
@@ -46,12 +46,34 @@ const HowItWorks = () => {
     visible: { 
       x: 0, 
       opacity: 1,
-      transition: { type: 'spring', stiffness: 100 }
+      transition: { type: 'spring', stiffness: 120, damping: 15 }
     }
   };
 
   return (
     <section className="py-20 px-4 bg-gradient-to-b from-[#0a0518] to-[#050510] relative overflow-hidden">
+      {/* Enhanced background effects */}
+      <div className="absolute inset-0 z-0">
+        <motion.div 
+          className="absolute top-1/3 left-1/5 w-72 h-72 rounded-full bg-gradient-to-r from-noteflow-600/8 to-purple-600/8 blur-3xl"
+          animate={{ 
+            scale: [1, 1.3, 1],
+            opacity: [0.2, 0.4, 0.2],
+            rotate: [0, 180, 360]
+          }}
+          transition={{ duration: 25, repeat: Infinity, ease: "easeInOut" }}
+        />
+        <motion.div 
+          className="absolute bottom-1/3 right-1/5 w-64 h-64 rounded-full bg-gradient-to-r from-green-400/8 to-blue-500/8 blur-2xl"
+          animate={{ 
+            scale: [1.2, 1, 1.2],
+            opacity: [0.3, 0.5, 0.3],
+            rotate: [360, 180, 0]
+          }}
+          transition={{ duration: 20, repeat: Infinity, ease: "easeInOut" }}
+        />
+      </div>
+
       <div className="container mx-auto max-w-6xl relative z-10">
         <motion.div 
           className="text-center mb-16"
@@ -60,16 +82,26 @@ const HowItWorks = () => {
           viewport={{ once: true }}
           transition={{ duration: 0.6 }}
         >
-          <h2 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-white to-noteflow-200 bg-clip-text text-transparent mb-6">
+          <motion.h2 
+            className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-white via-noteflow-200 to-purple-300 bg-clip-text text-transparent mb-6"
+            whileHover={{ scale: 1.02 }}
+            transition={{ duration: 0.3 }}
+          >
             How It Works
-          </h2>
-          <p className="text-xl text-gray-300 max-w-3xl mx-auto">
-            Get started in seconds. Our streamlined process makes note-taking effortless and productive.
-          </p>
+          </motion.h2>
+          <motion.p 
+            className="text-xl text-gray-300 max-w-2xl mx-auto"
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            viewport={{ once: true }}
+            transition={{ delay: 0.3, duration: 0.8 }}
+          >
+            Start writing in seconds with our streamlined process
+          </motion.p>
         </motion.div>
 
         <motion.div 
-          className="space-y-12"
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8"
           variants={containerVariants}
           initial="hidden"
           whileInView="visible"
@@ -79,35 +111,105 @@ const HowItWorks = () => {
             <motion.div
               key={index}
               variants={itemVariants}
-              className="flex flex-col md:flex-row items-center gap-8 group"
+              className="group relative text-center"
+              whileHover={{ 
+                scale: 1.05,
+                transition: { duration: 0.3 }
+              }}
             >
-              {/* Step Number */}
-              <div className="flex-shrink-0 w-20 h-20 rounded-full bg-gradient-to-r from-noteflow-400 to-purple-500 flex items-center justify-center text-2xl font-bold text-white shadow-lg">
-                {step.step}
-              </div>
+              <div className="relative p-8 rounded-3xl bg-gradient-to-br from-black/40 via-black/20 to-black/40 backdrop-blur-xl border border-white/10 hover:border-noteflow-400/50 transition-all duration-500 h-full overflow-hidden">
+                {/* Step number with enhanced styling */}
+                <motion.div 
+                  className="w-12 h-12 mx-auto mb-6 rounded-full bg-gradient-to-r from-noteflow-400 to-purple-500 flex items-center justify-center text-lg font-bold text-white shadow-lg group-hover:scale-110 transition-transform duration-300"
+                  whileHover={{ rotate: 360 }}
+                  transition={{ duration: 0.6 }}
+                >
+                  {step.step}
+                </motion.div>
 
-              {/* Icon */}
-              <div className="flex-shrink-0 w-16 h-16 rounded-xl bg-gradient-to-r from-noteflow-600/20 to-purple-600/20 border border-noteflow-400/30 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
-                <step.icon className="h-8 w-8 text-noteflow-300" />
-              </div>
+                {/* Icon with enhanced effects */}
+                <motion.div 
+                  className="w-14 h-14 mx-auto mb-6 rounded-xl bg-gradient-to-r from-noteflow-600/20 to-purple-600/20 border border-noteflow-400/30 flex items-center justify-center group-hover:scale-110 transition-transform duration-300"
+                  whileHover={{ y: -5 }}
+                  transition={{ duration: 0.2 }}
+                >
+                  <step.icon className="h-7 w-7 text-noteflow-300" />
+                </motion.div>
 
-              {/* Content */}
-              <div className="flex-1 text-center md:text-left">
-                <h3 className="text-2xl font-bold text-white mb-3 group-hover:text-noteflow-300 transition-colors">
+                {/* Content */}
+                <motion.h3 
+                  className="text-xl font-bold text-white mb-3 group-hover:text-noteflow-300 transition-colors duration-300"
+                  whileHover={{ scale: 1.05 }}
+                  transition={{ duration: 0.2 }}
+                >
                   {step.title}
-                </h3>
-                <p className="text-gray-400 text-lg leading-relaxed max-w-2xl">
+                </motion.h3>
+                
+                <p className="text-gray-400 text-base leading-relaxed">
                   {step.description}
                 </p>
-              </div>
 
-              {/* Connecting Line (except for last item) */}
-              {index < steps.length - 1 && (
-                <div className="hidden md:block absolute left-10 top-20 w-0.5 h-12 bg-gradient-to-b from-noteflow-400 to-transparent opacity-30" 
-                     style={{ transform: `translateY(${80 + index * 120}px)` }} />
-              )}
+                {/* Animated background glow */}
+                <motion.div 
+                  className="absolute inset-0 bg-gradient-to-r from-noteflow-600/5 to-purple-600/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-3xl blur-xl"
+                  animate={{
+                    scale: [1, 1.1, 1],
+                    opacity: [0, 0.1, 0]
+                  }}
+                  transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+                />
+
+                {/* Connection line for desktop */}
+                {index < steps.length - 1 && (
+                  <div className="hidden lg:block absolute top-1/2 -right-4 w-8 h-0.5 bg-gradient-to-r from-noteflow-400 to-transparent opacity-30" />
+                )}
+
+                {/* Floating particles */}
+                <div className="absolute inset-0 pointer-events-none">
+                  {[...Array(2)].map((_, i) => (
+                    <motion.div
+                      key={i}
+                      className="absolute w-1 h-1 bg-noteflow-400/40 rounded-full"
+                      style={{
+                        top: `${25 + i * 30}%`,
+                        left: `${20 + i * 40}%`
+                      }}
+                      animate={{
+                        y: [0, -10, 0],
+                        opacity: [0.2, 0.6, 0.2],
+                        scale: [1, 1.3, 1]
+                      }}
+                      transition={{
+                        duration: 2.5 + i * 0.5,
+                        repeat: Infinity,
+                        ease: "easeInOut",
+                        delay: i * 0.8
+                      }}
+                    />
+                  ))}
+                </div>
+              </div>
             </motion.div>
           ))}
+        </motion.div>
+
+        {/* Enhanced call-to-action */}
+        <motion.div
+          className="text-center mt-16"
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6, delay: 0.4 }}
+        >
+          <motion.a 
+            href="#editor-section"
+            className="inline-flex items-center justify-center gap-3 bg-gradient-to-r from-noteflow-600 to-purple-600 hover:from-noteflow-500 hover:to-purple-500 text-white px-8 py-4 rounded-xl font-medium transition-all duration-300 shadow-lg hover:shadow-noteflow-500/25"
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.98 }}
+          >
+            <Sparkles className="h-5 w-5" />
+            Try It Now
+          </motion.a>
         </motion.div>
       </div>
     </section>
