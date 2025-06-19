@@ -54,9 +54,9 @@ const HeroTextAnimations: React.FC<HeroTextAnimationsProps> = ({ className = "" 
     },
     glow: {
       textShadow: [
-        "0 0 20px rgba(96, 165, 250, 0.5), 0 0 40px rgba(147, 51, 234, 0.3)",
-        "0 0 30px rgba(147, 51, 234, 0.6), 0 0 60px rgba(96, 165, 250, 0.4)",
-        "0 0 20px rgba(96, 165, 250, 0.5), 0 0 40px rgba(147, 51, 234, 0.3)"
+        "0 0 20px rgba(255, 255, 255, 0.8), 0 0 40px rgba(96, 165, 250, 0.6)",
+        "0 0 30px rgba(147, 51, 234, 0.8), 0 0 60px rgba(255, 255, 255, 0.6)",
+        "0 0 20px rgba(255, 255, 255, 0.8), 0 0 40px rgba(96, 165, 250, 0.6)"
       ],
       transition: {
         duration: 3,
@@ -83,19 +83,22 @@ const HeroTextAnimations: React.FC<HeroTextAnimationsProps> = ({ className = "" 
             <motion.span
               key={word}
               variants={wordVariants}
-              className={`inline-block mr-4 md:mr-6 ${
+              className={`inline-block mr-4 md:mr-6 font-bold ${
                 index === 0 
-                  ? "bg-gradient-to-r from-white via-noteflow-200 to-noteflow-100 bg-clip-text text-transparent"
+                  ? "bg-gradient-to-r from-white via-blue-200 to-cyan-300 bg-clip-text text-transparent"
                   : index === 1
-                  ? "bg-gradient-to-r from-noteflow-400 via-purple-400 to-pink-400 bg-clip-text text-transparent"
+                  ? "bg-gradient-to-r from-cyan-400 via-blue-400 to-purple-400 bg-clip-text text-transparent"
                   : index === 2
-                  ? "bg-gradient-to-r from-gray-200 via-white to-gray-100 bg-clip-text text-transparent"
-                  : "bg-gradient-to-r from-purple-400 via-noteflow-400 to-cyan-400 bg-clip-text text-transparent"
+                  ? "bg-gradient-to-r from-white via-gray-100 to-blue-200 bg-clip-text text-transparent"
+                  : "bg-gradient-to-r from-purple-400 via-pink-400 to-cyan-400 bg-clip-text text-transparent"
               }`}
               whileHover={{
                 scale: 1.1,
                 rotate: [0, -2, 2, 0],
                 transition: { duration: 0.3 }
+              }}
+              style={{
+                textShadow: index === 1 ? "0 0 30px rgba(96, 165, 250, 0.5)" : "0 0 20px rgba(255, 255, 255, 0.3)"
               }}
             >
               {word}
@@ -111,14 +114,14 @@ const HeroTextAnimations: React.FC<HeroTextAnimationsProps> = ({ className = "" 
         animate={["visible", "glow"]}
         className="text-xl md:text-2xl lg:text-3xl"
       >
-        <span className="bg-gradient-to-r from-gray-300 via-white to-gray-300 bg-clip-text text-transparent font-light tracking-wide">
+        <span className="bg-gradient-to-r from-white via-blue-100 to-cyan-200 bg-clip-text text-transparent font-light tracking-wide">
           {subtitle}
         </span>
       </motion.div>
 
       {/* Decorative Elements */}
       <motion.div
-        className="absolute -top-8 -left-8 w-4 h-4 bg-noteflow-400 rounded-full"
+        className="absolute -top-8 -left-8 w-4 h-4 bg-cyan-400 rounded-full"
         animate={{
           scale: [1, 1.5, 1],
           opacity: [0.5, 1, 0.5],
