@@ -23,16 +23,6 @@ const Header = () => {
     setAuthModalTab('signup');
     setIsAuthModalOpen(true);
   };
-
-  const scrollToSection = (sectionId: string) => {
-    const element = document.getElementById(sectionId);
-    if (element) {
-      element.scrollIntoView({ 
-        behavior: 'smooth',
-        block: 'start'
-      });
-    }
-  };
   
   return (
     <>
@@ -52,18 +42,18 @@ const Header = () => {
 
           {/* Navigation */}
           <nav className="hidden md:flex items-center space-x-6">
-            <button 
-              onClick={() => scrollToSection('features')}
+            <a 
+              href="/privacy-policy"
               className="text-gray-300 hover:text-white transition-colors cursor-pointer"
             >
-              Features
-            </button>
-            <button 
-              onClick={() => scrollToSection('sponsors')}
+              Privacy Policy
+            </a>
+            <a 
+              href="/terms-of-use"
               className="text-gray-300 hover:text-white transition-colors cursor-pointer"
             >
-              Technologies
-            </button>
+              Terms of Use
+            </a>
             <Separator orientation="vertical" className="h-6 bg-white/10" />
             <a 
               href="https://github.com/hlsitechio/onai/" 
