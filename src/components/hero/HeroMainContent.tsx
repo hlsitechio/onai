@@ -45,7 +45,7 @@ const HeroMainContent: React.FC = () => {
       >
         {/* Primary CTA with enhanced styling */}
         <motion.a
-          href="#editor-section"
+          href="/auth"
           whileHover={buttonHover}
           whileTap={{ scale: 0.98 }}
           className="group relative inline-flex items-center gap-3 bg-gradient-to-r from-noteflow-600 via-purple-600 to-noteflow-500 hover:from-noteflow-500 hover:via-purple-500 hover:to-noteflow-400 text-white px-8 py-4 rounded-full text-lg font-semibold transition-all duration-300 shadow-2xl shadow-noteflow-500/30 overflow-hidden"
