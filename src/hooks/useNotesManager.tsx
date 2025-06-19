@@ -171,28 +171,69 @@ export function useNotesManager() {
         finalUpdates.title = generateTitleFromContent(content);
       }
       
-      const { data, error } = await supabase
+      // First check if the note exists
+      const { data: existingNote, error: checkError } = await supabase
         .from('notes_v2')
-        .update({
-          ...finalUpdates,
-          updated_at: new Date().toISOString(),
-        })
+        .select('id')
         .eq('id', noteId)
         .eq('user_id', user.id)
-        .select()
-        .single();
+        .maybeSingle();
 
-      if (error) throw error;
+      if (checkError) throw checkError;
+
+      let result;
+      if (existingNote) {
+        // Note exists, update it
+        const { data, error } = await supabase
+          .from('notes_v2')
+          .update({
+            ...finalUpdates,
+            updated_at: new Date().toISOString(),
+          })
+          .eq('id', noteId)
+          .eq('user_id', user.id)
+          .select()
+          .single();
+
+        if (error) throw error;
+        result = data;
+      } else {
+        // Note doesn't exist, create a new one with the same ID
+        const { data, error } = await supabase
+          .from('notes_v2')
+          .insert({
+            id: noteId,
+            ...finalUpdates,
+            user_id: user.id,
+            content_type: 'html',
+            is_public: false,
+            is_encrypted: false,
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString(),
+          })
+          .select()
+          .single();
+
+        if (error) throw error;
+        result = data;
+      }
 
       // Update local state
-      setNotes(prev => 
-        prev.map(note => 
-          note.id === noteId ? { ...note, ...data } : note
-        )
-      );
+      setNotes(prev => {
+        const existingIndex = prev.findIndex(note => note.id === noteId);
+        if (existingIndex >= 0) {
+          // Update existing note
+          const updated = [...prev];
+          updated[existingIndex] = { ...updated[existingIndex], ...result };
+          return updated;
+        } else {
+          // Add new note
+          return [result as Note, ...prev];
+        }
+      });
 
       if (currentNote?.id === noteId) {
-        setCurrentNote(prev => prev ? { ...prev, ...data } : null);
+        setCurrentNote(prev => prev ? { ...prev, ...result } : result as Note);
       }
 
       return true;
