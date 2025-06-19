@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
-import { Copy, Webhook, Globe, CheckCircle, ExternalLink } from 'lucide-react';
+import { Copy, Webhook, Globe, CheckCircle, ExternalLink, AlertCircle } from 'lucide-react';
 
 const DeploymentSettings = () => {
   const [webhookUrl, setWebhookUrl] = useState('');
@@ -53,9 +53,10 @@ const DeploymentSettings = () => {
       });
 
       if (response.ok) {
+        const result = await response.json();
         toast({
           title: 'Webhook test successful',
-          description: 'The deployment webhook is working correctly',
+          description: `DNS will be updated for onlinenote.ai when you publish. Updated records: ${result.updated_records?.join(', ') || 'root domain'}`,
         });
       } else {
         const errorData = await response.json();
@@ -76,7 +77,7 @@ const DeploymentSettings = () => {
       <div>
         <h3 className="text-lg font-semibold text-white mb-2">Deployment Automation</h3>
         <p className="text-sm text-gray-400">
-          Automatically update your domain DNS when you publish your app
+          Automatically update onlinenote.ai DNS when you publish your app
         </p>
       </div>
 
@@ -88,7 +89,7 @@ const DeploymentSettings = () => {
             Deployment Webhook
           </CardTitle>
           <CardDescription className="text-gray-400">
-            Use this webhook URL in your deployment platform to automatically update DNS
+            Use this webhook URL in Lovable to automatically update DNS for onlinenote.ai
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -117,7 +118,7 @@ const DeploymentSettings = () => {
               variant="outline"
               className="border-white/20 text-white hover:bg-white/10"
             >
-              Test Webhook
+              Test Auto-Update
             </Button>
           </div>
         </CardContent>
@@ -138,7 +139,7 @@ const DeploymentSettings = () => {
           <div className="space-y-3">
             <div className="flex items-center justify-between p-3 rounded-lg border border-white/10 bg-white/5">
               <div>
-                <p className="text-white font-medium">Domain</p>
+                <p className="text-white font-medium">Primary Domain</p>
                 <p className="text-sm text-gray-400">onlinenote.ai</p>
               </div>
               <CheckCircle className="w-5 h-5 text-green-400" />
@@ -146,8 +147,16 @@ const DeploymentSettings = () => {
             
             <div className="flex items-center justify-between p-3 rounded-lg border border-white/10 bg-white/5">
               <div>
+                <p className="text-white font-medium">WWW Subdomain</p>
+                <p className="text-sm text-gray-400">www.onlinenote.ai</p>
+              </div>
+              <CheckCircle className="w-5 h-5 text-green-400" />
+            </div>
+            
+            <div className="flex items-center justify-between p-3 rounded-lg border border-white/10 bg-white/5">
+              <div>
                 <p className="text-white font-medium">Auto-update DNS</p>
-                <p className="text-sm text-gray-400">CNAME record will be updated on deployment</p>
+                <p className="text-sm text-gray-400">CNAME records will be updated on deployment</p>
               </div>
               <CheckCircle className="w-5 h-5 text-green-400" />
             </div>
@@ -160,7 +169,7 @@ const DeploymentSettings = () => {
         <CardHeader>
           <CardTitle className="text-white">Setup Instructions</CardTitle>
           <CardDescription className="text-gray-400">
-            How to integrate with your deployment platform
+            How to integrate with Lovable deployment
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -171,24 +180,30 @@ const DeploymentSettings = () => {
                 <li>Copy the webhook URL above</li>
                 <li>Go to your project settings in Lovable</li>
                 <li>Add the webhook URL to your deployment hooks</li>
-                <li>Publish your project to test the integration</li>
+                <li>Click "Publish" to deploy and update onlinenote.ai automatically</li>
               </ol>
             </div>
 
             <div className="p-3 bg-green-500/10 border border-green-500/20 rounded-lg">
-              <h4 className="text-green-400 font-medium mb-2">For Vercel/Netlify:</h4>
+              <h4 className="text-green-400 font-medium mb-2">What happens when you publish:</h4>
               <ol className="text-sm text-green-300 space-y-1 list-decimal list-inside">
-                <li>Go to your project's webhook settings</li>
-                <li>Add a new webhook with the URL above</li>
-                <li>Set it to trigger on successful deployments</li>
-                <li>Deploy your project to test</li>
+                <li>Your app gets deployed to a new Lovable URL</li>
+                <li>The webhook receives the deployment notification</li>
+                <li>DNS records for onlinenote.ai are automatically updated</li>
+                <li>Both root domain and www subdomain point to your new deployment</li>
               </ol>
             </div>
 
-            <div className="p-3 bg-purple-500/10 border border-purple-500/20 rounded-lg">
-              <p className="text-purple-400 text-sm">
-                <strong>Note:</strong> The webhook will automatically update your DNS to point to the new deployment URL when a successful deployment is detected.
-              </p>
+            <div className="p-3 bg-amber-500/10 border border-amber-500/20 rounded-lg">
+              <div className="flex items-start gap-2">
+                <AlertCircle className="h-4 w-4 text-amber-400 mt-0.5 flex-shrink-0" />
+                <div>
+                  <p className="text-amber-400 text-sm font-medium">Important:</p>
+                  <p className="text-amber-300 text-sm">
+                    DNS changes may take up to 24 hours to propagate globally. Your site will be accessible immediately, but some users may see the old version until DNS updates.
+                  </p>
+                </div>
+              </div>
             </div>
           </div>
         </CardContent>

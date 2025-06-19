@@ -84,7 +84,7 @@ const handler = async (req: Request): Promise<Response> => {
     const records = await recordsResponse.json();
     console.log('Current DNS records:', records.length);
 
-    // Find the A record for the root domain (@)
+    // Find the CNAME record for the root domain (@)
     const rootRecord = records.find((record: any) => 
       record.type === 'CNAME' && record.name === '@'
     );
@@ -139,12 +139,54 @@ const handler = async (req: Request): Promise<Response> => {
       console.log('DNS record created successfully');
     }
 
+    // Also handle www subdomain
+    const wwwRecord = records.find((record: any) => 
+      record.type === 'CNAME' && record.name === 'www'
+    );
+
+    if (wwwRecord) {
+      // Update existing www CNAME record
+      await fetch(`${baseUrl}/v1/domains/${domain}/records/${wwwRecord.id}`, {
+        method: 'PUT',
+        headers: {
+          'X-API-Key': IONOS_API_KEY,
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        },
+        body: JSON.stringify({
+          type: 'CNAME',
+          name: 'www',
+          content: deploymentHost,
+          ttl: 3600
+        })
+      });
+      console.log('WWW DNS record updated successfully');
+    } else {
+      // Create new www CNAME record
+      await fetch(`${baseUrl}/v1/domains/${domain}/records`, {
+        method: 'POST',
+        headers: {
+          'X-API-Key': IONOS_API_KEY,
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        },
+        body: JSON.stringify({
+          type: 'CNAME',
+          name: 'www',
+          content: deploymentHost,
+          ttl: 3600
+        })
+      });
+      console.log('WWW DNS record created successfully');
+    }
+
     return new Response(
       JSON.stringify({ 
         success: true, 
         message: `DNS updated for ${domain} to point to ${deploymentHost}`,
         deployment_url: newDeploymentUrl,
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
+        updated_records: ['@', 'www']
       }),
       { headers: { 'Content-Type': 'application/json', ...corsHeaders } }
     );
