@@ -1,6 +1,7 @@
 
 import { useEditor } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
+import Underline from '@tiptap/extension-underline';
 import { useCallback, useEffect, useState } from 'react';
 
 interface UseTiptapEditorProps {
@@ -22,6 +23,7 @@ export const useTiptapEditor = ({ content, setContent, isFocusMode }: UseTiptapE
           levels: [1, 2, 3],
         },
       }),
+      Underline,
     ],
     content: content || '<p></p>',
     onUpdate: ({ editor }) => {

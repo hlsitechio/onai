@@ -14,7 +14,11 @@ export const getFormattingExtensions = () => [
       class: 'text-noteflow-400 underline hover:text-noteflow-300 cursor-pointer',
     },
   }),
-  Underline,
+  Underline.configure({
+    HTMLAttributes: {
+      class: 'underline',
+    },
+  }),
   TextAlign.configure({
     types: ['heading', 'paragraph'],
   }),
