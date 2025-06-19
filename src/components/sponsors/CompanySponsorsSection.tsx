@@ -34,19 +34,22 @@ const CompanySponsorsSection: React.FC<CompanySponsorsSectionProps> = ({ sponsor
           opts={{
             align: "start",
             loop: true,
-            duration: 30,
+            duration: 15,
+            dragFree: true,
           }}
           plugins={[
             Autoplay({
-              delay: 1500,
+              delay: 0,
               stopOnInteraction: false,
-              stopOnMouseEnter: true,
+              stopOnMouseEnter: false,
+              playOnInit: true,
             }),
           ]}
           className="w-full max-w-5xl mx-auto"
         >
           <CarouselContent className="-ml-2 md:-ml-4">
-            {sponsors.map((sponsor, index) => (
+            {/* Duplicate sponsors array for seamless infinite loop */}
+            {[...sponsors, ...sponsors].map((sponsor, index) => (
               <CarouselItem key={index} className="pl-2 md:pl-4 basis-1/2 md:basis-1/3 lg:basis-1/4">
                 <div className="p-1">
                   <a 
@@ -61,12 +64,12 @@ const CompanySponsorsSection: React.FC<CompanySponsorsSectionProps> = ({ sponsor
                       <img 
                         src={sponsor.logo} 
                         alt={`${sponsor.name} logo`}
-                        className={`max-w-full max-h-full object-contain transition-all duration-500 ease-out opacity-70 group-hover:opacity-100 ${
+                        className={`max-w-full max-h-full object-contain transition-all duration-500 ease-out opacity-80 group-hover:opacity-100 ${
                           sponsor.name === 'React' 
-                            ? 'w-20 h-20' // Larger size specifically for React
+                            ? 'w-24 h-24 drop-shadow-lg' // Even larger size for React with shadow
                             : sponsor.name === 'Supabase' || sponsor.name === 'Node.js'
-                            ? '' // Supabase and Node.js logos are already appropriate colors, no filter needed
-                            : 'filter brightness-0 invert group-hover:brightness-100 group-hover:invert-0'
+                            ? 'drop-shadow-sm' // Add subtle shadow to colored logos
+                            : 'filter brightness-0 invert group-hover:brightness-100 group-hover:invert-0 drop-shadow-sm'
                         }`}
                       />
                     </div>
