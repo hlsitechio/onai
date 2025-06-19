@@ -20,6 +20,30 @@ export function useNotesManager() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
 
+  // Extract clean text from HTML content
+  const extractTextFromHTML = (htmlContent: string): string => {
+    if (!htmlContent) return '';
+    
+    const tempDiv = document.createElement('div');
+    tempDiv.innerHTML = htmlContent;
+    const textContent = tempDiv.textContent || tempDiv.innerText || '';
+    return textContent.trim();
+  };
+
+  // Generate title from content
+  const generateTitleFromContent = (content: string): string => {
+    const textContent = extractTextFromHTML(content);
+    
+    if (textContent && textContent.length > 0) {
+      const firstLine = textContent.split('\n')[0].trim();
+      if (firstLine) {
+        return firstLine.substring(0, 50) + (firstLine.length > 50 ? '...' : '');
+      }
+    }
+    
+    return `Note ${new Date().toLocaleDateString()}`;
+  };
+
   // Load notes when user is authenticated
   useEffect(() => {
     if (user) {
@@ -73,9 +97,12 @@ export function useNotesManager() {
     }
 
     try {
+      const noteContent = content || '';
+      const noteTitle = title || generateTitleFromContent(noteContent);
+
       const newNote = {
-        title: title || `Note ${new Date().toLocaleDateString()}`,
-        content: content || '',
+        title: noteTitle,
+        content: noteContent,
         user_id: user.id,
         content_type: 'html',
         is_public: false,
@@ -122,9 +149,7 @@ export function useNotesManager() {
 
     // Improved content validation - check for actual text content
     const content = updates.content || '';
-    const tempDiv = document.createElement('div');
-    tempDiv.innerHTML = content;
-    const textContent = tempDiv.textContent || tempDiv.innerText || '';
+    const textContent = extractTextFromHTML(content);
     
     if (!textContent.trim() && content === '<p></p>') {
       toast({
@@ -138,10 +163,16 @@ export function useNotesManager() {
     try {
       setSaving(true);
       
+      // Auto-generate title from content if title is not provided or is generic
+      let finalUpdates = { ...updates };
+      if (!updates.title || updates.title === 'Untitled Note' || updates.title.startsWith('Note ')) {
+        finalUpdates.title = generateTitleFromContent(content);
+      }
+      
       const { data, error } = await supabase
         .from('notes_v2')
         .update({
-          ...updates,
+          ...finalUpdates,
           updated_at: new Date().toISOString(),
         })
         .eq('id', noteId)

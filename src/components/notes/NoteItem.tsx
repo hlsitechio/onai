@@ -35,32 +35,53 @@ const NoteItem: React.FC<NoteItemProps> = ({
   const [autoTags, setAutoTags] = useState<{ name: string; color: string }[]>([]);
   const inputRef = useRef<HTMLInputElement>(null);
   
+  // Extract clean text from HTML content
+  const extractTextFromHTML = (htmlContent: string): string => {
+    if (!htmlContent) return '';
+    
+    // Create a temporary DOM element to parse HTML
+    const tempDiv = document.createElement('div');
+    tempDiv.innerHTML = htmlContent;
+    
+    // Get the text content and clean it up
+    const textContent = tempDiv.textContent || tempDiv.innerText || '';
+    return textContent.trim();
+  };
+  
   // Generate a clean title from content or use custom name
   const getCleanTitle = () => {
     if (displayName && displayName.trim()) {
       return displayName;
     }
     
-    // Extract first meaningful line from content
-    const firstLine = content.split('\n')[0].trim();
-    if (firstLine && firstLine.length > 0) {
-      return firstLine.substring(0, 50) + (firstLine.length > 50 ? '...' : '');
+    // Extract text from HTML content
+    const textContent = extractTextFromHTML(content);
+    
+    if (textContent && textContent.length > 0) {
+      // Get first meaningful line
+      const firstLine = textContent.split('\n')[0].trim();
+      if (firstLine) {
+        return firstLine.substring(0, 50) + (firstLine.length > 50 ? '...' : '');
+      }
     }
     
     // Fallback to a simple "Note" with creation info
     return `Note ${new Date().toLocaleDateString()}`;
   };
   
-  // Initialize with clean title
+  // Initialize with clean title and update when content changes
   useEffect(() => {
     setNewName(getCleanTitle());
-  }, [noteId, displayName, content]);
+  }, [content, displayName]); // Add content as dependency
   
   // Generate auto tags based on content using the improved utility
   useEffect(() => {
     if (content) {
-      const tags = generateAutoTags(content);
-      setAutoTags(tags);
+      const textContent = extractTextFromHTML(content);
+      if (textContent) {
+        const tags = generateAutoTags(textContent);
+        setAutoTags(tags);
+      }
     }
   }, [content]);
   
@@ -109,6 +130,12 @@ const NoteItem: React.FC<NoteItemProps> = ({
     } else if (e.key === 'Escape') {
       handleRenameCancel(e as unknown as React.MouseEvent);
     }
+  };
+
+  // Get preview text for the note
+  const getPreviewText = () => {
+    const textContent = extractTextFromHTML(content);
+    return textContent.substring(0, 80) + (textContent.length > 80 ? '...' : '');
   };
 
   return (
@@ -163,7 +190,7 @@ const NoteItem: React.FC<NoteItemProps> = ({
                   {getCleanTitle()}
                 </button>
                 <p className="text-xs text-slate-400 mt-1 line-clamp-2">
-                  {content.substring(0, 80)}...
+                  {getPreviewText()}
                 </p>
               </div>
             </div>
