@@ -29,20 +29,18 @@ const Header = () => {
       <header className="sticky top-0 z-50 w-full border-b border-white/10 bg-black/60 backdrop-blur-md">
         <div className="container mx-auto px-4 h-16 flex items-center justify-between">
           {/* Logo and Brand */}
-          <div className="flex items-center space-x-2">
-            <div className="flex items-center space-x-2">
-              <div className="w-8 h-8 flex items-center justify-center">
-                <img 
-                  src="/lovable-uploads/fccad14b-dab2-4cbe-82d9-fe30b6f82787.png" 
-                  alt="ONAI Logo" 
-                  className="w-8 h-8 object-contain"
-                />
-              </div>
-              <span className="text-xl font-bold bg-gradient-to-r from-noteflow-400 to-purple-400 bg-clip-text text-transparent">
-                Online Note AI
-              </span>
+          <Link to="/" className="flex items-center space-x-3 group transition-all duration-300 hover:scale-105">
+            <div className="w-10 h-10 flex items-center justify-center rounded-lg bg-gradient-to-br from-noteflow-400/10 to-purple-500/10 group-hover:from-noteflow-400/20 group-hover:to-purple-500/20 transition-all duration-300">
+              <img 
+                src="/lovable-uploads/fccad14b-dab2-4cbe-82d9-fe30b6f82787.png" 
+                alt="ONAI Logo" 
+                className="w-8 h-8 object-contain group-hover:scale-110 transition-transform duration-300"
+              />
             </div>
-          </div>
+            <span className="text-xl font-bold bg-gradient-to-r from-noteflow-400 to-purple-400 bg-clip-text text-transparent group-hover:from-noteflow-300 group-hover:to-purple-300 transition-all duration-300">
+              Online Note AI
+            </span>
+          </Link>
 
           {/* Navigation */}
           <nav className="hidden md:flex items-center space-x-6">
