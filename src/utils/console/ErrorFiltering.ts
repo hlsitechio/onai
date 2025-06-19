@@ -29,7 +29,11 @@ export class ErrorFiltering {
       'react error #130',
       'element type is invalid',
       
-      // Browser feature warnings (your new requests)
+      // Pointer event spam (new addition)
+      'pointer event detected:',
+      'pointer event detected',
+      
+      // Browser feature warnings
       'unrecognized feature',
       'understand this warning',
       'understand this error',
@@ -80,6 +84,8 @@ export class ErrorFiltering {
       'initialization',
       'migration',
       'deployment',
+      'stylus event detected', // Allow stylus-specific logs
+      'new pointer type discovered', // Allow pointer type discovery
     ];
 
     return importantKeywords.some(keyword =>

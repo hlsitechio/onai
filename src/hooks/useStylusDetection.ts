@@ -61,16 +61,21 @@ export const useStylusDetection = () => {
         testElement.style.zIndex = '-1';
         
         const checkPointerType = (event: PointerEvent) => {
-          console.log('Pointer event detected:', {
-            pointerType: event.pointerType,
-            pressure: event.pressure,
-            tiltX: event.tiltX,
-            tiltY: event.tiltY,
-            isPrimary: event.isPrimary
-          });
+          // Only log stylus events, not mouse events
+          if (event.pointerType === 'pen') {
+            console.log('Stylus event detected:', {
+              pointerType: event.pointerType,
+              pressure: event.pressure,
+              tiltX: event.tiltX,
+              tiltY: event.tiltY,
+              isPrimary: event.isPrimary
+            });
+          }
 
           if (!pointerTypes.includes(event.pointerType)) {
             pointerTypes.push(event.pointerType);
+            // Only log when we discover a new pointer type
+            console.log('New pointer type discovered:', event.pointerType);
           }
           
           const hasPressure = event.pressure !== undefined && event.pressure > 0;

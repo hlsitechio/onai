@@ -1,4 +1,3 @@
-
 import log from 'loglevel';
 
 // Configure loglevel based on environment
@@ -38,6 +37,7 @@ export const logger = {
 // Override console methods to reduce noise
 const originalError = console.error;
 const originalWarn = console.warn;
+const originalInfo = console.info;
 
 // Override console.log and console.debug to be silent in production
 if (isProduction) {
@@ -70,6 +70,7 @@ console.error = (...args: any[]) => {
     'understand this warning',
     'understand this error',
     'about:blank',
+    'Pointer event detected', // Filter out pointer event spam
   ];
   
   const shouldIgnore = ignoredErrors.some(ignored => 
@@ -110,6 +111,7 @@ console.warn = (...args: any[]) => {
     'Missing ID attribute',
     'Missing name attribute',
     'Missing label or aria-label',
+    'Pointer event detected', // Filter out pointer event spam
   ];
   
   const shouldIgnore = ignoredWarnings.some(ignored => 
@@ -118,6 +120,30 @@ console.warn = (...args: any[]) => {
   
   if (!shouldIgnore) {
     originalWarn(...args);
+  }
+};
+
+// Enhanced console.info filtering
+console.info = (...args: any[]) => {
+  const message = args.join(' ');
+  
+  // Filter out pointer event spam from info logs
+  const ignoredInfoMessages = [
+    'Pointer event detected',
+  ];
+  
+  const shouldIgnore = ignoredInfoMessages.some(ignored => 
+    message.toLowerCase().includes(ignored.toLowerCase())
+  );
+  
+  // Allow important stylus-related messages
+  const isImportantStylus = message.includes('Stylus event detected') || 
+                           message.includes('New pointer type discovered') ||
+                           message.includes('Samsung device detected') ||
+                           message.includes('Known stylus device detected');
+  
+  if (!shouldIgnore || isImportantStylus) {
+    originalInfo(...args);
   }
 };
 
