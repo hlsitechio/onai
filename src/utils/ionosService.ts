@@ -4,19 +4,26 @@ import { supabase } from '@/integrations/supabase/client';
 export interface IonosZone {
   id: string;
   name: string;
-  type: string;
+  type: 'NATIVE' | 'SLAVE';
 }
 
 export interface IonosDnsRecord {
   id?: string;
   name: string;
   rootName?: string;
-  type: string;
+  type: 'A' | 'AAAA' | 'CNAME' | 'MX' | 'NS' | 'SOA' | 'SRV' | 'TXT' | 'CAA' | 'TLSA' | 'SMIMEA' | 'SSHFP' | 'DS' | 'HTTPS' | 'SVCB' | 'CERT' | 'URI' | 'RP' | 'LOC' | 'OPENPGPKEY';
   content: string;
   ttl: number;
   prio?: number;
   disabled?: boolean;
   changeDate?: string;
+}
+
+export interface CustomerZone {
+  id: string;
+  name: string;
+  type: 'NATIVE' | 'SLAVE';
+  records: IonosDnsRecord[];
 }
 
 export interface CreateDnsRecordRequest {
@@ -52,7 +59,7 @@ export const getIonosZones = async (): Promise<IonosZone[]> => {
 };
 
 /**
- * Get DNS records for a specific zone
+ * Get DNS records for a specific zone (returns customer-zone object)
  */
 export const getIonosDnsRecords = async (zoneId: string): Promise<IonosDnsRecord[]> => {
   try {
@@ -68,6 +75,7 @@ export const getIonosDnsRecords = async (zoneId: string): Promise<IonosDnsRecord
       throw new Error(`Failed to fetch DNS records: ${error.message}`);
     }
 
+    // The API returns a customer-zone object with records array
     return data?.records || [];
   } catch (error) {
     console.error('Error fetching IONOS DNS records:', error);

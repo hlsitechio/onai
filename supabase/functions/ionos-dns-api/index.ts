@@ -47,6 +47,8 @@ const handler = async (req: Request): Promise<Response> => {
     
     switch (action) {
       case 'list_zones':
+        console.log('Fetching zones from:', `${baseUrl}/v1/zones`);
+        
         const zonesResponse = await fetch(`${baseUrl}/v1/zones`, {
           headers: {
             'X-API-Key': IONOS_API_KEY,
@@ -56,12 +58,21 @@ const handler = async (req: Request): Promise<Response> => {
         
         if (!zonesResponse.ok) {
           const errorText = await zonesResponse.text();
-          console.error('IONOS zones API error:', errorText);
+          console.error('IONOS zones API error:', {
+            status: zonesResponse.status,
+            statusText: zonesResponse.statusText,
+            body: errorText
+          });
           throw new Error(`IONOS API error: ${zonesResponse.status} ${errorText}`);
         }
         
         const zonesData = await zonesResponse.json();
-        console.log('Zones retrieved successfully:', zonesData.length || 0, 'zones');
+        console.log('Zones API response:', {
+          status: zonesResponse.status,
+          dataType: typeof zonesData,
+          dataLength: Array.isArray(zonesData) ? zonesData.length : 'not array',
+          firstZone: Array.isArray(zonesData) && zonesData.length > 0 ? zonesData[0] : null
+        });
         
         return new Response(JSON.stringify(zonesData), {
           headers: { 'Content-Type': 'application/json', ...corsHeaders }
@@ -72,6 +83,8 @@ const handler = async (req: Request): Promise<Response> => {
           throw new Error('Zone ID is required for getting zone records');
         }
         
+        console.log('Fetching zone records from:', `${baseUrl}/v1/zones/${zoneId}`);
+        
         const recordsResponse = await fetch(`${baseUrl}/v1/zones/${zoneId}`, {
           headers: {
             'X-API-Key': IONOS_API_KEY,
@@ -81,12 +94,27 @@ const handler = async (req: Request): Promise<Response> => {
         
         if (!recordsResponse.ok) {
           const errorText = await recordsResponse.text();
-          console.error('IONOS zone records API error:', errorText);
+          console.error('IONOS zone records API error:', {
+            status: recordsResponse.status,
+            statusText: recordsResponse.statusText,
+            body: errorText,
+            zoneId
+          });
           throw new Error(`IONOS API error: ${recordsResponse.status} ${errorText}`);
         }
         
         const recordsData = await recordsResponse.json();
-        console.log('Zone records retrieved successfully for zone:', zoneId);
+        console.log('Zone records API response:', {
+          status: recordsResponse.status,
+          zoneId,
+          dataType: typeof recordsData,
+          hasRecords: recordsData?.records ? recordsData.records.length : 'no records field',
+          zoneInfo: {
+            id: recordsData?.id,
+            name: recordsData?.name,
+            type: recordsData?.type
+          }
+        });
         
         return new Response(JSON.stringify(recordsData), {
           headers: { 'Content-Type': 'application/json', ...corsHeaders }
@@ -96,6 +124,8 @@ const handler = async (req: Request): Promise<Response> => {
         if (!zoneId || !records || records.length === 0) {
           throw new Error('Zone ID and records are required for creating DNS records');
         }
+        
+        console.log('Creating DNS records for zone:', zoneId, 'Records:', records);
         
         const createResponse = await fetch(`${baseUrl}/v1/zones/${zoneId}/records`, {
           method: 'POST',
@@ -109,12 +139,21 @@ const handler = async (req: Request): Promise<Response> => {
         
         if (!createResponse.ok) {
           const errorText = await createResponse.text();
-          console.error('IONOS create DNS records API error:', errorText);
+          console.error('IONOS create DNS records API error:', {
+            status: createResponse.status,
+            statusText: createResponse.statusText,
+            body: errorText,
+            zoneId,
+            records
+          });
           throw new Error(`IONOS API error: ${createResponse.status} ${errorText}`);
         }
         
         const createData = await createResponse.json();
-        console.log('DNS records created successfully:', createData);
+        console.log('DNS records created successfully:', {
+          status: createResponse.status,
+          responseData: createData
+        });
         
         return new Response(JSON.stringify(createData), {
           headers: { 'Content-Type': 'application/json', ...corsHeaders }
@@ -125,7 +164,10 @@ const handler = async (req: Request): Promise<Response> => {
     }
 
   } catch (error: any) {
-    console.error('Error in IONOS DNS API function:', error);
+    console.error('Error in IONOS DNS API function:', {
+      message: error.message,
+      stack: error.stack
+    });
     return new Response(
       JSON.stringify({ 
         error: error.message || 'Unknown error occurred',
