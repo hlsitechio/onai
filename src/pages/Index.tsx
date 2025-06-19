@@ -28,22 +28,38 @@ const Index = () => {
   }, [user, navigate]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-800">
-      <Header />
-      <Hero />
-      <InteractiveFeatureShowcase />
-      <div id="editor-section">
-        <NotesEditor />
+    <div className="min-h-screen bg-gradient-to-br from-[#020010] via-[#050520] to-[#0a0518] overflow-x-hidden">
+      {/* Enhanced background effects */}
+      <div className="fixed inset-0 z-0 pointer-events-none">
+        <div 
+          className="absolute inset-0 opacity-25"
+          style={{
+            background: `
+              radial-gradient(circle at 25% 60%, rgba(120, 60, 255, 0.12) 0%, transparent 45%),
+              radial-gradient(circle at 75% 30%, rgba(255, 60, 120, 0.1) 0%, transparent 45%),
+              radial-gradient(circle at 45% 85%, rgba(60, 255, 200, 0.08) 0%, transparent 45%)
+            `
+          }}
+        />
       </div>
-      <FeatureShowcase />
-      <Features />
-      <EnhancedFeatures />
-      <WhyChooseUs />
-      <HowItWorks />
-      <SponsorsWallOfFame />
-      <PricingSection />
-      <NewsletterSection />
-      <Footer />
+      
+      <div className="relative z-10">
+        <Header />
+        <Hero />
+        <InteractiveFeatureShowcase />
+        <div id="editor-section">
+          <NotesEditor />
+        </div>
+        <FeatureShowcase />
+        <Features />
+        <EnhancedFeatures />
+        <WhyChooseUs />
+        <HowItWorks />
+        <SponsorsWallOfFame />
+        <PricingSection />
+        <NewsletterSection />
+        <Footer />
+      </div>
     </div>
   );
 };

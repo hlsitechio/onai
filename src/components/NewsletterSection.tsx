@@ -1,6 +1,7 @@
+
 import React, { useState } from 'react';
 import { motion } from "framer-motion";
-import { Mail, Send, CheckCircle } from 'lucide-react';
+import { Mail, Send, CheckCircle, Sparkles } from 'lucide-react';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { useToast } from '@/hooks/use-toast';
@@ -38,7 +39,6 @@ const NewsletterSection = () => {
     try {
       console.log('Newsletter subscription: Attempting to send confirmation email to:', email);
       
-      // Send the confirmation email
       const result = await sendNewsletterConfirmation(email);
       
       if (result.success) {
@@ -54,12 +54,10 @@ const NewsletterSection = () => {
           title: "Subscription successful!",
           description: "Thank you for joining our newsletter.",
         });
-        // Still show success to user even if email fails
         setIsSubscribed(true);
       }
     } catch (error) {
       console.error('Newsletter subscription: Error occurred:', error);
-      // Show success to user even if there's an error - better UX
       setIsSubscribed(true);
       toast({
         title: "Successfully subscribed!",
@@ -71,8 +69,21 @@ const NewsletterSection = () => {
   };
 
   return (
-    <section className="py-20 px-4 bg-gradient-to-b from-[#0a0518] to-[#050510] relative overflow-hidden">
-      <div className="container mx-auto max-w-4xl relative z-10">
+    <section className="py-16 px-4 relative overflow-hidden">
+      {/* Enhanced background effects */}
+      <div className="absolute inset-0 z-0">
+        <motion.div 
+          className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 rounded-full bg-gradient-to-r from-noteflow-600/15 to-purple-600/15 blur-3xl"
+          animate={{ 
+            scale: [1, 1.2, 1],
+            opacity: [0.3, 0.6, 0.3],
+            rotate: [0, 180, 360]
+          }}
+          transition={{ duration: 20, repeat: Infinity, ease: "easeInOut" }}
+        />
+      </div>
+
+      <div className="container mx-auto max-w-3xl relative z-10">
         <motion.div 
           className="text-center"
           initial={{ opacity: 0, y: 30 }}
@@ -80,52 +91,56 @@ const NewsletterSection = () => {
           viewport={{ once: true }}
           transition={{ duration: 0.6 }}
         >
-          <div className="relative p-12 rounded-3xl bg-gradient-to-r from-noteflow-900/30 to-purple-900/30 border border-noteflow-400/20 backdrop-blur-sm">
-            {/* Background glow */}
-            <div className="absolute inset-0 rounded-3xl bg-gradient-to-r from-noteflow-600/10 to-purple-600/10 blur-xl"></div>
+          <div className="relative p-10 rounded-3xl bg-gradient-to-r from-noteflow-900/20 to-purple-900/20 border border-noteflow-400/20 backdrop-blur-sm overflow-hidden">
+            {/* Enhanced background glow */}
+            <div className="absolute inset-0 rounded-3xl bg-gradient-to-r from-noteflow-600/8 to-purple-600/8 blur-xl"></div>
             
             <div className="relative z-10">
-              <div className="w-16 h-16 mx-auto mb-6 rounded-full bg-gradient-to-r from-noteflow-400 to-purple-500 flex items-center justify-center">
-                <Mail className="h-8 w-8 text-white" />
-              </div>
+              <motion.div 
+                className="w-14 h-14 mx-auto mb-5 rounded-full bg-gradient-to-r from-noteflow-400 to-purple-500 flex items-center justify-center"
+                whileHover={{ scale: 1.1, rotate: 180 }}
+                transition={{ duration: 0.3 }}
+              >
+                <Mail className="h-7 w-7 text-white" />
+              </motion.div>
 
-              <h2 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-white to-noteflow-200 bg-clip-text text-transparent mb-6">
+              <h2 className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-white to-noteflow-200 bg-clip-text text-transparent mb-4">
                 Stay Updated
               </h2>
               
-              <p className="text-xl text-gray-300 mb-8 max-w-2xl mx-auto">
+              <p className="text-lg text-gray-300 mb-6 max-w-2xl mx-auto">
                 Get the latest features, tips, and updates delivered to your inbox. 
                 Join our community of productive writers.
               </p>
 
               {!isSubscribed ? (
                 <form onSubmit={handleSubmit} className="max-w-md mx-auto">
-                  <div className="flex flex-col sm:flex-row gap-4">
+                  <div className="flex flex-col sm:flex-row gap-3">
                     <Input
                       type="email"
                       placeholder="Enter your email address"
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
-                      className="flex-1 px-6 py-4 rounded-xl bg-black/40 border border-white/20 text-white placeholder-gray-400 focus:border-noteflow-400 focus:ring-noteflow-400/20"
+                      className="flex-1 px-5 py-3 rounded-xl bg-black/40 border border-white/20 text-white placeholder-gray-400 focus:border-noteflow-400 focus:ring-noteflow-400/20"
                       disabled={isLoading}
                     />
                     <Button
                       type="submit"
                       disabled={isLoading}
-                      className="px-8 py-4 bg-gradient-to-r from-noteflow-600 to-purple-600 hover:from-noteflow-500 hover:to-purple-500 text-white rounded-xl font-medium transition-all duration-300 shadow-lg hover:shadow-noteflow-500/25 disabled:opacity-50"
+                      className="px-6 py-3 bg-gradient-to-r from-noteflow-600 to-purple-600 hover:from-noteflow-500 hover:to-purple-500 text-white rounded-xl font-medium transition-all duration-300 shadow-lg hover:shadow-noteflow-500/25 disabled:opacity-50"
                     >
                       {isLoading ? (
-                        <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                        <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
                       ) : (
                         <>
-                          <Send className="h-5 w-5 mr-2" />
+                          <Send className="h-4 w-4 mr-2" />
                           Subscribe
                         </>
                       )}
                     </Button>
                   </div>
                   
-                  <p className="text-sm text-gray-400 mt-4">
+                  <p className="text-xs text-gray-400 mt-3">
                     No spam, unsubscribe at any time. We respect your privacy.
                   </p>
                 </form>
@@ -134,18 +149,28 @@ const NewsletterSection = () => {
                   initial={{ opacity: 0, scale: 0.8 }}
                   animate={{ opacity: 1, scale: 1 }}
                   transition={{ duration: 0.5 }}
-                  className="flex flex-col items-center gap-4"
+                  className="flex flex-col items-center gap-3"
                 >
-                  <div className="w-16 h-16 rounded-full bg-green-500/20 border border-green-400/30 flex items-center justify-center">
-                    <CheckCircle className="h-8 w-8 text-green-400" />
+                  <div className="w-14 h-14 rounded-full bg-green-500/20 border border-green-400/30 flex items-center justify-center">
+                    <CheckCircle className="h-7 w-7 text-green-400" />
                   </div>
                   <div className="text-center">
-                    <h3 className="text-2xl font-bold text-white mb-2">You're all set!</h3>
+                    <h3 className="text-xl font-bold text-white mb-2">You're all set!</h3>
                     <p className="text-gray-300">Thank you for subscribing to our newsletter.</p>
                     <p className="text-gray-400 text-sm mt-2">Check your email for a confirmation message.</p>
                   </div>
                 </motion.div>
               )}
+
+              {/* Enhanced decorative elements */}
+              <div className="absolute -top-2 -right-2">
+                <motion.div
+                  animate={{ rotate: [0, 360] }}
+                  transition={{ duration: 8, repeat: Infinity, ease: "linear" }}
+                >
+                  <Sparkles className="h-4 w-4 text-noteflow-400/60" />
+                </motion.div>
+              </div>
             </div>
           </div>
         </motion.div>
