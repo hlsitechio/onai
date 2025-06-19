@@ -5,7 +5,7 @@ import CompanySponsorsSection from './sponsors/CompanySponsorsSection';
 import DotGridBackground from './DotGridBackground';
 
 const SponsorsWallOfFame = () => {
-  // Company sponsors with updated list - using new Supabase logo
+  // Company sponsors with updated list - including Node.js
   const companySponsors = [
     {
       name: "IONOS",
@@ -25,6 +25,13 @@ const SponsorsWallOfFame = () => {
       name: "React",
       logo: "/lovable-uploads/15e5d185-78c3-448d-85bc-6b1a26093800.png",
       website: "https://react.dev",
+      tier: "platinum",
+      sponsorshipLevel: "$500+"
+    },
+    {
+      name: "Node.js",
+      logo: "/lovable-uploads/d6a1875a-07bb-4c47-8406-3df289fff970.png",
+      website: "https://nodejs.org",
       tier: "platinum",
       sponsorshipLevel: "$500+"
     },
