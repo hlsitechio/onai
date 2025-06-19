@@ -39,9 +39,9 @@ const CompanySponsorsSection: React.FC<CompanySponsorsSectionProps> = ({ sponsor
           }}
           plugins={[
             Autoplay({
-              delay: 0,
+              delay: 2500,
               stopOnInteraction: false,
-              stopOnMouseEnter: false,
+              stopOnMouseEnter: true,
               playOnInit: true,
             }),
           ]}
