@@ -17,6 +17,7 @@ try {
 
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => ({
+  root: process.cwd(),
   server: {
     host: "::",
     port: 8080,
@@ -47,12 +48,14 @@ export default defineConfig(({ mode }) => ({
   ].filter(Boolean),
   resolve: {
     alias: {
-      "@": path.resolve(__dirname, "./src"),
+      "@": path.resolve(process.cwd(), "./src"),
     },
     // Ensure single React instance with simplified deduplication
     dedupe: ['react', 'react-dom'],
   },
   build: {
+    outDir: 'dist',
+    sourcemap: mode === 'development',
     rollupOptions: {
       external: [],
       output: {
