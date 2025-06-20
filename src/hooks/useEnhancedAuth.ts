@@ -90,7 +90,7 @@ export function useEnhancedAuth() {
     try {
       setLoading(true);
       
-      const redirectUrl = `${window.location.origin}/`;
+      const redirectUrl = `${window.location.origin}/app`;
       
       const { data, error } = await supabase.auth.signUp({
         email,
@@ -129,7 +129,7 @@ export function useEnhancedAuth() {
       
       await logOAuthEvent('oauth_start', 'google');
 
-      const redirectUrl = `${window.location.origin}/`;
+      const redirectUrl = `${window.location.origin}/app`;
       
       const { data, error } = await supabase.auth.signInWithOAuth({
         provider: 'google',

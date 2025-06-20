@@ -3,6 +3,8 @@ import React from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import Index from '@/pages/Index';
 import Auth from '@/pages/Auth';
+import App from '@/pages/App';
+import ProtectedRoute from '@/components/ProtectedRoute';
 import ErrorBoundaryWrapper from '@/components/ErrorBoundaryWrapper';
 import { ToastProvider } from '@/components/ui/toast';
 import { AuthProvider } from '@/contexts/AuthContext';
@@ -11,7 +13,7 @@ import { EnhancedAuthProvider } from '@/contexts/EnhancedAuthContext';
 
 const queryClient = new QueryClient();
 
-function App() {
+function AppRouter() {
   return (
     <Router>
       <QueryClientProvider client={queryClient}>
@@ -23,6 +25,14 @@ function App() {
                   <Routes>
                     <Route path="/" element={<Index />} />
                     <Route path="/auth" element={<Auth />} />
+                    <Route 
+                      path="/app" 
+                      element={
+                        <ProtectedRoute>
+                          <App />
+                        </ProtectedRoute>
+                      } 
+                    />
                   </Routes>
                 </div>
               </ToastProvider>
@@ -34,4 +44,4 @@ function App() {
   );
 }
 
-export default App;
+export default AppRouter;
