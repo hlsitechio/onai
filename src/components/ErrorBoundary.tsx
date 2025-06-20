@@ -3,6 +3,7 @@ import React, { Component, ErrorInfo, ReactNode } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { AlertTriangle, RefreshCw } from 'lucide-react';
+import { reportError } from '@/utils/errorReporter';
 
 interface Props {
   children: ReactNode;
@@ -34,16 +35,14 @@ class ErrorBoundary extends Component<Props, State> {
       errorInfo
     });
 
-    // Report to error monitoring service if available
-    if (window.Sentry) {
-      window.Sentry.captureException(error, {
-        contexts: {
-          react: {
-            componentStack: errorInfo.componentStack
-          }
-        }
-      });
-    }
+    // Report error using our centralized error reporter
+    reportError(error, {
+      component: 'ErrorBoundary',
+      severity: 'critical',
+      tags: {
+        componentStack: errorInfo.componentStack
+      }
+    });
   }
 
   private handleReload = () => {
