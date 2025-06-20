@@ -13,14 +13,16 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
-import { LogOut, Settings, Shield } from 'lucide-react';
+import { LogOut, Settings, Shield, BarChart3 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { useNavigate } from 'react-router-dom';
 import SettingsDialog from './settings/SettingsDialog';
 
 const UserMenu = () => {
   const { user, signOut } = useAuth();
   const { isAdmin, role } = useUserRole();
   const { toast } = useToast();
+  const navigate = useNavigate();
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 
   const handleSignOut = async () => {
@@ -37,6 +39,10 @@ const UserMenu = () => {
         variant: 'destructive',
       });
     }
+  };
+
+  const handleErrorDashboard = () => {
+    navigate('/error-dashboard');
   };
 
   if (!user) return null;
@@ -89,6 +95,15 @@ const UserMenu = () => {
             <Settings className="mr-2 h-4 w-4" />
             <span>Settings</span>
           </DropdownMenuItem>
+          {isAdmin && (
+            <DropdownMenuItem 
+              className="text-gray-300 hover:text-white hover:bg-white/10"
+              onClick={handleErrorDashboard}
+            >
+              <BarChart3 className="mr-2 h-4 w-4" />
+              <span>Error Dashboard</span>
+            </DropdownMenuItem>
+          )}
           <DropdownMenuSeparator className="bg-white/10" />
           <DropdownMenuItem 
             className="text-red-400 hover:text-red-300 hover:bg-red-500/10"
