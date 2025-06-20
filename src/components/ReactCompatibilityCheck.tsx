@@ -11,7 +11,7 @@ const ReactCompatibilityCheck: React.FC<ReactCompatibilityCheckProps> = ({ child
 
   useEffect(() => {
     try {
-      // Comprehensive React compatibility check
+      // Basic React compatibility check without calling hooks
       console.log('Starting React compatibility check...');
       
       if (typeof React.createElement !== 'function') {
@@ -34,12 +34,9 @@ const ReactCompatibilityCheck: React.FC<ReactCompatibilityCheckProps> = ({ child
         throw new Error('React.useContext is not available');
       }
 
-      // Test that hooks actually work
-      const testState = React.useState(true);
-      if (!Array.isArray(testState) || testState.length !== 2) {
-        throw new Error('React.useState does not return expected array');
-      }
-
+      // Remove the problematic hook test that was causing the error
+      // The hooks are already being used successfully in this component
+      
       console.log('✅ React compatibility check passed');
       console.log('✅ React hooks and core functionality verified');
       setIsReactReady(true);
@@ -120,3 +117,4 @@ const ReactCompatibilityCheck: React.FC<ReactCompatibilityCheckProps> = ({ child
 };
 
 export default ReactCompatibilityCheck;
+

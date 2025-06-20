@@ -9,18 +9,6 @@ import { Loader2, PenTool } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 const NotesEditor: React.FC = () => {
-  // Add safety check for React hooks
-  if (!React || !React.useState) {
-    console.error('React hooks not available in NotesEditor');
-    return (
-      <div className="flex-1 flex items-center justify-center bg-black/10">
-        <div className="text-center">
-          <p className="text-red-400">React not properly loaded. Please refresh the page.</p>
-        </div>
-      </div>
-    );
-  }
-
   const [content, setContent] = useState('');
   const { isMobile } = useDeviceDetection();
   const { isFocusMode } = useFocusModeManager();
@@ -102,3 +90,4 @@ const NotesEditor: React.FC = () => {
 };
 
 export default NotesEditor;
+
