@@ -1,14 +1,16 @@
+
 import React, { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Switch } from '@/components/ui/switch';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Settings, Palette, Shield, Database, Zap, Smartphone } from 'lucide-react';
+import { Settings, Palette, Shield, Database, Zap, Smartphone, User } from 'lucide-react';
 import { toast } from 'sonner';
 import PWACacheManager from '@/components/pwa/PWACacheManager';
 import PWABackgroundSync from '@/components/pwa/PWABackgroundSync';
 import PWAPushNotifications from '@/components/pwa/PWAPushNotifications';
+import UserProfile from '@/components/UserProfile';
 
 interface AppSettings {
   theme: 'light' | 'dark' | 'system';
@@ -21,7 +23,12 @@ interface AppSettings {
   wordWrap: boolean;
 }
 
-const SettingsDialog: React.FC = () => {
+interface SettingsDialogProps {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+}
+
+const SettingsDialog: React.FC<SettingsDialogProps> = ({ open, onOpenChange }) => {
   const [settings, setSettings] = useState<AppSettings>({
     theme: 'system',
     autoSave: true,
@@ -77,26 +84,32 @@ const SettingsDialog: React.FC = () => {
   };
 
   return (
-    <Dialog>
-      <DialogTrigger asChild>
-        <Button variant="outline" size="sm">
-          <Settings className="h-4 w-4 mr-2" />
-          Settings
-        </Button>
-      </DialogTrigger>
+    <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Application Settings</DialogTitle>
+          <DialogTitle>Settings</DialogTitle>
         </DialogHeader>
         
-        <Tabs defaultValue="general" className="space-y-4">
-          <TabsList className="grid w-full grid-cols-5">
+        <Tabs defaultValue="profile" className="space-y-4">
+          <TabsList className="grid w-full grid-cols-6">
+            <TabsTrigger value="profile">Profile</TabsTrigger>
             <TabsTrigger value="general">General</TabsTrigger>
             <TabsTrigger value="appearance">Appearance</TabsTrigger>
             <TabsTrigger value="ai">AI & Features</TabsTrigger>
             <TabsTrigger value="privacy">Privacy</TabsTrigger>
             <TabsTrigger value="pwa">PWA</TabsTrigger>
           </TabsList>
+          
+          <TabsContent value="profile" className="space-y-6">
+            <div className="space-y-4">
+              <h3 className="text-lg font-semibold flex items-center">
+                <User className="h-5 w-5 mr-2" />
+                User Profile
+              </h3>
+              
+              <UserProfile />
+            </div>
+          </TabsContent>
           
           <TabsContent value="general" className="space-y-6">
             <div className="space-y-4">

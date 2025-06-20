@@ -11,14 +11,14 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
-import { User, LogOut, Settings } from 'lucide-react';
+import { LogOut, Settings } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import ProfileDialog from './ProfileDialog';
+import SettingsDialog from './settings/SettingsDialog';
 
 const UserMenu = () => {
   const { user, signOut } = useAuth();
   const { toast } = useToast();
-  const [isProfileOpen, setIsProfileOpen] = useState(false);
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 
   const handleSignOut = async () => {
     try {
@@ -66,12 +66,8 @@ const UserMenu = () => {
           <DropdownMenuSeparator className="bg-white/10" />
           <DropdownMenuItem 
             className="text-gray-300 hover:text-white hover:bg-white/10"
-            onClick={() => setIsProfileOpen(true)}
+            onClick={() => setIsSettingsOpen(true)}
           >
-            <User className="mr-2 h-4 w-4" />
-            <span>Profile</span>
-          </DropdownMenuItem>
-          <DropdownMenuItem className="text-gray-300 hover:text-white hover:bg-white/10">
             <Settings className="mr-2 h-4 w-4" />
             <span>Settings</span>
           </DropdownMenuItem>
@@ -86,9 +82,9 @@ const UserMenu = () => {
         </DropdownMenuContent>
       </DropdownMenu>
 
-      <ProfileDialog 
-        open={isProfileOpen} 
-        onOpenChange={setIsProfileOpen} 
+      <SettingsDialog 
+        open={isSettingsOpen} 
+        onOpenChange={setIsSettingsOpen} 
       />
     </>
   );
