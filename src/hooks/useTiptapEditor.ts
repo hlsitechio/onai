@@ -1,4 +1,3 @@
-
 import { useEditor } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import { useCallback, useEffect, useState } from 'react';
@@ -31,66 +30,22 @@ export const useTiptapEditor = ({ content, setContent, isFocusMode }: UseTiptapE
   const editor = useEditor({
     extensions: [
       StarterKit.configure({
-        // Configure heading levels
+        // Keep StarterKit simple and disable conflicting extensions
         heading: {
           levels: [1, 2, 3, 4, 5, 6],
-          HTMLAttributes: {
-            class: 'prose-heading',
-          },
         },
-        // Configure bullet list
         bulletList: {
           keepMarks: true,
           keepAttributes: false,
-          HTMLAttributes: {
-            class: 'prose-list-disc',
-          },
         },
-        // Configure ordered list
         orderedList: {
           keepMarks: true,
           keepAttributes: false,
-          HTMLAttributes: {
-            class: 'prose-list-decimal',
-          },
         },
-        // Configure list items
-        listItem: {
-          HTMLAttributes: {
-            class: 'prose-list-item',
-          },
-        },
-        // Configure paragraph
-        paragraph: {
-          HTMLAttributes: {
-            class: 'prose-paragraph',
-          },
-        },
-        // Configure bold
-        bold: {
-          HTMLAttributes: {
-            class: 'font-bold',
-          },
-        },
-        // Configure italic
-        italic: {
-          HTMLAttributes: {
-            class: 'italic',
-          },
-        },
-        // Configure strike
-        strike: {
-          HTMLAttributes: {
-            class: 'line-through',
-          },
-        },
-        // Configure code
-        code: {
-          HTMLAttributes: {
-            class: 'bg-gray-100 px-1 py-0.5 rounded text-sm font-mono',
-          },
-        },
+        // Disable extensions we'll configure separately
+        strike: false, // We'll add this back if needed
       }),
+      // Add additional extensions
       Link.configure({
         openOnClick: false,
         HTMLAttributes: {

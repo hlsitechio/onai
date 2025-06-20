@@ -10,21 +10,18 @@ interface HeadingControlsProps {
 }
 
 const HeadingControls: React.FC<HeadingControlsProps> = ({ editor }) => {
+  if (!editor) return null;
+
   const headingButtons = [
     {
       icon: Heading1,
       level: 1 as const,
-      isActive: () => {
-        if (!editor) return false;
-        return editor.isActive('heading', { level: 1 });
-      },
+      isActive: () => editor.isActive('heading', { level: 1 }),
       onClick: () => {
-        if (editor) {
-          if (editor.isActive('heading', { level: 1 })) {
-            editor.chain().focus().setParagraph().run();
-          } else {
-            editor.chain().focus().toggleHeading({ level: 1 }).run();
-          }
+        if (editor.isActive('heading', { level: 1 })) {
+          editor.chain().focus().setParagraph().run();
+        } else {
+          editor.chain().focus().toggleHeading({ level: 1 }).run();
         }
       },
       title: 'Heading 1'
@@ -32,17 +29,12 @@ const HeadingControls: React.FC<HeadingControlsProps> = ({ editor }) => {
     {
       icon: Heading2,
       level: 2 as const,
-      isActive: () => {
-        if (!editor) return false;
-        return editor.isActive('heading', { level: 2 });
-      },
+      isActive: () => editor.isActive('heading', { level: 2 }),
       onClick: () => {
-        if (editor) {
-          if (editor.isActive('heading', { level: 2 })) {
-            editor.chain().focus().setParagraph().run();
-          } else {
-            editor.chain().focus().toggleHeading({ level: 2 }).run();
-          }
+        if (editor.isActive('heading', { level: 2 })) {
+          editor.chain().focus().setParagraph().run();
+        } else {
+          editor.chain().focus().toggleHeading({ level: 2 }).run();
         }
       },
       title: 'Heading 2'
@@ -50,17 +42,12 @@ const HeadingControls: React.FC<HeadingControlsProps> = ({ editor }) => {
     {
       icon: Heading3,
       level: 3 as const,
-      isActive: () => {
-        if (!editor) return false;
-        return editor.isActive('heading', { level: 3 });
-      },
+      isActive: () => editor.isActive('heading', { level: 3 }),
       onClick: () => {
-        if (editor) {
-          if (editor.isActive('heading', { level: 3 })) {
-            editor.chain().focus().setParagraph().run();
-          } else {
-            editor.chain().focus().toggleHeading({ level: 3 }).run();
-          }
+        if (editor.isActive('heading', { level: 3 })) {
+          editor.chain().focus().setParagraph().run();
+        } else {
+          editor.chain().focus().toggleHeading({ level: 3 }).run();
         }
       },
       title: 'Heading 3'

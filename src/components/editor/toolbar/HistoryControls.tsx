@@ -10,6 +10,8 @@ interface HistoryControlsProps {
 }
 
 const HistoryControls: React.FC<HistoryControlsProps> = ({ editor }) => {
+  if (!editor) return null;
+
   const historyButtons = [
     {
       icon: Undo,
@@ -38,9 +40,9 @@ const HistoryControls: React.FC<HistoryControlsProps> = ({ editor }) => {
             onClick={button.onClick}
             disabled={!canExecute}
             className={cn(
-              "h-8 w-8 p-0 hover:bg-white/10",
-              canExecute 
-                ? "text-gray-300 hover:text-white" 
+              "h-8 w-8 p-0 hover:bg-white/10 transition-colors",
+              canExecute
+                ? "text-gray-300 hover:text-white"
                 : "text-gray-500 cursor-not-allowed"
             )}
             title={button.title}

@@ -10,15 +10,16 @@ interface ListControlsProps {
 }
 
 const ListControls: React.FC<ListControlsProps> = ({ editor }) => {
+  if (!editor) return null;
+
   const listButtons = [
     {
       icon: List,
-      isActive: () => {
-        if (!editor) return false;
-        return editor.isActive('bulletList');
-      },
+      isActive: () => editor.isActive('bulletList'),
       onClick: () => {
-        if (editor) {
+        if (editor.isActive('bulletList')) {
+          editor.chain().focus().liftListItem('listItem').run();
+        } else {
           editor.chain().focus().toggleBulletList().run();
         }
       },
@@ -26,12 +27,11 @@ const ListControls: React.FC<ListControlsProps> = ({ editor }) => {
     },
     {
       icon: ListOrdered,
-      isActive: () => {
-        if (!editor) return false;
-        return editor.isActive('orderedList');
-      },
+      isActive: () => editor.isActive('orderedList'),
       onClick: () => {
-        if (editor) {
+        if (editor.isActive('orderedList')) {
+          editor.chain().focus().liftListItem('listItem').run();
+        } else {
           editor.chain().focus().toggleOrderedList().run();
         }
       },

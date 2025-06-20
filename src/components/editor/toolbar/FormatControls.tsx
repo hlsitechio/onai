@@ -10,57 +10,36 @@ interface FormatControlsProps {
 }
 
 const FormatControls: React.FC<FormatControlsProps> = ({ editor }) => {
+  if (!editor) return null;
+
   const formatButtons = [
     {
       icon: Bold,
-      isActive: () => {
-        if (!editor) return false;
-        return editor.isActive('bold');
-      },
-      onClick: () => {
-        if (editor) {
-          editor.chain().focus().toggleBold().run();
-        }
-      },
+      isActive: () => editor.isActive('bold'),
+      onClick: () => editor.chain().focus().toggleBold().run(),
       title: 'Bold (Ctrl+B)',
       shortcut: 'Ctrl+B'
     },
     {
       icon: Italic,
-      isActive: () => {
-        if (!editor) return false;
-        return editor.isActive('italic');
-      },
-      onClick: () => {
-        if (editor) {
-          editor.chain().focus().toggleItalic().run();
-        }
-      },
+      isActive: () => editor.isActive('italic'),
+      onClick: () => editor.chain().focus().toggleItalic().run(),
       title: 'Italic (Ctrl+I)',
       shortcut: 'Ctrl+I'
     },
     {
       icon: Underline,
-      isActive: () => {
-        if (!editor) return false;
-        return editor.isActive('underline');
-      },
-      onClick: () => {
-        if (editor) {
-          editor.chain().focus().toggleUnderline().run();
-        }
-      },
+      isActive: () => editor.isActive('underline'),
+      onClick: () => editor.chain().focus().toggleUnderline().run(),
       title: 'Underline (Ctrl+U)',
       shortcut: 'Ctrl+U'
     },
     {
       icon: Strikethrough,
-      isActive: () => {
-        if (!editor) return false;
-        return editor.isActive('strike');
-      },
+      isActive: () => editor.isActive('strike'),
       onClick: () => {
-        if (editor) {
+        // Since we might not have strike in StarterKit, let's add it manually
+        if (editor.can().toggleStrike()) {
           editor.chain().focus().toggleStrike().run();
         }
       },
@@ -69,15 +48,8 @@ const FormatControls: React.FC<FormatControlsProps> = ({ editor }) => {
     },
     {
       icon: Code,
-      isActive: () => {
-        if (!editor) return false;
-        return editor.isActive('code');
-      },
-      onClick: () => {
-        if (editor) {
-          editor.chain().focus().toggleCode().run();
-        }
-      },
+      isActive: () => editor.isActive('code'),
+      onClick: () => editor.chain().focus().toggleCode().run(),
       title: 'Inline Code',
       shortcut: null
     }
