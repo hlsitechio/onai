@@ -1,5 +1,5 @@
 
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { BubbleMenu } from '@tiptap/react';
 import type { Editor } from '@tiptap/react';
 import { Button } from '@/components/ui/button';
@@ -21,46 +21,51 @@ const TiptapBubbleMenu: React.FC<TiptapBubbleMenuProps> = ({
   onQuickAI,
   onShowAIAgent
 }) => {
-  const [shouldShow, setShouldShow] = useState(false);
-
-  useEffect(() => {
-    const updateShouldShow = () => {
-      const { from, to } = editor.state.selection;
-      const hasSelection = from !== to;
-      setShouldShow(hasSelection && selectedText.length > 0);
-    };
-
-    updateShouldShow();
-    editor.on('selectionUpdate', updateShouldShow);
-    
-    return () => {
-      editor.off('selectionUpdate', updateShouldShow);
-    };
-  }, [editor, selectedText]);
-
   const handleTextReplace = (newText: string) => {
-    if (!selectedText) return;
+    if (!selectedText || !editor) return;
     
-    const { from, to } = editor.state.selection;
-    editor.chain().focus().setTextSelection({ from, to }).insertContent(newText).run();
+    try {
+      const { from, to } = editor.state.selection;
+      editor.chain().focus().setTextSelection({ from, to }).insertContent(newText).run();
+    } catch (error) {
+      console.warn('Failed to replace text:', error);
+    }
   };
 
-  if (!shouldShow) return null;
+  // Simple shouldShow function that's more stable
+  const shouldShow = ({ editor, from, to }: { editor: Editor; from: number; to: number }) => {
+    const hasSelection = from !== to;
+    const hasSelectedText = selectedText && selectedText.length > 0;
+    return hasSelection && hasSelectedText;
+  };
 
   return (
     <BubbleMenu
       editor={editor}
+      shouldShow={shouldShow}
       tippyOptions={{ 
         duration: 100,
         placement: 'top',
-        offset: [0, 10]
+        offset: [0, 10],
+        onShow: () => {
+          console.log('BubbleMenu showing');
+        },
+        onHide: () => {
+          console.log('BubbleMenu hiding');
+        }
       }}
       className="flex flex-col gap-2 p-2 bg-black/90 backdrop-blur-xl rounded-lg border border-white/10 shadow-2xl"
     >
       {/* Traditional formatting buttons */}
       <div className="flex items-center gap-1">
         <Button
-          onClick={() => editor.chain().focus().toggleBold().run()}
+          onClick={() => {
+            try {
+              editor.chain().focus().toggleBold().run();
+            } catch (error) {
+              console.warn('Bold toggle failed:', error);
+            }
+          }}
           variant="ghost"
           size="sm"
           className={`h-7 w-7 p-0 ${editor.isActive('bold') ? 'bg-white/20' : 'hover:bg-white/10'} text-white`}
@@ -68,7 +73,13 @@ const TiptapBubbleMenu: React.FC<TiptapBubbleMenuProps> = ({
           <Bold className="h-3 w-3" />
         </Button>
         <Button
-          onClick={() => editor.chain().focus().toggleItalic().run()}
+          onClick={() => {
+            try {
+              editor.chain().focus().toggleItalic().run();
+            } catch (error) {
+              console.warn('Italic toggle failed:', error);
+            }
+          }}
           variant="ghost"
           size="sm"
           className={`h-7 w-7 p-0 ${editor.isActive('italic') ? 'bg-white/20' : 'hover:bg-white/10'} text-white`}
@@ -76,7 +87,13 @@ const TiptapBubbleMenu: React.FC<TiptapBubbleMenuProps> = ({
           <Italic className="h-3 w-3" />
         </Button>
         <Button
-          onClick={() => editor.chain().focus().toggleUnderline().run()}
+          onClick={() => {
+            try {
+              editor.chain().focus().toggleUnderline().run();
+            } catch (error) {
+              console.warn('Underline toggle failed:', error);
+            }
+          }}
           variant="ghost"
           size="sm"
           className={`h-7 w-7 p-0 ${editor.isActive('underline') ? 'bg-white/20' : 'hover:bg-white/10'} text-white`}
@@ -84,7 +101,13 @@ const TiptapBubbleMenu: React.FC<TiptapBubbleMenuProps> = ({
           <Underline className="h-3 w-3" />
         </Button>
         <Button
-          onClick={() => editor.chain().focus().toggleCode().run()}
+          onClick={() => {
+            try {
+              editor.chain().focus().toggleCode().run();
+            } catch (error) {
+              console.warn('Code toggle failed:', error);
+            }
+          }}
           variant="ghost"
           size="sm"
           className={`h-7 w-7 p-0 ${editor.isActive('code') ? 'bg-white/20' : 'hover:bg-white/10'} text-white`}
@@ -95,7 +118,13 @@ const TiptapBubbleMenu: React.FC<TiptapBubbleMenuProps> = ({
         <div className="w-px h-4 bg-white/20 mx-1" />
         
         <Button
-          onClick={onShowAIAgent}
+          onClick={() => {
+            try {
+              onShowAIAgent();
+            } catch (error) {
+              console.warn('AI agent show failed:', error);
+            }
+          }}
           variant="ghost"
           size="sm"
           className="h-7 px-2 text-noteflow-300 hover:text-noteflow-200 hover:bg-noteflow-500/20"
@@ -105,11 +134,13 @@ const TiptapBubbleMenu: React.FC<TiptapBubbleMenuProps> = ({
         </Button>
       </div>
 
-      {/* Quick AI text actions */}
-      <QuickTextActions
-        selectedText={selectedText}
-        onTextReplace={handleTextReplace}
-      />
+      {/* Quick AI text actions - only show if we have selected text */}
+      {selectedText && selectedText.length > 0 && (
+        <QuickTextActions
+          selectedText={selectedText}
+          onTextReplace={handleTextReplace}
+        />
+      )}
     </BubbleMenu>
   );
 };
