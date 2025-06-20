@@ -112,6 +112,8 @@ const MobileEditor: React.FC<MobileEditorProps> = ({
               "[&>blockquote]:border-l-4 [&>blockquote]:border-noteflow-500 [&>blockquote]:pl-4 [&>blockquote]:italic [&>blockquote]:my-3",
               "[&>code]:bg-white/10 [&>code]:px-2 [&>code]:py-1 [&>code]:rounded [&>code]:font-mono [&>code]:text-sm",
               "[&>pre]:bg-white/5 [&>pre]:p-4 [&>pre]:rounded [&>pre]:my-3 [&>pre]:overflow-x-auto",
+              // Add highlighting styles for mobile editor
+              "[&>.highlight]:bg-yellow-200 [&>.highlight]:text-black [&>.highlight]:px-1 [&>.highlight]:rounded",
               "focus:bg-white/5 transition-colors duration-200",
               // Mobile-specific optimizations
               "select-text",

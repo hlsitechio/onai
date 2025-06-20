@@ -1,3 +1,4 @@
+
 import { useEditor } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import { useCallback, useEffect, useState } from 'react';
@@ -45,7 +46,7 @@ export const useTiptapEditor = ({ content, setContent, isFocusMode }: UseTiptapE
         // Disable extensions we'll configure separately
         strike: false, // We'll add this back if needed
       }),
-      // Add additional extensions
+      // Add additional extensions with proper error handling
       Link.configure({
         openOnClick: false,
         HTMLAttributes: {
@@ -62,7 +63,9 @@ export const useTiptapEditor = ({ content, setContent, isFocusMode }: UseTiptapE
         alignments: ['left', 'center', 'right', 'justify'],
         defaultAlignment: 'left',
       }),
+      // Ensure Highlight is properly configured
       Highlight.configure({
+        multicolor: true,
         HTMLAttributes: {
           class: 'bg-yellow-200 text-black px-1 rounded',
         },
@@ -122,9 +125,10 @@ export const useTiptapEditor = ({ content, setContent, isFocusMode }: UseTiptapE
       const text = editor.state.doc.textBetween(from, to, ' ');
       setSelectedText(text);
     },
-    onCreate: () => {
+    onCreate: ({ editor }) => {
       setIsLoading(false);
       setEditorReady(true);
+      console.log('Editor created with extensions:', editor.extensionManager.extensions.map(ext => ext.name));
     },
     editorProps: {
       attributes: {
@@ -151,10 +155,26 @@ export const useTiptapEditor = ({ content, setContent, isFocusMode }: UseTiptapE
     setContent(newContent);
   }, [setContent]);
 
+  // Helper function to safely execute commands
+  const safeCommand = useCallback((commandName: string, commandFn: () => boolean) => {
+    if (!editor) {
+      console.warn(`Editor not available for command: ${commandName}`);
+      return false;
+    }
+    
+    try {
+      return commandFn();
+    } catch (error) {
+      console.error(`Error executing command ${commandName}:`, error);
+      return false;
+    }
+  }, [editor]);
+
   return {
     editor,
     isLoading,
     selectedText,
     handleContentChange,
+    safeCommand,
   };
 };
