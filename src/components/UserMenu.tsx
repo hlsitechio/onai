@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useUserRole } from '@/hooks/useUserRole';
@@ -19,10 +20,19 @@ import SettingsDialog from './settings/OptimizedSettingsDialog';
 
 const UserMenu = () => {
   const { user, signOut } = useAuth();
-  const { isAdmin, role } = useUserRole();
+  const { isAdmin, role, loading } = useUserRole();
   const { toast } = useToast();
   const navigate = useNavigate();
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+
+  // Debug logging
+  console.log('UserMenu Debug:', {
+    user: user?.email,
+    role,
+    isAdmin,
+    loading,
+    userId: user?.id
+  });
 
   const handleSignOut = async () => {
     try {
@@ -41,6 +51,7 @@ const UserMenu = () => {
   };
 
   const handleErrorDashboard = () => {
+    console.log('Navigating to error dashboard');
     navigate('/error-dashboard');
   };
 
@@ -84,6 +95,10 @@ const UserMenu = () => {
               <p className="text-xs leading-none text-gray-400">
                 {user.email}
               </p>
+              {/* Debug info - remove this after testing */}
+              <p className="text-xs leading-none text-gray-500">
+                Role: {role || 'loading...'} | Admin: {isAdmin ? 'Yes' : 'No'}
+              </p>
             </div>
           </DropdownMenuLabel>
           <DropdownMenuSeparator className="bg-white/10" />
@@ -94,6 +109,7 @@ const UserMenu = () => {
             <Settings className="mr-2 h-4 w-4" />
             <span>Settings</span>
           </DropdownMenuItem>
+          {/* Show Error Dashboard for admin users */}
           {isAdmin && (
             <DropdownMenuItem 
               className="text-gray-300 hover:text-white hover:bg-white/10"
@@ -101,6 +117,16 @@ const UserMenu = () => {
             >
               <BarChart3 className="mr-2 h-4 w-4" />
               <span>Error Dashboard</span>
+            </DropdownMenuItem>
+          )}
+          {/* Debug: Always show dashboard for testing - remove this after confirming it works */}
+          {user.email === 'hlarosesurprenant@gmail.com' && !isAdmin && (
+            <DropdownMenuItem 
+              className="text-orange-300 hover:text-orange-200 hover:bg-orange-500/10"
+              onClick={handleErrorDashboard}
+            >
+              <BarChart3 className="mr-2 h-4 w-4" />
+              <span>Error Dashboard (Debug)</span>
             </DropdownMenuItem>
           )}
           <DropdownMenuSeparator className="bg-white/10" />
