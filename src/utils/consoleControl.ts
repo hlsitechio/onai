@@ -1,3 +1,4 @@
+
 // Minimal console control - completely silent except for welcome message
 const isDevelopment = import.meta.env.DEV;
 const isProduction = import.meta.env.PROD;
@@ -18,13 +19,13 @@ console.error = () => {};
 console.debug = () => {};
 console.info = () => {};
 
-// Create a controlled logger that stays silent
+// Create a controlled logger that stays silent but accepts arguments
 export const logger = {
-  debug: () => {},
-  info: () => {},
-  warn: () => {},
-  error: () => {},
-  log: () => {}
+  debug: (...args: any[]) => {},
+  info: (...args: any[]) => {},
+  warn: (...args: any[]) => {},
+  error: (...args: any[]) => {},
+  log: (...args: any[]) => {}
 };
 
 // Runtime console control for development - completely silent by default
