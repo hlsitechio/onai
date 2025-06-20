@@ -10,7 +10,7 @@ import SitemapSection from '@/components/SitemapSection';
 import Footer from '@/components/Footer';
 import NotesEditor from '@/components/notes/NotesEditor';
 import ScrollToTop from '@/components/ScrollToTop';
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuth } from '@/contexts/EnhancedAuthContext';
 
 const Index = () => {
   const { user } = useAuth();
