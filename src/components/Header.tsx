@@ -3,13 +3,13 @@ import { Link, useLocation } from 'react-router-dom';
 import { Menu, X, Sparkles, ChevronDown } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from './ui/button';
-import { useAuth } from '@/contexts/AuthContext';
+import { useEnhancedAuthContext } from '@/contexts/EnhancedAuthContext';
 import { useScrollDirection } from '@/hooks/useScrollDirection';
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isLegalMenuOpen, setIsLegalMenuOpen] = useState(false);
-  const { user } = useAuth();
+  const { user } = useEnhancedAuthContext();
   const location = useLocation();
   const { isVisible } = useScrollDirection();
 
