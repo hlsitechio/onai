@@ -6,6 +6,7 @@ import { AuthProvider } from '@/contexts/AuthContext';
 import AuthGuard from '@/components/AuthGuard';
 import Auth from '@/pages/Auth';
 import Index from '@/pages/Index';
+import Landing from '@/pages/Landing';
 import AppPage from '@/pages/App';
 import SignIn from '@/pages/SignIn';
 import SignUp from '@/pages/SignUp';
@@ -31,6 +32,7 @@ function App() {
                 <Route path="/success" element={<Success />} />
                 <Route path="/privacy-policy" element={<PrivacyPolicy />} />
                 <Route path="/terms-of-use" element={<TermsOfUse />} />
+                <Route path="/landing" element={<Landing />} />
                 <Route path="/ionos" element={
                   <AuthGuard>
                     <IonosManagement />

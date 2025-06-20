@@ -1,154 +1,137 @@
 
-import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
-import { Button } from '@/components/ui/button';
-import { Separator } from '@/components/ui/separator';
-import { Coffee, FileText, Zap, Settings } from 'lucide-react';
-import { Github } from 'lucide-react';
-import UserMenu from './UserMenu';
-import AuthModal from './AuthModal';
+import React, { useState } from 'react';
+import { Link, useLocation } from 'react-router-dom';
+import { Menu, X, Sparkles } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Button } from './ui/button';
 import { useAuth } from '@/contexts/AuthContext';
 
 const Header = () => {
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
   const { user } = useAuth();
-  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
-  const [authModalTab, setAuthModalTab] = useState<'signin' | 'signup'>('signin');
-  const [isVisible, setIsVisible] = useState(true);
-  const [lastScrollY, setLastScrollY] = useState(0);
-  
-  useEffect(() => {
-    const handleScroll = () => {
-      const currentScrollY = window.scrollY;
-      
-      if (currentScrollY < lastScrollY || currentScrollY < 100) {
-        // Scrolling up or near top - show header
-        setIsVisible(true);
-      } else if (currentScrollY > lastScrollY && currentScrollY > 100) {
-        // Scrolling down and past 100px - hide header
-        setIsVisible(false);
-      }
-      
-      setLastScrollY(currentScrollY);
-    };
+  const location = useLocation();
 
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, [lastScrollY]);
-  
-  const openSignInModal = () => {
-    setAuthModalTab('signin');
-    setIsAuthModalOpen(true);
-  };
+  const isLandingPage = location.pathname === '/landing';
 
-  const openSignUpModal = () => {
-    setAuthModalTab('signup');
-    setIsAuthModalOpen(true);
-  };
-  
+  const navigationItems = [
+    { name: 'Home', href: '/' },
+    { name: 'Full Experience', href: '/landing' },
+    { name: 'Features', href: isLandingPage ? '#features' : '/#features' },
+    { name: 'Pricing', href: isLandingPage ? '#pricing' : '/#pricing' },
+  ];
+
   return (
-    <>
-      <header className={`sticky top-0 z-50 w-full border-b border-white/10 bg-black/60 backdrop-blur-md transition-transform duration-300 ${
-        isVisible ? 'translate-y-0' : '-translate-y-full'
-      }`}>
-        <div className="container mx-auto px-4 h-16 flex items-center justify-between">
-          {/* Logo and Brand */}
-          <Link to="/" className="flex items-center space-x-3 group transition-all duration-300 hover:scale-105">
-            <div className="w-10 h-10 flex items-center justify-center rounded-lg bg-gradient-to-br from-noteflow-400/10 to-purple-500/10 group-hover:from-noteflow-400/20 group-hover:to-purple-500/20 transition-all duration-300">
-              <img 
-                src="/lovable-uploads/fccad14b-dab2-4cbe-82d9-fe30b6f82787.png" 
-                alt="ONAI Logo" 
-                className="w-8 h-8 object-contain group-hover:scale-110 transition-transform duration-300"
-              />
+    <header className="fixed top-0 left-0 right-0 z-50 bg-black/20 backdrop-blur-lg border-b border-white/10">
+      <div className="container mx-auto px-4">
+        <div className="flex items-center justify-between h-16">
+          {/* Logo */}
+          <Link to="/" className="flex items-center space-x-2 group">
+            <div className="relative">
+              <Sparkles className="h-8 w-8 text-noteflow-400 group-hover:text-noteflow-300 transition-colors" />
+              <div className="absolute inset-0 animate-pulse">
+                <Sparkles className="h-8 w-8 text-noteflow-400/50" />
+              </div>
             </div>
-            <span className="text-xl font-bold bg-gradient-to-r from-noteflow-400 to-purple-400 bg-clip-text text-transparent group-hover:from-noteflow-300 group-hover:to-purple-300 transition-all duration-300">
+            <span className="text-xl font-bold bg-gradient-to-r from-white to-noteflow-200 bg-clip-text text-transparent">
               Online Note AI
             </span>
           </Link>
 
-          {/* Navigation */}
-          <nav className="hidden md:flex items-center space-x-6">
-            {user && (
-              <>
-                <Link 
-                  to="/ionos"
-                  className="flex items-center space-x-2 text-gray-300 hover:text-white transition-colors cursor-pointer"
-                >
-                  <Settings className="w-4 h-4" />
-                  <span>Domain Manager</span>
-                </Link>
-                <Separator orientation="vertical" className="h-6 bg-white/10" />
-              </>
-            )}
-            <Link 
-              to="/privacy-policy"
-              className="text-gray-300 hover:text-white transition-colors cursor-pointer"
-            >
-              Privacy Policy
-            </Link>
-            <Link 
-              to="/terms-of-use"
-              className="text-gray-300 hover:text-white transition-colors cursor-pointer"
-            >
-              Terms of Use
-            </Link>
-            <Separator orientation="vertical" className="h-6 bg-white/10" />
-            <a 
-              href="https://github.com/hlsitechio/onai/" 
-              target="_blank" 
-              rel="noopener noreferrer"
-              className="flex items-center space-x-2 text-gray-300 hover:text-white transition-colors"
-            >
-              <Github className="w-4 h-4" />
-              <span>GitHub</span>
-            </a>
-            <a 
-              href="https://www.buymeacoffee.com/onlinenoteai" 
-              target="_blank" 
-              rel="noopener noreferrer"
-              className="flex items-center space-x-2 text-yellow-400 hover:text-yellow-300 transition-colors"
-            >
-              <Coffee className="w-4 h-4" />
-              <span>Support Us</span>
-            </a>
+          {/* Desktop Navigation */}
+          <nav className="hidden md:flex items-center space-x-8">
+            {navigationItems.map((item) => (
+              <a
+                key={item.name}
+                href={item.href}
+                className="text-gray-300 hover:text-white transition-colors duration-200 relative group"
+              >
+                {item.name}
+                <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-noteflow-400 transition-all duration-300 group-hover:w-full"></span>
+              </a>
+            ))}
           </nav>
 
-          {/* User Menu / Auth Buttons */}
-          <div className="flex items-center space-x-4">
+          {/* Auth Buttons */}
+          <div className="hidden md:flex items-center space-x-4">
             {user ? (
-              <UserMenu />
+              <Link to="/app">
+                <Button className="bg-noteflow-600 hover:bg-noteflow-500 text-white">
+                  Go to App
+                </Button>
+              </Link>
             ) : (
               <>
                 <Link to="/auth">
-                  <Button 
-                    variant="ghost" 
-                    size="sm" 
-                    className="text-gray-300 hover:text-white hover:bg-white/10"
-                  >
+                  <Button variant="ghost" className="text-gray-300 hover:text-white">
                     Sign In
                   </Button>
                 </Link>
                 <Link to="/auth">
-                  <Button 
-                    variant="outline" 
-                    size="sm" 
-                    className="border-noteflow-400 text-noteflow-400 hover:bg-noteflow-400 hover:text-white"
-                  >
-                    Sign Up
+                  <Button className="bg-noteflow-600 hover:bg-noteflow-500 text-white">
+                    Get Started
                   </Button>
                 </Link>
               </>
             )}
           </div>
-        </div>
-      </header>
 
-      {/* Auth Modal */}
-      <AuthModal
-        open={isAuthModalOpen}
-        onOpenChange={setIsAuthModalOpen}
-        defaultTab={authModalTab}
-      />
-    </>
+          {/* Mobile Menu Button */}
+          <button
+            className="md:hidden text-white"
+            onClick={() => setIsMenuOpen(!isMenuOpen)}
+          >
+            {isMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+          </button>
+        </div>
+
+        {/* Mobile Menu */}
+        <AnimatePresence>
+          {isMenuOpen && (
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: 'auto' }}
+              exit={{ opacity: 0, height: 0 }}
+              className="md:hidden bg-black/40 backdrop-blur-lg border-t border-white/10"
+            >
+              <div className="px-4 py-6 space-y-4">
+                {navigationItems.map((item) => (
+                  <a
+                    key={item.name}
+                    href={item.href}
+                    className="block text-gray-300 hover:text-white transition-colors duration-200"
+                    onClick={() => setIsMenuOpen(false)}
+                  >
+                    {item.name}
+                  </a>
+                ))}
+                <div className="pt-4 space-y-2">
+                  {user ? (
+                    <Link to="/app" className="block">
+                      <Button className="w-full bg-noteflow-600 hover:bg-noteflow-500 text-white">
+                        Go to App
+                      </Button>
+                    </Link>
+                  ) : (
+                    <>
+                      <Link to="/auth" className="block">
+                        <Button variant="ghost" className="w-full text-gray-300 hover:text-white">
+                          Sign In
+                        </Button>
+                      </Link>
+                      <Link to="/auth" className="block">
+                        <Button className="w-full bg-noteflow-600 hover:bg-noteflow-500 text-white">
+                          Get Started
+                        </Button>
+                      </Link>
+                    </>
+                  )}
+                </div>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
+    </header>
   );
 };
 

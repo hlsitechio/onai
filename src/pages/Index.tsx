@@ -3,15 +3,10 @@ import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Header from '@/components/Header';
 import Hero from '@/components/Hero';
-import FeatureShowcase from '@/components/FeatureShowcase';
-import InteractiveFeatureShowcase from '@/components/features/InteractiveFeatureShowcase';
-import Features from '@/components/Features';
-import EnhancedFeatures from '@/components/EnhancedFeatures';
-import WhyChooseUs from '@/components/WhyChooseUs';
-import HowItWorks from '@/components/HowItWorks';
 import SponsorsWallOfFame from '@/components/SponsorsWallOfFame';
+import EnhancedFeatures from '@/components/EnhancedFeatures';
 import PricingSection from '@/components/PricingSection';
-import NewsletterSection from '@/components/NewsletterSection';
+import SitemapSection from '@/components/SitemapSection';
 import Footer from '@/components/Footer';
 import NotesEditor from '@/components/notes/NotesEditor';
 import ScrollToTop from '@/components/ScrollToTop';
@@ -47,22 +42,16 @@ const Index = () => {
       <div className="relative z-10">
         <Header />
         <Hero />
-        <InteractiveFeatureShowcase />
         <div id="editor-section">
           <NotesEditor />
         </div>
-        <FeatureShowcase />
-        <Features />
-        <EnhancedFeatures />
-        <WhyChooseUs />
-        <HowItWorks />
         <SponsorsWallOfFame />
+        <EnhancedFeatures />
         <PricingSection />
-        <NewsletterSection />
+        <SitemapSection />
         <Footer />
       </div>
       
-      {/* Scroll to top arrow */}
       <ScrollToTop />
     </div>
   );
