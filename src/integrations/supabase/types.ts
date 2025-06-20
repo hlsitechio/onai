@@ -520,6 +520,45 @@ export type Database = {
         }
         Relationships: []
       }
+      security_audit_log: {
+        Row: {
+          action: string
+          created_at: string
+          id: string
+          ip_address: unknown | null
+          new_values: Json | null
+          old_values: Json | null
+          record_id: string | null
+          table_name: string | null
+          user_agent: string | null
+          user_id: string | null
+        }
+        Insert: {
+          action: string
+          created_at?: string
+          id?: string
+          ip_address?: unknown | null
+          new_values?: Json | null
+          old_values?: Json | null
+          record_id?: string | null
+          table_name?: string | null
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          action?: string
+          created_at?: string
+          id?: string
+          ip_address?: unknown | null
+          new_values?: Json | null
+          old_values?: Json | null
+          record_id?: string | null
+          table_name?: string | null
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       security_incidents: {
         Row: {
           created_at: string | null
@@ -776,6 +815,15 @@ export type Database = {
         Args: { user_uuid: string }
         Returns: boolean
       }
+      check_rate_limit: {
+        Args: {
+          user_uuid: string
+          action_type: string
+          max_requests?: number
+          time_window?: unknown
+        }
+        Returns: boolean
+      }
       get_daily_ai_usage: {
         Args:
           | Record<PropertyKey, never>
@@ -785,6 +833,14 @@ export type Database = {
           daily_count: number
           usage_date: string
         }[]
+      }
+      sanitize_input: {
+        Args: { input_text: string }
+        Returns: string
+      }
+      validate_content_length: {
+        Args: { content: string; max_length?: number }
+        Returns: boolean
       }
     }
     Enums: {
