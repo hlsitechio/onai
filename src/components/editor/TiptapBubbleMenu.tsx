@@ -47,6 +47,7 @@ const TiptapBubbleMenu: React.FC<TiptapBubbleMenuProps> = ({
   };
 
   const handleCreateNote = () => {
+    console.log('Creating new note...');
     setIsCreateMenuOpen(false);
     if (onCreateNote) {
       onCreateNote();
@@ -54,6 +55,7 @@ const TiptapBubbleMenu: React.FC<TiptapBubbleMenuProps> = ({
   };
 
   const handleCreateFolder = () => {
+    console.log('Creating new folder...');
     setIsCreateMenuOpen(false);
     if (onCreateFolder) {
       onCreateFolder();
@@ -138,40 +140,42 @@ const TiptapBubbleMenu: React.FC<TiptapBubbleMenuProps> = ({
         
         <div className="w-px h-4 bg-white/20 mx-1" />
         
-        {/* Create Note/Folder Popover */}
+        {/* Create dropdown with Note and Folder options */}
         <Popover open={isCreateMenuOpen} onOpenChange={setIsCreateMenuOpen}>
           <PopoverTrigger asChild>
             <Button
               variant="ghost"
               size="sm"
               className="h-7 w-7 p-0 text-green-300 hover:text-green-200 hover:bg-green-500/20"
+              title="Create new..."
             >
               <Plus className="h-3 w-3" />
             </Button>
           </PopoverTrigger>
           <PopoverContent 
-            className="w-48 p-2 bg-black/95 backdrop-blur-xl border border-white/20 shadow-2xl"
+            className="w-48 p-2 bg-black/95 backdrop-blur-xl border border-white/20 shadow-2xl z-[10000]"
             side="top"
             align="center"
+            sideOffset={8}
           >
             <div className="flex flex-col gap-1">
               <Button
                 onClick={handleCreateNote}
                 variant="ghost"
                 size="sm"
-                className="justify-start text-white hover:bg-white/10"
+                className="justify-start text-white hover:bg-white/10 h-8"
               >
                 <FileText className="h-4 w-4 mr-2" />
-                New Note
+                Create Note
               </Button>
               <Button
                 onClick={handleCreateFolder}
                 variant="ghost"
                 size="sm"
-                className="justify-start text-white hover:bg-white/10"
+                className="justify-start text-white hover:bg-white/10 h-8"
               >
                 <Folder className="h-4 w-4 mr-2" />
-                New Folder
+                Create Folder
               </Button>
             </div>
           </PopoverContent>
