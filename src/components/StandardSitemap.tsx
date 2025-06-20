@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { ExternalLink, FileText, Shield, Coffee, Mail, Settings, Home } from 'lucide-react';
 
@@ -10,7 +9,8 @@ const StandardSitemap = () => {
       links: [
         { name: "Home", url: "/", description: "Main landing page with AI-powered note editor" },
         { name: "Features", url: "/#features", description: "Explore our AI-powered note-taking features" },
-        { name: "Technologies", url: "/#sponsors", description: "See the technologies that power our platform" }
+        { name: "Technologies", url: "/#sponsors", description: "See the technologies that power our platform" },
+        { name: "Contact Us", url: "/contactus", description: "Get in touch with our support team" }
       ]
     },
     {
@@ -27,8 +27,8 @@ const StandardSitemap = () => {
       icon: Coffee,
       links: [
         { name: "Buy Me a Coffee", url: "https://www.buymeacoffee.com/onlinenoteai", description: "Support our free service - every coffee helps!", external: true },
-        { name: "Contact Support", url: "mailto:info@onlinenote.ai", description: "Get help from our support team", external: true },
-        { name: "Feature Requests", url: "mailto:info@onlinenote.ai", description: "Suggest new features", external: true }
+        { name: "Contact Support", url: "/contactus", description: "Get help from our support team" },
+        { name: "Email Support", url: "mailto:info@onlinenote.ai", description: "Direct email support", external: true }
       ]
     }
   ];
@@ -102,7 +102,7 @@ const StandardSitemap = () => {
               Buy Me a Coffee
             </a>
             <a 
-              href="mailto:info@onlinenote.ai?subject=Support%20Inquiry"
+              href="/contactus"
               className="inline-flex items-center gap-2 border border-purple-400 text-purple-400 hover:bg-purple-400 hover:text-white px-8 py-3 rounded-lg font-medium transition-all hover:scale-105"
             >
               <Mail className="h-5 w-5" />

@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Menu, X, Sparkles, ChevronDown } from 'lucide-react';
@@ -19,6 +18,7 @@ const Header = () => {
     { name: 'Full Experience', href: '/landing', isRoute: true },
     { name: 'Features', href: isLandingPage ? '#features' : '/#features', isRoute: false },
     { name: 'Pricing', href: isLandingPage ? '#pricing' : '/#pricing', isRoute: false },
+    { name: 'Contact Us', href: '/contactus', isRoute: true },
   ];
 
   const legalItems = [

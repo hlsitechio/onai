@@ -5,6 +5,7 @@ import Index from '@/pages/Index';
 import Auth from '@/pages/Auth';
 import App from '@/pages/App';
 import Landing from '@/pages/Landing';
+import ContactUs from '@/pages/ContactUs';
 import PrivacyPolicy from '@/pages/privacy-policy';
 import TermsOfUse from '@/pages/terms-of-use';
 import CookieSettings from '@/pages/cookie-settings';
@@ -30,6 +31,7 @@ function AppRouter() {
                     <Route path="/" element={<Index />} />
                     <Route path="/landing" element={<Landing />} />
                     <Route path="/auth" element={<Auth />} />
+                    <Route path="/contactus" element={<ContactUs />} />
                     <Route path="/privacy-policy" element={<PrivacyPolicy />} />
                     <Route path="/terms-of-use" element={<TermsOfUse />} />
                     <Route path="/cookie-settings" element={<CookieSettings />} />

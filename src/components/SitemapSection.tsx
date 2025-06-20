@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { motion } from "framer-motion";
 import { FileText, Shield, Coffee, Mail } from 'lucide-react';
@@ -11,7 +10,8 @@ const SitemapSection = () => {
       links: [
         { name: "Home", href: "/", description: "Main landing page with editor" },
         { name: "Features", href: "/#features", description: "Learn about our AI-powered features" },
-        { name: "Our Technologies", href: "/#sponsors", description: "Technologies powering our platform" }
+        { name: "Our Technologies", href: "/#sponsors", description: "Technologies powering our platform" },
+        { name: "Contact Us", href: "/contactus", description: "Get in touch with our team" }
       ]
     },
     {
@@ -28,7 +28,8 @@ const SitemapSection = () => {
       icon: Coffee,
       links: [
         { name: "Buy Me a Coffee", href: "https://www.buymeacoffee.com/onlinenoteai", description: "Support our free service", external: true },
-        { name: "Contact Us", href: "mailto:info@onlinenote.ai", description: "Get in touch with our team", external: true }
+        { name: "Contact Us", href: "/contactus", description: "Get help from our support team" },
+        { name: "Email Support", href: "mailto:info@onlinenote.ai", description: "Direct email support", external: true }
       ]
     }
   ];
