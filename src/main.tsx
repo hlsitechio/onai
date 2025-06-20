@@ -7,30 +7,43 @@ import { initializeFormValidation } from './utils/formValidationUtils'
 import { initializeBrowserCompatibility } from './utils/browserCompatibilityUtils'
 import './utils/enhancedConsoleControl'
 
-// Critical: Ensure React is properly loaded and available globally before anything else
-if (!React || typeof React !== 'object') {
-  throw new Error('React is not properly loaded - cannot continue');
-}
+// CRITICAL: Comprehensive React validation before proceeding
+const validateReactEnvironment = () => {
+  // Check if React exists and is properly loaded
+  if (!React || typeof React !== 'object') {
+    throw new Error('FATAL: React is not properly loaded - cannot continue');
+  }
 
-// Verify React hooks are available
-if (!React.useState || typeof React.useState !== 'function') {
-  throw new Error('React.useState is not available - React hooks not loaded properly');
-}
+  // Verify all essential React features
+  const requiredFeatures = [
+    'createElement',
+    'Component',
+    'useState',
+    'useEffect',
+    'useContext',
+    'useRef',
+    'version'
+  ];
 
-if (!React.useRef || typeof React.useRef !== 'function') {
-  throw new Error('React.useRef is not available - React hooks not loaded properly');
-}
+  for (const feature of requiredFeatures) {
+    if (!React[feature as keyof typeof React]) {
+      throw new Error(`FATAL: React.${feature} is not available - React not fully loaded`);
+    }
+  }
 
-if (!React.useContext || typeof React.useContext !== 'function') {
-  throw new Error('React.useContext is not available - React hooks not loaded properly');
-}
+  console.log('✅ React environment validation passed - Version:', React.version);
+  return true;
+};
+
+// Validate React environment immediately
+validateReactEnvironment();
 
 // Make React globally available to prevent null reference issues
 (window as any).React = React;
 
 // Ensure React DOM is also available
 if (!ReactDOM || typeof ReactDOM.createRoot !== 'function') {
-  throw new Error('ReactDOM is not properly loaded');
+  throw new Error('FATAL: ReactDOM is not properly loaded');
 }
 
 console.log('React initialization complete - Version:', React.version);
@@ -44,10 +57,45 @@ if (!rootElement) {
 initializeBrowserCompatibility();
 initializeFormValidation();
 
+// Enhanced error fallback component
+const ErrorFallback = () => {
+  return React.createElement('div', {
+    style: {
+      padding: '20px',
+      margin: '20px',
+      backgroundColor: '#1a1a1a',
+      color: '#ff6b6b',
+      fontFamily: 'monospace',
+      border: '1px solid #ff6b6b',
+      borderRadius: '8px',
+      textAlign: 'center'
+    }
+  }, [
+    React.createElement('h2', { key: 'title' }, 'Application Error'),
+    React.createElement('p', { key: 'message' }, 'React failed to initialize properly. Please refresh the page.'),
+    React.createElement('button', {
+      key: 'refresh',
+      onClick: () => window.location.reload(),
+      style: {
+        marginTop: '10px',
+        padding: '8px 16px',
+        backgroundColor: '#ff6b6b',
+        color: 'white',
+        border: 'none',
+        borderRadius: '4px',
+        cursor: 'pointer'
+      }
+    }, 'Refresh Page')
+  ]);
+};
+
 // Initialize Sentry only after React is confirmed working
 const initializeApp = async () => {
   try {
     console.log('Starting OneAI Notes application...');
+    
+    // Double-check React is still available
+    validateReactEnvironment();
     
     // Initialize Sentry with proper error handling
     try {
@@ -59,35 +107,47 @@ const initializeApp = async () => {
     
     const root = ReactDOM.createRoot(rootElement);
 
+    // Wrap App in additional error boundary
     root.render(
-      <React.StrictMode>
-        <App />
-      </React.StrictMode>
+      React.createElement(React.StrictMode, null,
+        React.createElement(App)
+      )
     );
 
     console.log('App rendered successfully');
   } catch (error) {
     console.error('Failed to initialize app:', error);
     
-    // Fallback rendering without Sentry if there's an error
+    // Fallback rendering with error component
     try {
       const root = ReactDOM.createRoot(rootElement);
-      root.render(
-        <React.StrictMode>
-          <App />
-        </React.StrictMode>
-      );
+      root.render(React.createElement(ErrorFallback));
     } catch (fallbackError) {
       console.error('Fallback rendering also failed:', fallbackError);
-      // Show a basic error message
-      rootElement.innerHTML = '<div style="padding: 20px; color: red; font-family: monospace;">Application failed to load. Please refresh the page.</div>';
+      // Last resort: direct DOM manipulation
+      rootElement.innerHTML = `
+        <div style="padding: 20px; color: red; font-family: monospace; text-align: center;">
+          <h2>Critical Error</h2>
+          <p>Application failed to load. Please refresh the page.</p>
+          <button onclick="window.location.reload()" style="margin-top: 10px; padding: 8px 16px; background: red; color: white; border: none; border-radius: 4px; cursor: pointer;">
+            Refresh Page
+          </button>
+        </div>
+      `;
     }
   }
 };
 
-// Wait for DOM to be ready before initializing
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', initializeApp);
-} else {
-  initializeApp();
-}
+// Enhanced DOM ready detection
+const waitForDOM = () => {
+  return new Promise<void>((resolve) => {
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', () => resolve());
+    } else {
+      resolve();
+    }
+  });
+};
+
+// Wait for DOM and then initialize
+waitForDOM().then(initializeApp);

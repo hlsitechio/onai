@@ -19,6 +19,40 @@ import ErrorBoundaryWrapper from '@/components/ErrorBoundaryWrapper';
 import ReactCompatibilityCheck from '@/components/ReactCompatibilityCheck';
 
 function App() {
+  // Ensure React is available before rendering
+  if (!React || !React.useState || !React.useEffect) {
+    console.error('CRITICAL: React hooks not available in App component');
+    return (
+      <div style={{
+        padding: '20px',
+        margin: '20px',
+        backgroundColor: '#1a1a1a',
+        color: '#ff6b6b',
+        fontFamily: 'monospace',
+        border: '1px solid #ff6b6b',
+        borderRadius: '8px',
+        textAlign: 'center'
+      }}>
+        <h2>React Error</h2>
+        <p>React hooks are not properly loaded. Please refresh the page.</p>
+        <button
+          onClick={() => window.location.reload()}
+          style={{
+            marginTop: '10px',
+            padding: '8px 16px',
+            backgroundColor: '#ff6b6b',
+            color: 'white',
+            border: 'none',
+            borderRadius: '4px',
+            cursor: 'pointer'
+          }}
+        >
+          Refresh Page
+        </button>
+      </div>
+    );
+  }
+
   return (
     <ReactCompatibilityCheck>
       <ErrorBoundaryWrapper>
