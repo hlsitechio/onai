@@ -11,6 +11,7 @@ import TermsOfUse from '@/pages/terms-of-use';
 import CookieSettings from '@/pages/cookie-settings';
 import ProtectedRoute from '@/components/ProtectedRoute';
 import ErrorBoundaryWrapper from '@/components/ErrorBoundaryWrapper';
+import ReactCompatibilityCheck from '@/components/ReactCompatibilityCheck';
 import { ToastProvider } from '@/components/ui/toast';
 import { AuthProvider } from '@/contexts/AuthContext';
 import { QueryClientProvider, QueryClient } from '@tanstack/react-query';
@@ -20,37 +21,39 @@ const queryClient = new QueryClient();
 
 function AppRouter() {
   return (
-    <Router>
-      <QueryClientProvider client={queryClient}>
-        <EnhancedAuthProvider>
-          <AuthProvider>
-            <ErrorBoundaryWrapper>
-              <ToastProvider>
-                <div className="min-h-screen bg-background">
-                  <Routes>
-                    <Route path="/" element={<Index />} />
-                    <Route path="/landing" element={<Landing />} />
-                    <Route path="/auth" element={<Auth />} />
-                    <Route path="/contactus" element={<ContactUs />} />
-                    <Route path="/privacy-policy" element={<PrivacyPolicy />} />
-                    <Route path="/terms-of-use" element={<TermsOfUse />} />
-                    <Route path="/cookie-settings" element={<CookieSettings />} />
-                    <Route 
-                      path="/app" 
-                      element={
-                        <ProtectedRoute>
-                          <App />
-                        </ProtectedRoute>
-                      } 
-                    />
-                  </Routes>
-                </div>
-              </ToastProvider>
-            </ErrorBoundaryWrapper>
-          </AuthProvider>
-        </EnhancedAuthProvider>
-      </QueryClientProvider>
-    </Router>
+    <ReactCompatibilityCheck>
+      <Router>
+        <QueryClientProvider client={queryClient}>
+          <EnhancedAuthProvider>
+            <AuthProvider>
+              <ErrorBoundaryWrapper>
+                <ToastProvider>
+                  <div className="min-h-screen bg-background">
+                    <Routes>
+                      <Route path="/" element={<Index />} />
+                      <Route path="/landing" element={<Landing />} />
+                      <Route path="/auth" element={<Auth />} />
+                      <Route path="/contactus" element={<ContactUs />} />
+                      <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+                      <Route path="/terms-of-use" element={<TermsOfUse />} />
+                      <Route path="/cookie-settings" element={<CookieSettings />} />
+                      <Route 
+                        path="/app" 
+                        element={
+                          <ProtectedRoute>
+                            <App />
+                          </ProtectedRoute>
+                        } 
+                      />
+                    </Routes>
+                  </div>
+                </ToastProvider>
+              </ErrorBoundaryWrapper>
+            </AuthProvider>
+          </EnhancedAuthProvider>
+        </QueryClientProvider>
+      </Router>
+    </ReactCompatibilityCheck>
   );
 }
 

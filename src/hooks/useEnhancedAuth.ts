@@ -1,10 +1,14 @@
-
-import { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { User, Session, AuthError } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { logAuthenticationEvent, logOAuthEvent } from '@/utils/enhancedSecurityLogger';
 import { handleOAuthError, getOAuthErrorSuggestion } from '@/utils/oauthErrorHandler';
+
+// Ensure React is available before using hooks
+if (!React || typeof React.useState !== 'function') {
+  throw new Error('React is not properly loaded - cannot use hooks');
+}
 
 export function useEnhancedAuth() {
   const [user, setUser] = useState<User | null>(null);

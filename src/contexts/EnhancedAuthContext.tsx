@@ -3,6 +3,11 @@ import React, { createContext, useContext } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { useEnhancedAuth } from '@/hooks/useEnhancedAuth';
 
+// Ensure React is available
+if (!React || typeof React.createContext !== 'function') {
+  throw new Error('React is not properly loaded - cannot create context');
+}
+
 interface EnhancedAuthContextType {
   user: User | null;
   session: Session | null;
