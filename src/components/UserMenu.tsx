@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useUserRole } from '@/hooks/useUserRole';
@@ -16,7 +15,7 @@ import { Badge } from '@/components/ui/badge';
 import { LogOut, Settings, Shield, BarChart3 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useNavigate } from 'react-router-dom';
-import SettingsDialog from './settings/SettingsDialog';
+import SettingsDialog from './settings/OptimizedSettingsDialog';
 
 const UserMenu = () => {
   const { user, signOut } = useAuth();
