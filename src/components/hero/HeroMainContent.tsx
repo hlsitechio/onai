@@ -1,11 +1,14 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { motion } from "framer-motion";
-import { Zap, ArrowRight, Play } from 'lucide-react';
+import { Zap, ArrowRight, Play, X } from 'lucide-react';
 import { toast } from 'sonner';
 import HeroTextAnimations from './HeroTextAnimations';
+import { Dialog, DialogContent, DialogOverlay } from '@/components/ui/dialog';
 
 const HeroMainContent: React.FC = () => {
+  const [showComingSoonDialog, setShowComingSoonDialog] = useState(false);
+
   const ctaVariants = {
     hidden: {
       opacity: 0,
@@ -40,13 +43,11 @@ const HeroMainContent: React.FC = () => {
   };
 
   const handleWatchDemo = () => {
-    toast.info("Coming Soon!", {
-      description: "The demo video will be available shortly. Stay tuned!",
-      duration: 3000,
-    });
+    setShowComingSoonDialog(true);
   };
 
-  return <div className="text-center space-y-6">
+  return (
+    <div className="text-center space-y-6">
       {/* Main hero text with enhanced animations */}
       <HeroTextAnimations className="relative" />
 
@@ -104,7 +105,31 @@ const HeroMainContent: React.FC = () => {
           <span>AI-powered</span>
         </div>
       </motion.div>
-    </div>;
+
+      {/* Coming Soon Dialog */}
+      <Dialog open={showComingSoonDialog} onOpenChange={setShowComingSoonDialog}>
+        <DialogContent className="max-w-md mx-auto bg-gradient-to-br from-gray-900 to-black border border-white/20 text-white">
+          <div className="text-center py-6">
+            <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-gradient-to-r from-noteflow-500 to-purple-600 flex items-center justify-center">
+              <Play className="h-8 w-8 text-white" />
+            </div>
+            <h3 className="text-2xl font-bold mb-2 bg-gradient-to-r from-noteflow-400 to-purple-400 bg-clip-text text-transparent">
+              Coming Soon!
+            </h3>
+            <p className="text-gray-300 mb-6">
+              We're working hard to create an amazing demo video for you. Stay tuned for the big reveal!
+            </p>
+            <button
+              onClick={() => setShowComingSoonDialog(false)}
+              className="px-6 py-3 bg-gradient-to-r from-noteflow-600 to-purple-600 hover:from-noteflow-500 hover:to-purple-500 text-white rounded-full font-medium transition-all duration-300 shadow-lg"
+            >
+              Got it!
+            </button>
+          </div>
+        </DialogContent>
+      </Dialog>
+    </div>
+  );
 };
 
 export default HeroMainContent;
