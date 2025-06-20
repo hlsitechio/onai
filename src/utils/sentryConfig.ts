@@ -12,7 +12,7 @@ export const initializeSentry = () => {
         Sentry.browserTracingIntegration(),
         Sentry.replayIntegration(),
         Sentry.captureConsoleIntegration({
-          levels: ['log', 'info', 'warn', 'error', 'debug', 'assert']
+          levels: ['log', 'info', 'warn', 'error', 'debug'] // capture all levels
         })
       ],
       
@@ -21,6 +21,11 @@ export const initializeSentry = () => {
       replaysOnErrorSampleRate: 1.0,
       
       debug: false,
+      
+      // Enable structured log capture
+      _experiments: {
+        enableLogs: true
+      },
       
       beforeSend(event: Sentry.ErrorEvent): Sentry.ErrorEvent | null {
         const errorMessage = event.message || event.exception?.values?.[0]?.value || '';
@@ -43,6 +48,8 @@ export const initializeSentry = () => {
       environment: import.meta.env.MODE,
       release: import.meta.env.VITE_APP_VERSION || 'unknown'
     });
+
+    console.log('✅ Sentry initialized with console capture enabled');
   }
 };
 
@@ -56,5 +63,24 @@ export const reportError = (error: Error, context?: Record<string, any>) => {
       }
       Sentry.captureException(error);
     });
+  }
+};
+
+// Test function to validate Sentry captures (for development testing)
+export const testSentryCapture = () => {
+  if (import.meta.env.DEV) {
+    console.log('✅ Test log - should be visible only in Sentry');
+    console.warn('⚠️ Test warning - captured by Sentry');
+    console.error('❌ Test error - should be tracked in Sentry');
+    
+    Sentry.addBreadcrumb({
+      category: 'test',
+      message: 'Sentry test breadcrumb',
+      level: 'info',
+    });
+    
+    Sentry.captureMessage('Manual Sentry test message', 'info');
+    
+    console.log('🔍 Check your Sentry dashboard for these test messages');
   }
 };

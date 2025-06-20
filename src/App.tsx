@@ -12,6 +12,7 @@ import CookieSettings from '@/pages/cookie-settings';
 import ProtectedRoute from '@/components/ProtectedRoute';
 import ErrorBoundaryWrapper from '@/components/ErrorBoundaryWrapper';
 import ReactCompatibilityCheck from '@/components/ReactCompatibilityCheck';
+import SentryTestComponent from '@/components/SentryTestComponent';
 import { ToastProvider } from '@/components/ui/toast';
 import { AuthProvider } from '@/contexts/AuthContext';
 import { QueryClientProvider, QueryClient } from '@tanstack/react-query';
@@ -46,6 +47,7 @@ function AppRouter() {
                         } 
                       />
                     </Routes>
+                    <SentryTestComponent />
                   </div>
                 </ToastProvider>
               </ErrorBoundaryWrapper>
