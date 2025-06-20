@@ -1,7 +1,7 @@
 
 import { Suspense, lazy } from 'react';
 import { Toaster } from '@/components/ui/toaster';
-import { ToastProvider } from '@/components/providers/ToastProvider';
+import ToastProvider from '@/components/providers/ToastProvider';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { EnhancedAuthProvider } from '@/contexts/EnhancedAuthContext';
