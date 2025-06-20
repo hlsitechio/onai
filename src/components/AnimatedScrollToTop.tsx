@@ -42,7 +42,7 @@ const AnimatedScrollToTop = () => {
   return (
     <button
       onClick={scrollToTop}
-      className={`fixed bottom-8 right-8 z-50 group transition-all duration-500 ${
+      className={`fixed bottom-8 right-8 z-50 group transition-all duration-500 hover:animate-bounce ${
         isVisible 
           ? 'opacity-100 scale-100 translate-y-0' 
           : 'opacity-0 scale-75 translate-y-4 pointer-events-none'
@@ -90,17 +90,6 @@ const AnimatedScrollToTop = () => {
           <div className="absolute inset-0 rounded-full bg-gradient-to-r from-noteflow-400/20 via-purple-500/20 to-pink-500/20 blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300 -z-10" />
         </div>
       </div>
-      
-      {/* Floating animation keyframes */}
-      <style jsx>{`
-        @keyframes float {
-          0%, 100% { transform: translateY(0px); }
-          50% { transform: translateY(-5px); }
-        }
-        .group:hover {
-          animation: float 2s ease-in-out infinite;
-        }
-      `}</style>
     </button>
   );
 };
