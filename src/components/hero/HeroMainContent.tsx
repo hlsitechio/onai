@@ -1,7 +1,10 @@
+
 import React from 'react';
 import { motion } from "framer-motion";
 import { Zap, ArrowRight, Play } from 'lucide-react';
+import { toast } from 'sonner';
 import HeroTextAnimations from './HeroTextAnimations';
+
 const HeroMainContent: React.FC = () => {
   const ctaVariants = {
     hidden: {
@@ -19,6 +22,7 @@ const HeroMainContent: React.FC = () => {
       }
     }
   };
+
   const buttonHover = {
     scale: 1.05,
     boxShadow: "0 20px 40px rgba(120, 60, 255, 0.3)",
@@ -26,6 +30,7 @@ const HeroMainContent: React.FC = () => {
       duration: 0.3
     }
   };
+
   const secondaryButtonHover = {
     scale: 1.02,
     backgroundColor: "rgba(255, 255, 255, 0.1)",
@@ -33,6 +38,14 @@ const HeroMainContent: React.FC = () => {
       duration: 0.3
     }
   };
+
+  const handleWatchDemo = () => {
+    toast.info("Coming Soon!", {
+      description: "The demo video will be available shortly. Stay tuned!",
+      duration: 3000,
+    });
+  };
+
   return <div className="text-center space-y-6">
       {/* Main hero text with enhanced animations */}
       <HeroTextAnimations className="relative" />
@@ -52,9 +65,14 @@ const HeroMainContent: React.FC = () => {
         </motion.a>
 
         {/* Secondary CTA with modern glass effect */}
-        <motion.button whileHover={secondaryButtonHover} whileTap={{
-        scale: 0.98
-      }} className="group inline-flex items-center gap-3 border border-white/20 backdrop-blur-sm bg-white/5 text-white px-6 py-4 rounded-full font-medium transition-all duration-300 hover:border-white/30">
+        <motion.button 
+          onClick={handleWatchDemo}
+          whileHover={secondaryButtonHover} 
+          whileTap={{
+            scale: 0.98
+          }} 
+          className="group inline-flex items-center gap-3 border border-white/20 backdrop-blur-sm bg-white/5 text-white px-6 py-4 rounded-full font-medium transition-all duration-300 hover:border-white/30"
+        >
           <div className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center">
             <Play className="h-4 w-4 ml-0.5" />
           </div>
@@ -88,4 +106,5 @@ const HeroMainContent: React.FC = () => {
       </motion.div>
     </div>;
 };
+
 export default HeroMainContent;
