@@ -1,11 +1,10 @@
+
 import React from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
-import Home from '@/pages/Home';
+import Index from '@/pages/Index';
 import Auth from '@/pages/Auth';
-import Account from '@/pages/Account';
-import SharedNote from '@/pages/SharedNote';
 import ErrorBoundaryWrapper from '@/components/ErrorBoundaryWrapper';
-import { ToastProvider } from '@/components/ui/use-toast';
+import { ToastProvider } from '@/components/ui/toast';
 import { AuthProvider } from '@/contexts/AuthContext';
 import { QueryClientProvider, QueryClient } from '@tanstack/react-query';
 import { EnhancedAuthProvider } from '@/contexts/EnhancedAuthContext';
@@ -22,10 +21,8 @@ function App() {
               <ToastProvider>
                 <div className="min-h-screen bg-background">
                   <Routes>
-                    <Route path="/" element={<Home />} />
+                    <Route path="/" element={<Index />} />
                     <Route path="/auth" element={<Auth />} />
-                    <Route path="/account" element={<Account />} />
-                    <Route path="/shared/:id" element={<SharedNote />} />
                   </Routes>
                 </div>
               </ToastProvider>

@@ -6,7 +6,7 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Loader2, Mail } from 'lucide-react';
-import { useEnhancedAuth } from '@/hooks/useEnhancedAuth';
+import { useEnhancedAuthContext } from '@/contexts/EnhancedAuthContext';
 
 export const EnhancedAuthForm: React.FC = () => {
   const [email, setEmail] = useState('');
@@ -14,7 +14,7 @@ export const EnhancedAuthForm: React.FC = () => {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [activeTab, setActiveTab] = useState('signin');
   
-  const { loading, signInWithEmail, signUpWithEmail, signInWithGoogle } = useEnhancedAuth();
+  const { loading, signInWithEmail, signUpWithEmail, signInWithGoogle } = useEnhancedAuthContext();
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();

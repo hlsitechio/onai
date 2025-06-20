@@ -4,7 +4,7 @@ import { Navigate } from 'react-router-dom';
 import { EnhancedAuthForm } from '@/components/auth/EnhancedAuthForm';
 import { useAuth } from '@/contexts/AuthContext';
 import { Loader2 } from 'lucide-react';
-import { DotGridBackground } from '@/components/DotGridBackground';
+import DotGridBackground from '@/components/DotGridBackground';
 
 const Auth: React.FC = () => {
   const { user, loading } = useAuth();
