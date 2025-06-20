@@ -4,17 +4,22 @@ import { PanelLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import SpeechToTextButton from "../SpeechToTextButton";
 import OCRButton from "../ocr/OCRButton";
+import OCRCameraButton from "../ocr/OCRCameraButton";
 
 interface ToolbarNavigationProps {
   toggleSidebar: () => void;
   onSpeechTranscript?: (transcript: string) => void;
   onOCRClick: () => void;
+  onCameraOCRClick?: () => void;
+  isCameraOCRProcessing?: boolean;
 }
 
 const ToolbarNavigation: React.FC<ToolbarNavigationProps> = ({
   toggleSidebar,
   onSpeechTranscript,
-  onOCRClick
+  onOCRClick,
+  onCameraOCRClick,
+  isCameraOCRProcessing = false
 }) => {
   return (
     <div className="flex items-center gap-1 md:gap-2">
@@ -31,9 +36,16 @@ const ToolbarNavigation: React.FC<ToolbarNavigationProps> = ({
 
       <div className="w-px h-6 bg-white/10"></div>
 
-      {/* OCR and Speech to Text */}
+      {/* OCR, Camera OCR and Speech to Text */}
       <div className="flex items-center gap-1">
         <OCRButton onClick={onOCRClick} />
+        
+        {onCameraOCRClick && (
+          <OCRCameraButton 
+            onClick={onCameraOCRClick}
+            isProcessing={isCameraOCRProcessing}
+          />
+        )}
         
         {onSpeechTranscript && (
           <SpeechToTextButton 

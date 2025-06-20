@@ -3,11 +3,13 @@ import React, { useState, useEffect } from 'react';
 import { useTiptapEditor } from '@/hooks/useTiptapEditor';
 import { useAIAgent } from '@/hooks/useAIAgent';
 import { useStylusDetection } from '@/hooks/useStylusDetection';
+import { useCameraOCR } from '@/hooks/useCameraOCR';
 import TiptapEnhancedToolbar from './toolbar/TiptapEnhancedToolbar';
 import EditorLoadingState from './EditorLoadingState';
 import EditorErrorState from './EditorErrorState';
 import EditorContentArea from './EditorContentArea';
 import HandwritingCanvas from './HandwritingCanvas';
+import OCRCameraCapture from '../ocr/components/OCRCameraCapture';
 import { Button } from '@/components/ui/button';
 import { PenTool, Type } from 'lucide-react';
 
@@ -31,6 +33,15 @@ const TiptapEditor: React.FC<TiptapEditorProps> = ({
     selectedText,
     handleContentChange
   } = useTiptapEditor({ content, setContent, isFocusMode });
+
+  // Camera OCR functionality
+  const {
+    isCameraOpen,
+    isProcessing: isCameraProcessing,
+    openCamera,
+    closeCamera,
+    handlePhotoCapture
+  } = useCameraOCR();
 
   // Use AI Agent hook but without automatic text selection triggering
   const {
@@ -86,12 +97,14 @@ const TiptapEditor: React.FC<TiptapEditorProps> = ({
 
   return (
     <div className="relative h-full flex flex-col">
-      {/* Enhanced Toolbar with AI button and handwriting toggle */}
+      {/* Enhanced Toolbar with AI button, camera OCR, and handwriting toggle */}
       {!isFocusMode && (
         <div className="flex items-center justify-between border-b border-white/10 p-2">
           <TiptapEnhancedToolbar 
             editor={editor} 
             onAIClick={handleManualAITrigger}
+            onCameraOCRClick={openCamera}
+            isCameraOCRProcessing={isCameraProcessing}
           />
           
           {hasStylus && (
@@ -151,6 +164,14 @@ const TiptapEditor: React.FC<TiptapEditorProps> = ({
             </Button>
           </div>
         </div>
+      )}
+
+      {/* Camera OCR Modal */}
+      {isCameraOpen && (
+        <OCRCameraCapture
+          onPhotoCapture={handlePhotoCapture}
+          onClose={closeCamera}
+        />
       )}
     </div>
   );
