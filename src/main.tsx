@@ -1,12 +1,27 @@
 
-// 1. CRITICAL: Suppress console output FIRST - before any other imports
-(['log', 'info', 'warn', 'error', 'debug'] as const).forEach(level => {
-  (console as any)[level] = () => {};
-});
-
-// 2. Initialize Sentry with console integration (captures console calls before suppression)
-import './utils/sentryConfig';
+// 1. CRITICAL: Initialize Sentry FIRST with console integration before any suppression
 import { initializeSentry } from './utils/sentryConfig';
+initializeSentry();
+
+// 2. Apply console suppression AFTER Sentry is initialized (so Sentry captures first)
+(['log', 'info', 'warn', 'error', 'debug'] as const).forEach(level => {
+  const original = console[level];
+  (console as any)[level] = (...args: any[]) => {
+    // Optional: Filter specific third-party logs before suppression
+    const firstArg = args[0];
+    if (typeof firstArg === 'string') {
+      if (firstArg.includes('facebook.com/tr') || 
+          firstArg.includes('gtag') || 
+          firstArg.includes('ga.js')) {
+        return; // Skip these logs entirely
+      }
+    }
+    
+    // Sentry captures via captureConsoleIntegration before this override
+    // Remove original.apply() to completely suppress console output
+    // original.apply(console, args); // <-- Comment this out for silent console
+  };
+});
 
 import React from 'react'
 import ReactDOM from 'react-dom/client'
@@ -15,14 +30,8 @@ import './index.css'
 import { initializeFormValidation } from './utils/formValidationUtils'
 import { initializeBrowserCompatibility } from './utils/browserCompatibilityUtils'
 
-// Initialize clean console control
+// Initialize clean console manager for welcome message
 import { CleanConsoleManager } from './utils/cleanConsoleManager';
-
-// Initialize Sentry first
-initializeSentry();
-
-// Initialize clean console manager
-const consoleManager = new CleanConsoleManager();
 
 // CRITICAL: Comprehensive React validation before proceeding
 const validateReactEnvironment = () => {
@@ -68,6 +77,9 @@ if (!rootElement) {
 // Initialize browser compatibility checks and form validation
 initializeBrowserCompatibility();
 initializeFormValidation();
+
+// Initialize clean console manager for welcome message
+const consoleManager = new CleanConsoleManager();
 
 // Enhanced error fallback component
 const ErrorFallback = () => {

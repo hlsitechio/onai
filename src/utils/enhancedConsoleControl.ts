@@ -1,7 +1,7 @@
 
 import { CleanConsoleManager, cleanConsoleControls } from './cleanConsoleManager';
 
-// Initialize clean console control immediately using official Sentry integration
+// Initialize clean console control using official Sentry integration approach
 const cleanConsole = new CleanConsoleManager();
 
 // Export controls for runtime management
@@ -15,8 +15,10 @@ export const enhancedConsoleControls = {
     cleanConsole.clearAndShowWelcome();
   },
   showWelcome: () => {
-    console.clear();
-    console.log('%c🎉 Welcome to OnlineNote AI! 🎉', 'color: #4CAF50; font-size: 18px; font-weight: bold; text-shadow: 1px 1px 2px rgba(0,0,0,0.3);');
+    if (console.clear) console.clear();
+    setTimeout(() => {
+      console.log('%c🎉 Welcome to OnlineNote AI! 🎉', 'color: #4CAF50; font-size: 18px; font-weight: bold; text-shadow: 1px 1px 2px rgba(0,0,0,0.3);');
+    }, 100);
   }
 };
 

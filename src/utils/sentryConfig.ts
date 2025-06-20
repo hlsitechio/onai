@@ -11,7 +11,7 @@ export const initializeSentry = () => {
       integrations: [
         Sentry.browserTracingIntegration(),
         Sentry.replayIntegration(),
-        // Official console integration - captures all console methods and sends to Sentry
+        // Official console integration - captures all console methods before suppression
         Sentry.captureConsoleIntegration({
           levels: ['log', 'info', 'warn', 'error', 'debug']
         })
