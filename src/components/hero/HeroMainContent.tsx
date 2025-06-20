@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { motion } from "framer-motion";
 import { Zap, ArrowRight, Play, X } from 'lucide-react';
