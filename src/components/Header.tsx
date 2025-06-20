@@ -1,13 +1,14 @@
 
 import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Menu, X, Sparkles } from 'lucide-react';
+import { Menu, X, Sparkles, ChevronDown } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from './ui/button';
 import { useAuth } from '@/contexts/AuthContext';
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isLegalMenuOpen, setIsLegalMenuOpen] = useState(false);
   const { user } = useAuth();
   const location = useLocation();
 
@@ -18,6 +19,12 @@ const Header = () => {
     { name: 'Full Experience', href: '/landing', isRoute: true },
     { name: 'Features', href: isLandingPage ? '#features' : '/#features', isRoute: false },
     { name: 'Pricing', href: isLandingPage ? '#pricing' : '/#pricing', isRoute: false },
+  ];
+
+  const legalItems = [
+    { name: 'Privacy Policy', href: '/privacy-policy', description: 'How we protect your data' },
+    { name: 'Terms of Use', href: '/terms-of-use', description: 'Service usage terms' },
+    { name: 'Cookie Settings', href: '/cookie-settings', description: 'Manage your preferences' },
   ];
 
   return (
@@ -60,6 +67,43 @@ const Header = () => {
                 </a>
               )
             ))}
+            
+            {/* Legal Dropdown */}
+            <div className="relative">
+              <button
+                onMouseEnter={() => setIsLegalMenuOpen(true)}
+                onMouseLeave={() => setIsLegalMenuOpen(false)}
+                className="text-gray-300 hover:text-white transition-colors duration-200 relative group flex items-center"
+              >
+                Legal
+                <ChevronDown className="h-4 w-4 ml-1" />
+                <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-noteflow-400 transition-all duration-300 group-hover:w-full"></span>
+              </button>
+              
+              <AnimatePresence>
+                {isLegalMenuOpen && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: 10 }}
+                    className="absolute top-full left-0 mt-2 w-64 bg-black/90 backdrop-blur-lg border border-white/10 rounded-lg shadow-xl"
+                    onMouseEnter={() => setIsLegalMenuOpen(true)}
+                    onMouseLeave={() => setIsLegalMenuOpen(false)}
+                  >
+                    {legalItems.map((item) => (
+                      <Link
+                        key={item.name}
+                        to={item.href}
+                        className="block px-4 py-3 text-gray-300 hover:text-white hover:bg-white/5 transition-colors first:rounded-t-lg last:rounded-b-lg"
+                      >
+                        <div className="font-medium">{item.name}</div>
+                        <div className="text-xs text-gray-400">{item.description}</div>
+                      </Link>
+                    ))}
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
           </nav>
 
           {/* Auth Buttons */}
@@ -126,6 +170,22 @@ const Header = () => {
                     </a>
                   )
                 ))}
+                
+                {/* Legal Links in Mobile */}
+                <div className="border-t border-white/10 pt-4">
+                  <div className="text-gray-400 text-sm font-medium mb-2">Legal</div>
+                  {legalItems.map((item) => (
+                    <Link
+                      key={item.name}
+                      to={item.href}
+                      className="block text-gray-300 hover:text-white transition-colors duration-200 pl-4 py-1"
+                      onClick={() => setIsMenuOpen(false)}
+                    >
+                      {item.name}
+                    </Link>
+                  ))}
+                </div>
+                
                 <div className="pt-4 space-y-2">
                   {user ? (
                     <Link to="/app" className="block">
