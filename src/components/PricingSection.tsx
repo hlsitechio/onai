@@ -1,16 +1,15 @@
-
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Check, Sparkles, Zap, Crown } from 'lucide-react';
-import { useAuth } from '@/contexts/AuthContext';
+import { useEnhancedAuthContext } from '@/contexts/EnhancedAuthContext';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { useNavigate } from 'react-router-dom';
 
 const PricingSection = () => {
-  const { user } = useAuth();
+  const { user } = useEnhancedAuthContext();
   const { toast } = useToast();
   const navigate = useNavigate();
   const [loading, setLoading] = useState<string | null>(null);
