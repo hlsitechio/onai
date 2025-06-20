@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNotesManager } from '@/hooks/useNotesManager';
 import { useFocusModeManager } from '@/hooks/useFocusModeManager';
@@ -7,18 +6,20 @@ import TiptapEditor from '../editor/TiptapEditor';
 import MobileLayout from '../mobile/MobileLayout';
 import { Loader2, PenTool } from 'lucide-react';
 import { cn } from '@/lib/utils';
-
 const NotesEditor: React.FC = () => {
   const [content, setContent] = useState('');
-  const { isMobile } = useDeviceDetection();
-  const { isFocusMode } = useFocusModeManager();
-  
+  const {
+    isMobile
+  } = useDeviceDetection();
+  const {
+    isFocusMode
+  } = useFocusModeManager();
   const {
     notes,
     currentNote,
     setCurrentNote,
     loading,
-    saveNote,
+    saveNote
   } = useNotesManager();
 
   // Update content when current note changes
@@ -34,7 +35,9 @@ const NotesEditor: React.FC = () => {
   useEffect(() => {
     if (content.trim() && content !== '<p></p>' && currentNote && content !== currentNote.content) {
       const timer = setTimeout(async () => {
-        await saveNote(currentNote.id, { content });
+        await saveNote(currentNote.id, {
+          content
+        });
       }, 2000);
       return () => clearTimeout(timer);
     }
@@ -44,50 +47,27 @@ const NotesEditor: React.FC = () => {
   if (isMobile) {
     return <MobileLayout />;
   }
-
   if (loading) {
-    return (
-      <div className="flex-1 flex items-center justify-center bg-black/10">
+    return <div className="flex-1 flex items-center justify-center bg-black/10">
         <div className="text-center">
           <Loader2 className="h-8 w-8 animate-spin text-noteflow-400 mx-auto mb-4" />
           <p className="text-gray-400">Loading editor...</p>
         </div>
-      </div>
-    );
+      </div>;
   }
 
   // Empty state when no note is selected - now shows clean interface
   if (!currentNote) {
-    return (
-      <div className="flex-1 flex items-center justify-center bg-black/10">
+    return <div className="flex-1 flex items-center justify-center bg-black/10">
         <div className="text-center max-w-md px-6">
-          <PenTool className="h-16 w-16 text-gray-500 mx-auto mb-4" />
-          <h3 className="text-xl font-medium text-white mb-3">
-            Ready to write
-          </h3>
-          <p className="text-gray-400">
-            Create a new note or select one from the sidebar to begin.
-          </p>
+          
+          
+          
         </div>
-      </div>
-    );
+      </div>;
   }
-
-  return (
-    <div className={cn(
-      "flex-1 flex flex-col transition-all duration-300 ease-in-out",
-      "bg-gradient-to-br from-[#03010a] to-[#0a0518]",
-      "rounded-lg border border-white/5 overflow-hidden",
-      "shadow-[0_8px_30px_rgb(0,0,0,0.4)]"
-    )}>
-      <TiptapEditor
-        content={content}
-        setContent={setContent}
-        isFocusMode={isFocusMode}
-      />
-    </div>
-  );
+  return <div className={cn("flex-1 flex flex-col transition-all duration-300 ease-in-out", "bg-gradient-to-br from-[#03010a] to-[#0a0518]", "rounded-lg border border-white/5 overflow-hidden", "shadow-[0_8px_30px_rgb(0,0,0,0.4)]")}>
+      <TiptapEditor content={content} setContent={setContent} isFocusMode={isFocusMode} />
+    </div>;
 };
-
 export default NotesEditor;
-
