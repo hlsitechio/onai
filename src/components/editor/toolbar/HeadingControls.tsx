@@ -14,10 +14,17 @@ const HeadingControls: React.FC<HeadingControlsProps> = ({ editor }) => {
     {
       icon: Heading1,
       level: 1 as const,
-      isActive: () => editor?.isActive('heading', { level: 1 }) || false,
+      isActive: () => {
+        if (!editor) return false;
+        return editor.isActive('heading', { level: 1 });
+      },
       onClick: () => {
         if (editor) {
-          editor.chain().focus().toggleHeading({ level: 1 }).run();
+          if (editor.isActive('heading', { level: 1 })) {
+            editor.chain().focus().setParagraph().run();
+          } else {
+            editor.chain().focus().toggleHeading({ level: 1 }).run();
+          }
         }
       },
       title: 'Heading 1'
@@ -25,10 +32,17 @@ const HeadingControls: React.FC<HeadingControlsProps> = ({ editor }) => {
     {
       icon: Heading2,
       level: 2 as const,
-      isActive: () => editor?.isActive('heading', { level: 2 }) || false,
+      isActive: () => {
+        if (!editor) return false;
+        return editor.isActive('heading', { level: 2 });
+      },
       onClick: () => {
         if (editor) {
-          editor.chain().focus().toggleHeading({ level: 2 }).run();
+          if (editor.isActive('heading', { level: 2 })) {
+            editor.chain().focus().setParagraph().run();
+          } else {
+            editor.chain().focus().toggleHeading({ level: 2 }).run();
+          }
         }
       },
       title: 'Heading 2'
@@ -36,10 +50,17 @@ const HeadingControls: React.FC<HeadingControlsProps> = ({ editor }) => {
     {
       icon: Heading3,
       level: 3 as const,
-      isActive: () => editor?.isActive('heading', { level: 3 }) || false,
+      isActive: () => {
+        if (!editor) return false;
+        return editor.isActive('heading', { level: 3 });
+      },
       onClick: () => {
         if (editor) {
-          editor.chain().focus().toggleHeading({ level: 3 }).run();
+          if (editor.isActive('heading', { level: 3 })) {
+            editor.chain().focus().setParagraph().run();
+          } else {
+            editor.chain().focus().toggleHeading({ level: 3 }).run();
+          }
         }
       },
       title: 'Heading 3'

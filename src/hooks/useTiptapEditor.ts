@@ -31,16 +31,64 @@ export const useTiptapEditor = ({ content, setContent, isFocusMode }: UseTiptapE
   const editor = useEditor({
     extensions: [
       StarterKit.configure({
+        // Configure heading levels
         heading: {
-          levels: [1, 2, 3],
+          levels: [1, 2, 3, 4, 5, 6],
+          HTMLAttributes: {
+            class: 'prose-heading',
+          },
         },
+        // Configure bullet list
         bulletList: {
           keepMarks: true,
           keepAttributes: false,
+          HTMLAttributes: {
+            class: 'prose-list-disc',
+          },
         },
+        // Configure ordered list
         orderedList: {
           keepMarks: true,
           keepAttributes: false,
+          HTMLAttributes: {
+            class: 'prose-list-decimal',
+          },
+        },
+        // Configure list items
+        listItem: {
+          HTMLAttributes: {
+            class: 'prose-list-item',
+          },
+        },
+        // Configure paragraph
+        paragraph: {
+          HTMLAttributes: {
+            class: 'prose-paragraph',
+          },
+        },
+        // Configure bold
+        bold: {
+          HTMLAttributes: {
+            class: 'font-bold',
+          },
+        },
+        // Configure italic
+        italic: {
+          HTMLAttributes: {
+            class: 'italic',
+          },
+        },
+        // Configure strike
+        strike: {
+          HTMLAttributes: {
+            class: 'line-through',
+          },
+        },
+        // Configure code
+        code: {
+          HTMLAttributes: {
+            class: 'bg-gray-100 px-1 py-0.5 rounded text-sm font-mono',
+          },
         },
       }),
       Link.configure({
@@ -56,6 +104,8 @@ export const useTiptapEditor = ({ content, setContent, isFocusMode }: UseTiptapE
       }),
       TextAlign.configure({
         types: ['heading', 'paragraph'],
+        alignments: ['left', 'center', 'right', 'justify'],
+        defaultAlignment: 'left',
       }),
       Highlight.configure({
         HTMLAttributes: {
@@ -78,13 +128,29 @@ export const useTiptapEditor = ({ content, setContent, isFocusMode }: UseTiptapE
         HTMLAttributes: {
           class: 'max-w-full h-auto rounded-lg',
         },
+        allowBase64: true,
       }),
       Table.configure({
         resizable: true,
+        HTMLAttributes: {
+          class: 'border-collapse table-auto w-full',
+        },
       }),
-      TableRow,
-      TableHeader,
-      TableCell,
+      TableRow.configure({
+        HTMLAttributes: {
+          class: 'border-b',
+        },
+      }),
+      TableHeader.configure({
+        HTMLAttributes: {
+          class: 'font-bold text-left p-2 border',
+        },
+      }),
+      TableCell.configure({
+        HTMLAttributes: {
+          class: 'p-2 border',
+        },
+      }),
     ],
     content: content || '<p></p>',
     onUpdate: ({ editor }) => {
