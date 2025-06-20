@@ -1,60 +1,42 @@
 
 import { useEffect, useCallback } from 'react';
 
-interface UseKeyboardShortcutsProps {
-  handleSave: () => void;
-  toggleFocusMode: () => void;
-  toggleLeftSidebar: () => void;
-  toggleAISidebar: () => void;
-  isFocusMode: boolean;
-  setFocusMode: (value: boolean) => void;
+interface KeyboardShortcuts {
+  [key: string]: () => void;
 }
 
-export const useKeyboardShortcuts = ({
-  handleSave,
-  toggleFocusMode,
-  toggleLeftSidebar,
-  toggleAISidebar,
-  isFocusMode,
-  setFocusMode
-}: UseKeyboardShortcutsProps) => {
-  const handleKeyboardShortcut = useCallback((e: KeyboardEvent) => {
-    // Ctrl+S for save
-    if (e.ctrlKey && e.key === 's') {
-      e.preventDefault();
-      handleSave();
+interface UseKeyboardShortcutsProps {
+  [shortcut: string]: () => void;
+}
+
+export const useKeyboardShortcuts = (shortcuts: UseKeyboardShortcutsProps) => {
+  const handleKeyDown = useCallback((event: KeyboardEvent) => {
+    // Build the shortcut string based on pressed keys
+    const parts: string[] = [];
+    
+    if (event.ctrlKey || event.metaKey) parts.push('ctrl');
+    if (event.shiftKey) parts.push('shift');
+    if (event.altKey) parts.push('alt');
+    
+    // Add the main key
+    if (event.key && event.key !== 'Control' && event.key !== 'Shift' && event.key !== 'Alt' && event.key !== 'Meta') {
+      parts.push(event.key.toLowerCase());
     }
     
-    // F11 for focus mode
-    if (e.key === 'F11') {
-      e.preventDefault();
-      toggleFocusMode();
-    }
+    const shortcutString = parts.join('+');
     
-    // Ctrl+B for sidebar toggle
-    if (e.ctrlKey && e.key === 'b') {
-      e.preventDefault();
-      toggleLeftSidebar();
+    // Check if this shortcut exists in our shortcuts object
+    if (shortcuts[shortcutString]) {
+      event.preventDefault();
+      shortcuts[shortcutString]();
     }
-    
-    // Ctrl+G for AI sidebar
-    if (e.ctrlKey && e.key === 'g') {
-      e.preventDefault();
-      toggleAISidebar();
-    }
-    
-    // Escape to exit focus mode
-    if (e.key === 'Escape' && isFocusMode) {
-      e.preventDefault();
-      setFocusMode(false);
-    }
-    
-    // Note: Removed CTRL+SHIFT+A functionality as it's now in the AI Agent dropdown
-  }, [handleSave, isFocusMode, toggleFocusMode, toggleLeftSidebar, toggleAISidebar, setFocusMode]);
-  
-  // Register the keyboard shortcut effect
+  }, [shortcuts]);
+
   useEffect(() => {
-    window.addEventListener('keydown', handleKeyboardShortcut);
-    return () => window.removeEventListener('keydown', handleKeyboardShortcut);
-  }, [handleKeyboardShortcut]);
+    document.addEventListener('keydown', handleKeyDown);
+    
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [handleKeyDown]);
 };
