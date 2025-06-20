@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { cn } from '@/lib/utils';
 import MobileToolbar from './MobileToolbar';
@@ -5,14 +6,17 @@ import MobileSidebar from './MobileSidebar';
 import MobileEditor from './MobileEditor';
 import { useNotesManager } from '@/hooks/useNotesManager.tsx';
 import { useFocusModeManager } from '@/hooks/useFocusModeManager';
+
 const MobileLayout: React.FC = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isAISidebarOpen, setIsAISidebarOpen] = useState(false);
   const [content, setContent] = useState('');
+
   const {
     isFocusMode,
     toggleFocusMode
   } = useFocusModeManager();
+
   const {
     notes,
     currentNote,
@@ -23,8 +27,10 @@ const MobileLayout: React.FC = () => {
     saveNote,
     deleteNote
   } = useNotesManager();
+
   const toggleSidebar = () => setIsSidebarOpen(!isSidebarOpen);
   const toggleAI = () => setIsAISidebarOpen(!isAISidebarOpen);
+
   const handleSave = async () => {
     if (currentNote && content !== currentNote.content) {
       await saveNote(currentNote.id, {
@@ -32,10 +38,12 @@ const MobileLayout: React.FC = () => {
       });
     }
   };
+
   const handleLoadNote = (note: any) => {
     setCurrentNote(note);
     setContent(note.content);
   };
+
   const handleDeleteNote = async (noteId: string): Promise<boolean> => {
     const success = await deleteNote(noteId);
     if (success && currentNote?.id === noteId) {
@@ -49,12 +57,14 @@ const MobileLayout: React.FC = () => {
     }
     return success;
   };
+
   const handleCreateNew = async () => {
     const newNote = await createNote();
     if (newNote) {
       handleLoadNote(newNote);
     }
   };
+
   const execCommand = (command: string, value?: string | null) => {
     if (command === 'bold') {
       document.execCommand('bold', false);
@@ -68,6 +78,42 @@ const MobileLayout: React.FC = () => {
   notes.forEach(note => {
     allNotes[note.id] = note.content;
   });
-  return;
+
+  return (
+    <div className="flex flex-col h-screen bg-background">
+      <MobileToolbar
+        execCommand={execCommand}
+        handleSave={handleSave}
+        toggleSidebar={toggleSidebar}
+        toggleAI={toggleAI}
+        isSidebarOpen={isSidebarOpen}
+        isAISidebarOpen={isAISidebarOpen}
+        isFocusMode={isFocusMode}
+        toggleFocusMode={toggleFocusMode}
+      />
+      
+      <div className="flex flex-1 overflow-hidden">
+        {isSidebarOpen && (
+          <MobileSidebar
+            notes={notes}
+            currentNote={currentNote}
+            onLoadNote={handleLoadNote}
+            onDeleteNote={handleDeleteNote}
+            onCreateNew={handleCreateNew}
+            loading={loading}
+          />
+        )}
+        
+        <div className="flex-1 flex flex-col">
+          <MobileEditor
+            content={content}
+            setContent={setContent}
+            isFocusMode={isFocusMode}
+          />
+        </div>
+      </div>
+    </div>
+  );
 };
+
 export default MobileLayout;
