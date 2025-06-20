@@ -1,10 +1,10 @@
 
 /**
- * Production console suppression utilities
+ * Maximum console suppression for clean DevTools
  */
 export class ProductionSuppression {
   private originalConsole: Partial<Console> = {};
-  private isProductionSuppressed = false;
+  private isMaximumSuppressed = false;
 
   constructor() {
     this.storeOriginalMethods();
@@ -18,46 +18,65 @@ export class ProductionSuppression {
       error: console.error,
       debug: console.debug,
       info: console.info,
+      trace: console.trace,
+      group: console.group,
+      groupCollapsed: console.groupCollapsed,
+      groupEnd: console.groupEnd,
+      time: console.time,
+      timeEnd: console.timeEnd,
+      timeLog: console.timeLog,
+      count: console.count,
+      countReset: console.countReset,
+      table: console.table,
+      dir: console.dir,
+      dirxml: console.dirxml,
+      assert: console.assert,
+      clear: console.clear,
     };
   }
 
-  setupProductionSuppression() {
-    if (import.meta.env.PROD) {
-      // Suppress non-critical console output in production
-      console.log = () => {};
-      console.debug = () => {};
-      console.info = (...args) => {
-        // Only allow important info messages
-        const message = args.join(' ');
-        if (this.isImportantMessage(message)) {
-          this.originalConsole.info?.(...args);
-        }
-      };
+  setupMaximumSuppression() {
+    // Suppress ALL console output except our welcome message
+    console.log = (...args) => {
+      const message = args.join(' ');
+      if (message.includes('Welcome to OnlineNote AI')) {
+        this.originalConsole.log?.(...args);
+      }
+    };
+    
+    console.warn = () => {};
+    console.error = () => {};
+    console.debug = () => {};
+    console.info = (...args) => {
+      const message = args.join(' ');
+      if (message.includes('Welcome to OnlineNote AI') || 
+          message.includes('Console controls available') ||
+          message.includes('Sentry initialized')) {
+        this.originalConsole.info?.(...args);
+      }
+    };
 
-      this.isProductionSuppressed = true;
-      this.originalConsole.log?.('Production console suppression enabled');
-    }
-  }
+    // Suppress all other console methods
+    console.trace = () => {};
+    console.group = () => {};
+    console.groupCollapsed = () => {};
+    console.groupEnd = () => {};
+    console.time = () => {};
+    console.timeEnd = () => {};
+    console.timeLog = () => {};
+    console.count = () => {};
+    console.countReset = () => {};
+    console.table = () => {};
+    console.dir = () => {};
+    console.dirxml = () => {};
+    console.assert = () => {};
 
-  private isImportantMessage(message: string): boolean {
-    const importantKeywords = [
-      'authentication',
-      'security',
-      'critical',
-      'fatal',
-      'initialization',
-      'migration',
-      'deployment',
-    ];
-
-    return importantKeywords.some(keyword =>
-      message.toLowerCase().includes(keyword)
-    );
+    this.isMaximumSuppressed = true;
   }
 
   restoreConsole() {
     Object.assign(console, this.originalConsole);
-    this.isProductionSuppressed = false;
+    this.isMaximumSuppressed = false;
     console.log('Console methods restored');
   }
 
@@ -66,6 +85,6 @@ export class ProductionSuppression {
   }
 
   isSuppressionEnabled() {
-    return this.isProductionSuppressed;
+    return this.isMaximumSuppressed;
   }
 }

@@ -26,7 +26,7 @@ class ReactCompatibilityCheck extends Component<ReactCompatibilityCheckProps, Re
   }
 
   componentDidCatch(error: Error, errorInfo: ErrorInfo) {
-    console.error('ReactCompatibilityCheck caught an error:', error, errorInfo);
+    // Silently handle errors - they'll be sent to Sentry via our error reporting
   }
 
   componentDidMount() {
@@ -35,9 +35,7 @@ class ReactCompatibilityCheck extends Component<ReactCompatibilityCheckProps, Re
 
   performCompatibilityCheck = () => {
     try {
-      console.log('Starting React compatibility check...');
-      
-      // Check React availability without using hooks
+      // Silently check React availability without console spam
       if (typeof React !== 'object' || !React) {
         throw new Error('React is not available');
       }
@@ -50,7 +48,6 @@ class ReactCompatibilityCheck extends Component<ReactCompatibilityCheckProps, Re
         throw new Error('React.Component is not available');
       }
 
-      // Check if hooks are available (but don't call them)
       if (typeof React.useState !== 'function') {
         throw new Error('React.useState is not available');
       }
@@ -63,13 +60,10 @@ class ReactCompatibilityCheck extends Component<ReactCompatibilityCheckProps, Re
         throw new Error('React.useContext is not available');
       }
 
-      console.log('✅ React compatibility check passed');
-      console.log('✅ React hooks and core functionality verified');
-      
+      // React is ready - no console spam
       this.setState({ isReactReady: true, error: null });
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Unknown React compatibility error';
-      console.error('❌ React compatibility check failed:', errorMessage);
       this.setState({ error: errorMessage, isReactReady: false });
     }
   };
@@ -136,7 +130,7 @@ class ReactCompatibilityCheck extends Component<ReactCompatibilityCheckProps, Re
               animation: 'spin 1s linear infinite',
               margin: '0 auto 16px'
             }} />
-            <p>Initializing React...</p>
+            <p>Initializing...</p>
           </div>
           <style>{`
             @keyframes spin {

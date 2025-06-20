@@ -5,13 +5,13 @@ import { ErrorFiltering } from './ErrorFiltering';
 import { ErrorAggregation } from './ErrorAggregation';
 
 /**
- * Enhanced console method overrides with aggressive filtering
+ * Maximum console suppression - redirect everything to Sentry
  */
 export class ConsoleOverrides {
   private errorAggregation = new ErrorAggregation();
   private originalConsole: Partial<Console>;
   private suppressedCount = 0;
-  private lastSuppressedReport = 0;
+  private welcomeShown = false;
 
   constructor(originalConsole: Partial<Console>) {
     this.originalConsole = originalConsole;
@@ -22,116 +22,88 @@ export class ConsoleOverrides {
     const originalWarn = console.warn;
     const originalLog = console.log;
     const originalInfo = console.info;
+    const originalDebug = console.debug;
 
+    // Completely suppress console.error and redirect to Sentry
     console.error = (...args) => {
+      this.trackSuppressed();
       const message = args.join(' ');
       
-      // Aggressive filtering - block most noise
-      if (ErrorFiltering.isFilteredError(message)) {
-        this.trackSuppressed();
-        return;
-      }
-
-      // Only log critical and significant errors
-      if (!ErrorFiltering.isCriticalError(message) && !ErrorFiltering.isSignificantError(message)) {
-        this.trackSuppressed();
-        return;
-      }
-
-      const sanitizedArgs = sanitizeConsoleArgs(args);
-      const { shouldLog, count } = this.errorAggregation.shouldLogError(message, 2); // Reduced threshold
-
-      if (shouldLog) {
-        originalError(...sanitizedArgs);
-        
-        // Report to Sentry for significant errors
-        if (ErrorFiltering.isSignificantError(message)) {
-          const error = new Error(message);
-          reportError(error, {
-            component: 'console',
-            severity: ErrorFiltering.getErrorSeverity(message),
-            tags: { error_type: 'console_error', count: count.toString() },
-          });
-        }
-      } else if (count === 3) {
-        originalError(`${message} (suppressed after ${count} occurrences)`);
+      // Always redirect to Sentry unless it's filtered noise
+      if (!ErrorFiltering.isFilteredError(message)) {
+        const error = new Error(message);
+        reportError(error, {
+          component: 'console',
+          severity: ErrorFiltering.getErrorSeverity(message),
+          tags: { error_type: 'console_error' },
+        });
       }
     };
 
+    // Completely suppress console.warn and redirect to Sentry
     console.warn = (...args) => {
+      this.trackSuppressed();
       const message = args.join(' ');
       
-      // Block most warnings in development
-      if (ErrorFiltering.isFilteredError(message)) {
-        this.trackSuppressed();
-        return;
-      }
-
-      // Only show important warnings
-      if (!ErrorFiltering.isImportantMessage(message)) {
-        this.trackSuppressed();
-        return;
-      }
-
-      const sanitizedArgs = sanitizeConsoleArgs(args);
-      const { shouldLog, count } = this.errorAggregation.shouldLogWarning(message, 3);
-
-      if (shouldLog) {
-        originalWarn(...sanitizedArgs);
-      } else if (count === 4) {
-        originalWarn(`${message} (suppressed after ${count} occurrences)`);
+      // Redirect warnings to Sentry unless filtered
+      if (!ErrorFiltering.isFilteredError(message) && ErrorFiltering.isSignificantError(message)) {
+        const error = new Error(`Warning: ${message}`);
+        reportError(error, {
+          component: 'console',
+          severity: 'medium',
+          tags: { error_type: 'console_warning' },
+        });
       }
     };
 
-    // Suppress most console.log in production, filter in development
+    // Completely suppress console.log
     console.log = (...args) => {
-      if (import.meta.env.PROD) {
-        return; // No logs in production unless critical
-      }
-
+      // Only allow our welcome message
       const message = args.join(' ');
-      
-      // Filter noisy logs even in development
-      if (ErrorFiltering.isFilteredError(message)) {
-        return;
-      }
-
-      // Allow important logs through
-      if (ErrorFiltering.isImportantMessage(message) || message.includes('✅') || message.includes('🚨')) {
+      if (message.includes('Welcome to OnlineNote AI') && !this.welcomeShown) {
+        this.welcomeShown = true;
         originalLog(...args);
-      }
-    };
-
-    // Filter console.info similarly
-    console.info = (...args) => {
-      const message = args.join(' ');
-      
-      if (ErrorFiltering.isFilteredError(message)) {
         return;
       }
-
-      if (ErrorFiltering.isImportantMessage(message)) {
-        originalInfo(...args);
-      }
+      this.trackSuppressed();
     };
 
-    // Report suppression stats periodically
-    this.startSuppressionReporting();
+    // Completely suppress console.info
+    console.info = (...args) => {
+      // Only allow our welcome message and critical system info
+      const message = args.join(' ');
+      if (message.includes('Welcome to OnlineNote AI') || 
+          message.includes('Console controls available') ||
+          message.includes('Sentry initialized')) {
+        originalInfo(...args);
+        return;
+      }
+      this.trackSuppressed();
+    };
+
+    // Completely suppress console.debug
+    console.debug = () => {
+      this.trackSuppressed();
+    };
+
+    // Override console.trace, console.group, etc.
+    console.trace = () => { this.trackSuppressed(); };
+    console.group = () => { this.trackSuppressed(); };
+    console.groupCollapsed = () => { this.trackSuppressed(); };
+    console.groupEnd = () => { this.trackSuppressed(); };
+    console.time = () => { this.trackSuppressed(); };
+    console.timeEnd = () => { this.trackSuppressed(); };
+    console.timeLog = () => { this.trackSuppressed(); };
+    console.count = () => { this.trackSuppressed(); };
+    console.countReset = () => { this.trackSuppressed(); };
+    console.table = () => { this.trackSuppressed(); };
+    console.dir = () => { this.trackSuppressed(); };
+    console.dirxml = () => { this.trackSuppressed(); };
+    console.assert = () => { this.trackSuppressed(); };
   }
 
   private trackSuppressed() {
     this.suppressedCount++;
-  }
-
-  private startSuppressionReporting() {
-    setInterval(() => {
-      const now = Date.now();
-      if (this.suppressedCount > 0 && now - this.lastSuppressedReport > 30000) { // Every 30 seconds
-        console.info(`🔇 Suppressed ${this.suppressedCount} console messages to reduce noise`);
-        this.suppressedCount = 0;
-        this.lastSuppressedReport = now;
-      }
-    }, 30000);
   }
 
   getErrorStats() {

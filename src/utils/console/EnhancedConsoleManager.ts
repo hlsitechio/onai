@@ -4,7 +4,7 @@ import { ProductionSuppression } from './ProductionSuppression';
 import { ConsoleOverrides } from './ConsoleOverrides';
 
 /**
- * Enhanced console control with production suppression and error reporting
+ * Maximum console suppression for clean DevTools
  */
 export class EnhancedConsoleManager {
   private productionSuppression: ProductionSuppression;
@@ -13,12 +13,22 @@ export class EnhancedConsoleManager {
   constructor() {
     this.productionSuppression = new ProductionSuppression();
     this.consoleOverrides = new ConsoleOverrides(this.productionSuppression.getOriginalConsole());
-    this.initializeConsoleOverrides();
+    this.initializeMaximumSuppression();
   }
 
-  private initializeConsoleOverrides() {
-    this.productionSuppression.setupProductionSuppression();
+  private initializeMaximumSuppression() {
+    // Clear console first
+    console.clear();
+    
+    // Setup maximum suppression
+    this.productionSuppression.setupMaximumSuppression();
     this.consoleOverrides.setupErrorAggregation();
+    
+    // Show welcome message
+    setTimeout(() => {
+      console.clear();
+      console.log('%c🎉 Welcome to OnlineNote AI! 🎉', 'color: #4CAF50; font-size: 18px; font-weight: bold; text-shadow: 1px 1px 2px rgba(0,0,0,0.3);');
+    }, 100);
   }
 
   /**
@@ -34,7 +44,7 @@ export class EnhancedConsoleManager {
   getErrorStats() {
     return {
       ...this.consoleOverrides.getErrorStats(),
-      isProductionSuppressed: this.productionSuppression.isSuppressionEnabled(),
+      isMaximumSuppressed: true,
     };
   }
 
