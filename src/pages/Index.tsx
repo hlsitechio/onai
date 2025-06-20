@@ -10,10 +10,10 @@ import SitemapSection from '@/components/SitemapSection';
 import Footer from '@/components/Footer';
 import NotesEditor from '@/components/notes/NotesEditor';
 import ScrollToTop from '@/components/ScrollToTop';
-import { useEnhancedAuthContext } from '@/contexts/EnhancedAuthContext';
+import { useAuth } from '@/contexts/AuthContext';
 
 const Index = () => {
-  const { user } = useEnhancedAuthContext();
+  const { user } = useAuth();
   const navigate = useNavigate();
 
   // Redirect authenticated users to the app

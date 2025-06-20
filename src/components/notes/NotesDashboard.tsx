@@ -5,7 +5,6 @@ import NotesSidebar from './NotesSidebar';
 import NotesEditor from './NotesEditor';
 import UserMenu from '@/components/UserMenu';
 import ErrorBoundary from '@/components/ErrorBoundary';
-import ErrorMonitorButton from '@/components/monitoring/ErrorMonitorButton';
 import { Loader2, AlertCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
@@ -96,9 +95,6 @@ const NotesDashboard: React.FC = () => {
             </ErrorBoundary>
           </div>
         </div>
-
-        {/* Error Monitor Button for Admins */}
-        <ErrorMonitorButton />
       </div>
     </ErrorBoundary>
   );
