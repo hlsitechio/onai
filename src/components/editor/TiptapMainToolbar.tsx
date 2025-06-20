@@ -30,12 +30,16 @@ const TiptapMainToolbar: React.FC<TiptapMainToolbarProps> = ({
       {/* Left side - Basic formatting */}
       <div className="flex items-center gap-1">
         <Button
-          onClick={() => editor.chain().focus().toggleBold().run()}
+          onClick={() => {
+            if (editor) {
+              editor.chain().focus().toggleBold().run();
+            }
+          }}
           size="sm"
           variant="ghost"
           className={cn(
             "h-8 w-8 p-0",
-            editor.isActive('bold') 
+            editor?.isActive('bold') 
               ? "bg-white/20 text-white" 
               : "text-white/70 hover:text-white hover:bg-white/10"
           )}
@@ -45,12 +49,16 @@ const TiptapMainToolbar: React.FC<TiptapMainToolbarProps> = ({
         </Button>
         
         <Button
-          onClick={() => editor.chain().focus().toggleItalic().run()}
+          onClick={() => {
+            if (editor) {
+              editor.chain().focus().toggleItalic().run();
+            }
+          }}
           size="sm"
           variant="ghost"
           className={cn(
             "h-8 w-8 p-0",
-            editor.isActive('italic') 
+            editor?.isActive('italic') 
               ? "bg-white/20 text-white" 
               : "text-white/70 hover:text-white hover:bg-white/10"
           )}
@@ -60,12 +68,16 @@ const TiptapMainToolbar: React.FC<TiptapMainToolbarProps> = ({
         </Button>
         
         <Button
-          onClick={() => editor.chain().focus().toggleUnderline().run()}
+          onClick={() => {
+            if (editor) {
+              editor.chain().focus().toggleUnderline().run();
+            }
+          }}
           size="sm"
           variant="ghost"
           className={cn(
             "h-8 w-8 p-0",
-            editor.isActive('underline') 
+            editor?.isActive('underline') 
               ? "bg-white/20 text-white" 
               : "text-white/70 hover:text-white hover:bg-white/10"
           )}
@@ -77,12 +89,16 @@ const TiptapMainToolbar: React.FC<TiptapMainToolbarProps> = ({
         <div className="w-px h-6 bg-white/10 mx-1" />
 
         <Button
-          onClick={() => editor.chain().focus().toggleHeading({ level: 1 }).run()}
+          onClick={() => {
+            if (editor) {
+              editor.chain().focus().toggleHeading({ level: 1 }).run();
+            }
+          }}
           size="sm"
           variant="ghost"
           className={cn(
             "h-8 w-8 p-0",
-            editor.isActive('heading', { level: 1 }) 
+            editor?.isActive('heading', { level: 1 }) 
               ? "bg-white/20 text-white" 
               : "text-white/70 hover:text-white hover:bg-white/10"
           )}
@@ -92,12 +108,16 @@ const TiptapMainToolbar: React.FC<TiptapMainToolbarProps> = ({
         </Button>
 
         <Button
-          onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}
+          onClick={() => {
+            if (editor) {
+              editor.chain().focus().toggleHeading({ level: 2 }).run();
+            }
+          }}
           size="sm"
           variant="ghost"
           className={cn(
             "h-8 w-8 p-0",
-            editor.isActive('heading', { level: 2 }) 
+            editor?.isActive('heading', { level: 2 }) 
               ? "bg-white/20 text-white" 
               : "text-white/70 hover:text-white hover:bg-white/10"
           )}
@@ -107,12 +127,16 @@ const TiptapMainToolbar: React.FC<TiptapMainToolbarProps> = ({
         </Button>
 
         <Button
-          onClick={() => editor.chain().focus().toggleBulletList().run()}
+          onClick={() => {
+            if (editor) {
+              editor.chain().focus().toggleBulletList().run();
+            }
+          }}
           size="sm"
           variant="ghost"
           className={cn(
             "h-8 w-8 p-0",
-            editor.isActive('bulletList') 
+            editor?.isActive('bulletList') 
               ? "bg-white/20 text-white" 
               : "text-white/70 hover:text-white hover:bg-white/10"
           )}
@@ -122,12 +146,16 @@ const TiptapMainToolbar: React.FC<TiptapMainToolbarProps> = ({
         </Button>
 
         <Button
-          onClick={() => editor.chain().focus().toggleOrderedList().run()}
+          onClick={() => {
+            if (editor) {
+              editor.chain().focus().toggleOrderedList().run();
+            }
+          }}
           size="sm"
           variant="ghost"
           className={cn(
             "h-8 w-8 p-0",
-            editor.isActive('orderedList') 
+            editor?.isActive('orderedList') 
               ? "bg-white/20 text-white" 
               : "text-white/70 hover:text-white hover:bg-white/10"
           )}
@@ -140,8 +168,12 @@ const TiptapMainToolbar: React.FC<TiptapMainToolbarProps> = ({
       {/* Right side - AI and actions */}
       <div className="flex items-center gap-1">
         <Button
-          onClick={() => editor.chain().focus().undo().run()}
-          disabled={!editor.can().chain().focus().undo().run()}
+          onClick={() => {
+            if (editor) {
+              editor.chain().focus().undo().run();
+            }
+          }}
+          disabled={!editor?.can().chain().focus().undo().run()}
           size="sm"
           variant="ghost"
           className="h-8 w-8 p-0 text-white/70 hover:text-white hover:bg-white/10 disabled:text-white/30"
@@ -151,8 +183,12 @@ const TiptapMainToolbar: React.FC<TiptapMainToolbarProps> = ({
         </Button>
 
         <Button
-          onClick={() => editor.chain().focus().redo().run()}
-          disabled={!editor.can().chain().focus().redo().run()}
+          onClick={() => {
+            if (editor) {
+              editor.chain().focus().redo().run();
+            }
+          }}
+          disabled={!editor?.can().chain().focus().redo().run()}
           size="sm"
           variant="ghost"
           className="h-8 w-8 p-0 text-white/70 hover:text-white hover:bg-white/10 disabled:text-white/30"

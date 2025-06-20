@@ -13,7 +13,10 @@ const FormatControls: React.FC<FormatControlsProps> = ({ editor }) => {
   const formatButtons = [
     {
       icon: Bold,
-      isActive: () => editor?.isActive('bold') || false,
+      isActive: () => {
+        if (!editor) return false;
+        return editor.isActive('bold');
+      },
       onClick: () => {
         if (editor) {
           editor.chain().focus().toggleBold().run();
@@ -24,7 +27,10 @@ const FormatControls: React.FC<FormatControlsProps> = ({ editor }) => {
     },
     {
       icon: Italic,
-      isActive: () => editor?.isActive('italic') || false,
+      isActive: () => {
+        if (!editor) return false;
+        return editor.isActive('italic');
+      },
       onClick: () => {
         if (editor) {
           editor.chain().focus().toggleItalic().run();
@@ -35,7 +41,10 @@ const FormatControls: React.FC<FormatControlsProps> = ({ editor }) => {
     },
     {
       icon: Underline,
-      isActive: () => editor?.isActive('underline') || false,
+      isActive: () => {
+        if (!editor) return false;
+        return editor.isActive('underline');
+      },
       onClick: () => {
         if (editor) {
           editor.chain().focus().toggleUnderline().run();
@@ -46,7 +55,10 @@ const FormatControls: React.FC<FormatControlsProps> = ({ editor }) => {
     },
     {
       icon: Strikethrough,
-      isActive: () => editor?.isActive('strike') || false,
+      isActive: () => {
+        if (!editor) return false;
+        return editor.isActive('strike');
+      },
       onClick: () => {
         if (editor) {
           editor.chain().focus().toggleStrike().run();
@@ -57,7 +69,10 @@ const FormatControls: React.FC<FormatControlsProps> = ({ editor }) => {
     },
     {
       icon: Code,
-      isActive: () => editor?.isActive('code') || false,
+      isActive: () => {
+        if (!editor) return false;
+        return editor.isActive('code');
+      },
       onClick: () => {
         if (editor) {
           editor.chain().focus().toggleCode().run();
