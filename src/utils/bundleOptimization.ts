@@ -54,6 +54,3 @@ export const analyzeBundleSize = () => {
   
   return null;
 };
-
-// Removed preloadCriticalResources function entirely since it was causing 
-// console warnings about unused preloaded resources
