@@ -28,29 +28,8 @@ const SentryTestComponent: React.FC = () => {
     }, 3000);
   };
 
-  if (import.meta.env.PROD) {
-    return null; // Don't show in production
-  }
-
-  return (
-    <div className="fixed bottom-4 right-4 bg-black/80 backdrop-blur-sm border border-white/20 rounded-lg p-4 z-50">
-      <h3 className="text-white text-sm font-semibold mb-2">Sentry Test Panel</h3>
-      <div className="flex flex-col space-y-2">
-        <Button onClick={handleTestSentry} size="sm" variant="outline">
-          Test Sentry Capture
-        </Button>
-        <Button onClick={handleTestError} size="sm" variant="destructive">
-          Test Error
-        </Button>
-        <Button onClick={handleShowStatus} size="sm" variant="secondary">
-          Show Status
-        </Button>
-      </div>
-      <p className="text-xs text-gray-400 mt-2">
-        Check Sentry dashboard for captured logs
-      </p>
-    </div>
-  );
+  // Hide the component completely - don't render anything
+  return null;
 };
 
 export default SentryTestComponent;
