@@ -10,6 +10,7 @@ import PrivacyPolicy from '@/pages/privacy-policy';
 import TermsOfUse from '@/pages/terms-of-use';
 import CookieSettings from '@/pages/cookie-settings';
 import ProtectedRoute from '@/components/ProtectedRoute';
+import AdminGuard from '@/components/AdminGuard';
 import ErrorBoundaryWrapper from '@/components/ErrorBoundaryWrapper';
 import ReactCompatibilityCheck from '@/components/ReactCompatibilityCheck';
 import SentryTestComponent from '@/components/SentryTestComponent';
@@ -41,7 +42,14 @@ function AppRouter() {
                         <Route path="/privacy-policy" element={<PrivacyPolicy />} />
                         <Route path="/terms-of-use" element={<TermsOfUse />} />
                         <Route path="/cookie-settings" element={<CookieSettings />} />
-                        <Route path="/error-dashboard" element={<ErrorDashboard />} />
+                        <Route 
+                          path="/error-dashboard" 
+                          element={
+                            <AdminGuard>
+                              <ErrorDashboard />
+                            </AdminGuard>
+                          } 
+                        />
                         <Route 
                           path="/app" 
                           element={

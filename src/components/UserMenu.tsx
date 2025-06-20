@@ -1,6 +1,7 @@
 
 import React, { useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
+import { useUserRole } from '@/hooks/useUserRole';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -11,12 +12,14 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
-import { LogOut, Settings } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
+import { LogOut, Settings, Shield } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import SettingsDialog from './settings/SettingsDialog';
 
 const UserMenu = () => {
   const { user, signOut } = useAuth();
+  const { isAdmin, role } = useUserRole();
   const { toast } = useToast();
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 
@@ -52,12 +55,27 @@ const UserMenu = () => {
                 {getInitials(user.email || 'U')}
               </AvatarFallback>
             </Avatar>
+            {isAdmin && (
+              <Badge 
+                variant="secondary" 
+                className="absolute -top-1 -right-1 h-4 w-4 p-0 bg-yellow-500 text-yellow-900"
+              >
+                <Shield className="h-2 w-2" />
+              </Badge>
+            )}
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent className="w-56 bg-black/90 border-white/10" align="end" forceMount>
           <DropdownMenuLabel className="font-normal">
             <div className="flex flex-col space-y-1">
-              <p className="text-sm font-medium leading-none text-white">Account</p>
+              <div className="flex items-center space-x-2">
+                <p className="text-sm font-medium leading-none text-white">Account</p>
+                {isAdmin && (
+                  <Badge variant="secondary" className="bg-yellow-500/20 text-yellow-400 text-xs">
+                    Admin
+                  </Badge>
+                )}
+              </div>
               <p className="text-xs leading-none text-gray-400">
                 {user.email}
               </p>

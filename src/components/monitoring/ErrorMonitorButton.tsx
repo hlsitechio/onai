@@ -5,12 +5,19 @@ import { Badge } from '@/components/ui/badge';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { AlertTriangle, BarChart3, ExternalLink } from 'lucide-react';
 import { useErrorMonitoring } from '@/contexts/ErrorMonitoringContext';
+import { useUserRole } from '@/hooks/useUserRole';
 import { useNavigate } from 'react-router-dom';
 
 const ErrorMonitorButton: React.FC = () => {
   const { errors, sentryIssues, refreshSentryData } = useErrorMonitoring();
+  const { isAdmin, loading } = useUserRole();
   const navigate = useNavigate();
   const [isOpen, setIsOpen] = useState(false);
+
+  // Don't show the button if user is not admin or still loading
+  if (loading || !isAdmin) {
+    return null;
+  }
 
   const recentErrors = errors.filter(error => 
     Date.now() - error.timestamp.getTime() < 24 * 60 * 60 * 1000
@@ -49,7 +56,7 @@ const ErrorMonitorButton: React.FC = () => {
       <PopoverContent className="w-80 bg-black/90 backdrop-blur-sm border-white/20" side="top">
         <div className="space-y-4">
           <div className="flex items-center justify-between">
-            <h3 className="font-semibold text-white">Error Monitor</h3>
+            <h3 className="font-semibold text-white">Error Monitor (Admin)</h3>
             <Button onClick={refreshSentryData} variant="ghost" size="sm">
               <BarChart3 className="h-4 w-4" />
             </Button>
