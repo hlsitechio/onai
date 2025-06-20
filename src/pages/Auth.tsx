@@ -5,6 +5,7 @@ import { EnhancedAuthForm } from '@/components/auth/EnhancedAuthForm';
 import { useAuth } from '@/contexts/AuthContext';
 import { Loader2 } from 'lucide-react';
 import DotGridBackground from '@/components/DotGridBackground';
+import ErrorBoundary from '@/components/ErrorBoundary';
 
 const Auth: React.FC = () => {
   const { user, loading } = useAuth();
@@ -25,15 +26,17 @@ const Auth: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen w-full bg-gradient-to-br from-[#050510] to-[#0a0518] relative">
-      <DotGridBackground />
-      
-      <div className="relative z-10 flex items-center justify-center min-h-screen p-4">
-        <div className="w-full max-w-md">
-          <EnhancedAuthForm />
+    <ErrorBoundary>
+      <div className="min-h-screen w-full bg-gradient-to-br from-[#050510] to-[#0a0518] relative">
+        <DotGridBackground />
+        
+        <div className="relative z-10 flex items-center justify-center min-h-screen p-4">
+          <div className="w-full max-w-md">
+            <EnhancedAuthForm />
+          </div>
         </div>
       </div>
-    </div>
+    </ErrorBoundary>
   );
 };
 
