@@ -1,21 +1,18 @@
 
-import { UnityInspiredConsoleManager } from './console/UnityInspiredConsoleManager';
+import { CleanConsoleManager, cleanConsoleControls } from './cleanConsoleManager';
 
-// Initialize Unity-inspired console control immediately - maximum suppression with error capture
-const unityStyleConsole = new UnityInspiredConsoleManager();
+// Initialize clean console control immediately using official Sentry integration
+const cleanConsole = new CleanConsoleManager();
 
 // Export controls for runtime management
 export const enhancedConsoleControls = {
   restore: () => {
-    unityStyleConsole.restoreForDebugging();
+    cleanConsole.restoreConsole();
     console.info('🔊 Console filtering disabled - all messages will show');
   },
-  getStats: () => unityStyleConsole.getSystemStatus(),
+  getStats: () => cleanConsole.getStatus(),
   clearAndShowWelcome: () => {
-    console.clear();
-    setTimeout(() => {
-      console.log('%c🎉 Welcome to OnlineNote AI! 🎉', 'color: #4CAF50; font-size: 18px; font-weight: bold; text-shadow: 1px 1px 2px rgba(0,0,0,0.3);');
-    }, 100);
+    cleanConsole.clearAndShowWelcome();
   },
   showWelcome: () => {
     console.clear();
@@ -28,4 +25,4 @@ if (import.meta.env.DEV && typeof window !== 'undefined') {
   (window as any).consoleControls = enhancedConsoleControls;
 }
 
-export default unityStyleConsole;
+export default cleanConsole;

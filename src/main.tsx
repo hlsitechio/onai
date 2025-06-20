@@ -1,4 +1,13 @@
 
+// 1. CRITICAL: Suppress console output FIRST - before any other imports
+(['log', 'info', 'warn', 'error', 'debug'] as const).forEach(level => {
+  (console as any)[level] = () => {};
+});
+
+// 2. Initialize Sentry with console integration (captures console calls before suppression)
+import './utils/sentryConfig';
+import { initializeSentry } from './utils/sentryConfig';
+
 import React from 'react'
 import ReactDOM from 'react-dom/client'
 import App from './App.tsx'
@@ -6,17 +15,21 @@ import './index.css'
 import { initializeFormValidation } from './utils/formValidationUtils'
 import { initializeBrowserCompatibility } from './utils/browserCompatibilityUtils'
 
-// Initialize clean console control FIRST - before anything else
-import './utils/enhancedConsoleControl'
+// Initialize clean console control
+import { CleanConsoleManager } from './utils/cleanConsoleManager';
+
+// Initialize Sentry first
+initializeSentry();
+
+// Initialize clean console manager
+const consoleManager = new CleanConsoleManager();
 
 // CRITICAL: Comprehensive React validation before proceeding
 const validateReactEnvironment = () => {
-  // Check if React exists and is properly loaded
   if (!React || typeof React !== 'object') {
     throw new Error('FATAL: React is not properly loaded - cannot continue');
   }
 
-  // Verify all essential React features
   const requiredFeatures = [
     'createElement',
     'Component',
@@ -88,19 +101,11 @@ const ErrorFallback = () => {
   ]);
 };
 
-// Initialize Sentry only after React is confirmed working
+// Initialize the application
 const initializeApp = async () => {
   try {
     // Double-check React is still available
     validateReactEnvironment();
-    
-    // Initialize Sentry with proper error handling
-    try {
-      const { initializeSentry } = await import('./utils/sentryConfig');
-      initializeSentry();
-    } catch (sentryError) {
-      // Silently handle Sentry initialization failure - don't log to console
-    }
     
     const root = ReactDOM.createRoot(rootElement);
 
