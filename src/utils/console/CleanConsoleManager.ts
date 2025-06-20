@@ -22,7 +22,7 @@ const CONSOLE_METHODS: readonly ConsoleMethod[] = ['log', 'info', 'warn', 'error
 export class CleanConsoleManager {
   private readonly originalMethods: Record<ConsoleMethod, (...args: any[]) => void> = {} as any;
   private isSuppressionActive = false;
-  private suppressedLogs: Record<ConsoleMethod, number> = {};
+  private suppressedLogs: Record<ConsoleMethod, number>;
 
   private readonly thirdPartyIgnorePatterns: RegExp[] = [
     /facebook\.com\/tr/,
@@ -35,6 +35,15 @@ export class CleanConsoleManager {
   ];
 
   constructor() {
+    // Initialize suppressedLogs with all required properties
+    this.suppressedLogs = {
+      log: 0,
+      info: 0,
+      warn: 0,
+      error: 0,
+      debug: 0
+    };
+    
     this.initializeCleanConsole();
   }
 
