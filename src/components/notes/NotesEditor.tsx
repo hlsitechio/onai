@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { useNotesManager } from '@/hooks/useNotesManager.tsx';
+import { useNotesManager } from '@/hooks/useNotesManager';
 import { useFocusModeManager } from '@/hooks/useFocusModeManager';
 import { useDeviceDetection } from '@/hooks/useDeviceDetection';
 import TiptapEditor from '../editor/TiptapEditor';
@@ -9,6 +9,18 @@ import { Loader2, PenTool } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 const NotesEditor: React.FC = () => {
+  // Add safety check for React hooks
+  if (!React || !React.useState) {
+    console.error('React hooks not available in NotesEditor');
+    return (
+      <div className="flex-1 flex items-center justify-center bg-black/10">
+        <div className="text-center">
+          <p className="text-red-400">React not properly loaded. Please refresh the page.</p>
+        </div>
+      </div>
+    );
+  }
+
   const [content, setContent] = useState('');
   const { isMobile } = useDeviceDetection();
   const { isFocusMode } = useFocusModeManager();

@@ -15,6 +15,11 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const useAuth = () => {
+  // Add safety check for React hooks
+  if (!React || !React.useContext) {
+    throw new Error('React.useContext is not available - React hooks not loaded properly');
+  }
+  
   const context = useContext(AuthContext);
   if (context === undefined) {
     throw new Error('useAuth must be used within an AuthProvider');
@@ -27,6 +32,12 @@ interface AuthProviderProps {
 }
 
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
+  // Add safety check for React hooks
+  if (!React || !React.useState || !React.useEffect) {
+    console.error('React hooks not available in AuthProvider');
+    return <div>React not properly loaded. Please refresh the page.</div>;
+  }
+
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);

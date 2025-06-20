@@ -2,6 +2,7 @@
 import { useEditor } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import { useCallback, useEffect, useState } from 'react';
+import React from 'react';
 
 // Import all necessary extensions
 import Link from '@tiptap/extension-link';
@@ -24,6 +25,18 @@ interface UseTiptapEditorProps {
 }
 
 export const useTiptapEditor = ({ content, setContent, isFocusMode }: UseTiptapEditorProps) => {
+  // Safety check for React hooks
+  if (!React || !React.useState || !React.useEffect || !React.useCallback) {
+    console.error('React hooks not available in useTiptapEditor');
+    return {
+      editor: null,
+      isLoading: false,
+      selectedText: '',
+      handleContentChange: () => {},
+      safeCommand: () => false,
+    };
+  }
+
   const [isLoading, setIsLoading] = useState(true);
   const [selectedText, setSelectedText] = useState('');
   const [editorReady, setEditorReady] = useState(false);
