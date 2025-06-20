@@ -1,75 +1,51 @@
 
-import React, { useEffect } from 'react';
-import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
-import Index from '@/pages/Index';
-import Auth from '@/pages/Auth';
-import App from '@/pages/App';
-import Landing from '@/pages/Landing';
-import ContactUs from '@/pages/ContactUs';
-import PrivacyPolicy from '@/pages/privacy-policy';
-import TermsOfUse from '@/pages/terms-of-use';
-import CookieSettings from '@/pages/cookie-settings';
-import ProtectedRoute from '@/components/ProtectedRoute';
-import AdminGuard from '@/components/AdminGuard';
-import ErrorBoundaryWrapper from '@/components/ErrorBoundaryWrapper';
-import ReactCompatibilityCheck from '@/components/ReactCompatibilityCheck';
-import SentryTestComponent from '@/components/SentryTestComponent';
-import ErrorDashboard from '@/components/monitoring/ErrorDashboard';
-import { ToastProvider } from '@/components/ui/toast';
-import { AuthProvider } from '@/contexts/AuthContext';
-import { QueryClientProvider, QueryClient } from '@tanstack/react-query';
+import { Suspense, lazy } from 'react';
+import { Toaster } from '@/components/ui/toaster';
+import { ToastProvider } from '@/components/providers/ToastProvider';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { EnhancedAuthProvider } from '@/contexts/EnhancedAuthContext';
-import { ErrorMonitoringProvider } from '@/contexts/ErrorMonitoringContext';
+import LoadingSpinner from '@/components/LoadingSpinner';
 
-const queryClient = new QueryClient();
+// Lazy load components
+const Index = lazy(() => import('@/pages/Index'));
+const Notes = lazy(() => import('@/pages/Notes'));
+const Auth = lazy(() => import('@/pages/Auth'));
+const NotFound = lazy(() => import('@/pages/NotFound'));
+const ErrorDashboard = lazy(() => import('@/pages/ErrorDashboard'));
 
-function AppRouter() {
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 5 * 60 * 1000,
+      retry: 1,
+    },
+  },
+});
+
+function App() {
   return (
-    <ReactCompatibilityCheck>
-      <Router>
-        <QueryClientProvider client={queryClient}>
-          <ErrorMonitoringProvider>
-            <EnhancedAuthProvider>
-              <AuthProvider>
-                <ErrorBoundaryWrapper>
-                  <ToastProvider>
-                    <div className="min-h-screen bg-background">
-                      <Routes>
-                        <Route path="/" element={<Index />} />
-                        <Route path="/landing" element={<Landing />} />
-                        <Route path="/auth" element={<Auth />} />
-                        <Route path="/contactus" element={<ContactUs />} />
-                        <Route path="/privacy-policy" element={<PrivacyPolicy />} />
-                        <Route path="/terms-of-use" element={<TermsOfUse />} />
-                        <Route path="/cookie-settings" element={<CookieSettings />} />
-                        <Route 
-                          path="/error-dashboard" 
-                          element={
-                            <AdminGuard>
-                              <ErrorDashboard />
-                            </AdminGuard>
-                          } 
-                        />
-                        <Route 
-                          path="/app" 
-                          element={
-                            <ProtectedRoute>
-                              <App />
-                            </ProtectedRoute>
-                          } 
-                        />
-                      </Routes>
-                      <SentryTestComponent />
-                    </div>
-                  </ToastProvider>
-                </ErrorBoundaryWrapper>
-              </AuthProvider>
-            </EnhancedAuthProvider>
-          </ErrorMonitoringProvider>
-        </QueryClientProvider>
-      </Router>
-    </ReactCompatibilityCheck>
+    <QueryClientProvider client={queryClient}>
+      <EnhancedAuthProvider>
+        <ToastProvider>
+          <Router>
+            <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
+              <Suspense fallback={<LoadingSpinner />}>
+                <Routes>
+                  <Route path="/" element={<Index />} />
+                  <Route path="/notes" element={<Notes />} />
+                  <Route path="/auth" element={<Auth />} />
+                  <Route path="/error-dashboard" element={<ErrorDashboard />} />
+                  <Route path="*" element={<NotFound />} />
+                </Routes>
+              </Suspense>
+              <Toaster />
+            </div>
+          </Router>
+        </ToastProvider>
+      </EnhancedAuthProvider>
+    </QueryClientProvider>
   );
 }
 
-export default AppRouter;
+export default App;
