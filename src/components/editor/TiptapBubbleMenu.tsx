@@ -1,9 +1,10 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { BubbleMenu } from '@tiptap/react';
 import type { Editor } from '@tiptap/react';
 import { Button } from '@/components/ui/button';
-import { Bold, Italic, Underline, Code, Sparkles } from 'lucide-react';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Bold, Italic, Underline, Code, Sparkles, Plus, FileText, Folder } from 'lucide-react';
 import QuickTextActions from '../ai-text-processor/QuickTextActions';
 
 interface TiptapBubbleMenuProps {
@@ -12,6 +13,8 @@ interface TiptapBubbleMenuProps {
   isProcessingAI: boolean;
   onQuickAI: () => void;
   onShowAIAgent: () => void;
+  onCreateNote?: () => void;
+  onCreateFolder?: () => void;
 }
 
 const TiptapBubbleMenu: React.FC<TiptapBubbleMenuProps> = ({
@@ -19,8 +22,12 @@ const TiptapBubbleMenu: React.FC<TiptapBubbleMenuProps> = ({
   selectedText,
   isProcessingAI,
   onQuickAI,
-  onShowAIAgent
+  onShowAIAgent,
+  onCreateNote,
+  onCreateFolder
 }) => {
+  const [isCreateMenuOpen, setIsCreateMenuOpen] = useState(false);
+
   const handleTextReplace = (newText: string) => {
     if (!selectedText || !editor) return;
     
@@ -37,6 +44,20 @@ const TiptapBubbleMenu: React.FC<TiptapBubbleMenuProps> = ({
     const hasSelection = from !== to;
     const hasSelectedText = selectedText && selectedText.length > 0;
     return hasSelection && hasSelectedText;
+  };
+
+  const handleCreateNote = () => {
+    setIsCreateMenuOpen(false);
+    if (onCreateNote) {
+      onCreateNote();
+    }
+  };
+
+  const handleCreateFolder = () => {
+    setIsCreateMenuOpen(false);
+    if (onCreateFolder) {
+      onCreateFolder();
+    }
   };
 
   return (
@@ -116,6 +137,45 @@ const TiptapBubbleMenu: React.FC<TiptapBubbleMenuProps> = ({
         </Button>
         
         <div className="w-px h-4 bg-white/20 mx-1" />
+        
+        {/* Create Note/Folder Popover */}
+        <Popover open={isCreateMenuOpen} onOpenChange={setIsCreateMenuOpen}>
+          <PopoverTrigger asChild>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="h-7 w-7 p-0 text-green-300 hover:text-green-200 hover:bg-green-500/20"
+            >
+              <Plus className="h-3 w-3" />
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent 
+            className="w-48 p-2 bg-black/95 backdrop-blur-xl border border-white/20 shadow-2xl"
+            side="top"
+            align="center"
+          >
+            <div className="flex flex-col gap-1">
+              <Button
+                onClick={handleCreateNote}
+                variant="ghost"
+                size="sm"
+                className="justify-start text-white hover:bg-white/10"
+              >
+                <FileText className="h-4 w-4 mr-2" />
+                New Note
+              </Button>
+              <Button
+                onClick={handleCreateFolder}
+                variant="ghost"
+                size="sm"
+                className="justify-start text-white hover:bg-white/10"
+              >
+                <Folder className="h-4 w-4 mr-2" />
+                New Folder
+              </Button>
+            </div>
+          </PopoverContent>
+        </Popover>
         
         <Button
           onClick={() => {
