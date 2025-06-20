@@ -13,6 +13,7 @@ interface CheckoutRequest {
   product_id?: string;
   success_url?: string;
   cancel_url?: string;
+  trial_days?: number;
 }
 
 serve(async (req) => {
@@ -54,7 +55,7 @@ serve(async (req) => {
 
     console.log('User authenticated:', user.id);
 
-    const { price_id, product_id, success_url, cancel_url }: CheckoutRequest = await req.json();
+    const { price_id, product_id, success_url, cancel_url, trial_days }: CheckoutRequest = await req.json();
 
     // Use the product ID you provided to get the price
     const productIdToUse = product_id || 'prod_SOstZzMeZgtmK5';
@@ -70,43 +71,6 @@ serve(async (req) => {
     let customerId = subscriber?.stripe_customer_id;
     console.log('Existing customer ID:', customerId || 'None');
 
-    // Get all active prices for the product
-    console.log('Fetching all active prices for product...');
-    const allPrices = await stripe.prices.list({
-      product: productIdToUse,
-      active: true,
-      limit: 100, // Get more prices to find the right one
-    });
-    
-    console.log('Found prices:', allPrices.data.length);
-    console.log('Price details:', allPrices.data.map(p => ({
-      id: p.id,
-      type: p.type,
-      recurring: p.recurring?.interval,
-      amount: p.unit_amount
-    })));
-
-    if (!allPrices.data || allPrices.data.length === 0) {
-      throw new Error(`No active prices found for product: ${productIdToUse}. Please create a price in your Stripe dashboard.`);
-    }
-
-    // First try to find a recurring price, then fall back to one-time
-    let selectedPrice = allPrices.data.find(price => price.type === 'recurring');
-    let mode: 'subscription' | 'payment' = 'subscription';
-    
-    if (!selectedPrice) {
-      console.log('No recurring price found, looking for one-time price...');
-      selectedPrice = allPrices.data.find(price => price.type === 'one_time');
-      mode = 'payment';
-    }
-
-    if (!selectedPrice) {
-      throw new Error(`No suitable price found for product: ${productIdToUse}. Found ${allPrices.data.length} prices but none are recurring or one-time.`);
-    }
-
-    const priceId = selectedPrice.id;
-    console.log('Using price ID:', priceId, 'with mode:', mode);
-
     // Create or get customer if needed
     if (!customerId) {
       console.log('Creating new Stripe customer...');
@@ -120,14 +84,63 @@ serve(async (req) => {
       console.log('Created customer ID:', customerId);
     }
 
-    // Create Stripe checkout session
-    console.log('Creating checkout session...');
-    const session = await stripe.checkout.sessions.create({
+    // Determine price ID and setup mode
+    let priceIdToUse = price_id;
+    let mode: 'subscription' | 'payment' = 'subscription';
+    let subscriptionData: any = {};
+
+    if (!priceIdToUse) {
+      // Get all active prices for the product
+      console.log('Fetching all active prices for product...');
+      const allPrices = await stripe.prices.list({
+        product: productIdToUse,
+        active: true,
+        limit: 100,
+      });
+      
+      console.log('Found prices:', allPrices.data.length);
+      console.log('Price details:', allPrices.data.map(p => ({
+        id: p.id,
+        type: p.type,
+        recurring: p.recurring?.interval,
+        amount: p.unit_amount
+      })));
+
+      if (!allPrices.data || allPrices.data.length === 0) {
+        throw new Error(`No active prices found for product: ${productIdToUse}. Please create a price in your Stripe dashboard.`);
+      }
+
+      // First try to find a recurring price, then fall back to one-time
+      let selectedPrice = allPrices.data.find(price => price.type === 'recurring');
+      
+      if (!selectedPrice) {
+        console.log('No recurring price found, looking for one-time price...');
+        selectedPrice = allPrices.data.find(price => price.type === 'one_time');
+        mode = 'payment';
+      }
+
+      if (!selectedPrice) {
+        throw new Error(`No suitable price found for product: ${productIdToUse}. Found ${allPrices.data.length} prices but none are recurring or one-time.`);
+      }
+
+      priceIdToUse = selectedPrice.id;
+    }
+
+    console.log('Using price ID:', priceIdToUse, 'with mode:', mode);
+
+    // Set up trial for subscription mode
+    if (mode === 'subscription' && trial_days && trial_days > 0) {
+      subscriptionData.trial_period_days = trial_days;
+      console.log('Setting up trial period:', trial_days, 'days');
+    }
+
+    // Create checkout session configuration
+    const sessionConfig: any = {
       customer: customerId,
       payment_method_types: ['card'],
       line_items: [
         {
-          price: priceId,
+          price: priceIdToUse,
           quantity: 1,
         },
       ],
@@ -135,7 +148,16 @@ serve(async (req) => {
       success_url: success_url || `${req.headers.get('origin')}/success?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: cancel_url || `${req.headers.get('origin')}/`,
       client_reference_id: user.id,
-    });
+    };
+
+    // Add subscription data if in subscription mode
+    if (mode === 'subscription' && Object.keys(subscriptionData).length > 0) {
+      sessionConfig.subscription_data = subscriptionData;
+    }
+
+    // Create Stripe checkout session
+    console.log('Creating checkout session...');
+    const session = await stripe.checkout.sessions.create(sessionConfig);
 
     console.log('Checkout session created:', session.id);
 
@@ -151,7 +173,11 @@ serve(async (req) => {
       });
 
     return new Response(
-      JSON.stringify({ url: session.url }),
+      JSON.stringify({ 
+        url: session.url,
+        session_id: session.id,
+        trial_days: trial_days || 0
+      }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
 

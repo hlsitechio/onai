@@ -23,6 +23,7 @@ interface Plan {
   popular?: boolean;
   priceId: string;
   icon: React.ReactNode;
+  trialDays?: number;
 }
 
 const plans: Plan[] = [
@@ -47,9 +48,10 @@ const plans: Plan[] = [
     name: 'Professional',
     price: '$9.99/month',
     description: 'Unlimited AI power for professionals and power users',
-    priceId: 'price_1QUzaDF4QdBZ7yYeVqB9KRxA', // Replace with your actual Stripe price ID
+    priceId: 'price_1QUzaDF4QdBZ7yYeVqB9KRxA',
     icon: <Zap className="h-6 w-6" />,
     popular: true,
+    trialDays: 14,
     features: [
       { text: '500 AI requests per day', included: true },
       { text: 'Advanced note editor', included: true },
@@ -67,7 +69,7 @@ const SubscriptionPlans: React.FC = () => {
   const { subscription, refetch } = useSubscription();
   const [loading, setLoading] = useState<string | null>(null);
 
-  const handleSubscribe = async (priceId: string, planName: string) => {
+  const handleSubscribe = async (priceId: string, planName: string, trialDays?: number) => {
     if (!user) {
       toast({
         title: 'Authentication required',
@@ -94,12 +96,19 @@ const SubscriptionPlans: React.FC = () => {
         throw new Error('No active session');
       }
 
+      const requestBody: any = {
+        price_id: priceId,
+        success_url: `${window.location.origin}/success`,
+        cancel_url: window.location.href,
+      };
+
+      // Add trial days if specified
+      if (trialDays && trialDays > 0) {
+        requestBody.trial_days = trialDays;
+      }
+
       const { data, error } = await supabase.functions.invoke('stripe-checkout', {
-        body: {
-          price_id: priceId,
-          success_url: `${window.location.origin}/success`,
-          cancel_url: window.location.href,
-        },
+        body: requestBody,
         headers: {
           Authorization: `Bearer ${session.access_token}`,
         },
@@ -110,6 +119,14 @@ const SubscriptionPlans: React.FC = () => {
       }
 
       if (data?.url) {
+        // Show trial confirmation toast
+        if (trialDays && trialDays > 0) {
+          toast({
+            title: 'Starting Your Free Trial',
+            description: `Your ${trialDays}-day free trial will begin once you complete the setup. No charges until the trial ends.`,
+          });
+        }
+        
         // Open Stripe checkout in a new tab
         window.open(data.url, '_blank');
         
@@ -140,7 +157,7 @@ const SubscriptionPlans: React.FC = () => {
       <div className="text-center mb-8">
         <h2 className="text-3xl font-bold text-white mb-4">Choose Your Plan</h2>
         <p className="text-gray-400 max-w-2xl mx-auto">
-          Upgrade to Professional for unlimited AI requests and advanced features
+          Upgrade to Professional for unlimited AI requests and advanced features. Start with a 14-day free trial.
         </p>
         {subscription && (
           <div className="mt-4 text-sm text-gray-300">
@@ -185,6 +202,11 @@ const SubscriptionPlans: React.FC = () => {
                   </div>
                 </div>
                 <div className="text-3xl font-bold text-white">{plan.price}</div>
+                {plan.trialDays && plan.trialDays > 0 && !isCurrent && (
+                  <Badge variant="secondary" className="bg-green-500/20 text-green-300 border-green-500/30 w-fit">
+                    {plan.trialDays}-Day Free Trial
+                  </Badge>
+                )}
               </CardHeader>
 
               <CardContent>
@@ -208,7 +230,7 @@ const SubscriptionPlans: React.FC = () => {
                 </ul>
 
                 <Button
-                  onClick={() => handleSubscribe(plan.priceId, plan.name)}
+                  onClick={() => handleSubscribe(plan.priceId, plan.name, plan.trialDays)}
                   disabled={loading === plan.priceId || isCurrent}
                   className={`w-full ${
                     plan.popular && !isCurrent
@@ -220,7 +242,7 @@ const SubscriptionPlans: React.FC = () => {
                 >
                   {loading === plan.priceId ? 'Processing...' : 
                    isCurrent ? 'Current Plan' :
-                   plan.priceId ? 'Subscribe Now' : 'Get Started'}
+                   plan.priceId ? (plan.trialDays ? `Start ${plan.trialDays}-Day Trial` : 'Subscribe Now') : 'Get Started'}
                 </Button>
               </CardContent>
             </Card>
@@ -230,7 +252,7 @@ const SubscriptionPlans: React.FC = () => {
       
       <div className="text-center mt-8">
         <p className="text-gray-400 text-sm">
-          Need to manage your subscription? Contact support or visit your account settings.
+          Professional plan includes a 14-day free trial. No charges until trial ends. Cancel anytime.
         </p>
       </div>
     </div>

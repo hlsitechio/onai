@@ -38,7 +38,8 @@ const PricingSection = () => {
       buttonText: 'Get Started Free',
       buttonVariant: 'outline' as const,
       popular: false,
-      priceId: ''
+      priceId: '',
+      trialDays: 0
     },
     {
       id: 'pro',
@@ -56,13 +57,14 @@ const PricingSection = () => {
         'Priority support',
         'Custom templates',
         'Export options',
-        'Offline note'
+        'Offline notes'
       ],
       limitedFeatures: [],
-      buttonText: 'Start Free Trial',
+      buttonText: 'Start 14-Day Free Trial',
       buttonVariant: 'default' as const,
       popular: true,
-      priceId: 'price_1QUzaDF4QdBZ7yYeVqB9KRxA' // Replace with your actual Stripe price ID
+      priceId: 'price_1QUzaDF4QdBZ7yYeVqB9KRxA',
+      trialDays: 14
     },
     {
       id: 'enterprise',
@@ -85,7 +87,8 @@ const PricingSection = () => {
       buttonText: 'Contact Sales',
       buttonVariant: 'outline' as const,
       popular: false,
-      priceId: ''
+      priceId: '',
+      trialDays: 0
     }
   ];
 
@@ -130,12 +133,19 @@ const PricingSection = () => {
         throw new Error('No active session');
       }
 
+      const requestBody: any = {
+        price_id: plan.priceId,
+        success_url: `${window.location.origin}/success`,
+        cancel_url: window.location.href,
+      };
+
+      // Add trial days for professional plan
+      if (plan.trialDays > 0) {
+        requestBody.trial_days = plan.trialDays;
+      }
+
       const { data, error } = await supabase.functions.invoke('stripe-checkout', {
-        body: {
-          price_id: plan.priceId,
-          success_url: `${window.location.origin}/success`,
-          cancel_url: window.location.href,
-        },
+        body: requestBody,
         headers: {
           Authorization: `Bearer ${session.access_token}`,
         },
@@ -146,6 +156,14 @@ const PricingSection = () => {
       }
 
       if (data?.url) {
+        // Show trial confirmation toast
+        if (plan.trialDays > 0) {
+          toast({
+            title: 'Starting Your Free Trial',
+            description: `Your ${plan.trialDays}-day free trial will begin once you complete the setup. No charges until the trial ends.`,
+          });
+        }
+        
         // Open Stripe checkout in a new tab
         window.open(data.url, '_blank');
       }
@@ -169,7 +187,7 @@ const PricingSection = () => {
             Choose Your Plan
           </h2>
           <p className="text-lg text-gray-300 max-w-2xl mx-auto">
-            Start for free and upgrade as you grow. All plans include our core AI-powered note-taking features.
+            Start for free and upgrade as you grow. Professional plan includes a 14-day free trial with no commitment.
           </p>
         </div>
 
@@ -197,6 +215,13 @@ const PricingSection = () => {
                 <div className="text-center">
                   <span className="text-3xl font-bold text-white">{plan.price}</span>
                   <span className="text-gray-400">{plan.period}</span>
+                  {plan.trialDays > 0 && (
+                    <div className="mt-2">
+                      <Badge variant="secondary" className="bg-green-500/20 text-green-300 border-green-500/30">
+                        {plan.trialDays}-Day Free Trial
+                      </Badge>
+                    </div>
+                  )}
                 </div>
                 <CardDescription className="text-gray-400 mt-2">
                   {plan.description}
@@ -240,7 +265,7 @@ const PricingSection = () => {
 
         <div className="text-center mt-12">
           <p className="text-gray-400 mb-4">
-            All plans include a 14-day free trial. No credit card required.
+            Professional plan includes a 14-day free trial. No credit card charges until trial ends.
           </p>
           <p className="text-sm text-gray-500">
             Need help choosing? <a href="#" className="text-noteflow-400 hover:text-noteflow-300">Contact our team</a>
