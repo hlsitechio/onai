@@ -54,7 +54,7 @@ const MobileEditor: React.FC<MobileEditorProps> = ({
     }
   };
 
-  const handleHandwritingComplete = (handwrittenText: string) => {
+  const handleTextExtracted = (handwrittenText: string) => {
     // Insert handwritten content as a special div
     const handwritingDiv = `<div class="handwritten-content" style="border: 1px dashed #666; padding: 10px; margin: 10px 0; border-radius: 8px; background: rgba(255,255,255,0.05);">
       <div style="font-size: 12px; color: #999; margin-bottom: 5px;">✍️ Handwritten content</div>
@@ -119,14 +119,14 @@ const MobileEditor: React.FC<MobileEditorProps> = ({
             />
             {!content && (
               <div className="absolute top-4 left-4 pointer-events-none">
-                <AnimatedPlaceholder text={placeholder} />
+                <AnimatedPlaceholder isVisible={true} />
               </div>
             )}
           </div>
         ) : (
           <div className="h-full">
             <HandwritingCanvas
-              onHandwritingComplete={handleHandwritingComplete}
+              onTextExtracted={handleTextExtracted}
               className="w-full h-full"
             />
           </div>
