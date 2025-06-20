@@ -20,6 +20,15 @@ export const useTextAIProcessor = ({ onTextChange }: UseTextAIProcessorProps = {
   const { toast } = useToast();
 
   const processText = async (action: string, text: string, options: TextProcessingOptions = {}) => {
+    if (!text.trim()) {
+      toast({
+        title: "No text provided",
+        description: "Please select some text to process.",
+        variant: "destructive"
+      });
+      return;
+    }
+
     setIsProcessing(true);
     
     try {
@@ -28,35 +37,35 @@ export const useTextAIProcessor = ({ onTextChange }: UseTextAIProcessorProps = {
 
       switch (action) {
         case 'translate':
-          prompt = `Translate the following text to ${options.language}. Maintain the original meaning and context:\n\n${text}`;
+          prompt = `Translate this text to ${options.language}:\n\n${text}`;
           requestType = 'translate';
           break;
           
         case 'rewrite':
-          prompt = `Rewrite the following text in a ${options.style} style. Keep the core message but adapt the writing style:\n\n${text}`;
+          prompt = `Rewrite this text in ${options.style} style:\n\n${text}`;
           requestType = 'improve';
           break;
           
         case 'resize':
           if (options.size === 'shorter') {
-            prompt = `Make this text shorter and more concise while keeping all key information:\n\n${text}`;
+            prompt = `Make this text shorter and more concise:\n\n${text}`;
           } else if (options.size === 'longer') {
-            prompt = `Expand this text with more detail and explanation:\n\n${text}`;
+            prompt = `Expand this text with more detail:\n\n${text}`;
           } else if (options.size === 'expanded') {
-            prompt = `Significantly expand this text with comprehensive details, examples, and elaboration:\n\n${text}`;
+            prompt = `Significantly expand this text with comprehensive details:\n\n${text}`;
           } else if (options.size === 'detailed') {
-            prompt = `Add detailed explanations, examples, and thorough coverage of all aspects mentioned in:\n\n${text}`;
+            prompt = `Add detailed explanations and examples to:\n\n${text}`;
           }
           requestType = 'improve';
           break;
           
         case 'summarize':
-          prompt = `Create a concise summary of the following text, capturing all key points:\n\n${text}`;
+          prompt = `Create a concise summary of:\n\n${text}`;
           requestType = 'summarize';
           break;
           
         case 'tone':
-          prompt = `Rewrite the following text with a ${options.tone} tone while maintaining the same information:\n\n${text}`;
+          prompt = `Rewrite this text with a ${options.tone} tone:\n\n${text}`;
           requestType = 'improve';
           break;
           
@@ -68,8 +77,8 @@ export const useTextAIProcessor = ({ onTextChange }: UseTextAIProcessorProps = {
       setResult(response);
       
       toast({
-        title: 'Text processing complete',
-        description: `Successfully ${action === 'translate' ? 'translated' : 'processed'} your text.`,
+        title: 'Success!',
+        description: `Text ${action === 'translate' ? 'translated' : 'processed'} successfully.`,
       });
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Failed to process text';
@@ -78,6 +87,7 @@ export const useTextAIProcessor = ({ onTextChange }: UseTextAIProcessorProps = {
         description: errorMessage,
         variant: 'destructive'
       });
+      setResult(''); // Clear any previous result on error
     } finally {
       setIsProcessing(false);
     }
@@ -87,8 +97,8 @@ export const useTextAIProcessor = ({ onTextChange }: UseTextAIProcessorProps = {
     try {
       await navigator.clipboard.writeText(result);
       toast({
-        title: 'Copied to clipboard',
-        description: 'The processed text has been copied to your clipboard.',
+        title: 'Copied!',
+        description: 'Text copied to clipboard.',
       });
     } catch (error) {
       toast({
@@ -103,8 +113,8 @@ export const useTextAIProcessor = ({ onTextChange }: UseTextAIProcessorProps = {
     if (onTextChange && result) {
       onTextChange(result);
       toast({
-        title: 'Text applied',
-        description: 'The processed text has been applied.',
+        title: 'Applied!',
+        description: 'Text has been applied to your note.',
       });
     }
   };

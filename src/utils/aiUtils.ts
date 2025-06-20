@@ -156,7 +156,7 @@ export async function trackAIUsage(requestType: string, tokensUsed: number = 0):
   }
 }
 
-// Main function to call Gemini AI via Supabase Edge Function (updated with usage tracking)
+// Main function to call Gemini AI via Supabase Edge Function (updated with better error handling)
 export async function callGeminiAI(
   prompt: string, 
   noteContent: string, 
@@ -186,9 +186,13 @@ export async function callGeminiAI(
     // Privacy disclaimer prefix
     const privacyPrefix = "IMPORTANT: This request follows our privacy policy. User content should not be retained or used for training.\n\n";
     
+    // Create a more concise prompt to avoid token limits
+    const cleanPrompt = (customPrompt || prompt).replace(privacyPrefix, '');
+    const finalPrompt = privacyPrefix + cleanPrompt;
+    
     // Prepare request payload
     const requestBody: AIRequest = {
-      prompt: privacyPrefix + (customPrompt || prompt),
+      prompt: finalPrompt,
       requestType,
       noteContent: noteContent || "",
       imageUrl,
@@ -198,26 +202,40 @@ export async function callGeminiAI(
 
     console.log('Sending request to Supabase function:', requestBody);
 
-    // Call the Supabase Edge Function
-    const { data, error } = await supabase.functions.invoke('gemini-ai', {
-      body: JSON.stringify(requestBody),
-    });
-    
-    console.log('Supabase function response:', { data, error });
+    // Call the Supabase Edge Function with timeout
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
 
-    if (error) {
-      console.error('Supabase function error:', error);
-      throw new Error(`AI service error: ${error.message || 'Unknown error occurred'}`);
+    try {
+      const { data, error } = await supabase.functions.invoke('gemini-ai', {
+        body: JSON.stringify(requestBody),
+        headers: {
+          'Content-Type': 'application/json',
+        }
+      });
+      
+      clearTimeout(timeoutId);
+      
+      console.log('Supabase function response:', { data, error });
+
+      if (error) {
+        console.error('Supabase function error:', error);
+        throw new Error(`AI service error: ${error.message || 'Unknown error occurred'}`);
+      }
+      
+      if (!data) {
+        throw new Error('No data received from AI service');
+      }
+      
+      // Track usage on success
+      await trackAIUsage(requestType, 0);
+      
+      return processAIResponse(data as AIResponse);
+
+    } catch (fetchError) {
+      clearTimeout(timeoutId);
+      throw fetchError;
     }
-    
-    if (!data) {
-      throw new Error('No data received from AI service');
-    }
-    
-    // Track usage on success
-    await trackAIUsage(requestType, 0); // Token counting can be added later
-    
-    return processAIResponse(data as AIResponse);
 
   } catch (error) {
     console.error('Error calling Gemini AI:', error);
@@ -231,7 +249,10 @@ export async function callGeminiAI(
         return "The AI service is temporarily unavailable due to security restrictions. Please try again later.";
       }
       if (error.message.includes('timeout') || error.message.includes('AbortError')) {
-        return "The AI service took too long to respond. This might happen with complex requests or images. Please try again with simpler content.";
+        return "The AI service took too long to respond. Please try again with simpler content.";
+      }
+      if (error.message.includes('AI service error')) {
+        return `AI processing failed: ${error.message}. Please try again with shorter text.`;
       }
       return `AI processing failed: ${error.message}`;
     }
@@ -240,19 +261,19 @@ export async function callGeminiAI(
   }
 }
 
-// Helper function to process AI response
+// Helper function to process AI response with better error handling
 function processAIResponse(response: AIResponse): string {
   if (response.error) {
     console.error(`AI processing error: ${response.error}`);
     throw new Error(response.error);
   }
   
-  if (!response.result) {
+  if (!response.result || response.result.trim() === '') {
     console.error('No valid response received from AI');
-    throw new Error('No valid response received from AI');
+    throw new Error('The AI service returned an empty response. Please try again with different text.');
   }
   
-  return response.result;
+  return response.result.trim();
 }
 
 // Helper functions for note analysis
@@ -267,7 +288,7 @@ ${content ? `Content:\n${content}` : ''}
 
 Please provide:
 1. SUMMARY: A brief overview
-2. KEY POINTS: Main takeaways (bullet points)
+2. KEY POINTS: Main takeaways (bullet points)  
 3. SUGGESTIONS: Recommendations for improvement
 4. INSIGHTS: Additional observations
 
