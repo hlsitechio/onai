@@ -14,6 +14,7 @@ import PricingSection from '@/components/PricingSection';
 import NewsletterSection from '@/components/NewsletterSection';
 import Footer from '@/components/Footer';
 import NotesEditor from '@/components/notes/NotesEditor';
+import ScrollToTop from '@/components/ScrollToTop';
 import { useAuth } from '@/contexts/AuthContext';
 
 const Index = () => {
@@ -60,6 +61,9 @@ const Index = () => {
         <NewsletterSection />
         <Footer />
       </div>
+      
+      {/* Scroll to top arrow */}
+      <ScrollToTop />
     </div>
   );
 };
