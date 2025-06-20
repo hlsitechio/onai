@@ -14,10 +14,10 @@ const Header = () => {
   const isLandingPage = location.pathname === '/landing';
 
   const navigationItems = [
-    { name: 'Home', href: '/' },
-    { name: 'Full Experience', href: '/landing' },
-    { name: 'Features', href: isLandingPage ? '#features' : '/#features' },
-    { name: 'Pricing', href: isLandingPage ? '#pricing' : '/#pricing' },
+    { name: 'Home', href: '/', isRoute: true },
+    { name: 'Full Experience', href: '/landing', isRoute: true },
+    { name: 'Features', href: isLandingPage ? '#features' : '/#features', isRoute: false },
+    { name: 'Pricing', href: isLandingPage ? '#pricing' : '/#pricing', isRoute: false },
   ];
 
   return (
@@ -40,14 +40,25 @@ const Header = () => {
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center space-x-8">
             {navigationItems.map((item) => (
-              <a
-                key={item.name}
-                href={item.href}
-                className="text-gray-300 hover:text-white transition-colors duration-200 relative group"
-              >
-                {item.name}
-                <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-noteflow-400 transition-all duration-300 group-hover:w-full"></span>
-              </a>
+              item.isRoute ? (
+                <Link
+                  key={item.name}
+                  to={item.href}
+                  className="text-gray-300 hover:text-white transition-colors duration-200 relative group"
+                >
+                  {item.name}
+                  <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-noteflow-400 transition-all duration-300 group-hover:w-full"></span>
+                </Link>
+              ) : (
+                <a
+                  key={item.name}
+                  href={item.href}
+                  className="text-gray-300 hover:text-white transition-colors duration-200 relative group"
+                >
+                  {item.name}
+                  <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-noteflow-400 transition-all duration-300 group-hover:w-full"></span>
+                </a>
+              )
             ))}
           </nav>
 
@@ -95,14 +106,25 @@ const Header = () => {
             >
               <div className="px-4 py-6 space-y-4">
                 {navigationItems.map((item) => (
-                  <a
-                    key={item.name}
-                    href={item.href}
-                    className="block text-gray-300 hover:text-white transition-colors duration-200"
-                    onClick={() => setIsMenuOpen(false)}
-                  >
-                    {item.name}
-                  </a>
+                  item.isRoute ? (
+                    <Link
+                      key={item.name}
+                      to={item.href}
+                      className="block text-gray-300 hover:text-white transition-colors duration-200"
+                      onClick={() => setIsMenuOpen(false)}
+                    >
+                      {item.name}
+                    </Link>
+                  ) : (
+                    <a
+                      key={item.name}
+                      href={item.href}
+                      className="block text-gray-300 hover:text-white transition-colors duration-200"
+                      onClick={() => setIsMenuOpen(false)}
+                    >
+                      {item.name}
+                    </a>
+                  )
                 ))}
                 <div className="pt-4 space-y-2">
                   {user ? (
