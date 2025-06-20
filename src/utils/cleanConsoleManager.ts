@@ -5,7 +5,7 @@
  * 2. Let Sentry's captureConsoleIntegration handle forwarding to Sentry
  */
 export class CleanConsoleManager {
-  private originalMethods: Record<string, Function> = {};
+  private originalMethods: Record<string, (...args: any[]) => void> = {};
   private isSuppressionActive = false;
 
   constructor() {
