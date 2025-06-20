@@ -1,7 +1,6 @@
-
 import * as Sentry from '@sentry/react';
 
-// Enhanced Sentry configuration with aggressive error filtering
+// Enhanced Sentry configuration with complete console silence
 export const initializeSentry = () => {
   const sentryDsn = "https://f8ae6101cc7c15b766842bf72cefd257@o4509521908400128.ingest.us.sentry.io/4509521909252096";
   
@@ -22,6 +21,9 @@ export const initializeSentry = () => {
       
       // Send default PII data as requested
       sendDefaultPii: true,
+      
+      // Disable all Sentry console output
+      debug: false,
       
       // Aggressive error filtering to reduce noise
       beforeSend(event: Sentry.ErrorEvent, hint: Sentry.EventHint): Sentry.ErrorEvent | null {
@@ -171,9 +173,9 @@ export const initializeSentry = () => {
       maxBreadcrumbs: 10,
     });
 
-    console.log('🔧 Sentry initialized with aggressive error filtering');
+    // Don't log Sentry initialization to console
   } else if (import.meta.env.DEV) {
-    console.log('🔧 Sentry disabled in development mode');
+    // Don't log anything about Sentry being disabled
   }
 };
 
@@ -219,7 +221,7 @@ const sanitizeErrorEvent = (event: Sentry.ErrorEvent): Sentry.ErrorEvent => {
   return event;
 };
 
-// Enhanced error reporting with filtering
+// Enhanced error reporting with filtering - completely silent
 export const reportError = (error: Error, context?: Record<string, any>) => {
   // Don't report filtered errors
   const message = error.message || '';
@@ -248,9 +250,8 @@ export const reportError = (error: Error, context?: Record<string, any>) => {
       scope.setLevel(context?.severity || 'error');
       Sentry.captureException(error);
     });
-  } else if (import.meta.env.DEV) {
-    console.error('🚨 Error reported (dev mode):', error, context);
   }
+  // Don't log anything to console - keep it completely silent
 };
 
 // Performance monitoring with filtering

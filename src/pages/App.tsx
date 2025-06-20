@@ -5,10 +5,6 @@ import PWAInstaller from "@/components/pwa/PWAInstaller";
 import PWAUpdateNotifier from "@/components/pwa/PWAUpdateNotifier";
 import EditorManager from "@/components/editor/EditorManager";
 import ErrorBoundary from "@/components/ErrorBoundary";
-import SentryTestButton from "@/components/SentryTestButton";
-
-// Initialize enhanced console control immediately
-import '@/utils/enhancedConsoleControl';
 
 const App = () => {
   return <ErrorBoundary>

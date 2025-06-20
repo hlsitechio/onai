@@ -1,177 +1,64 @@
-import log from 'loglevel';
-
-// Configure loglevel based on environment
+// Minimal console control - completely silent except for welcome message
 const isDevelopment = import.meta.env.DEV;
 const isProduction = import.meta.env.PROD;
 
-// Set default log level based on environment
-if (isProduction) {
-  log.setLevel('warn'); // Only show warnings and errors in production
-} else {
-  log.setLevel('debug'); // Show all logs in development
-}
+// Store original console methods
+const originalConsole = {
+  log: console.log.bind(console),
+  warn: console.warn.bind(console),
+  error: console.error.bind(console),
+  debug: console.debug.bind(console),
+  info: console.info.bind(console),
+};
 
-// Create a controlled logger
+// Completely suppress all console output
+console.log = () => {};
+console.warn = () => {};
+console.error = () => {};
+console.debug = () => {};
+console.info = () => {};
+
+// Create a controlled logger that stays silent
 export const logger = {
-  debug: (...args: any[]) => {
-    if (isDevelopment) {
-      log.debug(...args);
-    }
-  },
-  info: (...args: any[]) => {
-    log.info(...args);
-  },
-  warn: (...args: any[]) => {
-    log.warn(...args);
-  },
-  error: (...args: any[]) => {
-    log.error(...args);
-  },
-  log: (...args: any[]) => {
-    if (isDevelopment) {
-      log.info(...args);
-    }
-  }
+  debug: () => {},
+  info: () => {},
+  warn: () => {},
+  error: () => {},
+  log: () => {}
 };
 
-// Override console methods to reduce noise
-const originalError = console.error;
-const originalWarn = console.warn;
-const originalInfo = console.info;
-
-// Override console.log and console.debug to be silent in production
-if (isProduction) {
-  console.log = () => {};
-  console.debug = () => {};
-  console.info = () => {};
-}
-
-// Enhanced console.error filtering
-console.error = (...args: any[]) => {
-  const message = args.join(' ');
-  
-  // Filter out known non-critical errors and browser warnings
-  const ignoredErrors = [
-    'ResizeObserver loop limit exceeded',
-    'Non-passive event listener',
-    'Failed to load resource',
-    'lovable-tagger',
-    'componentTagger',
-    'Unrecognized feature',
-    'iframe which has both allow-scripts and allow-same-origin',
-    'sandbox attribute can escape its sandboxing',
-    'can escape its sandboxing',
-    'vr',
-    'ambient-light-sensor',
-    'battery',
-    'was preloaded using link preload but not used',
-    'facebook.com/tr',
-    'preloaded intentionally',
-    'understand this warning',
-    'understand this error',
-    'about:blank',
-    'Pointer event detected', // Filter out pointer event spam
-  ];
-  
-  const shouldIgnore = ignoredErrors.some(ignored => 
-    message.toLowerCase().includes(ignored.toLowerCase())
-  );
-  
-  if (!shouldIgnore) {
-    originalError(...args);
-  }
-};
-
-// Enhanced console.warn filtering
-console.warn = (...args: any[]) => {
-  const message = args.join(' ');
-  
-  // Filter out known non-critical warnings and browser warnings
-  const ignoredWarnings = [
-    'React does not recognize',
-    'Warning: Each child in a list should have a unique "key" prop',
-    'lovable-tagger could not be loaded',
-    'Unrecognized feature',
-    'iframe which has both allow-scripts and allow-same-origin',
-    'sandbox attribute can escape its sandboxing',
-    'can escape its sandboxing',
-    'vr',
-    'ambient-light-sensor',
-    'battery',
-    'was preloaded using link preload but not used',
-    'facebook.com/tr',
-    'preloaded intentionally',
-    'understand this warning',
-    'understand this error',
-    'about:blank',
-    'Google Fonts link missing display=swap',
-    'Deprecated API usage detected',
-    'Form validation found',
-    'accessibility issues',
-    'Missing ID attribute',
-    'Missing name attribute',
-    'Missing label or aria-label',
-    'Pointer event detected', // Filter out pointer event spam
-  ];
-  
-  const shouldIgnore = ignoredWarnings.some(ignored => 
-    message.toLowerCase().includes(ignored.toLowerCase())
-  );
-  
-  if (!shouldIgnore) {
-    originalWarn(...args);
-  }
-};
-
-// Enhanced console.info filtering
-console.info = (...args: any[]) => {
-  const message = args.join(' ');
-  
-  // Filter out pointer event spam from info logs
-  const ignoredInfoMessages = [
-    'Pointer event detected',
-  ];
-  
-  const shouldIgnore = ignoredInfoMessages.some(ignored => 
-    message.toLowerCase().includes(ignored.toLowerCase())
-  );
-  
-  // Allow important stylus-related messages
-  const isImportantStylus = message.includes('Stylus event detected') || 
-                           message.includes('New pointer type discovered') ||
-                           message.includes('Samsung device detected') ||
-                           message.includes('Known stylus device detected');
-  
-  if (!shouldIgnore || isImportantStylus) {
-    originalInfo(...args);
-  }
-};
-
-// Runtime console control for development
+// Runtime console control for development - completely silent by default
 export const consoleControls = {
   enableAll: () => {
-    log.setLevel('debug');
+    Object.assign(console, originalConsole);
     console.log('All console logging enabled');
   },
   
   enableErrorsOnly: () => {
-    log.setLevel('error');
+    console.log = () => {};
+    console.warn = () => {};
+    console.debug = () => {};
+    console.info = () => {};
+    console.error = originalConsole.error;
     console.log('Only errors will be logged');
   },
   
   enableWarningsAndErrors: () => {
-    log.setLevel('warn');
+    console.log = () => {};
+    console.debug = () => {};
+    console.info = () => {};
+    console.warn = originalConsole.warn;
+    console.error = originalConsole.error;
     console.log('Warnings and errors will be logged');
   },
   
   disable: () => {
-    log.setLevel('silent');
-    console.log('Console logging disabled');
+    console.log = () => {};
+    console.warn = () => {};
+    console.error = () => {};
+    console.debug = () => {};
+    console.info = () => {};
   }
 };
 
-// Make controls available globally in development
-if (isDevelopment && typeof window !== 'undefined') {
-  (window as any).consoleControls = consoleControls;
-  console.log('Console controls available at window.consoleControls');
-}
+// Don't expose controls globally - keep console clean

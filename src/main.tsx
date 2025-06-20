@@ -5,6 +5,8 @@ import App from './App.tsx'
 import './index.css'
 import { initializeFormValidation } from './utils/formValidationUtils'
 import { initializeBrowserCompatibility } from './utils/browserCompatibilityUtils'
+
+// Initialize clean console control FIRST - before anything else
 import './utils/enhancedConsoleControl'
 
 // CRITICAL: Comprehensive React validation before proceeding
@@ -31,7 +33,6 @@ const validateReactEnvironment = () => {
     }
   }
 
-  console.log('✅ React environment validation passed - Version:', React.version);
   return true;
 };
 
@@ -45,8 +46,6 @@ validateReactEnvironment();
 if (!ReactDOM || typeof ReactDOM.createRoot !== 'function') {
   throw new Error('FATAL: ReactDOM is not properly loaded');
 }
-
-console.log('React initialization complete - Version:', React.version);
 
 const rootElement = document.getElementById('root');
 if (!rootElement) {
@@ -92,8 +91,6 @@ const ErrorFallback = () => {
 // Initialize Sentry only after React is confirmed working
 const initializeApp = async () => {
   try {
-    console.log('Starting OneAI Notes application...');
-    
     // Double-check React is still available
     validateReactEnvironment();
     
@@ -102,7 +99,7 @@ const initializeApp = async () => {
       const { initializeSentry } = await import('./utils/sentryConfig');
       initializeSentry();
     } catch (sentryError) {
-      console.warn('Sentry initialization failed, continuing without it:', sentryError);
+      // Silently handle Sentry initialization failure - don't log to console
     }
     
     const root = ReactDOM.createRoot(rootElement);
@@ -114,16 +111,12 @@ const initializeApp = async () => {
       )
     );
 
-    console.log('App rendered successfully');
   } catch (error) {
-    console.error('Failed to initialize app:', error);
-    
     // Fallback rendering with error component
     try {
       const root = ReactDOM.createRoot(rootElement);
       root.render(React.createElement(ErrorFallback));
     } catch (fallbackError) {
-      console.error('Fallback rendering also failed:', fallbackError);
       // Last resort: direct DOM manipulation
       rootElement.innerHTML = `
         <div style="padding: 20px; color: red; font-family: monospace; text-align: center;">
