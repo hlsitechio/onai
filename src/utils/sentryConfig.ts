@@ -10,7 +10,10 @@ export const initializeSentry = () => {
       dsn: sentryDsn,
       integrations: [
         Sentry.browserTracingIntegration(),
-        Sentry.replayIntegration()
+        Sentry.replayIntegration(),
+        Sentry.captureConsoleIntegration({
+          levels: ['log', 'info', 'warn', 'error', 'debug', 'assert']
+        })
       ],
       
       tracesSampleRate: import.meta.env.DEV ? 0.1 : 0.05,

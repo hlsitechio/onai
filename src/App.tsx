@@ -16,21 +16,10 @@ import { ToastProvider } from '@/components/ui/toast';
 import { AuthProvider } from '@/contexts/AuthContext';
 import { QueryClientProvider, QueryClient } from '@tanstack/react-query';
 import { EnhancedAuthProvider } from '@/contexts/EnhancedAuthContext';
-import { SimpleConsoleManager } from '@/utils/simpleConsoleManager';
-import { initializeSentry } from '@/utils/sentryConfig';
 
 const queryClient = new QueryClient();
 
 function AppRouter() {
-  useEffect(() => {
-    // Initialize Sentry first
-    initializeSentry();
-    
-    // Initialize console manager after React is fully loaded
-    const consoleManager = SimpleConsoleManager.getInstance();
-    consoleManager.initializeAfterReact();
-  }, []);
-
   return (
     <ReactCompatibilityCheck>
       <Router>

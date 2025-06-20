@@ -3,6 +3,8 @@ import React from 'react'
 import ReactDOM from 'react-dom/client'
 import App from './App.tsx'
 import './index.css'
+import { initializeSentry } from './utils/sentryConfig'
+import { cleanConsoleControls } from './utils/console/CleanConsoleManager'
 
 // Simple React validation without complex overrides
 const validateReact = () => {
@@ -22,6 +24,9 @@ if (!rootElement) {
   throw new Error('Root element not found');
 }
 
+// Initialize Sentry first (required for console capture)
+initializeSentry();
+
 // Simple initialization without complex console overrides
 const initializeApp = () => {
   try {
@@ -31,12 +36,6 @@ const initializeApp = () => {
         React.createElement(App)
       )
     );
-    
-    // Show welcome message after React is fully initialized
-    setTimeout(() => {
-      console.clear();
-      console.log('%c🎉 Welcome to OnlineNote AI! 🎉', 'color: #4CAF50; font-size: 18px; font-weight: bold; text-shadow: 1px 1px 2px rgba(0,0,0,0.3);');
-    }, 500);
     
   } catch (error) {
     console.error('Failed to initialize app:', error);
@@ -57,4 +56,9 @@ if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', initializeApp);
 } else {
   initializeApp();
+}
+
+// Make console controls available globally in development
+if (import.meta.env.DEV && typeof window !== 'undefined') {
+  (window as any).cleanConsoleControls = cleanConsoleControls;
 }
