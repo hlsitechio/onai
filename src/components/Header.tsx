@@ -4,12 +4,14 @@ import { Menu, X, Sparkles, ChevronDown } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from './ui/button';
 import { useAuth } from '@/contexts/AuthContext';
+import { useScrollDirection } from '@/hooks/useScrollDirection';
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isLegalMenuOpen, setIsLegalMenuOpen] = useState(false);
   const { user } = useAuth();
   const location = useLocation();
+  const { isVisible } = useScrollDirection();
 
   const isLandingPage = location.pathname === '/landing';
 
@@ -28,7 +30,18 @@ const Header = () => {
   ];
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 bg-black/20 backdrop-blur-lg border-b border-white/10">
+    <motion.header 
+      className="fixed top-0 left-0 right-0 z-50 bg-black/20 backdrop-blur-lg border-b border-white/10"
+      initial={{ y: 0 }}
+      animate={{ 
+        y: isVisible ? 0 : -100,
+        opacity: isVisible ? 1 : 0
+      }}
+      transition={{ 
+        duration: 0.3,
+        ease: 'easeInOut'
+      }}
+    >
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
@@ -213,7 +226,7 @@ const Header = () => {
           )}
         </AnimatePresence>
       </div>
-    </header>
+    </motion.header>
   );
 };
 
