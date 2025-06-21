@@ -1,11 +1,6 @@
 
 import React from 'react';
-import { useEditorRef } from '@udecode/plate-common/react';
-import {
-  insertNodes,
-  toggleMark,
-  isMarkActive,
-} from '@udecode/plate-utils';
+import { useEditorRef } from '@udecode/plate-common';
 import { Button } from '@/components/ui/button';
 import { 
   Bold, 
@@ -33,6 +28,27 @@ const PlateToolbar: React.FC = () => {
   const editor = useEditorRef();
   
   if (!editor) return null;
+  
+  // Simple mark and node manipulation functions
+  const toggleMark = (editor: any, mark: string) => {
+    const isActive = editor.marks?.[mark];
+    if (isActive) {
+      editor.removeMark(mark);
+    } else {
+      editor.addMark(mark, true);
+    }
+  };
+
+  const isMarkActive = (editor: any, mark: string) => {
+    return !!editor.marks?.[mark];
+  };
+
+  const insertNodes = (editor: any, node: any) => {
+    const { selection } = editor;
+    if (selection) {
+      editor.insertNode(node);
+    }
+  };
   
   // Check if marks are active
   const isBoldActive = isMarkActive(editor, MARK_BOLD);
