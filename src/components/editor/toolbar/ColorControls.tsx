@@ -9,10 +9,9 @@ import {
   DropdownMenuSeparator,
 } from '@/components/ui/dropdown-menu';
 import { cn } from '@/lib/utils';
-import type { Editor } from '@tiptap/react';
 
 interface ColorControlsProps {
-  editor: Editor;
+  editor?: any; // Made optional since we'll use execCommand fallback
 }
 
 const ColorControls: React.FC<ColorControlsProps> = ({ editor }) => {
@@ -36,31 +35,52 @@ const ColorControls: React.FC<ColorControlsProps> = ({ editor }) => {
 
   const handleTextColorChange = (color: string) => {
     setSelectedTextColor(color);
+    console.log(`Setting text color to: ${color}`);
+    
+    // Try the editor chain method first, then fall back to execCommand
     try {
-      if (editor && editor.chain) {
+      if (editor?.chain?.focus) {
         editor.chain().focus().setColor(color).run();
       } else {
+        // Use document.execCommand for basic browsers
+        document.execCommand('styleWithCSS', false, 'true');
         document.execCommand('foreColor', false, color);
       }
-    } catch {
+    } catch (error) {
+      console.log('Falling back to execCommand for text color');
+      document.execCommand('styleWithCSS', false, 'true');
       document.execCommand('foreColor', false, color);
     }
   };
 
   const handleHighlightColorChange = (color: string) => {
     setSelectedHighlightColor(color);
+    console.log(`Setting highlight color to: ${color}`);
+    
     try {
-      if (editor && editor.chain) {
+      if (editor?.chain?.focus) {
         if (color === 'transparent') {
           editor.chain().focus().unsetHighlight().run();
         } else {
           editor.chain().focus().toggleHighlight({ color }).run();
         }
       } else {
+        // Use document.execCommand for highlighting
+        if (color === 'transparent') {
+          document.execCommand('hiliteColor', false, 'transparent');
+        } else {
+          document.execCommand('styleWithCSS', false, 'true');
+          document.execCommand('hiliteColor', false, color);
+        }
+      }
+    } catch (error) {
+      console.log('Falling back to execCommand for highlight');
+      if (color === 'transparent') {
+        document.execCommand('hiliteColor', false, 'transparent');
+      } else {
+        document.execCommand('styleWithCSS', false, 'true');
         document.execCommand('hiliteColor', false, color);
       }
-    } catch {
-      document.execCommand('hiliteColor', false, color);
     }
   };
 
