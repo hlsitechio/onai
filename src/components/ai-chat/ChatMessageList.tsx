@@ -3,7 +3,7 @@ import React from 'react';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import ChatMessage from './ChatMessage';
 
-interface ChatMessage {
+interface ChatMessageType {
   id: string;
   role: 'user' | 'assistant';
   content: string;
@@ -12,7 +12,7 @@ interface ChatMessage {
 }
 
 interface ChatMessageListProps {
-  messages: ChatMessage[];
+  messages: ChatMessageType[];
   copiedId: string | null;
   onCopyMessage: (content: string, messageId: string) => void;
   onApplyToEditor?: (content: string) => void;
