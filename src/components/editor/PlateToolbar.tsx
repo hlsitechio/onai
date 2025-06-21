@@ -1,9 +1,9 @@
 
 import React from 'react';
-import { useEditorRef, useEditorSelector } from '@udecode/plate-common';
-import { MARK_BOLD, MARK_ITALIC, MARK_UNDERLINE } from '@udecode/plate-basic-marks';
-import { ELEMENT_H1, ELEMENT_H2, ELEMENT_H3 } from '@udecode/plate-basic-elements';
-import { ELEMENT_UL, ELEMENT_OL } from '@udecode/plate-list';
+import { useEditorRef, useEditorSelector } from '@udecode/plate-common/react';
+import { MARK_BOLD, MARK_ITALIC, MARK_UNDERLINE } from '@udecode/plate-basic-marks/react';
+import { ELEMENT_H1, ELEMENT_H2, ELEMENT_H3 } from '@udecode/plate-basic-elements/react';
+import { ELEMENT_UL, ELEMENT_OL } from '@udecode/plate-list/react';
 import { toggleMark, insertNodes } from '@udecode/plate-common';
 import { Button } from '@/components/ui/button';
 import { 
@@ -14,29 +14,45 @@ import {
   Heading2, 
   Heading3,
   List,
-  ListOrdered,
-  AlignLeft,
-  AlignCenter,
-  AlignRight
+  ListOrdered
 } from 'lucide-react';
 
 const PlateToolbar: React.FC = () => {
   const editor = useEditorRef();
   
-  const isBoldActive = useEditorSelector(editor => editor?.isMarkActive?.(MARK_BOLD) ?? false, []);
-  const isItalicActive = useEditorSelector(editor => editor?.isMarkActive?.(MARK_ITALIC) ?? false, []);
-  const isUnderlineActive = useEditorSelector(editor => editor?.isMarkActive?.(MARK_UNDERLINE) ?? false, []);
+  const isBoldActive = useEditorSelector(
+    (editor) => !!editor?.getMarks?.()?.[MARK_BOLD], 
+    []
+  );
+  const isItalicActive = useEditorSelector(
+    (editor) => !!editor?.getMarks?.()?.[MARK_ITALIC], 
+    []
+  );
+  const isUnderlineActive = useEditorSelector(
+    (editor) => !!editor?.getMarks?.()?.[MARK_UNDERLINE], 
+    []
+  );
 
-  const toggleBold = () => toggleMark(editor, { key: MARK_BOLD });
-  const toggleItalic = () => toggleMark(editor, { key: MARK_ITALIC });
-  const toggleUnderline = () => toggleMark(editor, { key: MARK_UNDERLINE });
+  const toggleBold = () => {
+    if (editor) toggleMark(editor, { key: MARK_BOLD });
+  };
+  
+  const toggleItalic = () => {
+    if (editor) toggleMark(editor, { key: MARK_ITALIC });
+  };
+  
+  const toggleUnderline = () => {
+    if (editor) toggleMark(editor, { key: MARK_UNDERLINE });
+  };
 
   const insertHeading = (level: 1 | 2 | 3) => {
+    if (!editor) return;
     const elementType = level === 1 ? ELEMENT_H1 : level === 2 ? ELEMENT_H2 : ELEMENT_H3;
     insertNodes(editor, { type: elementType, children: [{ text: '' }] });
   };
 
   const insertList = (ordered: boolean) => {
+    if (!editor) return;
     const elementType = ordered ? ELEMENT_OL : ELEMENT_UL;
     insertNodes(editor, { 
       type: elementType, 

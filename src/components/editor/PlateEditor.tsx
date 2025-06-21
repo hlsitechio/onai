@@ -1,19 +1,34 @@
 
 import React, { useMemo } from 'react';
-import { Plate, PlateContent } from '@udecode/plate-common';
-import { createPlateEditor } from '@udecode/plate-common';
-import { createBasicElementsPlugin } from '@udecode/plate-basic-elements';
-import { createBasicMarksPlugin } from '@udecode/plate-basic-marks';
-import { createAlignPlugin } from '@udecode/plate-alignment';
-import { createListPlugin } from '@udecode/plate-list';
-import { createLinkPlugin } from '@udecode/plate-link';
-import { createMediaEmbedPlugin } from '@udecode/plate-media';
-import { createSelectOnBackspacePlugin } from '@udecode/plate-select';
-import { createNodeIdPlugin } from '@udecode/plate-node-id';
-import { createNormalizeTypesPlugin } from '@udecode/plate-normalizers';
-import { createResetNodePlugin } from '@udecode/plate-reset-node';
-import { createTrailingBlockPlugin } from '@udecode/plate-trailing-block';
-import { ELEMENT_PARAGRAPH } from '@udecode/plate-basic-elements';
+import { PlateProvider, Plate } from '@udecode/plate-common/react';
+import { createPlateEditor } from '@udecode/plate-common/react';
+import { 
+  BasicElementsPlugin,
+  ELEMENT_PARAGRAPH,
+  ELEMENT_H1,
+  ELEMENT_H2,
+  ELEMENT_H3
+} from '@udecode/plate-basic-elements/react';
+import { 
+  BasicMarksPlugin,
+  MARK_BOLD,
+  MARK_ITALIC,
+  MARK_UNDERLINE
+} from '@udecode/plate-basic-marks/react';
+import { AlignPlugin } from '@udecode/plate-alignment/react';
+import { 
+  ListPlugin,
+  ELEMENT_UL,
+  ELEMENT_OL,
+  ELEMENT_LI
+} from '@udecode/plate-list/react';
+import { LinkPlugin } from '@udecode/plate-link/react';
+import { MediaEmbedPlugin } from '@udecode/plate-media/react';
+import { SelectOnBackspacePlugin } from '@udecode/plate-select';
+import { NodeIdPlugin } from '@udecode/plate-node-id';
+import { NormalizeTypesPlugin } from '@udecode/plate-normalizers';
+import { ResetNodePlugin } from '@udecode/plate-reset-node';
+import { TrailingBlockPlugin } from '@udecode/plate-trailing-block';
 import PlateToolbar from './PlateToolbar';
 
 interface PlateEditorProps {
@@ -22,63 +37,75 @@ interface PlateEditorProps {
   isFocusMode?: boolean;
 }
 
+const plugins = [
+  NodeIdPlugin,
+  BasicElementsPlugin,
+  BasicMarksPlugin,
+  AlignPlugin.configure({
+    inject: {
+      targetPlugins: [ELEMENT_PARAGRAPH],
+    },
+  }),
+  ListPlugin,
+  LinkPlugin,
+  MediaEmbedPlugin,
+  SelectOnBackspacePlugin,
+  NormalizeTypesPlugin,
+  ResetNodePlugin,
+  TrailingBlockPlugin,
+];
+
 const PlateEditor: React.FC<PlateEditorProps> = ({
   content,
   setContent,
   isFocusMode = false
 }) => {
-  const plugins = useMemo(() => [
-    createNodeIdPlugin(),
-    createBasicElementsPlugin(),
-    createBasicMarksPlugin(),
-    createAlignPlugin({
-      inject: {
-        props: {
-          validTypes: [ELEMENT_PARAGRAPH],
-        },
-      },
-    }),
-    createListPlugin(),
-    createLinkPlugin(),
-    createMediaEmbedPlugin(),
-    createSelectOnBackspacePlugin(),
-    createNormalizeTypesPlugin(),
-    createResetNodePlugin(),
-    createTrailingBlockPlugin(),
-  ], []);
-
   const editor = useMemo(() => 
     createPlateEditor({ 
       plugins,
-      value: content ? JSON.parse(content) : [{ type: 'p', children: [{ text: '' }] }]
+      value: content ? JSON.parse(content) : [{ 
+        type: ELEMENT_PARAGRAPH, 
+        children: [{ text: '' }] 
+      }]
     }), 
-    [plugins]
+    []
   );
 
   const handleChange = (value: any) => {
     setContent(JSON.stringify(value));
   };
 
+  const initialValue = content ? JSON.parse(content) : [{ 
+    type: ELEMENT_PARAGRAPH, 
+    children: [{ text: '' }] 
+  }];
+
   return (
     <div className="flex flex-col h-full bg-gradient-to-br from-[#03010a] to-[#0a0518] text-white">
-      {!isFocusMode && (
-        <div className="border-b border-white/10 p-2">
-          <PlateToolbar />
+      <PlateProvider
+        plugins={plugins}
+        initialValue={initialValue}
+        onChange={handleChange}
+      >
+        {!isFocusMode && (
+          <div className="border-b border-white/10 p-2">
+            <PlateToolbar />
+          </div>
+        )}
+        
+        <div className="flex-1 relative overflow-hidden">
+          <Plate>
+            <div
+              className="h-full overflow-y-auto px-4 py-2 prose prose-invert dark:prose-invert max-w-none outline-none min-h-[300px] focus:outline-none"
+              data-plate-selectable
+              data-slate-editor
+              contentEditable
+              suppressContentEditableWarning
+              style={{ whiteSpace: 'pre-wrap' }}
+            />
+          </Plate>
         </div>
-      )}
-      
-      <div className="flex-1 relative overflow-hidden">
-        <Plate 
-          editor={editor} 
-          onChange={handleChange}
-          initialValue={content ? JSON.parse(content) : [{ type: 'p', children: [{ text: '' }] }]}
-        >
-          <PlateContent
-            className="h-full overflow-y-auto px-4 py-2 prose prose-invert dark:prose-invert max-w-none outline-none min-h-[300px] focus:outline-none"
-            placeholder="Start writing your note..."
-          />
-        </Plate>
-      </div>
+      </PlateProvider>
     </div>
   );
 };
