@@ -11,6 +11,15 @@ import NoteEditor from "./NoteEditor";
 import AIChatPanel from "../ai-chat/AIChatPanel";
 import MobileLayout from "../mobile/MobileLayout";
 
+// Define the Note interface expected by NotesSidebar
+interface SidebarNote {
+  id: string;
+  title: string;
+  content: string;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
 const NotesEditor: React.FC = () => {
   const [selectedNoteId, setSelectedNoteId] = useState<string | null>(null);
   const [sidebarOpen, setSidebarOpen] = useState(true);
@@ -35,9 +44,15 @@ const NotesEditor: React.FC = () => {
   }
 
   // Convert notes array to Record format for NotesSidebar compatibility
-  const notesRecord: Record<string, Note> = {};
+  const notesRecord: Record<string, SidebarNote> = {};
   notes.forEach(note => {
-    notesRecord[note.id] = note;
+    notesRecord[note.id] = {
+      id: note.id,
+      title: note.title,
+      content: note.content,
+      createdAt: new Date(note.created_at),
+      updatedAt: new Date(note.updated_at)
+    };
   });
 
   const currentContent = currentNote?.content || '';
