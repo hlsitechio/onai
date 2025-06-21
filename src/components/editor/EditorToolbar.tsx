@@ -60,19 +60,25 @@ const EditorToolbar: React.FC<EditorToolbarProps> = ({
     }
   };
 
-  // Create a mock editor object for the toolbar components
+  // Create a proper mock editor object that matches the Tiptap editor interface
   const mockEditor = {
     isActive: (type: string, attrs?: any) => false,
     can: () => ({
       toggleBold: () => true,
-      toggleItalic: () =>true,
+      toggleItalic: () => true,
       toggleUnderline: () => true,
       toggleStrike: () => true,
       toggleBulletList: () => true,
       toggleOrderedList: () => true,
       toggleTaskList: () => true,
       undo: () => true,
-      redo: () => true
+      redo: () => true,
+      chain: () => ({
+        focus: () => ({
+          undo: () => ({ run: () => true }),
+          redo: () => ({ run: () => true })
+        })
+      })
     }),
     chain: () => ({
       focus: () => ({
@@ -81,10 +87,13 @@ const EditorToolbar: React.FC<EditorToolbarProps> = ({
         toggleUnderline: () => ({ run: () => execCommand('underline') }),
         toggleStrike: () => ({ run: () => execCommand('strikethrough') }),
         toggleCode: () => ({ run: () => execCommand('code') }),
+        toggleSuperscript: () => ({ run: () => execCommand('superscript') }),
+        toggleSubscript: () => ({ run: () => execCommand('subscript') }),
         toggleHeading: (attrs: any) => ({ run: () => execCommand('formatBlock', `h${attrs.level}`) }),
         setParagraph: () => ({ run: () => execCommand('formatBlock', 'p') }),
         toggleBulletList: () => ({ run: () => execCommand('insertUnorderedList') }),
         toggleOrderedList: () => ({ run: () => execCommand('insertOrderedList') }),
+        toggleTaskList: () => ({ run: () => execCommand('insertHTML', '<input type="checkbox"> ') }),
         liftListItem: () => ({ run: () => {} }),
         setTextAlign: (align: string) => ({ run: () => execCommand(`justify${align.charAt(0).toUpperCase() + align.slice(1)}`) }),
         undo: () => ({ run: () => execCommand('undo') }),
