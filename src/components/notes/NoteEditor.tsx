@@ -87,8 +87,13 @@ const NoteEditor: React.FC<NoteEditorProps> = ({
           overflowWrap: 'break-word'
         }}
         suppressContentEditableWarning={true}
-        placeholder="Start writing your note..."
+        data-placeholder={!content ? "Start writing your note..." : undefined}
       />
+      {!content && (
+        <div className="absolute top-6 left-6 pointer-events-none text-slate-400 text-lg">
+          Start writing your note...
+        </div>
+      )}
     </div>
   );
 };
