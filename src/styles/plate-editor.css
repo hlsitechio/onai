@@ -1,0 +1,89 @@
+
+/* Plate Editor Styles */
+
+/* Editor content area */
+.slate-editor {
+  outline: none;
+  color: white;
+}
+
+.slate-p {
+  margin: 0.5rem 0;
+  line-height: 1.6;
+}
+
+.slate-h1 {
+  font-size: 2rem;
+  font-weight: 700;
+  line-height: 1.2;
+  margin: 1.5rem 0 1rem 0;
+  color: #ffffff;
+}
+
+.slate-h2 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  line-height: 1.3;
+  margin: 1.25rem 0 0.75rem 0;
+  color: #ffffff;
+}
+
+.slate-h3 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  line-height: 1.4;
+  margin: 1rem 0 0.5rem 0;
+  color: #ffffff;
+}
+
+/* List styling */
+.slate-ul, .slate-ol {
+  padding-left: 1.5rem;
+  margin: 0.5rem 0;
+}
+
+.slate-li {
+  margin: 0.25rem 0;
+}
+
+/* Link styling */
+.slate-a {
+  color: #8b5cf6;
+  text-decoration: underline;
+  transition: color 0.2s ease;
+}
+
+.slate-a:hover {
+  color: #a78bfa;
+}
+
+/* Bold, italic, underline */
+.slate-bold {
+  font-weight: 600;
+}
+
+.slate-italic {
+  font-style: italic;
+}
+
+.slate-underline {
+  text-decoration: underline;
+}
+
+/* Selection styling */
+.slate-selected {
+  background: rgba(139, 92, 246, 0.3);
+}
+
+/* Placeholder styling */
+.slate-placeholder {
+  color: #6b7280;
+  opacity: 0.5;
+  position: absolute;
+  pointer-events: none;
+}
+
+/* Focus styling */
+.slate-focused {
+  outline: none;
+}

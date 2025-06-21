@@ -1,7 +1,7 @@
 
 /* All @import statements must come first */
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
-@import './styles/tiptap-enhanced.css';
+@import './styles/plate-editor.css';
 @import './styles/mobile.css';
 @import './styles/focus-mode.css';
 @import './styles/globals.css';

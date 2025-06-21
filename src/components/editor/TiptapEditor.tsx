@@ -1,46 +1,33 @@
 
 import React from 'react';
-import OptimizedTiptapEditor from './OptimizedTiptapEditor';
-import LiveblocksEditorWrapper from './LiveblocksEditorWrapper';
+import PlateEditor from './PlateEditor';
 
 interface TiptapEditorProps {
   content: string;
   setContent: (content: string) => void;
   isFocusMode?: boolean;
   collaborative?: boolean;
-  enhanced?: boolean; // New prop for enhanced features without collaboration
+  enhanced?: boolean;
   roomId?: string;
 }
 
 const TiptapEditor: React.FC<TiptapEditorProps> = ({ 
+  content,
+  setContent,
+  isFocusMode = false,
+  // Ignoring collaborative features for now as we're migrating to Plate
   collaborative = false,
   enhanced = false,
-  roomId,
-  ...props 
+  roomId
 }) => {
-  // If collaborative mode is enabled, use Liveblocks wrapper
-  if (collaborative) {
-    return (
-      <LiveblocksEditorWrapper
-        {...props}
-        roomId={roomId}
-      />
-    );
-  }
-
-  // If enhanced mode is enabled, use enhanced wrapper without collaboration
-  if (enhanced) {
-    return (
-      <LiveblocksEditorWrapper
-        {...props}
-        roomId={roomId}
-        enhanced={true}
-      />
-    );
-  }
-
-  // Otherwise, use the standard editor
-  return <OptimizedTiptapEditor {...props} />;
+  // Use Plate editor for all modes now
+  return (
+    <PlateEditor
+      content={content}
+      setContent={setContent}
+      isFocusMode={isFocusMode}
+    />
+  );
 };
 
 export default TiptapEditor;
