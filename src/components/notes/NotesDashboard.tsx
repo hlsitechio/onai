@@ -1,7 +1,6 @@
 
 import React from 'react';
 import { useAuth } from '@/contexts/AuthContext';
-import NotesSidebar from './NotesSidebar';
 import NotesEditor from './NotesEditor';
 import UserMenu from '@/components/UserMenu';
 import ErrorBoundary from '@/components/ErrorBoundary';
@@ -70,19 +69,8 @@ const NotesDashboard: React.FC = () => {
             </div>
           </div>
 
-          {/* Main Content */}
+          {/* Main Content - NotesEditor handles everything including sidebar */}
           <div className="flex w-full pt-16">
-            <ErrorBoundary fallback={
-              <div className="w-80 bg-black/20 backdrop-blur-sm border-r border-white/10 p-4 flex items-center justify-center">
-                <div className="text-center">
-                  <AlertCircle className="h-8 w-8 text-red-400 mx-auto mb-2" />
-                  <p className="text-gray-400 text-sm">Sidebar error</p>
-                </div>
-              </div>
-            }>
-              <NotesSidebar />
-            </ErrorBoundary>
-            
             <ErrorBoundary fallback={
               <div className="flex-1 flex items-center justify-center bg-black/10">
                 <div className="text-center">
