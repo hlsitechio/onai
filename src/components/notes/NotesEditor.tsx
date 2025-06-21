@@ -1,11 +1,13 @@
+
 import React, { useState, useEffect } from 'react';
 import { useNotesManager } from '@/hooks/useNotesManager';
 import { useFocusModeManager } from '@/hooks/useFocusModeManager';
 import { useDeviceDetection } from '@/hooks/useDeviceDetection';
-import TiptapEditor from '../editor/TiptapEditor';
+import PlateEditor from '../editor/PlateEditor';
 import MobileLayout from '../mobile/MobileLayout';
-import { Loader2, PenTool } from 'lucide-react';
+import { Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+
 const NotesEditor: React.FC = () => {
   const [content, setContent] = useState('');
   const {
@@ -15,7 +17,6 @@ const NotesEditor: React.FC = () => {
     isFocusMode
   } = useFocusModeManager();
   const {
-    notes,
     currentNote,
     setCurrentNote,
     loading,
@@ -47,27 +48,43 @@ const NotesEditor: React.FC = () => {
   if (isMobile) {
     return <MobileLayout />;
   }
+  
   if (loading) {
-    return <div className="flex-1 flex items-center justify-center bg-black/10">
+    return (
+      <div className="flex-1 flex items-center justify-center bg-black/10">
         <div className="text-center">
           <Loader2 className="h-8 w-8 animate-spin text-noteflow-400 mx-auto mb-4" />
           <p className="text-gray-400">Loading editor...</p>
         </div>
-      </div>;
+      </div>
+    );
   }
 
-  // Empty state when no note is selected - now shows clean interface
+  // Empty state when no note is selected
   if (!currentNote) {
-    return <div className="flex-1 flex items-center justify-center bg-black/10">
+    return (
+      <div className="flex-1 flex items-center justify-center bg-black/10">
         <div className="text-center max-w-md px-6">
-          
-          
-          
+          {/* Empty state content could be added here */}
         </div>
-      </div>;
+      </div>
+    );
   }
-  return <div className={cn("flex-1 flex flex-col transition-all duration-300 ease-in-out", "bg-gradient-to-br from-[#03010a] to-[#0a0518]", "rounded-lg border border-white/5 overflow-hidden", "shadow-[0_8px_30px_rgb(0,0,0,0.4)]")}>
-      <TiptapEditor content={content} setContent={setContent} isFocusMode={isFocusMode} />
-    </div>;
+  
+  return (
+    <div className={cn(
+      "flex-1 flex flex-col transition-all duration-300 ease-in-out",
+      "bg-gradient-to-br from-[#03010a] to-[#0a0518]",
+      "rounded-lg border border-white/5 overflow-hidden",
+      "shadow-[0_8px_30px_rgb(0,0,0,0.4)]"
+    )}>
+      <PlateEditor
+        content={content}
+        setContent={setContent}
+        isFocusMode={isFocusMode}
+      />
+    </div>
+  );
 };
+
 export default NotesEditor;

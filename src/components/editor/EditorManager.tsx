@@ -7,7 +7,7 @@ import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from '../ui/resi
 import SidebarPanel from './SidebarPanel';
 import NotesSidebar from '../NotesSidebar';
 import AISidebar from '../notes/AISidebar';
-import TiptapEditor from './TiptapEditor';
+import PlateEditor from './PlateEditor';
 import EditorToolbar from './EditorToolbar';
 import UserMenu from '@/components/UserMenu';
 import { cn } from '@/lib/utils';
@@ -351,7 +351,7 @@ const EditorManager: React.FC = () => {
 
                 {/* Main Editor Area */}
                 <div className="flex-1 relative overflow-hidden">
-                  <TiptapEditor
+                  <PlateEditor
                     content={content}
                     setContent={setContent}
                     isFocusMode={isFocusMode}
@@ -424,7 +424,7 @@ const EditorManager: React.FC = () => {
 
                   {/* Main Editor Area */}
                   <div className="flex-1 relative overflow-hidden">
-                    <TiptapEditor
+                    <PlateEditor
                       content={content}
                       setContent={setContent}
                       isFocusMode={isFocusMode}

@@ -47,11 +47,41 @@ const MobileEditor: React.FC<MobileEditorProps> = ({
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
+    // Basic keyboard shortcuts
+    if (e.ctrlKey || e.metaKey) {
+      switch (e.key) {
+        case 'b':
+          e.preventDefault();
+          document.execCommand('bold', false);
+          break;
+        case 'i':
+          e.preventDefault();
+          document.execCommand('italic', false);
+          break;
+        case 'u':
+          e.preventDefault();
+          document.execCommand('underline', false);
+          break;
+      }
+    }
+
+    // Handle Enter key for better line breaks
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      document.execCommand('insertHTML', false, '<br><br>');
+    }
+
     // Prevent default tab behavior and insert spaces instead
     if (e.key === 'Tab') {
       e.preventDefault();
       document.execCommand('insertText', false, '    ');
     }
+  };
+
+  const handlePaste = (e: React.ClipboardEvent) => {
+    e.preventDefault();
+    const text = e.clipboardData.getData('text/plain');
+    document.execCommand('insertText', false, text);
   };
 
   const handleTextExtracted = (handwrittenText: string) => {
@@ -104,10 +134,11 @@ const MobileEditor: React.FC<MobileEditorProps> = ({
               contentEditable
               onInput={handleInput}
               onKeyDown={handleKeyDown}
+              onPaste={handlePaste}
               className={cn(
                 "flex-1 p-4 outline-none bg-transparent",
                 "prose prose-sm max-w-none dark:prose-invert",
-                "focus:ring-0 focus:outline-none",
+                "focus:ring-0 focus:outline-none leading-relaxed",
                 !content && "text-muted-foreground"
               )}
               style={{
@@ -116,6 +147,7 @@ const MobileEditor: React.FC<MobileEditorProps> = ({
                 overflowWrap: 'break-word'
               }}
               suppressContentEditableWarning={true}
+              data-placeholder={placeholder}
             />
             {!content && (
               <div className="absolute top-4 left-4 pointer-events-none">
