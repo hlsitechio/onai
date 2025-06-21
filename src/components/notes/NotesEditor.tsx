@@ -66,10 +66,10 @@ const NotesEditor: React.FC = () => {
           <>
             <ResizablePanel 
               id="notes-sidebar"
-              defaultSize={25} 
-              minSize={15} 
-              maxSize={45}
-              collapsible={false}
+              defaultSize={20} 
+              minSize={10} 
+              maxSize={60}
+              collapsible={true}
               className="min-w-0"
             >
               <NotesSidebar
@@ -99,7 +99,7 @@ const NotesEditor: React.FC = () => {
         {/* Main Editor Area */}
         <ResizablePanel 
           id="main-editor"
-          minSize={30}
+          minSize={20}
           className="flex flex-col"
         >
           {/* Top Bar */}
@@ -151,10 +151,10 @@ const NotesEditor: React.FC = () => {
             <ResizableHandle withHandle={true} />
             <ResizablePanel 
               id="ai-chat-panel"
-              defaultSize={25} 
+              defaultSize={30} 
               minSize={15} 
-              maxSize={50}
-              collapsible={false}
+              maxSize={70}
+              collapsible={true}
               className="min-w-0"
             >
               <div className="h-full bg-black/20 border-l border-white/10">
