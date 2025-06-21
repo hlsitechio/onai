@@ -1,171 +1,312 @@
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useCallback } from 'react';
+import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
 import { 
-  saveNoteSecurely, 
-  getAllNotesSecurely, 
-  deleteNoteSecurely
-} from '@/utils/enhancedSupabaseStorage';
-import { checkContentSecurity } from '@/utils/securityValidation';
+  sanitizeInput, 
+  checkContentSecurity, 
+  checkRateLimit,
+  validateUserAuthentication,
+  logSecurityValidation,
+  validateContentWithDatabase
+} from '@/utils/securityValidation';
+import { logNoteAccess } from '@/utils/auditLogger';
 import { v4 as uuidv4 } from 'uuid';
 
+export interface SecureNote {
+  id: string;
+  title: string;
+  content: string;
+  created_at: string;
+  updated_at: string;
+  is_encrypted: boolean;
+  user_id?: string;
+}
+
 export function useSecureNotesManager() {
+  const { user } = useAuth();
   const { toast } = useToast();
-  const [content, setContent] = useState<string>('');
-  const [lastSaved, setLastSaved] = useState<Date | null>(null);
-  const [currentNoteId, setCurrentNoteId] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [allNotes, setAllNotes] = useState<Record<string, string>>({});
+  const [isLoading, setIsLoading] = useState(false);
 
-  // Load notes with security validation
-  useEffect(() => {
-    const loadSavedNotes = async () => {
-      setIsLoading(true);
-      try {
-        const notes = await getAllNotesSecurely();
-        setAllNotes(notes);
-        
-        const noteIds = Object.keys(notes);
-        if (noteIds.length > 0) {
-          const mostRecentId = noteIds[0];
-          setContent(notes[mostRecentId]);
-          setCurrentNoteId(mostRecentId);
-        }
-      } catch (error) {
-        console.error('Error loading notes:', error);
-        toast({
-          title: 'Error Loading Notes',
-          description: 'There was an error loading your notes. Please try again.',
-          variant: 'destructive',
-        });
-      } finally {
-        setIsLoading(false);
-      }
-    };
+  const saveNoteSecurely = useCallback(async (
+    noteId: string, 
+    content: string,
+    isEncrypted: boolean = false
+  ): Promise<{ success: boolean; error?: string }> => {
+    setIsLoading(true);
     
-    loadSavedNotes();
-  }, [toast]);
-
-  // Save note with enhanced security
-  const handleSave = useCallback(async () => {
     try {
-      // Validate content before saving
-      const securityCheck = checkContentSecurity(content);
+      // Enhanced authentication validation
+      const authResult = await validateUserAuthentication();
+      if (!authResult.isAuthenticated) {
+        await logSecurityValidation('auth_failure', { 
+          action: 'save_note',
+          note_id: noteId 
+        });
+        return { 
+          success: false, 
+          error: authResult.error || "User not authenticated. Please sign in to save notes." 
+        };
+      }
+
+      // Enhanced rate limiting
+      const rateLimitOk = await checkRateLimit('save_note', 30);
+      if (!rateLimitOk) {
+        await logSecurityValidation('rate_limit_exceeded', { 
+          action: 'save_note',
+          note_id: noteId 
+        });
+        return {
+          success: false,
+          error: 'Rate limit exceeded. Please wait before saving again.'
+        };
+      }
+
+      // Enhanced content validation and sanitization
+      const sanitizedContent = sanitizeInput(content, { 
+        maxLength: 1048576, // 1MB
+        allowHtml: false,
+        strictMode: true 
+      });
+      
+      const securityCheck = checkContentSecurity(sanitizedContent, { maxLength: 1048576 });
+      
       if (!securityCheck.isValid) {
-        toast({
-          title: 'Content Validation Failed',
-          description: securityCheck.error || 'Content contains invalid or unsafe elements',
-          variant: 'destructive',
+        await logSecurityValidation('content_blocked', {
+          action: 'save_note',
+          note_id: noteId,
+          reason: securityCheck.error,
+          flags: securityCheck.flags
         });
-        return;
+        return {
+          success: false,
+          error: securityCheck.error || 'Content validation failed'
+        };
       }
 
-      const noteId = currentNoteId || uuidv4();
-      const result = await saveNoteSecurely(noteId, content, true);
+      // Additional database-level validation
+      const isValidContent = await validateContentWithDatabase(sanitizedContent);
+      if (!isValidContent) {
+        return {
+          success: false,
+          error: 'Content failed security validation'
+        };
+      }
+
+      // Generate a secure title from the content
+      const title = sanitizedContent
+        .split('\n')[0]
+        .replace(/[<>]/g, '') // Remove any remaining angle brackets
+        .substring(0, 50)
+        .trim() || 'Untitled Note';
       
-      if (!result.success) {
-        throw new Error(result.error);
+      const noteData = {
+        id: noteId,
+        title: sanitizeInput(title, { maxLength: 100, strictMode: true }),
+        content: sanitizedContent,
+        updated_at: new Date().toISOString(),
+        is_encrypted: isEncrypted,
+        user_id: authResult.userId!
+      };
+
+      // Check if the note already exists
+      const { data: existingNote, error: checkError } = await supabase
+        .from('notes')
+        .select('id')
+        .eq('id', noteId)
+        .eq('user_id', authResult.userId!)
+        .maybeSingle();
+      
+      if (checkError) {
+        throw checkError;
       }
       
-      setCurrentNoteId(noteId);
-      setLastSaved(new Date());
+      // Insert or update based on existence
+      let result;
+      if (existingNote) {
+        // Update existing note
+        result = await supabase
+          .from('notes')
+          .update({
+            title: noteData.title,
+            content: noteData.content,
+            updated_at: noteData.updated_at,
+            is_encrypted: noteData.is_encrypted
+          })
+          .eq('id', noteId)
+          .eq('user_id', authResult.userId!);
+        
+        // Log the update
+        await logNoteAccess(noteId, 'update');
+      } else {
+        // Create new note
+        result = await supabase
+          .from('notes')
+          .insert({
+            ...noteData,
+            created_at: new Date().toISOString()
+          });
+        
+        // Log the creation
+        await logNoteAccess(noteId, 'create');
+      }
       
-      // Refresh notes list
-      const updatedNotes = await getAllNotesSecurely();
-      setAllNotes(updatedNotes);
+      if (result.error) {
+        throw result.error;
+      }
       
-      toast({
-        title: 'Note Saved Successfully',
-        description: 'Your note has been securely saved to the cloud',
-      });
+      return { success: true };
     } catch (error) {
-      console.error('Error saving note:', error);
-      toast({
-        title: 'Save Failed',
-        description: 'There was an error saving your note. Please try again.',
-        variant: 'destructive',
+      console.error("Error saving note securely:", error);
+      
+      // Log the error for security monitoring
+      await logSecurityValidation('auth_failure', {
+        action: 'save_note_error',
+        note_id: noteId,
+        error: error instanceof Error ? error.message : 'Unknown error'
       });
+      
+      return { 
+        success: false, 
+        error: error instanceof Error ? error.message : 'Unknown error saving note'
+      };
+    } finally {
+      setIsLoading(false);
     }
-  }, [content, currentNoteId, toast]);
+  }, []);
 
-  // Delete note with security checks
-  const handleDeleteNote = useCallback(async (noteId: string) => {
+  const getAllNotesSecurely = useCallback(async (): Promise<Record<string, string>> => {
     try {
-      const result = await deleteNoteSecurely(noteId);
+      // Enhanced authentication validation
+      const authResult = await validateUserAuthentication();
+      if (!authResult.isAuthenticated) {
+        console.warn("User not authenticated. Cannot retrieve notes.");
+        return {};
+      }
+
+      // Rate limiting for note retrieval
+      const rateLimitOk = await checkRateLimit('get_notes', 100);
+      if (!rateLimitOk) {
+        console.warn("Rate limit exceeded for note retrieval.");
+        return {};
+      }
+
+      const { data, error } = await supabase
+        .from('notes')
+        .select('id, content, is_encrypted')
+        .eq('user_id', authResult.userId!)
+        .order('updated_at', { ascending: false });
       
-      if (!result.success) {
-        throw new Error(result.error);
+      if (error) {
+        throw error;
       }
       
-      // Remove from local storage if it's the current note
-      if (currentNoteId === noteId) {
-        setContent('');
-        setCurrentNoteId(null);
+      if (!data || data.length === 0) {
+        return {};
       }
       
-      // Refresh notes list
-      const updatedNotes = await getAllNotesSecurely();
-      setAllNotes(updatedNotes);
+      // Process notes
+      const notesMap: Record<string, string> = {};
       
-      toast({
-        title: 'Note Deleted',
-        description: 'The note has been permanently deleted.',
-      });
+      for (const note of data) {
+        try {
+          let content = note.content;
+          
+          // Additional security check on content
+          const securityCheck = checkContentSecurity(content);
+          if (!securityCheck.isValid) {
+            console.warn(`Security check failed for note ${note.id}:`, securityCheck.error);
+            content = 'Note content blocked due to security concerns.';
+          }
+          
+          notesMap[note.id] = content;
+          
+          // Log note access
+          await logNoteAccess(note.id, 'read');
+        } catch (processError) {
+          console.error(`Error processing note ${note.id}:`, processError);
+          // Skip this note if processing fails
+        }
+      }
       
-      return true;
+      return notesMap;
     } catch (error) {
-      console.error('Error deleting note:', error);
-      toast({
-        title: 'Delete Failed',
-        description: 'There was an error deleting the note. Please try again.',
-        variant: 'destructive',
-      });
-      return false;
+      console.error("Error getting notes securely:", error);
+      return {};
     }
-  }, [currentNoteId, toast]);
+  }, []);
 
-  // Load a specific note with security validation
-  const handleLoadNote = useCallback((noteId: string, noteContent: string) => {
-    const securityCheck = checkContentSecurity(noteContent);
-    if (!securityCheck.isValid) {
-      toast({
-        title: 'Security Warning',
-        description: 'This note contains potentially unsafe content and cannot be loaded.',
-        variant: 'destructive',
-      });
-      return;
+  const deleteNoteSecurely = useCallback(async (noteId: string): Promise<{ success: boolean; error?: string }> => {
+    try {
+      // Enhanced authentication validation
+      const authResult = await validateUserAuthentication();
+      if (!authResult.isAuthenticated) {
+        return { 
+          success: false, 
+          error: authResult.error || "User not authenticated. Please sign in to delete notes." 
+        };
+      }
+
+      // Rate limiting for deletions
+      const rateLimitOk = await checkRateLimit('delete_note', 20); // 20 deletions per hour
+      if (!rateLimitOk) {
+        await logSecurityValidation('rate_limit_exceeded', { 
+          action: 'delete_note',
+          note_id: noteId 
+        });
+        return {
+          success: false,
+          error: 'Rate limit exceeded. Please wait before deleting again.'
+        };
+      }
+
+      // Verify note ownership before deletion
+      const { data: noteCheck, error: checkError } = await supabase
+        .from('notes')
+        .select('id')
+        .eq('id', noteId)
+        .eq('user_id', authResult.userId!)
+        .maybeSingle();
+
+      if (checkError) {
+        throw checkError;
+      }
+
+      if (!noteCheck) {
+        return {
+          success: false,
+          error: "Note not found or you don't have permission to delete it"
+        };
+      }
+
+      const { error } = await supabase
+        .from('notes')
+        .delete()
+        .eq('id', noteId)
+        .eq('user_id', authResult.userId!);
+      
+      if (error) {
+        throw error;
+      }
+      
+      // Log the deletion
+      await logNoteAccess(noteId, 'delete');
+      
+      return { success: true };
+    } catch (error) {
+      console.error("Error deleting note securely:", error);
+      return { 
+        success: false, 
+        error: error instanceof Error ? error.message : 'Unknown error deleting note'
+      };
     }
-    
-    setContent(noteContent);
-    setCurrentNoteId(noteId);
-    
-    toast({
-      title: 'Note Loaded',
-      description: 'The note has been securely loaded into the editor.',
-    });
-  }, [toast]);
-
-  // Create a new note
-  const createNewNote = useCallback(() => {
-    setContent('');
-    setCurrentNoteId(null);
-    
-    toast({
-      title: 'New Note Created',
-      description: 'Start typing to create your new secure note.',
-    });
-  }, [toast]);
+  }, []);
 
   return {
-    content,
-    setContent,
-    lastSaved,
-    handleSave,
-    handleLoadNote,
-    handleDeleteNote,
-    currentNoteId,
-    isLoading,
-    allNotes,
-    createNewNote
+    saveNoteSecurely,
+    getAllNotesSecurely,
+    deleteNoteSecurely,
+    isLoading
   };
 }

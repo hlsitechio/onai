@@ -84,7 +84,7 @@ export const checkContentSecurity = (
     };
   }
 
-  // XSS detection patterns
+  // XSS detection patterns - enhanced from database function
   const dangerousPatterns = [
     { pattern: /<script[^>]*>.*?<\/script>/gi, flag: 'script_tag' },
     { pattern: /javascript:/gi, flag: 'javascript_protocol' },
@@ -148,7 +148,7 @@ export const checkRateLimit = async (
 };
 
 /**
- * Validate user authentication status
+ * Validate user authentication status with enhanced checks
  */
 export const validateUserAuthentication = async (): Promise<{
   isAuthenticated: boolean;
@@ -172,6 +172,14 @@ export const validateUserAuthentication = async (): Promise<{
       };
     }
 
+    // Enhanced validation - check if user is verified
+    if (!user.email_confirmed_at) {
+      return {
+        isAuthenticated: false,
+        error: 'Email not verified. Please check your email for verification link.'
+      };
+    }
+
     return { 
       isAuthenticated: true, 
       userId: user.id 
@@ -185,10 +193,10 @@ export const validateUserAuthentication = async (): Promise<{
 };
 
 /**
- * Log security validation events
+ * Log security validation events with enhanced metadata
  */
 export const logSecurityValidation = async (
-  eventType: 'content_blocked' | 'rate_limit_exceeded' | 'auth_failure',
+  eventType: 'content_blocked' | 'rate_limit_exceeded' | 'auth_failure' | 'xss_attempt' | 'injection_attempt',
   details: Record<string, any>
 ): Promise<void> => {
   try {
@@ -202,7 +210,9 @@ export const logSecurityValidation = async (
         new_values: {
           ...details,
           timestamp: new Date().toISOString(),
-          user_agent: navigator.userAgent
+          user_agent: navigator.userAgent,
+          url: window.location.href,
+          referrer: document.referrer || null
         }
       });
 
@@ -211,5 +221,40 @@ export const logSecurityValidation = async (
     }
   } catch (error) {
     console.error('Error logging security validation:', error);
+  }
+};
+
+/**
+ * Enhanced content validation using database function
+ */
+export const validateContentWithDatabase = async (content: string): Promise<boolean> => {
+  try {
+    const { data, error } = await supabase.rpc('validate_note_content', {
+      content
+    });
+
+    if (error) {
+      console.error('Database content validation error:', error);
+      // Log the attempt
+      await logSecurityValidation('injection_attempt', {
+        content_preview: content.substring(0, 100),
+        validation_error: error.message
+      });
+      return false;
+    }
+
+    if (!data) {
+      // Log blocked content
+      await logSecurityValidation('content_blocked', {
+        content_preview: content.substring(0, 100),
+        reason: 'Database validation failed'
+      });
+      return false;
+    }
+
+    return true;
+  } catch (error) {
+    console.error('Error validating content with database:', error);
+    return false;
   }
 };
