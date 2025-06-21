@@ -1,18 +1,11 @@
 
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState } from 'react';
+import { Button } from '@/components/ui/button';
+import { Textarea } from '@/components/ui/textarea';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Sparkles, Send, Loader2, X } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { callGeminiAI, getUsageStats } from '@/utils/aiUtils';
-import ChatHeader from './ChatHeader';
-import ChatMessageList from './ChatMessageList';
-import ChatInput from './ChatInput';
-
-interface ChatMessage {
-  id: string;
-  role: 'user' | 'assistant';
-  content: string;
-  timestamp: Date;
-  isLoading?: boolean;
-}
+import { callGeminiAI } from '@/utils/aiUtils';
 
 interface AIChatPanelProps {
   onClose?: () => void;
@@ -20,169 +13,139 @@ interface AIChatPanelProps {
 }
 
 const AIChatPanel: React.FC<AIChatPanelProps> = ({ onClose, onApplyToEditor }) => {
-  const [messages, setMessages] = useState<ChatMessage[]>([
-    {
-      id: '1',
-      role: 'assistant',
-      content: 'Hello! I\'m your AI writing assistant powered by Gemini 2.5 Flash. I can help you with:\n\n• Writing and editing\n• Content analysis and improvement\n• Brainstorming ideas\n• Text summarization\n• Translation\n• Grammar and style corrections\n• And much more!\n\nWhat would you like to work on today?',
-      timestamp: new Date()
-    }
-  ]);
-  const [inputValue, setInputValue] = useState('');
-  const [isProcessing, setIsProcessing] = useState(false);
-  const [copiedId, setCopiedId] = useState<string | null>(null);
-  const [usageStats] = useState(() => getUsageStats());
-  const messagesEndRef = useRef<HTMLDivElement>(null);
-  const inputRef = useRef<HTMLInputElement>(null);
+  const [input, setInput] = useState('');
+  const [response, setResponse] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
 
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  };
-
-  useEffect(() => {
-    scrollToBottom();
-  }, [messages]);
-
-  useEffect(() => {
-    inputRef.current?.focus();
-  }, []);
-
-  const handleSendMessage = async () => {
-    if (!inputValue.trim() || isProcessing) return;
-
-    const userMessage: ChatMessage = {
-      id: Date.now().toString(),
-      role: 'user',
-      content: inputValue,
-      timestamp: new Date()
-    };
-
-    const loadingMessage: ChatMessage = {
-      id: (Date.now() + 1).toString(),
-      role: 'assistant',
-      content: '',
-      timestamp: new Date(),
-      isLoading: true
-    };
-
-    setMessages(prev => [...prev, userMessage, loadingMessage]);
-    const currentInput = inputValue;
-    setInputValue('');
-    setIsProcessing(true);
-
-    try {
-      const conversationContext = messages
-        .slice(-6) // Last 6 messages for context
-        .map(m => `${m.role}: ${m.content}`)
-        .join('\n');
-      
-      const fullPrompt = `Previous conversation:\n${conversationContext}\n\nUser: ${currentInput}`;
-      
-      const response = await callGeminiAI(
-        fullPrompt,
-        '',
-        'chat'
-      );
-
-      setMessages(prev => prev.map(msg => 
-        msg.id === loadingMessage.id 
-          ? { ...msg, content: response, isLoading: false }
-          : msg
-      ));
-
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!input.trim()) {
       toast({
-        title: 'Response generated',
-        description: 'AI has responded to your message.',
+        title: "Empty message",
+        description: "Please enter a message for the AI assistant.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      const result = await callGeminiAI(input, '', 'chat');
+      setResponse(result);
+      toast({
+        title: "AI Response Generated",
+        description: "The AI has processed your request.",
       });
     } catch (error) {
-      console.error('Chat error:', error);
-      setMessages(prev => prev.filter(msg => msg.id !== loadingMessage.id));
+      console.error('AI Chat error:', error);
       toast({
-        title: 'Error',
-        description: 'Failed to get AI response. Please try again.',
-        variant: 'destructive'
+        title: "AI Error",
+        description: error instanceof Error ? error.message : "Failed to get AI response",
+        variant: "destructive"
       });
     } finally {
-      setIsProcessing(false);
-      inputRef.current?.focus();
+      setIsLoading(false);
     }
   };
 
-  const handleKeyPress = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault();
-      handleSendMessage();
-    }
-  };
-
-  const copyToClipboard = async (content: string, messageId: string) => {
-    try {
-      await navigator.clipboard.writeText(content);
-      setCopiedId(messageId);
-      setTimeout(() => setCopiedId(null), 2000);
+  const handleApplyToEditor = () => {
+    if (response && onApplyToEditor) {
+      onApplyToEditor(response);
       toast({
-        title: 'Copied',
-        description: 'Message copied to clipboard.',
-      });
-    } catch (error) {
-      toast({
-        title: 'Copy failed',
-        description: 'Failed to copy message.',
-        variant: 'destructive'
-      });
-    }
-  };
-
-  const applyToEditor = (content: string) => {
-    if (onApplyToEditor) {
-      onApplyToEditor(content);
-      toast({
-        title: 'Applied to editor',
-        description: 'Content has been added to your note.',
+        title: "Applied to Editor",
+        description: "AI response has been added to your note.",
       });
     }
   };
 
   const clearChat = () => {
-    setMessages([
-      {
-        id: '1',
-        role: 'assistant',
-        content: 'Chat cleared! How can I help you today?',
-        timestamp: new Date()
-      }
-    ]);
-    toast({
-      title: 'Chat cleared',
-      description: 'All messages have been removed.',
-    });
+    setInput('');
+    setResponse('');
   };
 
   return (
-    <div className="flex flex-col h-full">
-      <ChatHeader 
-        usageStats={usageStats}
-        onClearChat={clearChat}
-      />
+    <div className="h-full flex flex-col p-4 space-y-4">
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <Sparkles className="h-5 w-5 text-noteflow-400" />
+          <h3 className="text-lg font-semibold text-white">AI Assistant</h3>
+        </div>
+        {onClose && (
+          <Button variant="ghost" size="sm" onClick={onClose}>
+            <X className="h-4 w-4" />
+          </Button>
+        )}
+      </div>
 
-      <ChatMessageList
-        messages={messages}
-        copiedId={copiedId}
-        onCopyMessage={copyToClipboard}
-        onApplyToEditor={applyToEditor}
-        messagesEndRef={messagesEndRef}
-      />
+      <form onSubmit={handleSubmit} className="space-y-3">
+        <Textarea
+          value={input}
+          onChange={(e) => setInput(e.target.value)}
+          placeholder="Ask the AI anything... (e.g., 'Help me write a blog post about React')"
+          className="bg-black/30 border-white/10 text-white min-h-[80px]"
+          disabled={isLoading}
+        />
+        
+        <div className="flex gap-2">
+          <Button 
+            type="submit" 
+            disabled={isLoading || !input.trim()}
+            className="bg-noteflow-500 hover:bg-noteflow-600 text-white"
+          >
+            {isLoading ? (
+              <>
+                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                Processing...
+              </>
+            ) : (
+              <>
+                <Send className="h-4 w-4 mr-2" />
+                Send
+              </>
+            )}
+          </Button>
+          
+          <Button 
+            type="button" 
+            variant="outline" 
+            onClick={clearChat}
+            className="border-white/20 text-white hover:bg-white/10"
+          >
+            Clear
+          </Button>
+        </div>
+      </form>
 
-      <ChatInput
-        inputValue={inputValue}
-        isProcessing={isProcessing}
-        usageStats={usageStats}
-        onInputChange={setInputValue}
-        onSendMessage={handleSendMessage}
-        onKeyPress={handleKeyPress}
-        inputRef={inputRef}
-      />
+      {response && (
+        <Card className="bg-black/30 border-white/10 flex-1">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm text-noteflow-400">AI Response</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-white text-sm whitespace-pre-wrap mb-4">
+              {response}
+            </div>
+            
+            {onApplyToEditor && (
+              <Button 
+                onClick={handleApplyToEditor}
+                size="sm"
+                className="bg-noteflow-500 hover:bg-noteflow-600 text-white"
+              >
+                Apply to Editor
+              </Button>
+            )}
+          </CardContent>
+        </Card>
+      )}
+
+      {!response && !isLoading && (
+        <div className="flex-1 flex items-center justify-center text-slate-400 text-sm">
+          Ask the AI assistant anything to get started
+        </div>
+      )}
     </div>
   );
 };
