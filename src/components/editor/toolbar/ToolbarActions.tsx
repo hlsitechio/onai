@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Button } from '@/components/ui/button';
-import { Save, Sparkles } from 'lucide-react';
+import { Sparkles } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface ToolbarActionsProps {
@@ -35,28 +35,6 @@ const ToolbarActions: React.FC<ToolbarActionsProps> = ({
       >
         <Sparkles className="h-4 w-4 mr-1" />
         AI
-      </Button>
-      
-      <Button
-        onClick={handleSave}
-        size="sm"
-        disabled={saving}
-        className={cn(
-          isMobile ? "px-3 h-9" : "px-4 h-9",
-          "bg-purple-600 hover:bg-purple-700 text-white transition-colors shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
-        )}
-      >
-        {saving ? (
-          <>
-            <div className="animate-spin h-4 w-4 mr-1 border-2 border-white/30 border-t-white rounded-full" />
-            {isMobile ? "Saving..." : "Saving to Supabase..."}
-          </>
-        ) : (
-          <>
-            <Save className="h-4 w-4 mr-1" />
-            {isMobile ? "Save" : "Save to Supabase"}
-          </>
-        )}
       </Button>
     </div>
   );

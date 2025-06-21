@@ -90,6 +90,8 @@ const EditorNormalLayout: React.FC<EditorNormalLayoutProps> = ({
                     onRenameNote={(noteId: string, newTitle: string) => {
                       console.log('Rename note:', noteId, newTitle);
                     }}
+                    onSaveNote={handleSave}
+                    saving={saving}
                   />
                 </NotesSidebarContainer>
               </ResizablePanel>

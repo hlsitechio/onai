@@ -2,18 +2,30 @@
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { Plus, FileText, Folder } from 'lucide-react';
+import { Save, FileText, Folder } from 'lucide-react';
 
 interface CreateMenuDropdownProps {
+  onSaveNote?: () => void;
   onCreateNote?: () => void;
   onCreateFolder?: () => void;
+  saving?: boolean;
 }
 
 const CreateMenuDropdown: React.FC<CreateMenuDropdownProps> = ({
+  onSaveNote,
   onCreateNote,
-  onCreateFolder
+  onCreateFolder,
+  saving = false
 }) => {
   const [isCreateMenuOpen, setIsCreateMenuOpen] = useState(false);
+
+  const handleSaveNote = () => {
+    console.log('Saving current note...');
+    setIsCreateMenuOpen(false);
+    if (onSaveNote) {
+      onSaveNote();
+    }
+  };
 
   const handleCreateNote = () => {
     console.log('Creating new note...');
@@ -38,9 +50,14 @@ const CreateMenuDropdown: React.FC<CreateMenuDropdownProps> = ({
           variant="ghost"
           size="sm"
           className="h-7 w-7 p-0 text-green-300 hover:text-green-200 hover:bg-green-500/20"
-          title="Create new..."
+          title="Save or create..."
+          disabled={saving}
         >
-          <Plus className="h-3 w-3" />
+          {saving ? (
+            <div className="animate-spin h-3 w-3 border-2 border-green-300/30 border-t-green-300 rounded-full" />
+          ) : (
+            <Save className="h-3 w-3" />
+          )}
         </Button>
       </PopoverTrigger>
       <PopoverContent 
@@ -51,13 +68,23 @@ const CreateMenuDropdown: React.FC<CreateMenuDropdownProps> = ({
       >
         <div className="flex flex-col gap-1">
           <Button
+            onClick={handleSaveNote}
+            variant="ghost"
+            size="sm"
+            className="justify-start text-white hover:bg-white/10 h-8"
+            disabled={saving}
+          >
+            <Save className="h-4 w-4 mr-2" />
+            {saving ? 'Saving to Supabase...' : 'Save to Supabase'}
+          </Button>
+          <Button
             onClick={handleCreateNote}
             variant="ghost"
             size="sm"
             className="justify-start text-white hover:bg-white/10 h-8"
           >
             <FileText className="h-4 w-4 mr-2" />
-            Create Note
+            Create New Note
           </Button>
           <Button
             onClick={handleCreateFolder}
