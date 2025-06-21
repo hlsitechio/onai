@@ -6,20 +6,33 @@ import { useNotesManager } from './useNotesManager';
 export const useCameraOCR = () => {
   const [isCameraOpen, setIsCameraOpen] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
+  const [ocrProgress, setOcrProgress] = useState(0);
   const { toast } = useToast();
   const { createNote } = useNotesManager();
 
   const extractTextWithTesseract = async (imageData: string): Promise<string> => {
     try {
       console.log('Starting OCR processing with Tesseract.js...');
+      setOcrProgress(0);
       
       const { createWorker } = await import('tesseract.js');
       const worker = await createWorker('eng');
+      
+      // Set up progress tracking
+      worker.setParameters({
+        logger: m => {
+          console.log('Tesseract progress:', m);
+          if (m.status === 'recognizing text' && m.progress !== undefined) {
+            setOcrProgress(Math.round(m.progress * 100));
+          }
+        }
+      });
       
       console.log('Processing image with OCR...');
       const { data: { text } } = await worker.recognize(imageData);
       
       await worker.terminate();
+      setOcrProgress(100);
       console.log('OCR completed, extracted text:', text);
       
       return text.trim();
@@ -35,9 +48,12 @@ export const useCameraOCR = () => {
 
   const closeCamera = () => {
     setIsCameraOpen(false);
+    setIsProcessing(false);
+    setOcrProgress(0);
   };
 
   const handlePhotoCapture = async (imageData: string) => {
+    console.log('Photo captured, starting OCR processing...');
     setIsProcessing(true);
     
     try {
@@ -47,11 +63,14 @@ export const useCameraOCR = () => {
       if (!extractedText || extractedText.length === 0) {
         toast({
           title: "No text found",
-          description: "No readable text was detected in the photo. Please try again.",
+          description: "No readable text was detected in the photo. Please try again with clearer text.",
           variant: "destructive"
         });
+        setIsProcessing(false);
         return;
       }
+
+      console.log('Text extracted successfully:', extractedText);
 
       // Create a new note with the extracted text
       const newNote = await createNote(
@@ -70,12 +89,15 @@ export const useCameraOCR = () => {
           title: "Note created successfully",
           description: `Extracted ${extractedText.length} characters and created a new note.`,
         });
+        
+        // Close camera after successful extraction
+        closeCamera();
       }
     } catch (error) {
       console.error('Camera OCR error:', error);
       toast({
         title: "Text extraction failed",
-        description: error.message || "Failed to extract text from the photo.",
+        description: error.message || "Failed to extract text from the photo. Please try again.",
         variant: "destructive"
       });
     } finally {
@@ -86,6 +108,7 @@ export const useCameraOCR = () => {
   return {
     isCameraOpen,
     isProcessing,
+    ocrProgress,
     openCamera,
     closeCamera,
     handlePhotoCapture

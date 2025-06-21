@@ -38,6 +38,7 @@ const TiptapEditor: React.FC<TiptapEditorProps> = ({
   const {
     isCameraOpen,
     isProcessing: isCameraProcessing,
+    ocrProgress,
     openCamera,
     closeCamera,
     handlePhotoCapture
@@ -171,6 +172,8 @@ const TiptapEditor: React.FC<TiptapEditorProps> = ({
         <OCRCameraCapture
           onPhotoCapture={handlePhotoCapture}
           onClose={closeCamera}
+          isProcessing={isCameraProcessing}
+          ocrProgress={ocrProgress}
         />
       )}
     </div>

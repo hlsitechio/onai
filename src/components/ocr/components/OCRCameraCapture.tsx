@@ -1,17 +1,21 @@
 
 import React, { useRef, useState, useCallback, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
-import { Camera, X, RotateCcw, Check } from "lucide-react";
+import { Camera, X, RotateCcw, Check, Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 interface OCRCameraCaptureProps {
   onPhotoCapture: (imageData: string) => void;
   onClose: () => void;
+  isProcessing?: boolean;
+  ocrProgress?: number;
 }
 
 const OCRCameraCapture: React.FC<OCRCameraCaptureProps> = ({
   onPhotoCapture,
-  onClose
+  onClose,
+  isProcessing = false,
+  ocrProgress = 0
 }) => {
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -86,10 +90,10 @@ const OCRCameraCapture: React.FC<OCRCameraCaptureProps> = ({
 
   const confirmPhoto = useCallback(() => {
     if (capturedPhoto) {
+      console.log('Confirming photo and starting OCR...');
       onPhotoCapture(capturedPhoto);
-      onClose();
     }
-  }, [capturedPhoto, onPhotoCapture, onClose]);
+  }, [capturedPhoto, onPhotoCapture]);
 
   // Initialize camera only once when component mounts
   useEffect(() => {
@@ -107,12 +111,15 @@ const OCRCameraCapture: React.FC<OCRCameraCaptureProps> = ({
     <div className="fixed inset-0 z-[9999] bg-black flex flex-col">
       {/* Header */}
       <div className="flex items-center justify-between p-4 bg-black/80 backdrop-blur-sm">
-        <h2 className="text-white font-medium">Capture Text</h2>
+        <h2 className="text-white font-medium">
+          {isProcessing ? 'Processing Text...' : 'Capture Text'}
+        </h2>
         <Button
           variant="ghost"
           size="sm"
           onClick={onClose}
           className="text-white hover:bg-white/10"
+          disabled={isProcessing}
         >
           <X className="h-5 w-5" />
         </Button>
@@ -141,11 +148,30 @@ const OCRCameraCapture: React.FC<OCRCameraCaptureProps> = ({
             </div>
           </>
         ) : (
-          <img
-            src={capturedPhoto}
-            alt="Captured text"
-            className="w-full h-full object-contain"
-          />
+          <div className="w-full h-full flex items-center justify-center">
+            <img
+              src={capturedPhoto}
+              alt="Captured text"
+              className="max-w-full max-h-full object-contain"
+            />
+            
+            {/* Processing Overlay */}
+            {isProcessing && (
+              <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
+                <div className="bg-white/10 backdrop-blur-sm rounded-lg p-6 text-center">
+                  <Loader2 className="h-8 w-8 animate-spin text-white mx-auto mb-4" />
+                  <p className="text-white mb-2">Extracting text...</p>
+                  <div className="w-48 bg-white/20 rounded-full h-2 mb-2">
+                    <div 
+                      className="bg-noteflow-500 h-2 rounded-full transition-all duration-300"
+                      style={{ width: `${ocrProgress}%` }}
+                    />
+                  </div>
+                  <p className="text-white/70 text-sm">{ocrProgress}%</p>
+                </div>
+              </div>
+            )}
+          </div>
         )}
         
         <canvas ref={canvasRef} className="hidden" />
@@ -169,6 +195,7 @@ const OCRCameraCapture: React.FC<OCRCameraCaptureProps> = ({
               onClick={retakePhoto}
               variant="outline"
               className="flex items-center gap-2 border-white/20 text-white hover:bg-white/10"
+              disabled={isProcessing}
             >
               <RotateCcw className="h-4 w-4" />
               Retake
@@ -176,9 +203,14 @@ const OCRCameraCapture: React.FC<OCRCameraCaptureProps> = ({
             <Button
               onClick={confirmPhoto}
               className="flex items-center gap-2 bg-noteflow-600 hover:bg-noteflow-700"
+              disabled={isProcessing}
             >
-              <Check className="h-4 w-4" />
-              Use Photo
+              {isProcessing ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <Check className="h-4 w-4" />
+              )}
+              {isProcessing ? 'Processing...' : 'Extract Text'}
             </Button>
           </div>
         )}
