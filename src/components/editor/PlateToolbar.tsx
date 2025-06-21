@@ -1,13 +1,11 @@
 
 import React from 'react';
-import { usePlateEditorState } from '@platejs/react';
+import { usePlateEditorState } from '@udecode/plate-common/react';
 import { 
-  toggleBold,
-  toggleItalic,
-  toggleUnderline,
+  toggleMark,
   insertNodes,
   isMarkActive 
-} from '@platejs/utils';
+} from '@udecode/plate-common';
 import { Button } from '@/components/ui/button';
 import { 
   Bold, 
@@ -43,17 +41,17 @@ const PlateToolbar: React.FC = () => {
 
   const handleToggleBold = (e: React.MouseEvent) => {
     e.preventDefault();
-    toggleBold(editor);
+    toggleMark(editor, { key: MARK_BOLD });
   };
   
   const handleToggleItalic = (e: React.MouseEvent) => {
     e.preventDefault();
-    toggleItalic(editor);
+    toggleMark(editor, { key: MARK_ITALIC });
   };
   
   const handleToggleUnderline = (e: React.MouseEvent) => {
     e.preventDefault();
-    toggleUnderline(editor);
+    toggleMark(editor, { key: MARK_UNDERLINE });
   };
 
   const insertHeading = (level: 1 | 2 | 3) => (e: React.MouseEvent) => {
