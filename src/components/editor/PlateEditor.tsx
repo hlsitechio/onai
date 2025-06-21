@@ -3,6 +3,7 @@ import React, { useMemo } from 'react';
 import {
   createPlateEditor,
   Plate,
+  PlateContent,
 } from '@udecode/plate/react';
 import {
   BasicElementsPlugin,
@@ -77,11 +78,8 @@ const PlateEditor: React.FC<PlateEditorProps> = ({
         )}
         
         <div className="flex-1 relative overflow-hidden">
-          <div
+          <PlateContent
             className="h-full overflow-y-auto px-4 py-2 prose prose-invert dark:prose-invert max-w-none outline-none min-h-[300px] focus:outline-none bg-transparent text-white"
-            data-plate-editable
-            contentEditable
-            suppressContentEditableWarning
             placeholder="Start writing your note..."
           />
         </div>
