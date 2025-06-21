@@ -3,8 +3,7 @@ import React, { useMemo } from 'react';
 import { 
   Plate,
   PlateContent,
-  createPlateEditor,
-  PlateProvider
+  createPlateEditor
 } from '@udecode/plate-common/react';
 import { 
   BasicElementsPlugin
@@ -48,29 +47,20 @@ const PlateEditor: React.FC<PlateEditorProps> = ({
   setContent,
   isFocusMode = false
 }) => {
-  const editor = useMemo(() => 
-    createPlateEditor({ 
-      plugins,
-      value: content ? JSON.parse(content) : [{ 
-        type: 'p', 
-        children: [{ text: '' }] 
-      }]
-    }), 
-    []
-  );
+  const initialValue = useMemo(() => {
+    return content ? JSON.parse(content) : [{ 
+      type: 'p', 
+      children: [{ text: '' }] 
+    }];
+  }, [content]);
 
   const handleChange = (value: any) => {
     setContent(JSON.stringify(value));
   };
 
-  const initialValue = content ? JSON.parse(content) : [{ 
-    type: 'p', 
-    children: [{ text: '' }] 
-  }];
-
   return (
     <div className="flex flex-col h-full bg-gradient-to-br from-[#03010a] to-[#0a0518] text-white">
-      <PlateProvider
+      <Plate
         plugins={plugins}
         initialValue={initialValue}
         onChange={handleChange}
@@ -82,14 +72,12 @@ const PlateEditor: React.FC<PlateEditorProps> = ({
         )}
         
         <div className="flex-1 relative overflow-hidden">
-          <Plate editor={editor}>
-            <PlateContent
-              className="h-full overflow-y-auto px-4 py-2 prose prose-invert dark:prose-invert max-w-none outline-none min-h-[300px] focus:outline-none bg-transparent text-white"
-              placeholder="Start writing your note..."
-            />
-          </Plate>
+          <PlateContent
+            className="h-full overflow-y-auto px-4 py-2 prose prose-invert dark:prose-invert max-w-none outline-none min-h-[300px] focus:outline-none bg-transparent text-white"
+            placeholder="Start writing your note..."
+          />
         </div>
-      </PlateProvider>
+      </Plate>
     </div>
   );
 };
