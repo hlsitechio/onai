@@ -3,7 +3,6 @@ import React, { useRef, useEffect, useState } from 'react';
 import { cn } from '@/lib/utils';
 import { useDeviceDetection } from '@/hooks/useDeviceDetection';
 import { useToolbarActions } from '@/hooks/useToolbarActions';
-import AnimatedPlaceholder from './AnimatedPlaceholder';
 
 interface UnifiedEditorProps {
   content: string;
@@ -101,18 +100,18 @@ const UnifiedEditor: React.FC<UnifiedEditorProps> = ({
 
   return (
     <div className={cn(
-      "flex-1 flex flex-col relative overflow-hidden",
+      "flex-1 flex flex-col relative h-full",
       "bg-gradient-to-br from-[#0a0a0f] via-[#0d0d14] to-[#0f0f18]",
-      isFocusMode && "bg-black",
-      "border-0 outline-none"
+      isFocusMode && "bg-black"
     )}>
-      {/* Enhanced editor container */}
+      {/* Main editor container */}
       <div className={cn(
-        "flex-1 relative overflow-auto",
+        "flex-1 relative",
         "scrollbar-thin scrollbar-track-transparent scrollbar-thumb-white/10",
-        isFocused && "ring-1 ring-purple-500/30"
+        "overflow-auto",
+        isFocused && "ring-1 ring-purple-500/20"
       )}>
-        {/* Main editor */}
+        {/* Content editable area */}
         <div
           ref={editorRef}
           contentEditable
@@ -122,7 +121,7 @@ const UnifiedEditor: React.FC<UnifiedEditorProps> = ({
           onKeyDown={handleKeyDown}
           onPaste={handlePaste}
           className={cn(
-            "w-full h-full outline-none border-none",
+            "w-full h-full min-h-full outline-none border-none",
             "text-white/90 leading-relaxed font-normal",
             "prose prose-lg prose-invert max-w-none",
             "prose-headings:text-white prose-p:text-white/90",
@@ -133,7 +132,6 @@ const UnifiedEditor: React.FC<UnifiedEditorProps> = ({
             "prose-ul:text-white/90 prose-ol:text-white/90",
             "prose-li:text-white/90",
             isMobile ? "p-4 text-base" : "p-8 text-lg",
-            "min-h-full",
             "focus:outline-none focus:ring-0"
           )}
           style={{
@@ -151,7 +149,7 @@ const UnifiedEditor: React.FC<UnifiedEditorProps> = ({
           <div className={cn(
             "absolute pointer-events-none select-none",
             isMobile ? "top-4 left-4" : "top-8 left-8",
-            "text-white/30 text-lg font-light"
+            "text-white/30 text-lg font-light z-10"
           )}>
             <div className="flex flex-col gap-2">
               <div className="flex items-center gap-2">
@@ -167,14 +165,14 @@ const UnifiedEditor: React.FC<UnifiedEditorProps> = ({
 
         {/* Focus mode indicator */}
         {isFocusMode && (
-          <div className="absolute top-4 right-4 text-purple-400 text-sm font-medium opacity-50">
+          <div className="absolute top-4 right-4 text-purple-400 text-sm font-medium opacity-50 z-10">
             Focus Mode
           </div>
         )}
 
-        {/* Writing stats (word count, etc.) */}
+        {/* Writing stats */}
         {!isEmpty && (
-          <div className="absolute bottom-4 right-4 text-white/30 text-xs font-mono">
+          <div className="absolute bottom-4 right-4 text-white/30 text-xs font-mono z-10">
             {(() => {
               const tempDiv = document.createElement('div');
               tempDiv.innerHTML = content;

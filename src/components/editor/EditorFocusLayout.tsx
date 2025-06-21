@@ -28,33 +28,26 @@ const EditorFocusLayout: React.FC<EditorFocusLayoutProps> = ({
   toggleFocusMode,
 }) => {
   return (
-    <div className="h-full w-full bg-black">
-      <div className={cn(
-        "flex flex-col h-full transition-all duration-300 ease-in-out",
-        "bg-gradient-to-br from-[#03010a] to-[#0a0518]",
-        "rounded-lg border border-white/5 overflow-hidden",
-        "shadow-[0_8px_30px_rgb(0,0,0,0.4)]"
-      )}>
-        {/* Unified Toolbar */}
-        <UnifiedToolbar
-          handleSave={handleSave}
-          toggleLeftSidebar={toggleLeftSidebar}
-          toggleAISidebar={toggleAISidebar}
-          isLeftSidebarOpen={false}
-          isAISidebarOpen={false}
-          lastSaved={lastSaved}
-          isFocusMode={isFocusMode}
-          toggleFocusMode={toggleFocusMode}
-        />
+    <div className="h-full w-full flex flex-col">
+      {/* Unified Toolbar */}
+      <UnifiedToolbar
+        handleSave={handleSave}
+        toggleLeftSidebar={toggleLeftSidebar}
+        toggleAISidebar={toggleAISidebar}
+        isLeftSidebarOpen={false}
+        isAISidebarOpen={false}
+        lastSaved={lastSaved}
+        isFocusMode={isFocusMode}
+        toggleFocusMode={toggleFocusMode}
+      />
 
-        {/* Main Editor Area */}
-        <div className="flex-1 relative overflow-hidden">
-          <UnifiedEditor
-            content={content}
-            setContent={setContent}
-            isFocusMode={isFocusMode}
-          />
-        </div>
+      {/* Main Editor Area */}
+      <div className="flex-1 relative overflow-hidden">
+        <UnifiedEditor
+          content={content}
+          setContent={setContent}
+          isFocusMode={isFocusMode}
+        />
       </div>
     </div>
   );

@@ -61,7 +61,6 @@ const EditorManager: React.FC = () => {
 
   const { handleImportNotes: importNotesFromFile } = useNotesImportExport();
 
-  // Handle import notes with proper callback
   const handleImportNotesWithCallback = () => {
     importNotesFromFile(async (importedNotes: Record<string, string>) => {
       await handleImportNotes(importedNotes);
@@ -103,15 +102,13 @@ const EditorManager: React.FC = () => {
 
   return (
     <EditorBackgroundLayout isFocusMode={isFocusMode}>
-      {/* Header - conditionally rendered based on focus mode */}
+      {/* Header - conditionally rendered */}
       {!isFocusMode && <EditorHeader />}
 
-      {/* Main Content - ensure no old interface conflicts */}
+      {/* Main Content */}
       <div className={cn(
-        "w-full h-full overflow-hidden flex-1",
-        // Ensure clean slate styling
-        "!m-0 !p-0 !border-0 !outline-0",
-        !isFocusMode && "pt-16"  
+        "w-full h-full flex-1 flex flex-col",
+        !isFocusMode && "pt-16"
       )}>
         {isFocusMode ? (
           <EditorFocusLayout
