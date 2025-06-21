@@ -1,9 +1,6 @@
 
 import React from 'react';
 import { useEditorRef, useEditorSelector } from '@udecode/plate-common/react';
-import { MARK_BOLD, MARK_ITALIC, MARK_UNDERLINE } from '@udecode/plate-basic-marks/react';
-import { ELEMENT_H1, ELEMENT_H2, ELEMENT_H3 } from '@udecode/plate-basic-elements/react';
-import { ELEMENT_UL, ELEMENT_OL } from '@udecode/plate-list/react';
 import { toggleMark, insertNodes } from '@udecode/plate-common';
 import { Button } from '@/components/ui/button';
 import { 
@@ -16,6 +13,17 @@ import {
   List,
   ListOrdered
 } from 'lucide-react';
+
+// Define constants for element and mark types
+const MARK_BOLD = 'bold';
+const MARK_ITALIC = 'italic';
+const MARK_UNDERLINE = 'underline';
+const ELEMENT_H1 = 'h1';
+const ELEMENT_H2 = 'h2';
+const ELEMENT_H3 = 'h3';
+const ELEMENT_UL = 'ul';
+const ELEMENT_OL = 'ol';
+const ELEMENT_LI = 'li';
 
 const PlateToolbar: React.FC = () => {
   const editor = useEditorRef();
@@ -56,7 +64,7 @@ const PlateToolbar: React.FC = () => {
     const elementType = ordered ? ELEMENT_OL : ELEMENT_UL;
     insertNodes(editor, { 
       type: elementType, 
-      children: [{ type: 'li', children: [{ text: '' }] }] 
+      children: [{ type: ELEMENT_LI, children: [{ text: '' }] }] 
     });
   };
 

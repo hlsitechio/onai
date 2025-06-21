@@ -1,32 +1,26 @@
 
 import React, { useMemo } from 'react';
-import { PlateProvider, Plate, PlateContent } from '@udecode/plate-common/react';
-import { createPlateEditor } from '@udecode/plate-common/react';
 import { 
-  BasicElementsPlugin,
-  ELEMENT_PARAGRAPH,
-  ELEMENT_H1,
-  ELEMENT_H2,
-  ELEMENT_H3
+  Plate,
+  PlateContent,
+  createPlateEditor,
+  PlateProvider
+} from '@udecode/plate-common/react';
+import { 
+  BasicElementsPlugin
 } from '@udecode/plate-basic-elements/react';
 import { 
-  BasicMarksPlugin,
-  MARK_BOLD,
-  MARK_ITALIC,
-  MARK_UNDERLINE
+  BasicMarksPlugin
 } from '@udecode/plate-basic-marks/react';
 import { 
-  ListPlugin,
-  ELEMENT_UL,
-  ELEMENT_OL,
-  ELEMENT_LI
+  ListPlugin
 } from '@udecode/plate-list/react';
 import { LinkPlugin } from '@udecode/plate-link/react';
 import { MediaEmbedPlugin } from '@udecode/plate-media/react';
 import { SelectOnBackspacePlugin } from '@udecode/plate-select';
 import { NodeIdPlugin } from '@udecode/plate-node-id';
 import { NormalizeTypesPlugin } from '@udecode/plate-normalizers';
-import { ResetNodePlugin } from '@udecode/plate-reset-node';
+import { BaseResetNodePlugin } from '@udecode/plate-reset-node';
 import { TrailingBlockPlugin } from '@udecode/plate-trailing-block';
 import PlateToolbar from './PlateToolbar';
 
@@ -45,7 +39,7 @@ const plugins = [
   MediaEmbedPlugin,
   SelectOnBackspacePlugin,
   NormalizeTypesPlugin,
-  ResetNodePlugin,
+  BaseResetNodePlugin,
   TrailingBlockPlugin,
 ];
 
@@ -58,7 +52,7 @@ const PlateEditor: React.FC<PlateEditorProps> = ({
     createPlateEditor({ 
       plugins,
       value: content ? JSON.parse(content) : [{ 
-        type: ELEMENT_PARAGRAPH, 
+        type: 'p', 
         children: [{ text: '' }] 
       }]
     }), 
@@ -70,7 +64,7 @@ const PlateEditor: React.FC<PlateEditorProps> = ({
   };
 
   const initialValue = content ? JSON.parse(content) : [{ 
-    type: ELEMENT_PARAGRAPH, 
+    type: 'p', 
     children: [{ text: '' }] 
   }];
 
@@ -88,7 +82,7 @@ const PlateEditor: React.FC<PlateEditorProps> = ({
         )}
         
         <div className="flex-1 relative overflow-hidden">
-          <Plate>
+          <Plate editor={editor}>
             <PlateContent
               className="h-full overflow-y-auto px-4 py-2 prose prose-invert dark:prose-invert max-w-none outline-none min-h-[300px] focus:outline-none bg-transparent text-white"
               placeholder="Start writing your note..."
