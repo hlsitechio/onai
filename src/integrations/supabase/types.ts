@@ -239,6 +239,42 @@ export type Database = {
           },
         ]
       }
+      gemini_models: {
+        Row: {
+          capabilities: Json
+          id: number
+          input_token_limit: number
+          knowledge_cutoff: string
+          latest_update: string
+          model_code: string
+          output_token_limit: number
+          preview_versions: Json | null
+          stable_version: string
+        }
+        Insert: {
+          capabilities: Json
+          id?: never
+          input_token_limit: number
+          knowledge_cutoff: string
+          latest_update: string
+          model_code: string
+          output_token_limit: number
+          preview_versions?: Json | null
+          stable_version: string
+        }
+        Update: {
+          capabilities?: Json
+          id?: never
+          input_token_limit?: number
+          knowledge_cutoff?: string
+          latest_update?: string
+          model_code?: string
+          output_token_limit?: number
+          preview_versions?: Json | null
+          stable_version?: string
+        }
+        Relationships: []
+      }
       note_shares: {
         Row: {
           access_count: number | null
