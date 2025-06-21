@@ -1,7 +1,6 @@
 
 import React from 'react';
-import { useEditorRef } from '@udecode/plate-common/react';
-import { insertNodes, toggleMark, isMarkActive } from '@udecode/plate-common';
+import { useEditorRef } from '@udecode/plate/react';
 import { Button } from '@/components/ui/button';
 import { 
   Bold, 
@@ -30,37 +29,38 @@ const PlateToolbar: React.FC = () => {
   
   if (!editor) return null;
   
-  // Check if marks are active
-  const isBoldActive = isMarkActive(editor, MARK_BOLD);
-  const isItalicActive = isMarkActive(editor, MARK_ITALIC);
-  const isUnderlineActive = isMarkActive(editor, MARK_UNDERLINE);
-
-  const handleToggleBold = (e: React.MouseEvent) => {
-    e.preventDefault();
-    toggleMark(editor, { key: MARK_BOLD });
-  };
-  
-  const handleToggleItalic = (e: React.MouseEvent) => {
-    e.preventDefault();
-    toggleMark(editor, { key: MARK_ITALIC });
-  };
-  
-  const handleToggleUnderline = (e: React.MouseEvent) => {
-    e.preventDefault();
-    toggleMark(editor, { key: MARK_UNDERLINE });
+  // Simple toolbar actions using editor methods
+  const toggleBold = () => {
+    if (editor.marks?.bold) {
+      editor.removeMark('bold');
+    } else {
+      editor.addMark('bold', true);
+    }
   };
 
-  const insertHeading = (level: 1 | 2 | 3) => (e: React.MouseEvent) => {
-    e.preventDefault();
-    const elementType = level === 1 ? ELEMENT_H1 : level === 2 ? ELEMENT_H2 : ELEMENT_H3;
-    insertNodes(editor, { type: elementType, children: [{ text: '' }] });
+  const toggleItalic = () => {
+    if (editor.marks?.italic) {
+      editor.removeMark('italic');
+    } else {
+      editor.addMark('italic', true);
+    }
   };
 
-  const insertList = (ordered: boolean) => (e: React.MouseEvent) => {
-    e.preventDefault();
-    const elementType = ordered ? ELEMENT_OL : ELEMENT_UL;
-    insertNodes(editor, { 
-      type: elementType, 
+  const toggleUnderline = () => {
+    if (editor.marks?.underline) {
+      editor.removeMark('underline');
+    } else {
+      editor.addMark('underline', true);
+    }
+  };
+
+  const insertHeading = (type: string) => {
+    editor.insertNode({ type, children: [{ text: '' }] });
+  };
+
+  const insertList = (type: string) => {
+    editor.insertNode({ 
+      type, 
       children: [{ type: ELEMENT_LI, children: [{ text: '' }] }] 
     });
   };
@@ -72,8 +72,11 @@ const PlateToolbar: React.FC = () => {
         <Button
           variant="ghost"
           size="sm"
-          onMouseDown={handleToggleBold}
-          className={`h-8 w-8 p-0 ${isBoldActive ? 'bg-white/20 text-white' : 'text-gray-300 hover:text-white hover:bg-white/10'}`}
+          onMouseDown={(e) => {
+            e.preventDefault();
+            toggleBold();
+          }}
+          className={`h-8 w-8 p-0 ${editor.marks?.bold ? 'bg-white/20 text-white' : 'text-gray-300 hover:text-white hover:bg-white/10'}`}
           title="Bold (Ctrl+B)"
         >
           <Bold className="h-4 w-4" />
@@ -82,8 +85,11 @@ const PlateToolbar: React.FC = () => {
         <Button
           variant="ghost"
           size="sm"
-          onMouseDown={handleToggleItalic}
-          className={`h-8 w-8 p-0 ${isItalicActive ? 'bg-white/20 text-white' : 'text-gray-300 hover:text-white hover:bg-white/10'}`}
+          onMouseDown={(e) => {
+            e.preventDefault();
+            toggleItalic();
+          }}
+          className={`h-8 w-8 p-0 ${editor.marks?.italic ? 'bg-white/20 text-white' : 'text-gray-300 hover:text-white hover:bg-white/10'}`}
           title="Italic (Ctrl+I)"
         >
           <Italic className="h-4 w-4" />
@@ -92,8 +98,11 @@ const PlateToolbar: React.FC = () => {
         <Button
           variant="ghost"
           size="sm"
-          onMouseDown={handleToggleUnderline}
-          className={`h-8 w-8 p-0 ${isUnderlineActive ? 'bg-white/20 text-white' : 'text-gray-300 hover:text-white hover:bg-white/10'}`}
+          onMouseDown={(e) => {
+            e.preventDefault();
+            toggleUnderline();
+          }}
+          className={`h-8 w-8 p-0 ${editor.marks?.underline ? 'bg-white/20 text-white' : 'text-gray-300 hover:text-white hover:bg-white/10'}`}
           title="Underline (Ctrl+U)"
         >
           <Underline className="h-4 w-4" />
@@ -107,7 +116,10 @@ const PlateToolbar: React.FC = () => {
         <Button
           variant="ghost"
           size="sm"
-          onMouseDown={insertHeading(1)}
+          onMouseDown={(e) => {
+            e.preventDefault();
+            insertHeading(ELEMENT_H1);
+          }}
           className="h-8 w-8 p-0 text-gray-300 hover:text-white hover:bg-white/10"
           title="Heading 1"
         >
@@ -117,7 +129,10 @@ const PlateToolbar: React.FC = () => {
         <Button
           variant="ghost"
           size="sm"
-          onMouseDown={insertHeading(2)}
+          onMouseDown={(e) => {
+            e.preventDefault();
+            insertHeading(ELEMENT_H2);
+          }}
           className="h-8 w-8 p-0 text-gray-300 hover:text-white hover:bg-white/10"
           title="Heading 2"
         >
@@ -127,7 +142,10 @@ const PlateToolbar: React.FC = () => {
         <Button
           variant="ghost"
           size="sm"
-          onMouseDown={insertHeading(3)}
+          onMouseDown={(e) => {
+            e.preventDefault();
+            insertHeading(ELEMENT_H3);
+          }}
           className="h-8 w-8 p-0 text-gray-300 hover:text-white hover:bg-white/10"
           title="Heading 3"
         >
@@ -142,7 +160,10 @@ const PlateToolbar: React.FC = () => {
         <Button
           variant="ghost"
           size="sm"
-          onMouseDown={insertList(false)}
+          onMouseDown={(e) => {
+            e.preventDefault();
+            insertList(ELEMENT_UL);
+          }}
           className="h-8 w-8 p-0 text-gray-300 hover:text-white hover:bg-white/10"
           title="Bullet List"
         >
@@ -152,7 +173,10 @@ const PlateToolbar: React.FC = () => {
         <Button
           variant="ghost"
           size="sm"
-          onMouseDown={insertList(true)}
+          onMouseDown={(e) => {
+            e.preventDefault();
+            insertList(ELEMENT_OL);
+          }}
           className="h-8 w-8 p-0 text-gray-300 hover:text-white hover:bg-white/10"
           title="Numbered List"
         >

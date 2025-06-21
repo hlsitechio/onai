@@ -3,8 +3,8 @@ import React, { useMemo } from 'react';
 import {
   createPlateEditor,
   Plate,
+  PlateProvider,
 } from '@udecode/plate/react';
-import { PlateProvider } from '@udecode/plate-common/react';
 import {
   BasicElementsPlugin,
 } from '@udecode/plate-basic-elements/react';
