@@ -22,74 +22,126 @@ const OCRCameraCapture: React.FC<OCRCameraCaptureProps> = ({
   const [stream, setStream] = useState<MediaStream | null>(null);
   const [capturedPhoto, setCapturedPhoto] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-  const [isMounted, setIsMounted] = useState(true);
+  const [cameraError, setCameraError] = useState<string | null>(null);
   const { toast } = useToast();
 
   const stopCamera = useCallback(() => {
+    console.log('Stopping camera...');
     if (stream) {
-      console.log('Stopping camera stream...');
       stream.getTracks().forEach(track => {
+        console.log('Stopping track:', track.kind, track.readyState);
         track.stop();
-        console.log('Track stopped:', track.kind);
       });
       setStream(null);
+    }
+    if (videoRef.current) {
+      videoRef.current.srcObject = null;
     }
   }, [stream]);
 
   const startCamera = useCallback(async () => {
-    if (!isMounted) return;
+    console.log('Starting camera...');
+    setIsLoading(true);
+    setCameraError(null);
     
     try {
-      setIsLoading(true);
-      console.log('Starting camera...');
-      
       // Stop any existing stream first
       if (stream) {
         stream.getTracks().forEach(track => track.stop());
       }
 
-      const mediaStream = await navigator.mediaDevices.getUserMedia({
-        video: {
-          facingMode: 'environment',
-          width: { ideal: 1920 },
-          height: { ideal: 1080 }
-        }
-      });
-      
-      if (!isMounted) {
-        // Component was unmounted while getting camera access
-        mediaStream.getTracks().forEach(track => track.stop());
-        return;
+      // Request camera access with fallback constraints
+      let mediaStream: MediaStream;
+      try {
+        // Try with back camera first
+        mediaStream = await navigator.mediaDevices.getUserMedia({
+          video: {
+            facingMode: { ideal: 'environment' },
+            width: { ideal: 1920, min: 640 },
+            height: { ideal: 1080, min: 480 }
+          }
+        });
+        console.log('Got back camera');
+      } catch (backCameraError) {
+        console.log('Back camera failed, trying front camera:', backCameraError);
+        // Fallback to any available camera
+        mediaStream = await navigator.mediaDevices.getUserMedia({
+          video: {
+            width: { ideal: 1920, min: 640 },
+            height: { ideal: 1080, min: 480 }
+          }
+        });
+        console.log('Got front camera');
       }
       
+      console.log('Camera stream obtained:', mediaStream.getVideoTracks().length, 'video tracks');
+      
+      // Set stream state
       setStream(mediaStream);
+      
+      // Assign to video element and play
       if (videoRef.current) {
+        console.log('Assigning stream to video element');
         videoRef.current.srcObject = mediaStream;
-        await videoRef.current.play();
+        
+        // Wait for video to load metadata before playing
+        await new Promise<void>((resolve, reject) => {
+          const video = videoRef.current!;
+          
+          const onLoadedMetadata = () => {
+            console.log('Video metadata loaded, dimensions:', video.videoWidth, 'x', video.videoHeight);
+            video.removeEventListener('loadedmetadata', onLoadedMetadata);
+            video.removeEventListener('error', onError);
+            resolve();
+          };
+          
+          const onError = (e: Event) => {
+            console.error('Video error:', e);
+            video.removeEventListener('loadedmetadata', onLoadedMetadata);
+            video.removeEventListener('error', onError);
+            reject(new Error('Video failed to load'));
+          };
+          
+          video.addEventListener('loadedmetadata', onLoadedMetadata);
+          video.addEventListener('error', onError);
+          
+          // Start playing
+          video.play().catch(playError => {
+            console.error('Video play error:', playError);
+            reject(playError);
+          });
+        });
+        
         console.log('Camera started successfully');
       }
     } catch (error) {
-      console.error('Error accessing camera:', error);
-      if (isMounted) {
-        toast({
-          title: "Camera access failed",
-          description: "Please grant camera permission to capture text images.",
-          variant: "destructive"
-        });
-      }
+      console.error('Camera access error:', error);
+      setCameraError(error.message || 'Failed to access camera');
+      toast({
+        title: "Camera access failed",
+        description: "Please grant camera permission and ensure your camera is not being used by another application.",
+        variant: "destructive"
+      });
     } finally {
-      if (isMounted) {
-        setIsLoading(false);
-      }
+      setIsLoading(false);
     }
-  }, [isMounted, toast]); // Remove stream dependency to prevent loops
+  }, []); // Remove dependencies to prevent loops
 
   const capturePhoto = useCallback(() => {
-    if (!videoRef.current || !canvasRef.current) return;
+    if (!videoRef.current || !canvasRef.current || !stream) {
+      console.error('Missing required elements for capture');
+      return;
+    }
     
     try {
       const canvas = canvasRef.current;
       const video = videoRef.current;
+      
+      console.log('Capturing photo, video dimensions:', video.videoWidth, 'x', video.videoHeight);
+      
+      if (video.videoWidth === 0 || video.videoHeight === 0) {
+        throw new Error('Video not ready - no dimensions');
+      }
       
       canvas.width = video.videoWidth;
       canvas.height = video.videoHeight;
@@ -98,9 +150,9 @@ const OCRCameraCapture: React.FC<OCRCameraCaptureProps> = ({
       if (ctx) {
         ctx.drawImage(video, 0, 0);
         const imageData = canvas.toDataURL('image/jpeg', 0.8);
+        console.log('Photo captured, data length:', imageData.length);
         setCapturedPhoto(imageData);
         stopCamera();
-        console.log('Photo captured successfully');
       }
     } catch (error) {
       console.error('Error capturing photo:', error);
@@ -110,9 +162,10 @@ const OCRCameraCapture: React.FC<OCRCameraCaptureProps> = ({
         variant: "destructive"
       });
     }
-  }, [stopCamera, toast]);
+  }, [stream, stopCamera, toast]);
 
   const retakePhoto = useCallback(() => {
+    console.log('Retaking photo');
     setCapturedPhoto(null);
     startCamera();
   }, [startCamera]);
@@ -126,29 +179,22 @@ const OCRCameraCapture: React.FC<OCRCameraCaptureProps> = ({
 
   const handleClose = useCallback(() => {
     console.log('Closing camera modal...');
-    setIsMounted(false);
     stopCamera();
     onClose();
   }, [stopCamera, onClose]);
 
   // Initialize camera when component mounts
   useEffect(() => {
-    setIsMounted(true);
+    console.log('OCRCameraCapture component mounted');
     startCamera();
     
     return () => {
-      console.log('Camera component unmounting...');
-      setIsMounted(false);
+      console.log('OCRCameraCapture component unmounting...');
       if (stream) {
         stream.getTracks().forEach(track => track.stop());
       }
     };
   }, []); // Empty dependency array - only run once
-
-  // Don't render if not mounted
-  if (!isMounted) {
-    return null;
-  }
 
   return (
     <div className="fixed inset-0 z-[9999] bg-black flex flex-col">
@@ -173,11 +219,24 @@ const OCRCameraCapture: React.FC<OCRCameraCaptureProps> = ({
         {!capturedPhoto ? (
           <>
             {isLoading ? (
-              <div className="flex items-center justify-center">
-                <Loader2 className="h-8 w-8 animate-spin text-white" />
-                <span className="ml-2 text-white">Starting camera...</span>
+              <div className="flex flex-col items-center justify-center text-white">
+                <Loader2 className="h-8 w-8 animate-spin mb-4" />
+                <span>Starting camera...</span>
               </div>
-            ) : (
+            ) : cameraError ? (
+              <div className="flex flex-col items-center justify-center text-white text-center p-6">
+                <Camera className="h-12 w-12 mb-4 text-red-400" />
+                <h3 className="text-lg font-medium mb-2">Camera Error</h3>
+                <p className="text-sm text-white/70 mb-4">{cameraError}</p>
+                <Button
+                  onClick={startCamera}
+                  variant="outline"
+                  className="border-white/20 text-white hover:bg-white/10"
+                >
+                  Try Again
+                </Button>
+              </div>
+            ) : stream ? (
               <>
                 <video
                   ref={videoRef}
@@ -185,6 +244,7 @@ const OCRCameraCapture: React.FC<OCRCameraCaptureProps> = ({
                   playsInline
                   muted
                   autoPlay
+                  style={{ transform: 'scaleX(-1)' }} // Mirror for better UX
                 />
                 
                 {/* Capture Guide Overlay */}
@@ -197,6 +257,11 @@ const OCRCameraCapture: React.FC<OCRCameraCaptureProps> = ({
                   </div>
                 </div>
               </>
+            ) : (
+              <div className="flex flex-col items-center justify-center text-white">
+                <Camera className="h-12 w-12 mb-4 text-white/50" />
+                <span>Initializing camera...</span>
+              </div>
             )}
           </>
         ) : (
@@ -235,8 +300,8 @@ const OCRCameraCapture: React.FC<OCRCameraCaptureProps> = ({
           <div className="flex justify-center">
             <Button
               onClick={capturePhoto}
-              disabled={isLoading || !stream}
-              className="w-16 h-16 rounded-full bg-white text-black hover:bg-gray-200"
+              disabled={isLoading || !stream || !!cameraError}
+              className="w-16 h-16 rounded-full bg-white text-black hover:bg-gray-200 disabled:opacity-50"
             >
               <Camera className="h-6 w-6" />
             </Button>
