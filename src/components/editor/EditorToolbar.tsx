@@ -19,6 +19,9 @@ import AlignmentControls from './toolbar/AlignmentControls';
 import InsertControls from './toolbar/InsertControls';
 import ColorControls from './toolbar/ColorControls';
 import HistoryControls from './toolbar/HistoryControls';
+import TableControls from './toolbar/TableControls';
+import FontControls from './toolbar/FontControls';
+import QuickActions from './toolbar/QuickActions';
 
 interface EditorToolbarProps {
   execCommand: (command: string, value?: string | null) => void;
@@ -118,7 +121,7 @@ const EditorToolbar: React.FC<EditorToolbarProps> = ({
         ? "bg-black/80 backdrop-blur-xl border-purple-800/30" 
         : "bg-black/40 backdrop-blur-lg"
     )}>
-      {/* Top Row - Main Controls */}
+      {/* Top Row - Navigation and Main Controls */}
       <div className="flex flex-wrap items-center justify-between gap-2">
         {/* Left side - Navigation and primary formatting */}
         <div className="flex flex-wrap items-center gap-1">
@@ -139,6 +142,11 @@ const EditorToolbar: React.FC<EditorToolbarProps> = ({
 
           <div className="w-px h-6 bg-white/10 mx-1" />
 
+          {/* Font Controls */}
+          <FontControls />
+
+          <div className="w-px h-6 bg-white/10 mx-1" />
+
           {/* Basic Formatting */}
           <FormatControls editor={mockEditor as any} />
 
@@ -146,14 +154,9 @@ const EditorToolbar: React.FC<EditorToolbarProps> = ({
 
           {/* Headings */}
           <HeadingControls editor={mockEditor as any} />
-
-          <div className="w-px h-6 bg-white/10 mx-1" />
-
-          {/* Color Controls */}
-          <ColorControls editor={mockEditor as any} />
         </div>
 
-        {/* Right side - Mode toggles, AI, and save */}
+        {/* Right side - Save and Mode toggles */}
         <div className="flex items-center gap-2">
           <Button
             variant="ghost"
@@ -171,26 +174,6 @@ const EditorToolbar: React.FC<EditorToolbarProps> = ({
           </Button>
 
           <Button
-            variant="ghost"
-            size="sm"
-            onClick={toggleAISidebar}
-            className={cn(
-              "h-8 w-8 p-0 relative",
-              isAISidebarOpen 
-                ? "text-noteflow-300 bg-noteflow-500/20" 
-                : "text-slate-400 hover:text-white hover:bg-white/10"
-            )}
-            title="Toggle AI sidebar"
-          >
-            <Sparkles className="h-4 w-4" />
-            {isAISidebarOpen && (
-              <div className="absolute -top-1 -right-1 w-2 h-2 bg-noteflow-400 rounded-full animate-pulse" />
-            )}
-          </Button>
-
-          <div className="w-px h-6 bg-white/10 mx-1" />
-
-          <Button
             onClick={handleSave}
             size="sm"
             className="bg-noteflow-500 hover:bg-noteflow-600 text-white px-3 h-8"
@@ -204,8 +187,13 @@ const EditorToolbar: React.FC<EditorToolbarProps> = ({
 
       {/* Bottom Row - Secondary Controls (hidden on mobile) */}
       <div className="hidden md:flex flex-wrap items-center justify-between gap-2">
-        {/* Left side - Lists, alignment, insert */}
+        {/* Left side - Lists, alignment, colors, tables, insert */}
         <div className="flex flex-wrap items-center gap-1">
+          {/* Color Controls */}
+          <ColorControls editor={mockEditor as any} />
+
+          <div className="w-px h-6 bg-white/10 mx-1" />
+
           {/* Lists */}
           <ListControls editor={mockEditor as any} />
 
@@ -213,6 +201,11 @@ const EditorToolbar: React.FC<EditorToolbarProps> = ({
 
           {/* Alignment */}
           <AlignmentControls editor={mockEditor as any} />
+
+          <div className="w-px h-6 bg-white/10 mx-1" />
+
+          {/* Table Controls */}
+          <TableControls editor={mockEditor as any} />
 
           <div className="w-px h-6 bg-white/10 mx-1" />
 
@@ -225,7 +218,7 @@ const EditorToolbar: React.FC<EditorToolbarProps> = ({
           <HistoryControls editor={mockEditor as any} />
         </div>
 
-        {/* Right side - Status info */}
+        {/* Right side - Status info and quick actions */}
         <div className="flex items-center gap-3">
           {/* Last saved indicator */}
           <div className="flex items-center gap-1.5 text-xs text-slate-400">
@@ -233,13 +226,11 @@ const EditorToolbar: React.FC<EditorToolbarProps> = ({
             <span>{formatLastSaved(lastSaved)}</span>
           </div>
 
-          {/* AI Shortcut hint */}
-          {!isFocusMode && (
-            <div className="flex items-center gap-1.5 text-xs text-slate-500">
-              <Keyboard className="h-3 w-3" />
-              <span>Ctrl+Shift+A for AI</span>
-            </div>
-          )}
+          {/* Quick Actions */}
+          <QuickActions 
+            toggleAISidebar={toggleAISidebar}
+            isAISidebarOpen={isAISidebarOpen}
+          />
         </div>
       </div>
     </div>

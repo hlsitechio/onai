@@ -1,160 +1,77 @@
 
 import React from 'react';
+import { Bold, Italic, Underline, Save, List, Undo, Redo } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { 
-  Bold, 
-  Italic, 
-  Underline, 
-  Heading1, 
-  Heading2, 
-  Heading3,
-  List,
-  ListOrdered
-} from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 const SimpleToolbar: React.FC = () => {
-  const handleBold = () => {
-    document.execCommand('bold', false);
+  const handleCommand = (command: string) => {
+    document.execCommand(command, false);
   };
 
-  const handleItalic = () => {
-    document.execCommand('italic', false);
-  };
-
-  const handleUnderline = () => {
-    document.execCommand('underline', false);
-  };
-
-  const handleHeading = (level: number) => {
-    document.execCommand('formatBlock', false, `h${level}`);
-  };
-
-  const handleBulletList = () => {
-    document.execCommand('insertUnorderedList', false);
-  };
-
-  const handleNumberedList = () => {
-    document.execCommand('insertOrderedList', false);
-  };
+  const toolbarButtons = [
+    {
+      icon: Bold,
+      command: 'bold',
+      title: 'Bold (Ctrl+B)',
+    },
+    {
+      icon: Italic,
+      command: 'italic', 
+      title: 'Italic (Ctrl+I)',
+    },
+    {
+      icon: Underline,
+      command: 'underline',
+      title: 'Underline (Ctrl+U)',
+    },
+    {
+      icon: List,
+      command: 'insertUnorderedList',
+      title: 'Bullet List',
+    },
+    {
+      icon: Undo,
+      command: 'undo',
+      title: 'Undo',
+    },
+    {
+      icon: Redo,
+      command: 'redo',
+      title: 'Redo',
+    },
+  ];
 
   return (
-    <div className="flex items-center gap-2 p-2">
-      {/* Basic Formatting */}
-      <div className="flex items-center gap-1">
-        <Button
-          variant="ghost"
-          size="sm"
-          onMouseDown={(e) => {
-            e.preventDefault();
-            handleBold();
-          }}
-          className="h-8 w-8 p-0 text-gray-300 hover:text-white hover:bg-white/10"
-          title="Bold (Ctrl+B)"
-        >
-          <Bold className="h-4 w-4" />
-        </Button>
-
-        <Button
-          variant="ghost"
-          size="sm"
-          onMouseDown={(e) => {
-            e.preventDefault();
-            handleItalic();
-          }}
-          className="h-8 w-8 p-0 text-gray-300 hover:text-white hover:bg-white/10"
-          title="Italic (Ctrl+I)"
-        >
-          <Italic className="h-4 w-4" />
-        </Button>
-
-        <Button
-          variant="ghost"
-          size="sm"
-          onMouseDown={(e) => {
-            e.preventDefault();
-            handleUnderline();
-          }}
-          className="h-8 w-8 p-0 text-gray-300 hover:text-white hover:bg-white/10"
-          title="Underline (Ctrl+U)"
-        >
-          <Underline className="h-4 w-4" />
-        </Button>
-      </div>
-
-      <div className="w-px h-6 bg-white/10" />
-
-      {/* Headings */}
-      <div className="flex items-center gap-1">
-        <Button
-          variant="ghost"
-          size="sm"
-          onMouseDown={(e) => {
-            e.preventDefault();
-            handleHeading(1);
-          }}
-          className="h-8 w-8 p-0 text-gray-300 hover:text-white hover:bg-white/10"
-          title="Heading 1"
-        >
-          <Heading1 className="h-4 w-4" />
-        </Button>
-
-        <Button
-          variant="ghost"
-          size="sm"
-          onMouseDown={(e) => {
-            e.preventDefault();
-            handleHeading(2);
-          }}
-          className="h-8 w-8 p-0 text-gray-300 hover:text-white hover:bg-white/10"
-          title="Heading 2"
-        >
-          <Heading2 className="h-4 w-4" />
-        </Button>
-
-        <Button
-          variant="ghost"
-          size="sm"
-          onMouseDown={(e) => {
-            e.preventDefault();
-            handleHeading(3);
-          }}
-          className="h-8 w-8 p-0 text-gray-300 hover:text-white hover:bg-white/10"
-          title="Heading 3"
-        >
-          <Heading3 className="h-4 w-4" />
-        </Button>
-      </div>
-
-      <div className="w-px h-6 bg-white/10" />
-
-      {/* Lists */}
-      <div className="flex items-center gap-1">
-        <Button
-          variant="ghost"
-          size="sm"
-          onMouseDown={(e) => {
-            e.preventDefault();
-            handleBulletList();
-          }}
-          className="h-8 w-8 p-0 text-gray-300 hover:text-white hover:bg-white/10"
-          title="Bullet List"
-        >
-          <List className="h-4 w-4" />
-        </Button>
-
-        <Button
-          variant="ghost"
-          size="sm"
-          onMouseDown={(e) => {
-            e.preventDefault();
-            handleNumberedList();
-          }}
-          className="h-8 w-8 p-0 text-gray-300 hover:text-white hover:bg-white/10"
-          title="Numbered List"
-        >
-          <ListOrdered className="h-4 w-4" />
-        </Button>
-      </div>
+    <div className="flex items-center gap-1 p-2 bg-black/20 border-b border-white/10">
+      {toolbarButtons.map((button, index) => {
+        const Icon = button.icon;
+        return (
+          <Button
+            key={index}
+            variant="ghost"
+            size="sm"
+            onClick={() => handleCommand(button.command)}
+            className="h-8 w-8 p-0 hover:bg-white/10 transition-colors text-gray-300 hover:text-white"
+            title={button.title}
+          >
+            <Icon className="h-4 w-4" />
+          </Button>
+        );
+      })}
+      
+      <div className="w-px h-6 bg-white/10 mx-2" />
+      
+      <Button
+        variant="ghost"
+        size="sm"
+        onClick={() => {/* Save functionality */}}
+        className="h-8 px-3 hover:bg-white/10 transition-colors text-gray-300 hover:text-white"
+        title="Save"
+      >
+        <Save className="h-3 w-3 mr-1" />
+        Save
+      </Button>
     </div>
   );
 };
