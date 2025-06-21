@@ -1,7 +1,7 @@
 
 import React from 'react';
-import PlateEditor from '@/components/editor/PlateEditor';
-import EditorToolbar from '@/components/editor/EditorToolbar';
+import UnifiedEditor from './UnifiedEditor';
+import UnifiedToolbar from './toolbar/UnifiedToolbar';
 import { cn } from '@/lib/utils';
 
 interface EditorFocusLayoutProps {
@@ -35,9 +35,8 @@ const EditorFocusLayout: React.FC<EditorFocusLayoutProps> = ({
         "rounded-lg border border-white/5 overflow-hidden",
         "shadow-[0_8px_30px_rgb(0,0,0,0.4)]"
       )}>
-        {/* Editor Toolbar */}
-        <EditorToolbar
-          execCommand={execCommand}
+        {/* Unified Toolbar */}
+        <UnifiedToolbar
           handleSave={handleSave}
           toggleLeftSidebar={toggleLeftSidebar}
           toggleAISidebar={toggleAISidebar}
@@ -50,7 +49,7 @@ const EditorFocusLayout: React.FC<EditorFocusLayoutProps> = ({
 
         {/* Main Editor Area */}
         <div className="flex-1 relative overflow-hidden">
-          <PlateEditor
+          <UnifiedEditor
             content={content}
             setContent={setContent}
             isFocusMode={isFocusMode}

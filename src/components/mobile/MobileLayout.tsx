@@ -1,9 +1,9 @@
 
 import React, { useState } from 'react';
 import { cn } from '@/lib/utils';
-import MobileToolbar from './MobileToolbar';
 import MobileSidebar from './MobileSidebar';
-import MobileEditor from './MobileEditor';
+import UnifiedEditor from '../editor/UnifiedEditor';
+import UnifiedToolbar from '../editor/toolbar/UnifiedToolbar';
 import { useNotesManager } from '@/hooks/useNotesManager.tsx';
 import { useFocusModeManager } from '@/hooks/useFocusModeManager';
 
@@ -28,8 +28,8 @@ const MobileLayout: React.FC = () => {
     deleteNote
   } = useNotesManager();
 
-  const toggleSidebar = () => setIsSidebarOpen(!isSidebarOpen);
-  const toggleAI = () => setIsAISidebarOpen(!isAISidebarOpen);
+  const toggleLeftSidebar = () => setIsSidebarOpen(!isSidebarOpen);
+  const toggleAISidebar = () => setIsAISidebarOpen(!isAISidebarOpen);
 
   const handleSave = async () => {
     if (currentNote && content !== currentNote.content) {
@@ -65,28 +65,13 @@ const MobileLayout: React.FC = () => {
     }
   };
 
-  const execCommand = (command: string, value?: string | null) => {
-    if (command === 'bold') {
-      document.execCommand('bold', false);
-    } else if (command === 'italic') {
-      document.execCommand('italic', false);
-    }
-  };
-
-  // Convert notes to legacy format for compatibility
-  const allNotes: Record<string, string> = {};
-  notes.forEach(note => {
-    allNotes[note.id] = note.content;
-  });
-
   return (
     <div className="flex flex-col h-screen bg-background">
-      <MobileToolbar
-        execCommand={execCommand}
+      <UnifiedToolbar
         handleSave={handleSave}
-        toggleSidebar={toggleSidebar}
-        toggleAI={toggleAI}
-        isSidebarOpen={isSidebarOpen}
+        toggleLeftSidebar={toggleLeftSidebar}
+        toggleAISidebar={toggleAISidebar}
+        isLeftSidebarOpen={isSidebarOpen}
         isAISidebarOpen={isAISidebarOpen}
         isFocusMode={isFocusMode}
         toggleFocusMode={toggleFocusMode}
@@ -105,7 +90,7 @@ const MobileLayout: React.FC = () => {
         )}
         
         <div className="flex-1 flex flex-col">
-          <MobileEditor
+          <UnifiedEditor
             content={content}
             setContent={setContent}
             isFocusMode={isFocusMode}

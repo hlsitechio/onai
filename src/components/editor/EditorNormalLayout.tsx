@@ -1,12 +1,10 @@
 
 import React from 'react';
 import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from '@/components/ui/resizable';
-import SidebarPanel from '@/components/editor/SidebarPanel';
-import NotesSidebar from '@/components/NotesSidebar';
-import AISidebar from '@/components/notes/AISidebar';
-import PlateEditor from '@/components/editor/PlateEditor';
-import EditorToolbar from '@/components/editor/EditorToolbar';
-import { cn } from '@/lib/utils';
+import UnifiedEditor from './UnifiedEditor';
+import UnifiedToolbar from './toolbar/UnifiedToolbar';
+import NotesSidebarContainer from '../notes/NotesSidebarContainer';
+import EnhancedAISidebar from '../notes/EnhancedAISidebar';
 
 interface EditorNormalLayoutProps {
   content: string;
@@ -20,11 +18,11 @@ interface EditorNormalLayoutProps {
   lastSaved: string | undefined;
   isFocusMode: boolean;
   toggleFocusMode: () => void;
-  handleNoteLoad: (noteContent: string) => void;
-  handleDeleteNote: (noteId: string) => Promise<boolean>;
+  handleNoteLoad: (noteId: string) => void;
+  handleDeleteNote: (noteId: string) => void;
   allNotes: Record<string, string>;
   createNewNote: () => void;
-  handleImportNotes: (importedNotes: Record<string, string>) => Promise<boolean>;
+  handleImportNotes: (event: React.ChangeEvent<HTMLInputElement>) => void;
 }
 
 const EditorNormalLayout: React.FC<EditorNormalLayoutProps> = ({
@@ -46,57 +44,28 @@ const EditorNormalLayout: React.FC<EditorNormalLayoutProps> = ({
   handleImportNotes,
 }) => {
   return (
-    <ResizablePanelGroup 
-      direction="horizontal" 
-      className="h-full w-full"
-      autoSaveId="noteflow-main-layout"
-    >
-      {/* Left sidebar - Notes */}
+    <ResizablePanelGroup direction="horizontal" className="h-full">
+      {/* Left Sidebar */}
       {isLeftSidebarOpen && (
         <>
-          <ResizablePanel 
-            id="notes-panel"
-            defaultSize={25} 
-            minSize={5} 
-            maxSize={80}
-            collapsible={true}
-            className="min-w-0"
-          >
-            <SidebarPanel>
-              <NotesSidebar 
-                currentContent={content} 
-                onLoadNote={handleNoteLoad}
-                onSave={handleSave}
-                onDeleteNote={handleDeleteNote}
-                editorHeight={0}
-                allNotes={allNotes}
-                onCreateNew={createNewNote}
-                onImportNotes={handleImportNotes}
-              />
-            </SidebarPanel>
+          <ResizablePanel defaultSize={20} minSize={15} maxSize={40}>
+            <NotesSidebarContainer
+              allNotes={allNotes}
+              onLoadNote={handleNoteLoad}
+              onDeleteNote={handleDeleteNote}
+              onCreateNew={createNewNote}
+              onImportNotes={handleImportNotes}
+            />
           </ResizablePanel>
-          <ResizableHandle 
-            withHandle={true}
-            className="w-1 hover:w-2 transition-all duration-150 z-30"
-          />
+          <ResizableHandle withHandle />
         </>
       )}
-      
-      {/* Main editor panel */}
-      <ResizablePanel 
-        id="editor-panel"
-        minSize={10}
-        className="flex flex-col min-w-0"
-      >
-        <div className={cn(
-          "flex flex-col h-full transition-all duration-300 ease-in-out",
-          "bg-gradient-to-br from-[#03010a] to-[#0a0518]",
-          "rounded-lg border border-white/5 overflow-hidden",
-          "shadow-[0_8px_30px_rgb(0,0,0,0.4)]"
-        )}>
-          {/* Editor Toolbar */}
-          <EditorToolbar
-            execCommand={execCommand}
+
+      {/* Main Editor Panel */}
+      <ResizablePanel defaultSize={isAISidebarOpen ? 50 : 80} minSize={30}>
+        <div className="flex flex-col h-full">
+          {/* Unified Toolbar */}
+          <UnifiedToolbar
             handleSave={handleSave}
             toggleLeftSidebar={toggleLeftSidebar}
             toggleAISidebar={toggleAISidebar}
@@ -109,7 +78,7 @@ const EditorNormalLayout: React.FC<EditorNormalLayoutProps> = ({
 
           {/* Main Editor Area */}
           <div className="flex-1 relative overflow-hidden">
-            <PlateEditor
+            <UnifiedEditor
               content={content}
               setContent={setContent}
               isFocusMode={isFocusMode}
@@ -117,29 +86,19 @@ const EditorNormalLayout: React.FC<EditorNormalLayoutProps> = ({
           </div>
         </div>
       </ResizablePanel>
-      
-      {/* Right sidebar - AI Assistant */}
+
+      {/* Right AI Sidebar */}
       {isAISidebarOpen && (
         <>
-          <ResizableHandle 
-            withHandle={true}
-            className="w-1 hover:w-2 transition-all duration-150 z-30"
-          />
-          <ResizablePanel 
-            id="ai-panel"
-            defaultSize={25} 
-            minSize={5} 
-            maxSize={80}
-            collapsible={true}
-            className="min-w-0"
-          >
-            <SidebarPanel>
-              <AISidebar
-                content={content}
-                onApplyChanges={setContent}
-                editorHeight={0}
-              />
-            </SidebarPanel>
+          <ResizableHandle withHandle />
+          <ResizablePanel defaultSize={30} minSize={20} maxSize={50}>
+            <EnhancedAISidebar
+              onClose={() => toggleAISidebar()}
+              content={content}
+              onApplyToEditor={(aiContent: string) => {
+                setContent(content + '\n\n' + aiContent);
+              }}
+            />
           </ResizablePanel>
         </>
       )}

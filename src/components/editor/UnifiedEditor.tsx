@@ -1,22 +1,28 @@
 
 import React, { useRef, useEffect } from 'react';
 import { cn } from '@/lib/utils';
-import AnimatedPlaceholder from '../editor/AnimatedPlaceholder';
+import { useDeviceDetection } from '@/hooks/useDeviceDetection';
+import { useToolbarActions } from '@/hooks/useToolbarActions';
+import AnimatedPlaceholder from './AnimatedPlaceholder';
 
-interface MobileEditorProps {
+interface UnifiedEditorProps {
   content: string;
   setContent: (content: string) => void;
-  isFocusMode: boolean;
+  isFocusMode?: boolean;
   placeholder?: string;
+  editor?: any;
 }
 
-const MobileEditor: React.FC<MobileEditorProps> = ({
+const UnifiedEditor: React.FC<UnifiedEditorProps> = ({
   content,
   setContent,
-  isFocusMode,
-  placeholder = "Start writing your note..."
+  isFocusMode = false,
+  placeholder = "Start writing your note...",
+  editor
 }) => {
+  const { isMobile } = useDeviceDetection();
   const editorRef = useRef<HTMLDivElement>(null);
+  const { execCommand } = useToolbarActions(editor);
 
   useEffect(() => {
     if (editorRef.current && editorRef.current.innerHTML !== content) {
@@ -31,20 +37,33 @@ const MobileEditor: React.FC<MobileEditorProps> = ({
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
-    // Basic keyboard shortcuts
+    // Handle keyboard shortcuts
     if (e.ctrlKey || e.metaKey) {
       switch (e.key) {
         case 'b':
           e.preventDefault();
-          document.execCommand('bold', false);
+          execCommand('bold');
           break;
         case 'i':
           e.preventDefault();
-          document.execCommand('italic', false);
+          execCommand('italic');
           break;
         case 'u':
           e.preventDefault();
-          document.execCommand('underline', false);
+          execCommand('underline');
+          break;
+        case 'z':
+          if (e.shiftKey) {
+            e.preventDefault();
+            execCommand('redo');
+          } else {
+            e.preventDefault();
+            execCommand('undo');
+          }
+          break;
+        case 'y':
+          e.preventDefault();
+          execCommand('redo');
           break;
       }
     }
@@ -52,26 +71,27 @@ const MobileEditor: React.FC<MobileEditorProps> = ({
     // Handle Enter key for better line breaks
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
-      document.execCommand('insertHTML', false, '<br><br>');
+      execCommand('insertHTML', '<br><br>');
     }
 
-    // Prevent default tab behavior and insert spaces instead
+    // Handle Tab key
     if (e.key === 'Tab') {
       e.preventDefault();
-      document.execCommand('insertText', false, '    ');
+      execCommand('insertText', '    ');
     }
   };
 
   const handlePaste = (e: React.ClipboardEvent) => {
     e.preventDefault();
     const text = e.clipboardData.getData('text/plain');
-    document.execCommand('insertText', false, text);
+    execCommand('insertText', text);
   };
 
   return (
     <div className={cn(
       "flex-1 flex flex-col relative",
-      isFocusMode && "focus-mode"
+      isFocusMode && "focus-mode",
+      isMobile ? "bg-background" : "bg-gradient-to-br from-[#03010a] to-[#0a0518]"
     )}>
       <div className="flex-1 relative overflow-hidden">
         <div className="h-full flex flex-col">
@@ -82,9 +102,15 @@ const MobileEditor: React.FC<MobileEditorProps> = ({
             onKeyDown={handleKeyDown}
             onPaste={handlePaste}
             className={cn(
-              "flex-1 p-4 outline-none bg-transparent",
-              "prose prose-sm max-w-none dark:prose-invert",
-              "focus:ring-0 focus:outline-none leading-relaxed",
+              "flex-1 outline-none leading-relaxed",
+              isMobile ? [
+                "p-4 prose prose-sm max-w-none dark:prose-invert",
+                "focus:ring-0 focus:outline-none text-foreground"
+              ] : [
+                "px-4 py-2 prose prose-lg max-w-none dark:prose-invert",
+                "focus:ring-0 focus:outline-none text-white",
+                "min-h-[300px]"
+              ],
               !content && "text-muted-foreground"
             )}
             style={{
@@ -95,8 +121,12 @@ const MobileEditor: React.FC<MobileEditorProps> = ({
             suppressContentEditableWarning={true}
             data-placeholder={placeholder}
           />
+          
           {!content && (
-            <div className="absolute top-4 left-4 pointer-events-none">
+            <div className={cn(
+              "absolute pointer-events-none",
+              isMobile ? "top-4 left-4" : "top-2 left-4"
+            )}>
               <AnimatedPlaceholder isVisible={true} />
             </div>
           )}
@@ -106,4 +136,4 @@ const MobileEditor: React.FC<MobileEditorProps> = ({
   );
 };
 
-export default MobileEditor;
+export default UnifiedEditor;
