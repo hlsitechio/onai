@@ -1,6 +1,7 @@
 
 import React, { useMemo } from 'react';
-import { Plate, PlateContent, createPlateEditor } from '@udecode/plate-common/react';
+import { Plate, PlateContent } from '@udecode/plate-common/react';
+import { createPlateEditor } from '@udecode/plate-common';
 import { createBasicElementsPlugin } from '@udecode/plate-basic-elements/react';
 import { createBasicMarksPlugin } from '@udecode/plate-basic-marks/react';
 import { createListPlugin } from '@udecode/plate-list/react';
