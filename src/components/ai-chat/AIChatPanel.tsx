@@ -18,8 +18,10 @@ const AIChatPanel: React.FC<AIChatPanelProps> = ({ onClose, onApplyToEditor }) =
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSubmit = async (e?: React.FormEvent) => {
+    if (e) {
+      e.preventDefault();
+    }
     
     if (!input.trim()) {
       toast({
@@ -47,6 +49,13 @@ const AIChatPanel: React.FC<AIChatPanelProps> = ({ onClose, onApplyToEditor }) =
       });
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      handleSubmit();
     }
   };
 
@@ -114,7 +123,8 @@ const AIChatPanel: React.FC<AIChatPanelProps> = ({ onClose, onApplyToEditor }) =
         <Textarea
           value={input}
           onChange={(e) => setInput(e.target.value)}
-          placeholder="Ask the AI anything... (e.g., 'Help me write a blog post about React')"
+          onKeyDown={handleKeyDown}
+          placeholder="Ask the AI anything... (e.g., 'Help me write a blog post about React') - Press Enter to send, Shift+Enter for new line"
           className="bg-black/30 border-white/10 text-white min-h-[80px]"
           disabled={isLoading}
         />
