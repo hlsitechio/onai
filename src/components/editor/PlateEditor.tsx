@@ -4,7 +4,8 @@ import {
   createSlateEditor,
   PlateProvider,
   Plate,
-} from '@udecode/plate-common';
+  useEditorRef,
+} from '@udecode/plate';
 import {
   BaseBasicElementsPlugin,
 } from '@udecode/plate-basic-elements';
