@@ -7,13 +7,15 @@ import EditorManager from "@/components/editor/EditorManager";
 import ErrorBoundary from "@/components/ErrorBoundary";
 
 const App = () => {
-  return <ErrorBoundary>
+  return (
+    <ErrorBoundary>
       <DebugWrapper componentName="App">
         <EditorManager />
         <PWAInstaller />
         <PWAUpdateNotifier />
       </DebugWrapper>
-    </ErrorBoundary>;
+    </ErrorBoundary>
+  );
 };
 
 export default App;
