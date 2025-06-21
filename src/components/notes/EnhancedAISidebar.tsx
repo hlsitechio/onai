@@ -12,7 +12,6 @@ interface EnhancedAISidebarProps {
 const EnhancedAISidebar: React.FC<EnhancedAISidebarProps> = ({
   content,
   onApplyChanges,
-  editorHeight,
   onClose
 }) => {
   const handleApplyToEditor = (aiContent: string) => {
