@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { usePlateEditorState } from '@udecode/plate-common/react';
+import { usePlateEditorState } from '@udecode/plate-common';
 import { 
   toggleMark,
   insertNodes,
