@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { usePlateEditorState, toggleMark, insertNodes, isMarkActive } from '@udecode/plate';
+import { usePlateEditorState, toggleMark, insertNodes, isMarkActive } from '@udecode/plate-react';
 import { Button } from '@/components/ui/button';
 import { 
   Bold, 
