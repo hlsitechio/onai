@@ -3,139 +3,64 @@ import React from 'react';
 import { Bold, Italic, Underline, Strikethrough, Code, Superscript, Subscript } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
-import type { Editor } from '@tiptap/react';
 
 interface FormatControlsProps {
-  editor: Editor;
+  editor?: any;
 }
 
 const FormatControls: React.FC<FormatControlsProps> = ({ editor }) => {
-  if (!editor) return null;
+  const execCommand = (command: string, value?: string) => {
+    console.log('Executing command:', command, value);
+    
+    // Use document.execCommand for contentEditable
+    try {
+      document.execCommand(command, false, value);
+    } catch (error) {
+      console.log('Command execution failed:', command, error);
+    }
+  };
 
   const formatButtons = [
     {
       icon: Bold,
-      isActive: () => editor.isActive && editor.isActive('bold'),
-      onClick: () => {
-        try {
-          if (editor.chain && typeof editor.chain === 'function') {
-            editor.chain().focus().toggleBold().run();
-          } else {
-            document.execCommand('bold', false);
-          }
-        } catch {
-          document.execCommand('bold', false);
-        }
-      },
+      onClick: () => execCommand('bold'),
       title: 'Bold (Ctrl+B)',
       shortcut: 'Ctrl+B'
     },
     {
       icon: Italic,
-      isActive: () => editor.isActive && editor.isActive('italic'),
-      onClick: () => {
-        try {
-          if (editor.chain && typeof editor.chain === 'function') {
-            editor.chain().focus().toggleItalic().run();
-          } else {
-            document.execCommand('italic', false);
-          }
-        } catch {
-          document.execCommand('italic', false);
-        }
-      },
+      onClick: () => execCommand('italic'),
       title: 'Italic (Ctrl+I)',
       shortcut: 'Ctrl+I'
     },
     {
       icon: Underline,
-      isActive: () => editor.isActive && editor.isActive('underline'),
-      onClick: () => {
-        try {
-          if (editor.chain && typeof editor.chain === 'function') {
-            editor.chain().focus().toggleUnderline().run();
-          } else {
-            document.execCommand('underline', false);
-          }
-        } catch {
-          document.execCommand('underline', false);
-        }
-      },
+      onClick: () => execCommand('underline'),
       title: 'Underline (Ctrl+U)',
       shortcut: 'Ctrl+U'
     },
     {
       icon: Strikethrough,
-      isActive: () => editor.isActive && editor.isActive('strike'),
-      onClick: () => {
-        try {
-          if (editor.chain && typeof editor.chain === 'function' && editor.can && editor.can().toggleStrike()) {
-            editor.chain().focus().toggleStrike().run();
-          } else {
-            document.execCommand('strikeThrough', false);
-          }
-        } catch {
-          document.execCommand('strikeThrough', false);
-        }
-      },
+      onClick: () => execCommand('strikeThrough'),
       title: 'Strikethrough',
       shortcut: null
     },
     {
       icon: Code,
-      isActive: () => editor.isActive && editor.isActive('code'),
-      onClick: () => {
-        try {
-          if (editor.chain && typeof editor.chain === 'function') {
-            editor.chain().focus().toggleCode().run();
-          } else {
-            document.execCommand('formatBlock', false, 'code');
-          }
-        } catch {
-          document.execCommand('formatBlock', false, 'code');
-        }
-      },
+      onClick: () => execCommand('formatBlock', 'code'),
       title: 'Inline Code',
       shortcut: null
     },
     {
       icon: Superscript,
-      isActive: () => editor.isActive && editor.isActive('superscript'),
-      onClick: () => {
-        try {
-          // Try Tiptap method first
-          if (editor.chain && typeof editor.chain === 'function') {
-            editor.chain().focus().toggleSuperscript().run();
-          } else {
-            // Fallback to document.execCommand
-            document.execCommand('superscript', false);
-          }
-        } catch {
-          // Final fallback
-          document.execCommand('superscript', false);
-        }
-      },
+      onClick: () => execCommand('superscript'),
       title: 'Superscript',
       shortcut: null,
       className: 'hidden sm:flex'
     },
     {
       icon: Subscript,
-      isActive: () => editor.isActive && editor.isActive('subscript'),
-      onClick: () => {
-        try {
-          // Try Tiptap method first
-          if (editor.chain && typeof editor.chain === 'function') {
-            editor.chain().focus().toggleSubscript().run();
-          } else {
-            // Fallback to document.execCommand
-            document.execCommand('subscript', false);
-          }
-        } catch {
-          // Final fallback
-          document.execCommand('subscript', false);
-        }
-      },
+      onClick: () => execCommand('subscript'),
       title: 'Subscript',
       shortcut: null,
       className: 'hidden sm:flex'
@@ -146,7 +71,6 @@ const FormatControls: React.FC<FormatControlsProps> = ({ editor }) => {
     <div className="flex items-center gap-1">
       {formatButtons.map((button, index) => {
         const Icon = button.icon;
-        const isActive = button.isActive();
         return (
           <Button
             key={index}
@@ -154,10 +78,7 @@ const FormatControls: React.FC<FormatControlsProps> = ({ editor }) => {
             size="sm"
             onClick={button.onClick}
             className={cn(
-              "h-8 w-8 p-0 hover:bg-white/10 transition-colors",
-              isActive 
-                ? "bg-white/20 text-white" 
-                : "text-gray-300 hover:text-white",
+              "h-8 w-8 p-0 hover:bg-white/10 transition-colors text-gray-300 hover:text-white",
               button.className
             )}
             title={button.title}
