@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { Link, LinkOff, ExternalLink } from 'lucide-react';
+import { Link, Link2Off, ExternalLink } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -153,7 +153,7 @@ const LinkControls: React.FC<LinkControlsProps> = ({ editor }) => {
           className="h-8 w-8 p-0 text-gray-300 hover:text-white hover:bg-white/10 transition-colors"
           title="Remove Link"
         >
-          <LinkOff className="h-4 w-4" />
+          <Link2Off className="h-4 w-4" />
         </Button>
       )}
     </div>
