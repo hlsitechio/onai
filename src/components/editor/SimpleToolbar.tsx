@@ -12,20 +12,17 @@ import {
   ListOrdered
 } from 'lucide-react';
 
-const PlateToolbar: React.FC = () => {
-  // Simple toolbar with basic formatting options
-  // We'll implement the actual editor commands once we have a working base
-  
+const SimpleToolbar: React.FC = () => {
   const handleBold = () => {
-    document.execCommand('bold', false, undefined);
+    document.execCommand('bold', false);
   };
 
   const handleItalic = () => {
-    document.execCommand('italic', false, undefined);
+    document.execCommand('italic', false);
   };
 
   const handleUnderline = () => {
-    document.execCommand('underline', false, undefined);
+    document.execCommand('underline', false);
   };
 
   const handleHeading = (level: number) => {
@@ -33,11 +30,11 @@ const PlateToolbar: React.FC = () => {
   };
 
   const handleBulletList = () => {
-    document.execCommand('insertUnorderedList', false, undefined);
+    document.execCommand('insertUnorderedList', false);
   };
 
   const handleNumberedList = () => {
-    document.execCommand('insertOrderedList', false, undefined);
+    document.execCommand('insertOrderedList', false);
   };
 
   return (
@@ -162,4 +159,4 @@ const PlateToolbar: React.FC = () => {
   );
 };
 
-export default PlateToolbar;
+export default SimpleToolbar;

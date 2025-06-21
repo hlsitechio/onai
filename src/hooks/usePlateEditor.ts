@@ -1,5 +1,5 @@
 
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback } from 'react';
 
 interface UsePlateEditorProps {
   content: string;
@@ -15,7 +15,7 @@ export const usePlateEditor = ({ content, setContent, isFocusMode }: UsePlateEdi
     setContent(newContent);
   }, [setContent]);
 
-  // Helper function for safe command execution (placeholder for Plate commands)
+  // Helper function for safe command execution
   const safeCommand = useCallback((commandName: string, commandFn: () => boolean) => {
     try {
       return commandFn();
@@ -26,7 +26,7 @@ export const usePlateEditor = ({ content, setContent, isFocusMode }: UsePlateEdi
   }, []);
 
   return {
-    editor: null, // Plate editor will be managed internally
+    editor: null,
     isLoading,
     selectedText,
     handleContentChange,
