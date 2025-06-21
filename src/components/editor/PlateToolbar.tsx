@@ -1,7 +1,7 @@
 
 import React from 'react';
-import { useEditorRef, useEditorSelector } from '@udecode/plate-common/react';
-import { toggleMark, insertNodes } from '@udecode/plate-common';
+import { useEditorRef, useEditorState } from 'platejs/react';
+import { toggleMark, insertNodes } from 'platejs';
 import { Button } from '@/components/ui/button';
 import { 
   Bold, 
@@ -27,19 +27,12 @@ const ELEMENT_LI = 'li';
 
 const PlateToolbar: React.FC = () => {
   const editor = useEditorRef();
+  const editorState = useEditorState();
   
-  const isBoldActive = useEditorSelector(
-    (editor) => !!editor?.getMarks?.()?.[MARK_BOLD], 
-    []
-  );
-  const isItalicActive = useEditorSelector(
-    (editor) => !!editor?.getMarks?.()?.[MARK_ITALIC], 
-    []
-  );
-  const isUnderlineActive = useEditorSelector(
-    (editor) => !!editor?.getMarks?.()?.[MARK_UNDERLINE], 
-    []
-  );
+  // Check if marks are active
+  const isBoldActive = editor?.getMarks?.()?.[MARK_BOLD] || false;
+  const isItalicActive = editor?.getMarks?.()?.[MARK_ITALIC] || false;
+  const isUnderlineActive = editor?.getMarks?.()?.[MARK_UNDERLINE] || false;
 
   const toggleBold = () => {
     if (editor) toggleMark(editor, { key: MARK_BOLD });

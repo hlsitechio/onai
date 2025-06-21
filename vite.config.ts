@@ -66,12 +66,7 @@ export default defineConfig(({ mode }) => ({
           vendor: ['react', 'react-dom'],
           query: ['@tanstack/react-query'],
           editor: [
-            '@udecode/plate-common',
-            '@udecode/plate-basic-elements',
-            '@udecode/plate-basic-marks',
-            '@udecode/plate-list',
-            '@udecode/plate-link',
-            '@udecode/plate-media'
+            'platejs'
           ],
           ui: [
             '@radix-ui/react-tabs',
@@ -114,7 +109,7 @@ export default defineConfig(({ mode }) => ({
       '@radix-ui/react-slot',
       '@radix-ui/react-tooltip',
       'loglevel',
-      '@udecode/plate-common'
+      'platejs'
     ],
     // Force pre-bundling to resolve version conflicts
     force: true,

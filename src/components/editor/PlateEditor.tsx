@@ -1,27 +1,11 @@
 
 import React, { useMemo } from 'react';
+import { Plate, PlateContent, createPlateEditor } from 'platejs/react';
 import { 
-  Plate,
-  PlateContent,
-  createPlateEditor,
-  PlateMethods
-} from '@udecode/plate-common/react';
-import { 
-  BasicElementsPlugin
-} from '@udecode/plate-basic-elements/react';
-import { 
-  BasicMarksPlugin
-} from '@udecode/plate-basic-marks/react';
-import { 
+  BasicElementsPlugin,
+  BasicMarksPlugin,
   ListPlugin
-} from '@udecode/plate-list/react';
-import { LinkPlugin } from '@udecode/plate-link/react';
-import { MediaEmbedPlugin } from '@udecode/plate-media/react';
-import { SelectOnBackspacePlugin } from '@udecode/plate-select';
-import { NodeIdPlugin } from '@udecode/plate-node-id';
-import { NormalizeTypesPlugin } from '@udecode/plate-normalizers';
-import { BaseResetNodePlugin } from '@udecode/plate-reset-node';
-import { TrailingBlockPlugin } from '@udecode/plate-trailing-block';
+} from 'platejs';
 import PlateToolbar from './PlateToolbar';
 
 interface PlateEditorProps {
@@ -31,16 +15,9 @@ interface PlateEditorProps {
 }
 
 const plugins = [
-  NodeIdPlugin,
   BasicElementsPlugin,
   BasicMarksPlugin,
   ListPlugin,
-  LinkPlugin,
-  MediaEmbedPlugin,
-  SelectOnBackspacePlugin,
-  NormalizeTypesPlugin,
-  BaseResetNodePlugin,
-  TrailingBlockPlugin,
 ];
 
 const PlateEditor: React.FC<PlateEditorProps> = ({
