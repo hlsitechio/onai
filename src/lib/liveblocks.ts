@@ -12,21 +12,28 @@ const client = createClient({
   throttle: 16,
 });
 
-// Define user info interface
+// Define user info interface that's JSON serializable
 export interface UserInfo {
   name: string;
   avatar?: string;
   color: string;
+  [key: string]: string | undefined; // Index signature for JSON compatibility
 }
 
 // Define presence and storage types for TypeScript
 type Presence = {
   cursor: { x: number; y: number } | null;
   user?: UserInfo;
+  [key: string]: any; // Index signature for JSON compatibility
 };
 
 type Storage = {
-  // We'll use Yjs for collaborative text editing
+  // We'll use this for non-collaborative features
+  userPreferences?: {
+    theme?: string;
+    fontSize?: number;
+    [key: string]: any;
+  };
 };
 
 // Create the room context
