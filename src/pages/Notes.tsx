@@ -7,14 +7,18 @@ import { useSidebarManager } from '@/hooks/useSidebarManager';
 import NotesEditor from '@/components/notes/NotesEditor';
 import NotesSidebar from '@/components/notes/NotesSidebar';
 import EnhancedAISidebar from '@/components/notes/EnhancedAISidebar';
+import AIFloatingToolbar from '@/components/editor/ai-enhanced/AIFloatingToolbar';
 import DotGridBackground from '@/components/DotGridBackground';
 import MobileLayout from '@/components/mobile/MobileLayout';
 import { cn } from '@/lib/utils';
+import { useToast } from '@/hooks/use-toast';
+import { callGeminiAI } from '@/utils/aiUtils';
 
 const Notes: React.FC = () => {
   const [content, setContent] = useState('');
   const { isMobile } = useDeviceDetection();
   const { isFocusMode } = useFocusModeManager();
+  const { toast } = useToast();
   const { 
     isSidebarCollapsed, 
     isAISidebarVisible, 
@@ -27,6 +31,57 @@ const Notes: React.FC = () => {
     'ctrl+\\': toggleSidebar,
     'ctrl+shift+a': toggleAISidebar
   });
+
+  const handleQuickAction = async (action: string) => {
+    if (!content.trim()) {
+      toast({
+        title: 'No content',
+        description: 'Please add some content to your note first.',
+        variant: 'destructive'
+      });
+      return;
+    }
+
+    try {
+      let prompt = '';
+      switch (action) {
+        case 'improve':
+          prompt = 'Please improve and enhance this text while maintaining its original meaning:';
+          break;
+        case 'summarize':
+          prompt = 'Please provide a concise summary of this content:';
+          break;
+        case 'ideas':
+          prompt = 'Based on this content, please generate 5-7 related ideas or concepts:';
+          break;
+        case 'continue':
+          prompt = 'Please continue writing this content in the same style and tone:';
+          break;
+        case 'translate':
+          prompt = 'Please translate this content to Spanish:';
+          break;
+        case 'grammar':
+          prompt = 'Please fix any grammar, spelling, or punctuation errors in this text:';
+          break;
+        default:
+          prompt = 'Please help me with this content:';
+      }
+
+      const response = await callGeminiAI(prompt, content, action);
+      setContent(content + '\n\n' + response);
+      
+      toast({
+        title: 'AI Action Complete',
+        description: `${action.charAt(0).toUpperCase() + action.slice(1)} completed successfully.`,
+      });
+    } catch (error) {
+      toast({
+        title: 'AI Action Failed',
+        description: 'Failed to process your request. Please try again.',
+        variant: 'destructive'
+      });
+    }
+  };
 
   // If mobile, show mobile layout
   if (isMobile) {
@@ -49,8 +104,17 @@ const Notes: React.FC = () => {
         {/* Main Content */}
         <div className="flex-1 flex overflow-hidden">
           {/* Editor */}
-          <div className="flex-1">
+          <div className="flex-1 relative">
             <NotesEditor />
+            
+            {/* AI Floating Toolbar */}
+            {!isFocusMode && (
+              <AIFloatingToolbar
+                onOpenChat={toggleAISidebar}
+                onQuickAction={handleQuickAction}
+                isVisible={!isAISidebarVisible}
+              />
+            )}
           </div>
 
           {/* Enhanced AI Sidebar */}
@@ -65,6 +129,7 @@ const Notes: React.FC = () => {
                   onApplyChanges={(newContent) => {
                     setContent(newContent);
                   }}
+                  onClose={toggleAISidebar}
                 />
               )}
             </div>

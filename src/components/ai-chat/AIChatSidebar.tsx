@@ -12,7 +12,10 @@ import {
   Check, 
   Trash2,
   X,
-  Zap
+  Zap,
+  MessageSquare,
+  User,
+  Bot
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { callGeminiAI, getUsageStats } from '@/utils/aiUtils';
@@ -40,7 +43,7 @@ const AIChatSidebar: React.FC<AIChatSidebarProps> = ({
     {
       id: '1',
       role: 'assistant',
-      content: 'Hi! I\'m your AI writing assistant powered by Gemini 2.5 Flash. I can help you with writing, editing, brainstorming, and much more. What would you like to work on today?',
+      content: 'Hi! I\'m your AI writing assistant powered by Gemini 2.5 Flash. I can help you with:\n\n• Writing and editing\n• Content analysis and improvement\n• Brainstorming ideas\n• Text summarization\n• Translation\n• And much more!\n\nWhat would you like to work on today?',
       timestamp: new Date()
     }
   ]);
@@ -87,12 +90,12 @@ const AIChatSidebar: React.FC<AIChatSidebarProps> = ({
     setIsProcessing(true);
 
     try {
-      const contextMessage = `Current document content: ${content}\n\nChat history: ${messages.map(m => `${m.role}: ${m.content}`).join('\n')}\n\nUser request: ${inputValue}`;
+      const contextMessage = `Current document content: ${content}\n\nUser request: ${inputValue}`;
       
       const response = await callGeminiAI(
         contextMessage,
         content,
-        'improve'
+        'chat'
       );
 
       setMessages(prev => prev.map(msg => 
@@ -168,14 +171,53 @@ const AIChatSidebar: React.FC<AIChatSidebarProps> = ({
     });
   };
 
+  const quickActions = [
+    { label: 'Improve this text', action: 'improve' },
+    { label: 'Summarize content', action: 'summarize' },
+    { label: 'Generate ideas', action: 'ideas' },
+    { label: 'Fix grammar', action: 'grammar' },
+  ];
+
+  const handleQuickAction = async (action: string) => {
+    if (!content.trim()) {
+      toast({
+        title: 'No content',
+        description: 'Please add some content to your note first.',
+        variant: 'destructive'
+      });
+      return;
+    }
+
+    let prompt = '';
+    switch (action) {
+      case 'improve':
+        prompt = 'Please improve and enhance this text while maintaining its original meaning:';
+        break;
+      case 'summarize':
+        prompt = 'Please provide a concise summary of this content:';
+        break;
+      case 'ideas':
+        prompt = 'Based on this content, please generate 5-7 related ideas or concepts:';
+        break;
+      case 'grammar':
+        prompt = 'Please fix any grammar, spelling, or punctuation errors in this text:';
+        break;
+      default:
+        prompt = 'Please help me with this content:';
+    }
+
+    setInputValue(prompt);
+    handleSendMessage();
+  };
+
   return (
-    <div className="w-full h-full flex flex-col bg-gradient-to-br from-[#03010a] to-[#0a0518] border-l border-white/10">
+    <div className="w-full h-full flex flex-col">
       {/* Header */}
       <div className="p-4 border-b border-white/10 bg-black/20">
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-2">
             <Sparkles className="h-5 w-5 text-noteflow-400" />
-            <h2 className="text-lg font-semibold text-white">AI Chat</h2>
+            <h2 className="text-lg font-semibold text-white">AI Assistant</h2>
             <Badge variant="outline" className="bg-noteflow-500/20 text-noteflow-300 border-noteflow-500/30 text-xs">
               Gemini 2.5 Flash
             </Badge>
@@ -190,22 +232,11 @@ const AIChatSidebar: React.FC<AIChatSidebarProps> = ({
             >
               <Trash2 className="h-4 w-4" />
             </Button>
-            {onClose && (
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={onClose}
-                className="h-8 w-8 p-0 text-slate-400 hover:text-white"
-                title="Close chat"
-              >
-                <X className="h-4 w-4" />
-              </Button>
-            )}
           </div>
         </div>
 
         {/* Usage Stats */}
-        <div className="flex items-center justify-between text-xs text-slate-400">
+        <div className="flex items-center justify-between text-xs text-slate-400 mb-3">
           <span>{usageStats.used}/{usageStats.limit} requests today</span>
           <div className="w-20 bg-black/30 rounded-full h-1.5">
             <div 
@@ -213,6 +244,21 @@ const AIChatSidebar: React.FC<AIChatSidebarProps> = ({
               style={{ width: `${usageStats.percent}%` }}
             />
           </div>
+        </div>
+
+        {/* Quick Actions */}
+        <div className="grid grid-cols-2 gap-2">
+          {quickActions.map((action) => (
+            <Button
+              key={action.action}
+              variant="outline"
+              size="sm"
+              onClick={() => handleQuickAction(action.action)}
+              className="h-8 text-xs bg-black/20 border-white/10 text-white hover:bg-white/10"
+            >
+              {action.label}
+            </Button>
+          ))}
         </div>
       </div>
 
@@ -224,48 +270,64 @@ const AIChatSidebar: React.FC<AIChatSidebarProps> = ({
               key={message.id}
               className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
             >
-              <div
-                className={`max-w-[85%] rounded-lg p-3 ${
-                  message.role === 'user'
-                    ? 'bg-noteflow-500/20 border border-noteflow-500/30'
+              <div className={`flex gap-3 max-w-[85%] ${message.role === 'user' ? 'flex-row-reverse' : 'flex-row'}`}>
+                {/* Avatar */}
+                <div className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center ${
+                  message.role === 'user' 
+                    ? 'bg-noteflow-500/20 border border-noteflow-500/30' 
                     : 'bg-black/30 border border-white/10'
-                }`}
-              >
-                {message.isLoading ? (
-                  <div className="flex items-center gap-2 text-slate-400">
-                    <Loader2 className="h-4 w-4 animate-spin" />
-                    <span>AI is thinking...</span>
-                  </div>
-                ) : (
-                  <>
-                    <div className="text-sm whitespace-pre-wrap text-white">{message.content}</div>
-                    {message.role === 'assistant' && (
-                      <div className="flex items-center gap-2 mt-2 pt-2 border-t border-white/10">
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => copyToClipboard(message.content, message.id)}
-                          className="h-6 px-2 text-xs text-slate-400 hover:text-white"
-                        >
-                          {copiedId === message.id ? (
-                            <Check className="h-3 w-3" />
-                          ) : (
-                            <Copy className="h-3 w-3" />
-                          )}
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => applyToEditor(message.content)}
-                          className="h-6 px-2 text-xs text-noteflow-400 hover:text-noteflow-300"
-                        >
-                          <Zap className="h-3 w-3 mr-1" />
-                          Apply
-                        </Button>
-                      </div>
-                    )}
-                  </>
-                )}
+                }`}>
+                  {message.role === 'user' ? (
+                    <User className="h-4 w-4 text-noteflow-400" />
+                  ) : (
+                    <Bot className="h-4 w-4 text-white" />
+                  )}
+                </div>
+
+                {/* Message Content */}
+                <div
+                  className={`rounded-lg p-3 ${
+                    message.role === 'user'
+                      ? 'bg-noteflow-500/20 border border-noteflow-500/30'
+                      : 'bg-black/30 border border-white/10'
+                  }`}
+                >
+                  {message.isLoading ? (
+                    <div className="flex items-center gap-2 text-slate-400">
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                      <span>AI is thinking...</span>
+                    </div>
+                  ) : (
+                    <>
+                      <div className="text-sm whitespace-pre-wrap text-white">{message.content}</div>
+                      {message.role === 'assistant' && (
+                        <div className="flex items-center gap-2 mt-2 pt-2 border-t border-white/10">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => copyToClipboard(message.content, message.id)}
+                            className="h-6 px-2 text-xs text-slate-400 hover:text-white"
+                          >
+                            {copiedId === message.id ? (
+                              <Check className="h-3 w-3" />
+                            ) : (
+                              <Copy className="h-3 w-3" />
+                            )}
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => applyToEditor(message.content)}
+                            className="h-6 px-2 text-xs text-noteflow-400 hover:text-noteflow-300"
+                          >
+                            <Zap className="h-3 w-3 mr-1" />
+                            Apply
+                          </Button>
+                        </div>
+                      )}
+                    </>
+                  )}
+                </div>
               </div>
             </div>
           ))}
@@ -281,7 +343,7 @@ const AIChatSidebar: React.FC<AIChatSidebarProps> = ({
             value={inputValue}
             onChange={(e) => setInputValue(e.target.value)}
             onKeyPress={handleKeyPress}
-            placeholder="Type your message... (Enter to send)"
+            placeholder="Ask AI about your content... (Enter to send)"
             className="flex-1 bg-black/30 border-white/10 text-white placeholder:text-slate-400 focus:border-noteflow-500"
             disabled={isProcessing}
           />
