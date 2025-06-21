@@ -1,6 +1,6 @@
 
-import React, { useState } from 'react';
-import { Editor } from '@tiptap/react';
+import React from 'react';
+import { type Editor } from '@tiptap/react';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import {
@@ -9,283 +9,224 @@ import {
   Underline,
   Strikethrough,
   Code,
-  Quote,
+  AlignLeft,
+  AlignCenter,
+  AlignRight,
   List,
   ListOrdered,
-  Heading1,
-  Heading2,
-  Heading3,
-  Link,
-  Image,
+  Quote,
+  Minus,
   Undo,
   Redo,
-  Sparkles,
-  ScanText,
-  Upload
+  Camera,
+  Loader2
 } from 'lucide-react';
-import OCRPopup from '../../ocr/OCRPopup';
-import OCRCameraButton from '../../ocr/OCRCameraButton';
-import { cn } from '@/lib/utils';
 
 interface TiptapEnhancedToolbarProps {
   editor: Editor;
-  onAIClick?: () => void;
   onCameraOCRClick?: () => void;
   isCameraOCRProcessing?: boolean;
 }
 
-const TiptapEnhancedToolbar: React.FC<TiptapEnhancedToolbarProps> = ({ 
-  editor, 
-  onAIClick,
+const TiptapEnhancedToolbar: React.FC<TiptapEnhancedToolbarProps> = ({
+  editor,
   onCameraOCRClick,
   isCameraOCRProcessing = false
 }) => {
-  const [isOCROpen, setIsOCROpen] = useState(false);
-
-  const handleTextFormatting = (format: string) => {
-    switch (format) {
-      case 'bold':
-        editor.chain().focus().toggleBold().run();
-        break;
-      case 'italic':
-        editor.chain().focus().toggleItalic().run();
-        break;
-      case 'underline':
-        editor.chain().focus().toggleUnderline().run();
-        break;
-      case 'strike':
-        editor.chain().focus().toggleStrike().run();
-        break;
-      case 'code':
-        editor.chain().focus().toggleCode().run();
-        break;
-      case 'blockquote':
-        editor.chain().focus().toggleBlockquote().run();
-        break;
-      case 'bulletList':
-        editor.chain().focus().toggleBulletList().run();
-        break;
-      case 'orderedList':
-        editor.chain().focus().toggleOrderedList().run();
-        break;
-      case 'h1':
-        editor.chain().focus().toggleHeading({ level: 1 }).run();
-        break;
-      case 'h2':
-        editor.chain().focus().toggleHeading({ level: 2 }).run();
-        break;
-      case 'h3':
-        editor.chain().focus().toggleHeading({ level: 3 }).run();
-        break;
-      case 'undo':
-        editor.chain().focus().undo().run();
-        break;
-      case 'redo':
-        editor.chain().focus().redo().run();
-        break;
+  const formatButtons = [
+    {
+      name: 'bold',
+      icon: Bold,
+      isActive: () => editor.isActive('bold'),
+      command: () => editor.chain().focus().toggleBold().run(),
+      title: 'Bold (Ctrl+B)'
+    },
+    {
+      name: 'italic',
+      icon: Italic,
+      isActive: () => editor.isActive('italic'),
+      command: () => editor.chain().focus().toggleItalic().run(),
+      title: 'Italic (Ctrl+I)'
+    },
+    {
+      name: 'underline',
+      icon: Underline,
+      isActive: () => editor.isActive('underline'),
+      command: () => editor.chain().focus().toggleUnderline().run(),
+      title: 'Underline (Ctrl+U)'
+    },
+    {
+      name: 'strike',
+      icon: Strikethrough,
+      isActive: () => editor.isActive('strike'),
+      command: () => editor.chain().focus().toggleStrike().run(),
+      title: 'Strikethrough'
+    },
+    {
+      name: 'code',
+      icon: Code,
+      isActive: () => editor.isActive('code'),
+      command: () => editor.chain().focus().toggleCode().run(),
+      title: 'Inline Code'
     }
-  };
+  ];
 
-  const insertLink = () => {
-    const url = window.prompt('Enter URL:');
-    if (url) {
-      editor.chain().focus().setLink({ href: url }).run();
+  const alignButtons = [
+    {
+      name: 'left',
+      icon: AlignLeft,
+      isActive: () => editor.isActive({ textAlign: 'left' }),
+      command: () => editor.chain().focus().setTextAlign('left').run(),
+      title: 'Align Left'
+    },
+    {
+      name: 'center',
+      icon: AlignCenter,
+      isActive: () => editor.isActive({ textAlign: 'center' }),
+      command: () => editor.chain().focus().setTextAlign('center').run(),
+      title: 'Align Center'
+    },
+    {
+      name: 'right',
+      icon: AlignRight,
+      isActive: () => editor.isActive({ textAlign: 'right' }),
+      command: () => editor.chain().focus().setTextAlign('right').run(),
+      title: 'Align Right'
     }
-  };
+  ];
 
-  const insertImage = () => {
-    const url = window.prompt('Enter image URL:');
-    if (url) {
-      editor.chain().focus().setImage({ src: url }).run();
+  const listButtons = [
+    {
+      name: 'bulletList',
+      icon: List,
+      isActive: () => editor.isActive('bulletList'),
+      command: () => editor.chain().focus().toggleBulletList().run(),
+      title: 'Bullet List'
+    },
+    {
+      name: 'orderedList',
+      icon: ListOrdered,
+      isActive: () => editor.isActive('orderedList'),
+      command: () => editor.chain().focus().toggleOrderedList().run(),
+      title: 'Numbered List'
     }
-  };
-
-  const handleOCRTextExtracted = (text: string) => {
-    if (text && text.trim()) {
-      editor.chain().focus().insertContent(text).run();
-    }
-  };
-
-  const ToolbarButton = ({ 
-    onClick, 
-    isActive = false, 
-    children, 
-    title,
-    disabled = false 
-  }: {
-    onClick: () => void;
-    isActive?: boolean;
-    children: React.ReactNode;
-    title: string;
-    disabled?: boolean;
-  }) => (
-    <Button
-      variant="ghost"
-      size="sm"
-      onClick={onClick}
-      disabled={disabled}
-      className={cn(
-        "h-8 w-8 p-0 text-slate-300 hover:text-white hover:bg-white/10",
-        isActive && "bg-white/10 text-white"
-      )}
-      title={title}
-    >
-      {children}
-    </Button>
-  );
+  ];
 
   return (
-    <div className="flex items-center gap-1 flex-wrap p-1">
-      {/* History */}
-      <ToolbarButton
-        onClick={() => handleTextFormatting('undo')}
-        title="Undo"
+    <div className="flex items-center gap-1 p-2 flex-wrap">
+      {/* History Controls */}
+      <Button
+        variant="ghost"
+        size="sm"
+        onClick={() => editor.chain().focus().undo().run()}
         disabled={!editor.can().undo()}
+        className="h-8 w-8 p-0"
+        title="Undo"
       >
         <Undo className="h-4 w-4" />
-      </ToolbarButton>
-      <ToolbarButton
-        onClick={() => handleTextFormatting('redo')}
-        title="Redo"
+      </Button>
+      <Button
+        variant="ghost"
+        size="sm"
+        onClick={() => editor.chain().focus().redo().run()}
         disabled={!editor.can().redo()}
+        className="h-8 w-8 p-0"
+        title="Redo"
       >
         <Redo className="h-4 w-4" />
-      </ToolbarButton>
+      </Button>
 
-      <Separator orientation="vertical" className="h-6 bg-white/10" />
+      <Separator orientation="vertical" className="h-6 mx-1" />
 
-      {/* Text Formatting */}
-      <ToolbarButton
-        onClick={() => handleTextFormatting('bold')}
-        isActive={editor.isActive('bold')}
-        title="Bold"
-      >
-        <Bold className="h-4 w-4" />
-      </ToolbarButton>
-      <ToolbarButton
-        onClick={() => handleTextFormatting('italic')}
-        isActive={editor.isActive('italic')}
-        title="Italic"
-      >
-        <Italic className="h-4 w-4" />
-      </ToolbarButton>
-      <ToolbarButton
-        onClick={() => handleTextFormatting('underline')}
-        isActive={editor.isActive('underline')}
-        title="Underline"
-      >
-        <Underline className="h-4 w-4" />
-      </ToolbarButton>
-      <ToolbarButton
-        onClick={() => handleTextFormatting('strike')}
-        isActive={editor.isActive('strike')}
-        title="Strikethrough"  
-      >
-        <Strikethrough className="h-4 w-4" />
-      </ToolbarButton>
+      {/* Format Controls */}
+      {formatButtons.map((button) => (
+        <Button
+          key={button.name}
+          variant="ghost"
+          size="sm"
+          onClick={button.command}
+          className={`h-8 w-8 p-0 ${button.isActive() ? 'bg-accent' : ''}`}
+          title={button.title}
+        >
+          <button.icon className="h-4 w-4" />
+        </Button>
+      ))}
 
-      <Separator orientation="vertical" className="h-6 bg-white/10" />
+      <Separator orientation="vertical" className="h-6 mx-1" />
 
-      {/* Headings */}
-      <ToolbarButton
-        onClick={() => handleTextFormatting('h1')}
-        isActive={editor.isActive('heading', { level: 1 })}
-        title="Heading 1"
-      >
-        <Heading1 className="h-4 w-4" />
-      </ToolbarButton>
-      <ToolbarButton
-        onClick={() => handleTextFormatting('h2')}
-        isActive={editor.isActive('heading', { level: 2 })}
-        title="Heading 2"
-      >
-        <Heading2 className="h-4 w-4" />
-      </ToolbarButton>
-      <ToolbarButton
-        onClick={() => handleTextFormatting('h3')}
-        isActive={editor.isActive('heading', { level: 3 })}
-        title="Heading 3"
-      >
-        <Heading3 className="h-4 w-4" />
-      </ToolbarButton>
+      {/* Alignment Controls */}
+      {alignButtons.map((button) => (
+        <Button
+          key={button.name}
+          variant="ghost"
+          size="sm"
+          onClick={button.command}
+          className={`h-8 w-8 p-0 ${button.isActive() ? 'bg-accent' : ''}`}
+          title={button.title}
+        >
+          <button.icon className="h-4 w-4" />
+        </Button>
+      ))}
 
-      <Separator orientation="vertical" className="h-6 bg-white/10" />
+      <Separator orientation="vertical" className="h-6 mx-1" />
 
-      {/* Lists and Blocks */}
-      <ToolbarButton
-        onClick={() => handleTextFormatting('bulletList')}
-        isActive={editor.isActive('bulletList')}
-        title="Bullet List"
-      >
-        <List className="h-4 w-4" />
-      </ToolbarButton>
-      <ToolbarButton
-        onClick={() => handleTextFormatting('orderedList')}
-        isActive={editor.isActive('orderedList')}
-        title="Numbered List"
-      >
-        <ListOrdered className="h-4 w-4" />
-      </ToolbarButton>
-      <ToolbarButton
-        onClick={() => handleTextFormatting('blockquote')}
-        isActive={editor.isActive('blockquote')}
+      {/* List Controls */}
+      {listButtons.map((button) => (
+        <Button
+          key={button.name}
+          variant="ghost"
+          size="sm"
+          onClick={button.command}
+          className={`h-8 w-8 p-0 ${button.isActive() ? 'bg-accent' : ''}`}
+          title={button.title}
+        >
+          <button.icon className="h-4 w-4" />
+        </Button>
+      ))}
+
+      <Separator orientation="vertical" className="h-6 mx-1" />
+
+      {/* Additional Controls */}
+      <Button
+        variant="ghost"
+        size="sm"
+        onClick={() => editor.chain().focus().toggleBlockquote().run()}
+        className={`h-8 w-8 p-0 ${editor.isActive('blockquote') ? 'bg-accent' : ''}`}
         title="Quote"
       >
         <Quote className="h-4 w-4" />
-      </ToolbarButton>
-      <ToolbarButton
-        onClick={() => handleTextFormatting('code')}
-        isActive={editor.isActive('code')}
-        title="Inline Code"
+      </Button>
+
+      <Button
+        variant="ghost"
+        size="sm"
+        onClick={() => editor.chain().focus().setHorizontalRule().run()}
+        className="h-8 w-8 p-0"
+        title="Horizontal Rule"
       >
-        <Code className="h-4 w-4" />
-      </ToolbarButton>
+        <Minus className="h-4 w-4" />
+      </Button>
 
-      <Separator orientation="vertical" className="h-6 bg-white/10" />
-
-      {/* Insert */}
-      <ToolbarButton onClick={insertLink} title="Insert Link">
-        <Link className="h-4 w-4" />
-      </ToolbarButton>
-      <ToolbarButton onClick={insertImage} title="Insert Image">
-        <Image className="h-4 w-4" />
-      </ToolbarButton>
-
-      <Separator orientation="vertical" className="h-6 bg-white/10" />
-
-      {/* OCR Tools */}
-      <ToolbarButton
-        onClick={() => setIsOCROpen(true)}
-        title="OCR - Extract Text from Image"
-      >
-        <ScanText className="h-4 w-4" />
-      </ToolbarButton>
-
+      {/* Camera OCR Button */}
       {onCameraOCRClick && (
-        <OCRCameraButton
-          onClick={onCameraOCRClick}
-          isProcessing={isCameraOCRProcessing}
-          variant="ghost"
-          size="sm"
-          className="h-8 w-8 p-0 text-slate-300 hover:text-white hover:bg-white/10"
-        />
+        <>
+          <Separator orientation="vertical" className="h-6 mx-1" />
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={onCameraOCRClick}
+            disabled={isCameraOCRProcessing}
+            className="h-8 w-8 p-0"
+            title="Camera OCR"
+          >
+            {isCameraOCRProcessing ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <Camera className="h-4 w-4" />
+            )}
+          </Button>
+        </>
       )}
-
-      <Separator orientation="vertical" className="h-6 bg-white/10" />
-
-      {/* AI */}
-      {onAIClick && (
-        <ToolbarButton onClick={onAIClick} title="AI Assistant">
-          <Sparkles className="h-4 w-4" />
-        </ToolbarButton>
-      )}
-
-      {/* OCR Popup */}
-      <OCRPopup
-        isOpen={isOCROpen}
-        onClose={() => setIsOCROpen(false)}
-        onTextExtracted={handleOCRTextExtracted}
-      />
     </div>
   );
 };
