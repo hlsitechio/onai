@@ -6,6 +6,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useEditorManager } from '@/hooks/useEditorManager';
 import { useEditorEffects } from '@/hooks/useEditorEffects';
 import { useEditorHandlers } from '@/hooks/useEditorHandlers';
+import { useNotesImportExport } from '@/utils/notesImportExport';
 import { EditorLoadingStates } from '@/components/editor/EditorLoadingStates';
 import EditorBackgroundLayout from '@/components/editor/EditorBackgroundLayout';
 import EditorHeader from '@/components/editor/EditorHeader';
@@ -57,6 +58,15 @@ const EditorManager: React.FC = () => {
     createNote,
     deleteNote,
   });
+
+  const { handleImportNotes: importNotesFromFile } = useNotesImportExport();
+
+  // Handle import notes with proper callback
+  const handleImportNotesWithCallback = () => {
+    importNotesFromFile(async (importedNotes: Record<string, string>) => {
+      await handleImportNotes(importedNotes);
+    });
+  };
 
   // Update content when current note changes
   useEffect(() => {
@@ -130,9 +140,7 @@ const EditorManager: React.FC = () => {
             handleDeleteNote={handleDeleteNote}
             allNotes={allNotes}
             createNewNote={createNewNote}
-            handleImportNotes={(event: React.ChangeEvent<HTMLInputElement>) => {
-              handleImportNotes(event);
-            }}
+            handleImportNotes={handleImportNotesWithCallback}
           />
         )}
       </div>

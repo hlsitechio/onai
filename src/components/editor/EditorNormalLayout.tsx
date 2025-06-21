@@ -23,7 +23,7 @@ interface EditorNormalLayoutProps {
   handleDeleteNote: (noteId: string) => void;
   allNotes: Record<string, string>;
   createNewNote: () => void;
-  handleImportNotes: (event: React.ChangeEvent<HTMLInputElement>) => void;
+  handleImportNotes: () => void;
 }
 
 const EditorNormalLayout: React.FC<EditorNormalLayoutProps> = ({
