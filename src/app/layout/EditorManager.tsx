@@ -71,6 +71,7 @@ const EditorManager: React.FC = () => {
   useEffect(() => {
     if (currentNote) {
       setContent(currentNote.content || '');
+      console.log('Current note changed, content updated:', currentNote.id);
     } else {
       setContent('');
     }
@@ -121,6 +122,7 @@ const EditorManager: React.FC = () => {
             lastSaved={lastSavedString}
             isFocusMode={isFocusMode}
             toggleFocusMode={toggleFocusMode}
+            saving={saving}
           />
         ) : (
           <EditorNormalLayout
@@ -140,6 +142,7 @@ const EditorManager: React.FC = () => {
             allNotes={allNotes}
             createNewNote={createNewNote}
             handleImportNotes={handleImportNotesWithCallback}
+            saving={saving}
           />
         )}
       </div>

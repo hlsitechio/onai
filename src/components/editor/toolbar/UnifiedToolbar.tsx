@@ -224,8 +224,6 @@ const UnifiedToolbar: React.FC<UnifiedToolbarProps> = ({
           {/* Format Controls */}
           <FormatControls editor={editor} />
 
-          <div className="w-px h-6 bg-white/10" />
-
           {/* Headings dropdown */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
