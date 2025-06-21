@@ -1,6 +1,6 @@
 
 import React, { useMemo } from 'react';
-import { PlateProvider, Plate } from '@udecode/plate-common/react';
+import { PlateProvider, Plate, PlateContent } from '@udecode/plate-common/react';
 import { createPlateEditor } from '@udecode/plate-common/react';
 import { 
   BasicElementsPlugin,
@@ -15,7 +15,6 @@ import {
   MARK_ITALIC,
   MARK_UNDERLINE
 } from '@udecode/plate-basic-marks/react';
-import { AlignPlugin } from '@udecode/plate-alignment/react';
 import { 
   ListPlugin,
   ELEMENT_UL,
@@ -41,11 +40,6 @@ const plugins = [
   NodeIdPlugin,
   BasicElementsPlugin,
   BasicMarksPlugin,
-  AlignPlugin.configure({
-    inject: {
-      targetPlugins: [ELEMENT_PARAGRAPH],
-    },
-  }),
   ListPlugin,
   LinkPlugin,
   MediaEmbedPlugin,
@@ -95,13 +89,9 @@ const PlateEditor: React.FC<PlateEditorProps> = ({
         
         <div className="flex-1 relative overflow-hidden">
           <Plate>
-            <div
-              className="h-full overflow-y-auto px-4 py-2 prose prose-invert dark:prose-invert max-w-none outline-none min-h-[300px] focus:outline-none"
-              data-plate-selectable
-              data-slate-editor
-              contentEditable
-              suppressContentEditableWarning
-              style={{ whiteSpace: 'pre-wrap' }}
+            <PlateContent
+              className="h-full overflow-y-auto px-4 py-2 prose prose-invert dark:prose-invert max-w-none outline-none min-h-[300px] focus:outline-none bg-transparent text-white"
+              placeholder="Start writing your note..."
             />
           </Plate>
         </div>
