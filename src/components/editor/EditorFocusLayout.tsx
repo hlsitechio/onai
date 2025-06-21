@@ -14,6 +14,7 @@ interface EditorFocusLayoutProps {
   lastSaved: string | undefined;
   isFocusMode: boolean;
   toggleFocusMode: () => void;
+  saving?: boolean;
 }
 
 const EditorFocusLayout: React.FC<EditorFocusLayoutProps> = ({
@@ -26,6 +27,7 @@ const EditorFocusLayout: React.FC<EditorFocusLayoutProps> = ({
   lastSaved,
   isFocusMode,
   toggleFocusMode,
+  saving = false,
 }) => {
   return (
     <div className="h-full w-full flex flex-col">
@@ -39,6 +41,7 @@ const EditorFocusLayout: React.FC<EditorFocusLayoutProps> = ({
         lastSaved={lastSaved}
         isFocusMode={isFocusMode}
         toggleFocusMode={toggleFocusMode}
+        saving={saving}
       />
 
       {/* Main Editor Area */}

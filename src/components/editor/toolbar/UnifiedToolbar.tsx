@@ -1,7 +1,6 @@
-
 import React from 'react';
 import { Button } from '@/components/ui/button';
-import { Save, Focus, Clock, PanelLeft, Sparkles, ChevronDown } from 'lucide-react';
+import { Save, Focus, Clock, PanelLeft, Sparkles, ChevronDown, CheckCircle } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useDeviceDetection } from '@/hooks/useDeviceDetection';
 import { useToolbarActions } from '@/hooks/useToolbarActions';
@@ -23,6 +22,7 @@ interface UnifiedToolbarProps {
   lastSaved?: string;
   isFocusMode?: boolean;
   toggleFocusMode?: () => void;
+  saving?: boolean;
 }
 
 const UnifiedToolbar: React.FC<UnifiedToolbarProps> = ({
@@ -34,7 +34,8 @@ const UnifiedToolbar: React.FC<UnifiedToolbarProps> = ({
   isAISidebarOpen,
   lastSaved,
   isFocusMode = false,
-  toggleFocusMode = () => {}
+  toggleFocusMode = () => {},
+  saving = false
 }) => {
   const { isMobile, isTablet } = useDeviceDetection();
   const { execCommand } = useToolbarActions(editor);
@@ -47,10 +48,10 @@ const UnifiedToolbar: React.FC<UnifiedToolbarProps> = ({
       const now = new Date();
       const diffInMinutes = Math.floor((now.getTime() - date.getTime()) / (1000 * 60));
       
-      if (diffInMinutes < 1) return 'Just saved';
-      if (diffInMinutes < 60) return `${diffInMinutes}m ago`;
-      if (diffInMinutes < 1440) return `${Math.floor(diffInMinutes / 60)}h ago`;
-      return date.toLocaleDateString();
+      if (diffInMinutes < 1) return 'Just saved to Supabase';
+      if (diffInMinutes < 60) return `Saved ${diffInMinutes}m ago`;
+      if (diffInMinutes < 1440) return `Saved ${Math.floor(diffInMinutes / 60)}h ago`;
+      return `Saved ${date.toLocaleDateString()}`;
     } catch {
       return 'Save time unknown';
     }
@@ -152,10 +153,20 @@ const UnifiedToolbar: React.FC<UnifiedToolbarProps> = ({
             <Button
               onClick={handleSave}
               size="sm"
-              className="bg-purple-600 hover:bg-purple-700 text-white px-3 h-9 transition-colors"
+              disabled={saving}
+              className="bg-purple-600 hover:bg-purple-700 text-white px-3 h-9 transition-colors disabled:opacity-50"
             >
-              <Save className="h-4 w-4 mr-1" />
-              Save
+              {saving ? (
+                <>
+                  <div className="animate-spin h-4 w-4 mr-1 border-2 border-white/30 border-t-white rounded-full" />
+                  Saving...
+                </>
+              ) : (
+                <>
+                  <Save className="h-4 w-4 mr-1" />
+                  Save
+                </>
+              )}
             </Button>
           </div>
         </div>
@@ -166,49 +177,13 @@ const UnifiedToolbar: React.FC<UnifiedToolbarProps> = ({
             <FormatControls editor={editor} />
           </div>
           
-          <div className="flex items-center gap-1">
-            {/* Headings dropdown */}
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="sm" className="h-8 px-2 text-white/70 hover:text-white hover:bg-white/10">
-                  <span className="text-xs">H</span>
-                  <ChevronDown className="h-3 w-3 ml-1" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent className="bg-black/90 border-white/10">
-                {headingOptions.map((option) => (
-                  <DropdownMenuItem
-                    key={option.value}
-                    onClick={option.command}
-                    className="text-white hover:bg-white/10"
-                  >
-                    {option.label}
-                  </DropdownMenuItem>
-                ))}
-              </DropdownMenuContent>
-            </DropdownMenu>
-
-            {/* Lists dropdown */}
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="sm" className="h-8 px-2 text-white/70 hover:text-white hover:bg-white/10">
-                  <span className="text-xs">•</span>
-                  <ChevronDown className="h-3 w-3 ml-1" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent className="bg-black/90 border-white/10">
-                {listOptions.map((option, idx) => (
-                  <DropdownMenuItem
-                    key={idx}
-                    onClick={option.command}
-                    className="text-white hover:bg-white/10"
-                  >
-                    {option.label}
-                  </DropdownMenuItem>
-                ))}
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </div>
+          {/* Show save status on mobile */}
+          {lastSaved && (
+            <div className="flex items-center gap-1 text-xs text-purple-300">
+              <CheckCircle className="h-3 w-3" />
+              <span>Saved</span>
+            </div>
+          )}
         </div>
       </div>
     );
@@ -392,8 +367,8 @@ const UnifiedToolbar: React.FC<UnifiedToolbarProps> = ({
         {/* Right section - Actions and status */}
         <div className="flex items-center gap-3">
           {lastSaved && (
-            <div className="flex items-center gap-2 text-sm text-white/50">
-              <Clock className="h-3 w-3" />
+            <div className="flex items-center gap-2 text-sm text-white/70">
+              <CheckCircle className="h-4 w-4 text-green-400" />
               <span>{formatLastSaved(lastSaved)}</span>
             </div>
           )}
@@ -431,10 +406,20 @@ const UnifiedToolbar: React.FC<UnifiedToolbarProps> = ({
           <Button
             onClick={handleSave}
             size="sm"
-            className="bg-purple-600 hover:bg-purple-700 text-white px-4 h-9 transition-colors shadow-lg"
+            disabled={saving}
+            className="bg-purple-600 hover:bg-purple-700 text-white px-4 h-9 transition-colors shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            <Save className="h-4 w-4 mr-2" />
-            Save
+            {saving ? (
+              <>
+                <div className="animate-spin h-4 w-4 mr-2 border-2 border-white/30 border-t-white rounded-full" />
+                Saving to Supabase...
+              </>
+            ) : (
+              <>
+                <Save className="h-4 w-4 mr-2" />
+                Save to Supabase
+              </>
+            )}
           </Button>
         </div>
       </div>

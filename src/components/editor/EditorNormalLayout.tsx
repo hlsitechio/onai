@@ -24,6 +24,7 @@ interface EditorNormalLayoutProps {
   allNotes: Record<string, string>;
   createNewNote: () => void;
   handleImportNotes: () => void;
+  saving?: boolean;
 }
 
 const EditorNormalLayout: React.FC<EditorNormalLayoutProps> = ({
@@ -43,6 +44,7 @@ const EditorNormalLayout: React.FC<EditorNormalLayoutProps> = ({
   allNotes,
   createNewNote,
   handleImportNotes,
+  saving = false,
 }) => {
   // Convert Record<string, string> to Note format for NotesSidebar
   const notesForSidebar = Object.entries(allNotes).reduce((acc, [id, content]) => {
@@ -68,6 +70,7 @@ const EditorNormalLayout: React.FC<EditorNormalLayoutProps> = ({
         lastSaved={lastSaved}
         isFocusMode={isFocusMode}
         toggleFocusMode={toggleFocusMode}
+        saving={saving}
       />
 
       {/* Main content area with resizable panels */}

@@ -2,93 +2,71 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
-import { supabase } from '@/integrations/supabase/client';
+import { saveNoteSecurely, getAllNotesSecurely, deleteNoteSecurely } from '@/utils/enhancedSupabaseStorage';
+import { v4 as uuidv4 } from 'uuid';
 
-interface Note {
+export interface Note {
   id: string;
   title: string;
   content: string;
   created_at: string;
   updated_at: string;
-  parent_id?: string | null; // Add parent_id for folder support
+  user_id?: string;
 }
 
 export function useNotesManager() {
-  const { user } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   const { toast } = useToast();
+  
   const [notes, setNotes] = useState<Note[]>([]);
   const [currentNote, setCurrentNote] = useState<Note | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
 
-  // Extract clean text from HTML content
-  const extractTextFromHTML = (htmlContent: string): string => {
-    if (!htmlContent) return '';
-    
-    const tempDiv = document.createElement('div');
-    tempDiv.innerHTML = htmlContent;
-    const textContent = tempDiv.textContent || tempDiv.innerText || '';
-    return textContent.trim();
-  };
-
-  // Generate title from content
-  const generateTitleFromContent = (content: string): string => {
-    const textContent = extractTextFromHTML(content);
-    
-    if (textContent && textContent.length > 0) {
-      const firstLine = textContent.split('\n')[0].trim();
-      if (firstLine) {
-        return firstLine.substring(0, 50) + (firstLine.length > 50 ? '...' : '');
-      }
-    }
-    
-    return `Note ${new Date().toLocaleDateString()}`;
-  };
-
   // Load notes when user is authenticated
   useEffect(() => {
-    if (user) {
-      loadNotes();
-    } else {
-      setLoading(false);
-      setNotes([]);
-      setCurrentNote(null);
-    }
-  }, [user]);
-
-  const loadNotes = useCallback(async () => {
-    if (!user) return;
-
-    try {
-      setLoading(true);
-      const { data, error } = await supabase
-        .from('notes_v2')
-        .select('*')
-        .eq('user_id', user.id)
-        .order('updated_at', { ascending: false });
-
-      if (error) throw error;
-
-      console.log('Loaded notes:', data); // Debug log
-      setNotes(data || []);
-      
-      // Set current note to the most recent one if none is selected
-      if (!currentNote && data && data.length > 0) {
-        setCurrentNote(data[0]);
+    const loadNotes = async () => {
+      if (!user || authLoading) {
+        setLoading(false);
+        return;
       }
-    } catch (error) {
-      console.error('Error loading notes:', error);
-      toast({
-        title: 'Error loading notes',
-        description: 'Failed to load your notes. Please try refreshing.',
-        variant: 'destructive',
-      });
-    } finally {
-      setLoading(false);
-    }
-  }, [user, toast, currentNote]);
 
-  const createNote = async (title?: string, content?: string) => {
+      try {
+        setLoading(true);
+        const notesData = await getAllNotesSecurely();
+        
+        // Convert the Record<string, string> to Note[]
+        const notesList: Note[] = Object.entries(notesData).map(([id, content]) => ({
+          id,
+          title: content.split('\n')[0]?.slice(0, 50) || 'Untitled',
+          content,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+          user_id: user.id
+        }));
+
+        setNotes(notesList);
+        
+        // Set current note to the first one if available
+        if (notesList.length > 0 && !currentNote) {
+          setCurrentNote(notesList[0]);
+        }
+      } catch (error) {
+        console.error('Error loading notes:', error);
+        toast({
+          title: 'Error loading notes',
+          description: 'Failed to load your notes from Supabase.',
+          variant: 'destructive',
+        });
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadNotes();
+  }, [user, authLoading, toast]);
+
+  const createNote = useCallback(async (title?: string, content?: string): Promise<Note | null> => {
     if (!user) {
       toast({
         title: 'Authentication required',
@@ -99,48 +77,43 @@ export function useNotesManager() {
     }
 
     try {
-      const noteContent = content || '';
-      const noteTitle = title || generateTitleFromContent(noteContent);
-
-      const newNote = {
-        title: noteTitle,
-        content: noteContent,
-        user_id: user.id,
-        content_type: 'html',
-        is_public: false,
-        is_encrypted: false,
-        parent_id: null, // New notes start in root
+      const newNote: Note = {
+        id: uuidv4(),
+        title: title || 'New Note',
+        content: content || '',
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+        user_id: user.id
       };
 
-      const { data, error } = await supabase
-        .from('notes_v2')
-        .insert(newNote)
-        .select()
-        .single();
-
-      if (error) throw error;
-
-      const createdNote = data as Note;
-      setNotes(prev => [createdNote, ...prev]);
+      // Save to Supabase
+      const result = await saveNoteSecurely(newNote.id, newNote.content);
       
+      if (!result.success) {
+        throw new Error(result.error || 'Failed to create note');
+      }
+
+      setNotes(prev => [newNote, ...prev]);
+      setCurrentNote(newNote);
+
       toast({
         title: 'Note created',
-        description: 'New note created successfully.',
+        description: 'Your new note has been created successfully.',
       });
 
-      return createdNote;
+      return newNote;
     } catch (error) {
       console.error('Error creating note:', error);
       toast({
         title: 'Error creating note',
-        description: 'Failed to create a new note. Please try again.',
+        description: 'Failed to create a new note.',
         variant: 'destructive',
       });
       return null;
     }
-  };
+  }, [user, toast]);
 
-  const saveNote = async (noteId: string, updates: Partial<Note>) => {
+  const saveNote = useCallback(async (noteId: string, updates: Partial<Note>): Promise<boolean> => {
     if (!user) {
       toast({
         title: 'Authentication required',
@@ -150,151 +123,108 @@ export function useNotesManager() {
       return false;
     }
 
-    // Improved content validation - check for actual text content
-    const content = updates.content || '';
-    const textContent = extractTextFromHTML(content);
-    
-    if (!textContent.trim() && content === '<p></p>') {
-      toast({
-        title: 'Cannot save empty note',
-        description: 'Please add some content before saving.',
-        variant: 'destructive',
-      });
-      return false;
-    }
-
     try {
       setSaving(true);
       
-      // Auto-generate title from content if title is not provided or is generic
-      let finalUpdates = { ...updates };
-      if (!updates.title || updates.title === 'Untitled Note' || updates.title.startsWith('Note ')) {
-        finalUpdates.title = generateTitleFromContent(content);
+      const noteToUpdate = notes.find(note => note.id === noteId);
+      if (!noteToUpdate) {
+        throw new Error('Note not found');
       }
+
+      const updatedContent = updates.content || noteToUpdate.content;
       
-      // First check if the note exists
-      const { data: existingNote, error: checkError } = await supabase
-        .from('notes_v2')
-        .select('id')
-        .eq('id', noteId)
-        .eq('user_id', user.id)
-        .maybeSingle();
-
-      if (checkError) throw checkError;
-
-      let result;
-      if (existingNote) {
-        // Note exists, update it
-        const { data, error } = await supabase
-          .from('notes_v2')
-          .update({
-            ...finalUpdates,
-            updated_at: new Date().toISOString(),
-          })
-          .eq('id', noteId)
-          .eq('user_id', user.id)
-          .select()
-          .single();
-
-        if (error) throw error;
-        result = data;
-      } else {
-        // Note doesn't exist, create a new one with the same ID
-        // Ensure required fields are properly set
-        const noteToInsert = {
-          id: noteId,
-          title: finalUpdates.title || generateTitleFromContent(content),
-          content: content,
-          user_id: user.id,
-          content_type: 'html',
-          is_public: false,
-          is_encrypted: false,
-          parent_id: finalUpdates.parent_id || null,
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString(),
-        };
-
-        const { data, error } = await supabase
-          .from('notes_v2')
-          .insert(noteToInsert)
-          .select()
-          .single();
-
-        if (error) throw error;
-        result = data;
+      // Save to Supabase
+      const result = await saveNoteSecurely(noteId, updatedContent);
+      
+      if (!result.success) {
+        throw new Error(result.error || 'Failed to save note');
       }
 
       // Update local state
-      setNotes(prev => {
-        const existingIndex = prev.findIndex(note => note.id === noteId);
-        if (existingIndex >= 0) {
-          // Update existing note
-          const updated = [...prev];
-          updated[existingIndex] = { ...updated[existingIndex], ...result };
-          return updated;
-        } else {
-          // Add new note
-          return [result as Note, ...prev];
-        }
-      });
+      const updatedNote = {
+        ...noteToUpdate,
+        ...updates,
+        updated_at: new Date().toISOString()
+      };
+
+      setNotes(prev => prev.map(note => 
+        note.id === noteId ? updatedNote : note
+      ));
 
       if (currentNote?.id === noteId) {
-        setCurrentNote(prev => prev ? { ...prev, ...result } : result as Note);
+        setCurrentNote(updatedNote);
       }
 
-      // Trigger a reload of notes to ensure UI is in sync
-      setTimeout(() => {
-        loadNotes();
-      }, 100);
+      toast({
+        title: 'Note saved',
+        description: 'Your note has been saved to Supabase.',
+      });
 
       return true;
     } catch (error) {
       console.error('Error saving note:', error);
       toast({
         title: 'Error saving note',
-        description: 'Failed to save the note. Please try again.',
+        description: 'Failed to save your note to Supabase.',
         variant: 'destructive',
       });
       return false;
     } finally {
       setSaving(false);
     }
-  };
+  }, [user, notes, currentNote, toast]);
 
-  const deleteNote = async (noteId: string) => {
-    if (!user) return false;
+  const deleteNote = useCallback(async (noteId: string): Promise<boolean> => {
+    if (!user) {
+      toast({
+        title: 'Authentication required',
+        description: 'Please sign in to delete notes.',
+        variant: 'destructive',
+      });
+      return false;
+    }
 
     try {
-      const { error } = await supabase
-        .from('notes_v2')
-        .delete()
-        .eq('id', noteId)
-        .eq('user_id', user.id);
+      // Delete from Supabase
+      const result = await deleteNoteSecurely(noteId);
+      
+      if (!result.success) {
+        throw new Error(result.error || 'Failed to delete note');
+      }
 
-      if (error) throw error;
-
+      // Update local state
       setNotes(prev => prev.filter(note => note.id !== noteId));
       
+      // If we deleted the current note, clear it
       if (currentNote?.id === noteId) {
         setCurrentNote(null);
       }
 
+      toast({
+        title: 'Note deleted',
+        description: 'Your note has been deleted from Supabase.',
+      });
+
       return true;
     } catch (error) {
       console.error('Error deleting note:', error);
+      toast({
+        title: 'Error deleting note',
+        description: 'Failed to delete your note from Supabase.',
+        variant: 'destructive',
+      });
       return false;
     }
-  };
+  }, [user, currentNote, toast]);
 
   return {
     notes,
     currentNote,
     setCurrentNote,
-    loading,
+    loading: loading || authLoading,
     saving,
     createNote,
     saveNote,
     deleteNote,
-    loadNotes,
   };
 }
