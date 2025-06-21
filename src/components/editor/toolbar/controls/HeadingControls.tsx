@@ -6,22 +6,22 @@ import { cn } from '@/lib/utils';
 import type { Editor } from '@tiptap/react';
 
 interface HeadingControlsProps {
-  editor: Editor;
+  editor?: Editor;
 }
 
 const HeadingControls: React.FC<HeadingControlsProps> = ({ editor }) => {
-  if (!editor) return null;
-
   const headingButtons = [
     {
       icon: Heading1,
       level: 1 as const,
-      isActive: () => editor.isActive('heading', { level: 1 }),
+      isActive: () => editor?.isActive('heading', { level: 1 }) || false,
       onClick: () => {
-        if (editor.isActive('heading', { level: 1 })) {
+        if (editor?.isActive('heading', { level: 1 })) {
           editor.chain().focus().setParagraph().run();
-        } else {
+        } else if (editor?.chain) {
           editor.chain().focus().toggleHeading({ level: 1 }).run();
+        } else {
+          document.execCommand('formatBlock', false, 'h1');
         }
       },
       title: 'Heading 1'
@@ -29,12 +29,14 @@ const HeadingControls: React.FC<HeadingControlsProps> = ({ editor }) => {
     {
       icon: Heading2,
       level: 2 as const,
-      isActive: () => editor.isActive('heading', { level: 2 }),
+      isActive: () => editor?.isActive('heading', { level: 2 }) || false,
       onClick: () => {
-        if (editor.isActive('heading', { level: 2 })) {
+        if (editor?.isActive('heading', { level: 2 })) {
           editor.chain().focus().setParagraph().run();
-        } else {
+        } else if (editor?.chain) {
           editor.chain().focus().toggleHeading({ level: 2 }).run();
+        } else {
+          document.execCommand('formatBlock', false, 'h2');
         }
       },
       title: 'Heading 2'
@@ -42,12 +44,14 @@ const HeadingControls: React.FC<HeadingControlsProps> = ({ editor }) => {
     {
       icon: Heading3,
       level: 3 as const,
-      isActive: () => editor.isActive('heading', { level: 3 }),
+      isActive: () => editor?.isActive('heading', { level: 3 }) || false,
       onClick: () => {
-        if (editor.isActive('heading', { level: 3 })) {
+        if (editor?.isActive('heading', { level: 3 })) {
           editor.chain().focus().setParagraph().run();
-        } else {
+        } else if (editor?.chain) {
           editor.chain().focus().toggleHeading({ level: 3 }).run();
+        } else {
+          document.execCommand('formatBlock', false, 'h3');
         }
       },
       title: 'Heading 3'

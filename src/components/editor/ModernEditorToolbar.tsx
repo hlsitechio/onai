@@ -1,7 +1,6 @@
 
 import React from 'react';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 import { 
   Save, 
   Focus, 
@@ -54,9 +53,9 @@ const ModernEditorToolbar: React.FC<ModernEditorToolbarProps> = ({
     }
   };
 
-  // Create a proper mock editor object that matches the Tiptap editor interface
-  const mockEditor = {
-    isActive: (type: string, attrs?: any) => false,
+  // Create an editor-like object that uses execCommand
+  const commandEditor = {
+    isActive: () => false, // For now, we'll make this simple
     can: () => ({
       toggleBold: () => true,
       toggleItalic: () => true,
@@ -139,7 +138,7 @@ const ModernEditorToolbar: React.FC<ModernEditorToolbarProps> = ({
         {/* Left side - Primary toolbar controls */}
         <ToolbarRenderer
           sections={enhancedConfig.slice(0, 4)} // Navigation, Typography, Formatting, Structure
-          editor={mockEditor as any}
+          editor={commandEditor as any}
           className="flex-wrap"
         />
 
@@ -177,7 +176,7 @@ const ModernEditorToolbar: React.FC<ModernEditorToolbarProps> = ({
         {/* Left side - Enhanced formatting controls */}
         <ToolbarRenderer
           sections={enhancedConfig.slice(4)} // Content, Media, Advanced, Tables, Insert, History
-          editor={mockEditor as any}
+          editor={commandEditor as any}
           className="flex-wrap"
         />
 

@@ -6,33 +6,35 @@ import { cn } from '@/lib/utils';
 import type { Editor } from '@tiptap/react';
 
 interface ListControlsProps {
-  editor: Editor;
+  editor?: Editor;
 }
 
 const ListControls: React.FC<ListControlsProps> = ({ editor }) => {
-  if (!editor) return null;
-
   const listButtons = [
     {
       icon: List,
-      isActive: () => editor.isActive('bulletList'),
+      isActive: () => editor?.isActive('bulletList') || false,
       onClick: () => {
-        if (editor.isActive('bulletList')) {
+        if (editor?.isActive('bulletList')) {
           editor.chain().focus().liftListItem('listItem').run();
-        } else {
+        } else if (editor?.chain) {
           editor.chain().focus().toggleBulletList().run();
+        } else {
+          document.execCommand('insertUnorderedList', false);
         }
       },
       title: 'Bullet List'
     },
     {
       icon: ListOrdered,
-      isActive: () => editor.isActive('orderedList'),
+      isActive: () => editor?.isActive('orderedList') || false,
       onClick: () => {
-        if (editor.isActive('orderedList')) {
+        if (editor?.isActive('orderedList')) {
           editor.chain().focus().liftListItem('listItem').run();
-        } else {
+        } else if (editor?.chain) {
           editor.chain().focus().toggleOrderedList().run();
+        } else {
+          document.execCommand('insertOrderedList', false);
         }
       },
       title: 'Numbered List'

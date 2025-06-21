@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Undo, Redo } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -5,23 +6,33 @@ import { cn } from '@/lib/utils';
 import type { Editor } from '@tiptap/react';
 
 interface HistoryControlsProps {
-  editor: Editor;
+  editor?: Editor;
 }
 
 const HistoryControls: React.FC<HistoryControlsProps> = ({ editor }) => {
-  if (!editor) return null;
-
   const historyButtons = [
     {
       icon: Undo,
-      onClick: () => editor.chain().focus().undo().run(),
-      canExecute: () => editor.can().chain().focus().undo().run(),
+      onClick: () => {
+        if (editor?.chain) {
+          editor.chain().focus().undo().run();
+        } else {
+          document.execCommand('undo', false);
+        }
+      },
+      canExecute: () => editor?.can().chain().focus().undo().run() || true,
       title: 'Undo (Ctrl+Z)'
     },
     {
       icon: Redo,
-      onClick: () => editor.chain().focus().redo().run(),
-      canExecute: () => editor.can().chain().focus().redo().run(),
+      onClick: () => {
+        if (editor?.chain) {
+          editor.chain().focus().redo().run();
+        } else {
+          document.execCommand('redo', false);
+        }
+      },
+      canExecute: () => editor?.can().chain().focus().redo().run() || true,
       title: 'Redo (Ctrl+Y)'
     }
   ];

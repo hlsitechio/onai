@@ -6,19 +6,17 @@ import { cn } from '@/lib/utils';
 import type { Editor } from '@tiptap/react';
 
 interface FormatControlsProps {
-  editor: Editor;
+  editor?: Editor;
 }
 
 const FormatControls: React.FC<FormatControlsProps> = ({ editor }) => {
-  if (!editor) return null;
-
   const formatButtons = [
     {
       icon: Bold,
-      isActive: () => editor.isActive && editor.isActive('bold'),
+      isActive: () => editor?.isActive && editor.isActive('bold') || false,
       onClick: () => {
         try {
-          if (editor.chain && typeof editor.chain === 'function') {
+          if (editor?.chain && typeof editor.chain === 'function') {
             editor.chain().focus().toggleBold().run();
           } else {
             document.execCommand('bold', false);
@@ -32,10 +30,10 @@ const FormatControls: React.FC<FormatControlsProps> = ({ editor }) => {
     },
     {
       icon: Italic,
-      isActive: () => editor.isActive && editor.isActive('italic'),
+      isActive: () => editor?.isActive && editor.isActive('italic') || false,
       onClick: () => {
         try {
-          if (editor.chain && typeof editor.chain === 'function') {
+          if (editor?.chain && typeof editor.chain === 'function') {
             editor.chain().focus().toggleItalic().run();
           } else {
             document.execCommand('italic', false);
@@ -49,10 +47,10 @@ const FormatControls: React.FC<FormatControlsProps> = ({ editor }) => {
     },
     {
       icon: Underline,
-      isActive: () => editor.isActive && editor.isActive('underline'),
+      isActive: () => editor?.isActive && editor.isActive('underline') || false,
       onClick: () => {
         try {
-          if (editor.chain && typeof editor.chain === 'function') {
+          if (editor?.chain && typeof editor.chain === 'function') {
             editor.chain().focus().toggleUnderline().run();
           } else {
             document.execCommand('underline', false);
@@ -66,10 +64,10 @@ const FormatControls: React.FC<FormatControlsProps> = ({ editor }) => {
     },
     {
       icon: Strikethrough,
-      isActive: () => editor.isActive && editor.isActive('strike'),
+      isActive: () => editor?.isActive && editor.isActive('strike') || false,
       onClick: () => {
         try {
-          if (editor.chain && typeof editor.chain === 'function' && editor.can && editor.can().toggleStrike()) {
+          if (editor?.chain && typeof editor.chain === 'function' && editor.can && editor.can().toggleStrike()) {
             editor.chain().focus().toggleStrike().run();
           } else {
             document.execCommand('strikeThrough', false);
@@ -83,10 +81,10 @@ const FormatControls: React.FC<FormatControlsProps> = ({ editor }) => {
     },
     {
       icon: Code,
-      isActive: () => editor.isActive && editor.isActive('code'),
+      isActive: () => editor?.isActive && editor.isActive('code') || false,
       onClick: () => {
         try {
-          if (editor.chain && typeof editor.chain === 'function') {
+          if (editor?.chain && typeof editor.chain === 'function') {
             editor.chain().focus().toggleCode().run();
           } else {
             document.execCommand('formatBlock', false, 'code');
@@ -100,10 +98,10 @@ const FormatControls: React.FC<FormatControlsProps> = ({ editor }) => {
     },
     {
       icon: Superscript,
-      isActive: () => editor.isActive && editor.isActive('superscript'),
+      isActive: () => editor?.isActive && editor.isActive('superscript') || false,
       onClick: () => {
         try {
-          if (editor.chain && typeof editor.chain === 'function') {
+          if (editor?.chain && typeof editor.chain === 'function') {
             editor.chain().focus().toggleSuperscript().run();
           } else {
             document.execCommand('superscript', false);
@@ -118,10 +116,10 @@ const FormatControls: React.FC<FormatControlsProps> = ({ editor }) => {
     },
     {
       icon: Subscript,
-      isActive: () => editor.isActive && editor.isActive('subscript'),
+      isActive: () => editor?.isActive && editor.isActive('subscript') || false,
       onClick: () => {
         try {
-          if (editor.chain && typeof editor.chain === 'function') {
+          if (editor?.chain && typeof editor.chain === 'function') {
             editor.chain().focus().toggleSubscript().run();
           } else {
             document.execCommand('subscript', false);
