@@ -1,17 +1,21 @@
 
 import React, { useState, useEffect } from 'react';
 import { useTiptapEditor } from '@/hooks/useTiptapEditor';
-import { useAIAgent } from '@/hooks/useAIAgent';
 import { useStylusDetection } from '@/hooks/useStylusDetection';
 import { useCameraOCR } from '@/hooks/useCameraOCR';
 import TiptapEnhancedToolbar from './toolbar/TiptapEnhancedToolbar';
 import EditorLoadingState from './EditorLoadingState';
 import EditorErrorState from './EditorErrorState';
-import EditorContentArea from './EditorContentArea';
 import HandwritingCanvas from './HandwritingCanvas';
 import OCRCameraCapture from '../ocr/components/OCRCameraCapture';
+import AIChatPanel from './ai-enhanced/AIChatPanel';
+import AIEnhancedBubbleMenu from './ai-enhanced/AIEnhancedBubbleMenu';
+import AIFloatingToolbar from './ai-enhanced/AIFloatingToolbar';
+import { EditorContent } from '@tiptap/react';
 import { Button } from '@/components/ui/button';
-import { PenTool, Type } from 'lucide-react';
+import { PenTool, Type, MessageSquare, X } from 'lucide-react';
+import { callGeminiAI } from '@/utils/aiUtils';
+import { useToast } from '@/hooks/use-toast';
 
 interface TiptapEditorProps {
   content: string;
@@ -25,7 +29,10 @@ const TiptapEditor: React.FC<TiptapEditorProps> = ({
   isFocusMode = false
 }) => {
   const [inputMode, setInputMode] = useState<'text' | 'handwriting'>('text');
+  const [isChatOpen, setIsChatOpen] = useState(false);
+  const [isAIFloatingVisible, setIsAIFloatingVisible] = useState(true);
   const { hasStylus, isUsingStylus } = useStylusDetection();
+  const { toast } = useToast();
 
   const {
     editor,
@@ -44,20 +51,17 @@ const TiptapEditor: React.FC<TiptapEditorProps> = ({
     handlePhotoCapture
   } = useCameraOCR();
 
-  // Use AI Agent hook but without automatic text selection triggering
-  const {
-    isAIAgentVisible,
-    aiPosition,
-    showAIAgent,
-    hideAIAgent
-  } = useAIAgent(editor);
-
   // Auto-switch to handwriting mode when stylus is detected
   useEffect(() => {
     if (isUsingStylus && inputMode === 'text') {
       setInputMode('handwriting');
     }
   }, [isUsingStylus, inputMode]);
+
+  // Hide floating toolbar when chat is open or in focus mode
+  useEffect(() => {
+    setIsAIFloatingVisible(!isChatOpen && !isFocusMode);
+  }, [isChatOpen, isFocusMode]);
 
   const handleHandwritingComplete = (handwrittenText: string) => {
     if (editor) {
@@ -73,18 +77,59 @@ const TiptapEditor: React.FC<TiptapEditorProps> = ({
     }
   };
 
-  // Manual AI trigger function
-  const handleManualAITrigger = () => {
-    if (editor) {
-      const { from } = editor.state.selection;
-      const coords = editor.view.coordsAtPos(from);
+  const handleAIQuickAction = async (action: string) => {
+    if (!editor) return;
+
+    const contextText = selectedText || editor.getText().slice(-200);
+    
+    try {
+      let prompt = '';
+      switch (action) {
+        case 'improve':
+          prompt = `Improve and enhance this text: "${contextText}"`;
+          break;
+        case 'summarize':
+          prompt = `Summarize this text concisely: "${contextText}"`;
+          break;
+        case 'translate':
+          prompt = `Translate this text to Spanish: "${contextText}"`;
+          break;
+        case 'ideas':
+          prompt = `Generate ideas and expand on this: "${contextText}"`;
+          break;
+        case 'continue':
+          prompt = `Continue this text naturally: "${contextText}"`;
+          break;
+      }
+
+      const response = await callGeminiAI(prompt, editor.getHTML(), action as any);
       
-      showAIAgent({
-        x: coords.left,
-        y: coords.top - 50,
+      if (selectedText) {
+        // Replace selected text
+        const { from, to } = editor.state.selection;
+        editor.chain().focus().setTextSelection({ from, to }).insertContent(response).run();
+      } else {
+        // Insert at cursor
+        editor.chain().focus().insertContent(` ${response}`).run();
+      }
+
+      toast({
+        title: 'AI action completed',
+        description: `Successfully ${action}ed your text.`,
       });
-    } else {
-      showAIAgent();
+    } catch (error) {
+      console.error('AI quick action failed:', error);
+      toast({
+        title: 'AI action failed',
+        description: 'Please try again.',
+        variant: 'destructive'
+      });
+    }
+  };
+
+  const handleApplyFromChat = (chatContent: string) => {
+    if (editor) {
+      editor.chain().focus().insertContent(`\n\n${chatContent}`).run();
     }
   };
 
@@ -97,77 +142,109 @@ const TiptapEditor: React.FC<TiptapEditorProps> = ({
   }
 
   return (
-    <div className="relative h-full flex flex-col">
-      {/* Enhanced Toolbar with AI button, camera OCR, and handwriting toggle */}
-      {!isFocusMode && (
-        <div className="flex items-center justify-between border-b border-white/10 p-2">
-          <TiptapEnhancedToolbar 
-            editor={editor} 
-            onAIClick={handleManualAITrigger}
-            onCameraOCRClick={openCamera}
-            isCameraOCRProcessing={isCameraProcessing}
-          />
-          
-          {hasStylus && (
-            <div className="flex space-x-2 ml-4">
+    <div className="relative h-full flex">
+      {/* Main Editor Area */}
+      <div className={`flex-1 flex flex-col transition-all duration-300 ${isChatOpen ? 'mr-96' : ''}`}>
+        {/* Enhanced Toolbar */}
+        {!isFocusMode && (
+          <div className="flex items-center justify-between border-b border-white/10 p-2">
+            <TiptapEnhancedToolbar 
+              editor={editor} 
+              onAIClick={() => setIsChatOpen(true)}
+              onCameraOCRClick={openCamera}
+              isCameraOCRProcessing={isCameraProcessing}
+            />
+            
+            {hasStylus && (
+              <div className="flex space-x-2 ml-4">
+                <Button
+                  variant={inputMode === 'text' ? 'default' : 'ghost'}
+                  size="sm"
+                  onClick={() => setInputMode('text')}
+                  className="flex items-center space-x-1"
+                >
+                  <Type className="h-4 w-4" />
+                  <span className="hidden sm:inline">Text</span>
+                </Button>
+                <Button
+                  variant={inputMode === 'handwriting' ? 'default' : 'ghost'}
+                  size="sm"
+                  onClick={() => setInputMode('handwriting')}
+                  className="flex items-center space-x-1"
+                >
+                  <PenTool className="h-4 w-4" />
+                  <span className="hidden sm:inline">Pen</span>
+                </Button>
+              </div>
+            )}
+          </div>
+        )}
+
+        {inputMode === 'text' ? (
+          <div className="flex-1 relative overflow-hidden">
+            <EditorContent 
+              editor={editor} 
+              className="h-full overflow-y-auto focus-within:outline-none p-4"
+            />
+
+            {/* AI Enhanced Bubble Menu */}
+            <AIEnhancedBubbleMenu
+              editor={editor}
+              selectedText={selectedText}
+            />
+          </div>
+        ) : (
+          <div className="flex-1 p-4">
+            <HandwritingCanvas
+              onTextExtracted={handleHandwritingComplete}
+              className="h-full max-w-full"
+              width={1000}
+              height={600}
+            />
+            <div className="mt-4 flex justify-center">
               <Button
-                variant={inputMode === 'text' ? 'default' : 'ghost'}
-                size="sm"
+                variant="outline"
                 onClick={() => setInputMode('text')}
-                className="flex items-center space-x-1"
+                className="text-white border-white/20 hover:bg-white/10"
               >
-                <Type className="h-4 w-4" />
-                <span className="hidden sm:inline">Text</span>
-              </Button>
-              <Button
-                variant={inputMode === 'handwriting' ? 'default' : 'ghost'}
-                size="sm"
-                onClick={() => setInputMode('handwriting')}
-                className="flex items-center space-x-1"
-              >
-                <PenTool className="h-4 w-4" />
-                <span className="hidden sm:inline">Pen</span>
+                <Type className="h-4 w-4 mr-2" />
+                Switch to text editor
               </Button>
             </div>
-          )}
-        </div>
-      )}
+          </div>
+        )}
 
-      {inputMode === 'text' ? (
-        /* Main Editor Content */
-        <EditorContentArea
-          editor={editor}
-          content={content}
-          selectedText={selectedText}
-          handleContentChange={handleContentChange}
-          isAIAgentVisible={isAIAgentVisible}
-          aiPosition={aiPosition}
-          hideAIAgent={hideAIAgent}
-          showAIAgent={handleManualAITrigger}
-          isFocusMode={isFocusMode}
+        {/* AI Floating Toolbar */}
+        <AIFloatingToolbar
+          onOpenChat={() => setIsChatOpen(true)}
+          onQuickAction={handleAIQuickAction}
+          isVisible={isAIFloatingVisible && inputMode === 'text'}
         />
-      ) : (
-        <div className="flex-1 p-4">
-          <HandwritingCanvas
-            onTextExtracted={handleHandwritingComplete}
-            className="h-full max-w-full"
-            width={1000}
-            height={600}
-          />
-          <div className="mt-4 flex justify-center">
-            <Button
-              variant="outline"
-              onClick={() => setInputMode('text')}
-              className="text-white border-white/20 hover:bg-white/10"
-            >
-              <Type className="h-4 w-4 mr-2" />
-              Switch to text editor
-            </Button>
+      </div>
+
+      {/* AI Chat Panel */}
+      {isChatOpen && (
+        <div className="fixed right-0 top-0 h-full w-96 z-40 bg-black/20 backdrop-blur-sm">
+          <div className="h-full p-4">
+            <div className="h-full relative">
+              <Button
+                onClick={() => setIsChatOpen(false)}
+                variant="ghost"
+                size="sm"
+                className="absolute top-2 right-2 z-50 h-8 w-8 p-0 text-slate-400 hover:text-white"
+              >
+                <X className="h-4 w-4" />
+              </Button>
+              <AIChatPanel
+                onClose={() => setIsChatOpen(false)}
+                onApplyToEditor={handleApplyFromChat}
+              />
+            </div>
           </div>
         </div>
       )}
 
-      {/* Camera OCR Modal - Add key to force remount */}
+      {/* Camera OCR Modal */}
       {isCameraOpen && (
         <OCRCameraCapture
           key="camera-capture" 
