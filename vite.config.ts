@@ -65,12 +65,6 @@ export default defineConfig(({ mode }) => ({
         manualChunks: {
           vendor: ['react', 'react-dom'],
           query: ['@tanstack/react-query'],
-          editor: [
-            '@udecode/plate-common',
-            '@udecode/plate-basic-elements',
-            '@udecode/plate-basic-marks',
-            '@udecode/plate-list'
-          ],
           ui: [
             '@radix-ui/react-tabs',
             '@radix-ui/react-slot',
@@ -111,8 +105,7 @@ export default defineConfig(({ mode }) => ({
       '@radix-ui/react-tabs',
       '@radix-ui/react-slot',
       '@radix-ui/react-tooltip',
-      'loglevel',
-      '@udecode/plate-common'
+      'loglevel'
     ],
     // Force pre-bundling to resolve version conflicts
     force: true,
