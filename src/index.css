@@ -1,31 +1,20 @@
 
+/* All @import statements must come first */
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-
-/* Import enhanced Tiptap styles */
 @import './styles/tiptap-enhanced.css';
-
-/* Import mobile-specific styles */
 @import './styles/mobile.css';
-
-/* Import focus mode styles */
 @import './styles/focus-mode.css';
-
-/* Import global styles */
 @import './styles/globals.css';
-
-/* Import separator fix styles */
 @import './styles/fix-separation.css';
 @import './styles/hide-separators.css';
 @import './styles/horizontal-line-fix.css';
-
-/* Import scrollbar styles */
 @import './styles/scrollbar.css';
-
-/* Import rotating border styles */
 @import './styles/rotating-border.css';
+
+/* Tailwind directives come after all imports */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
 /* Font fallback definitions */
 :root {
