@@ -1,6 +1,5 @@
 
 import React from 'react';
-import { useEditorRef } from '@udecode/plate/react';
 import { Button } from '@/components/ui/button';
 import { 
   Bold, 
@@ -13,56 +12,32 @@ import {
   ListOrdered
 } from 'lucide-react';
 
-// Define constants for element and mark types
-const MARK_BOLD = 'bold';
-const MARK_ITALIC = 'italic';
-const MARK_UNDERLINE = 'underline';
-const ELEMENT_H1 = 'h1';
-const ELEMENT_H2 = 'h2';
-const ELEMENT_H3 = 'h3';
-const ELEMENT_UL = 'ul';
-const ELEMENT_OL = 'ol';
-const ELEMENT_LI = 'li';
-
 const PlateToolbar: React.FC = () => {
-  const editor = useEditorRef();
+  // Simple toolbar with basic formatting options
+  // We'll implement the actual editor commands once we have a working base
   
-  if (!editor) return null;
-  
-  // Simple toolbar actions using editor methods
-  const toggleBold = () => {
-    if (editor.marks?.bold) {
-      editor.removeMark('bold');
-    } else {
-      editor.addMark('bold', true);
-    }
+  const handleBold = () => {
+    document.execCommand('bold', false, undefined);
   };
 
-  const toggleItalic = () => {
-    if (editor.marks?.italic) {
-      editor.removeMark('italic');
-    } else {
-      editor.addMark('italic', true);
-    }
+  const handleItalic = () => {
+    document.execCommand('italic', false, undefined);
   };
 
-  const toggleUnderline = () => {
-    if (editor.marks?.underline) {
-      editor.removeMark('underline');
-    } else {
-      editor.addMark('underline', true);
-    }
+  const handleUnderline = () => {
+    document.execCommand('underline', false, undefined);
   };
 
-  const insertHeading = (type: string) => {
-    editor.insertNode({ type, children: [{ text: '' }] });
+  const handleHeading = (level: number) => {
+    document.execCommand('formatBlock', false, `h${level}`);
   };
 
-  const insertList = (type: string) => {
-    editor.insertNode({ 
-      type, 
-      children: [{ type: ELEMENT_LI, children: [{ text: '' }] }] 
-    });
+  const handleBulletList = () => {
+    document.execCommand('insertUnorderedList', false, undefined);
+  };
+
+  const handleNumberedList = () => {
+    document.execCommand('insertOrderedList', false, undefined);
   };
 
   return (
@@ -74,9 +49,9 @@ const PlateToolbar: React.FC = () => {
           size="sm"
           onMouseDown={(e) => {
             e.preventDefault();
-            toggleBold();
+            handleBold();
           }}
-          className={`h-8 w-8 p-0 ${editor.marks?.bold ? 'bg-white/20 text-white' : 'text-gray-300 hover:text-white hover:bg-white/10'}`}
+          className="h-8 w-8 p-0 text-gray-300 hover:text-white hover:bg-white/10"
           title="Bold (Ctrl+B)"
         >
           <Bold className="h-4 w-4" />
@@ -87,9 +62,9 @@ const PlateToolbar: React.FC = () => {
           size="sm"
           onMouseDown={(e) => {
             e.preventDefault();
-            toggleItalic();
+            handleItalic();
           }}
-          className={`h-8 w-8 p-0 ${editor.marks?.italic ? 'bg-white/20 text-white' : 'text-gray-300 hover:text-white hover:bg-white/10'}`}
+          className="h-8 w-8 p-0 text-gray-300 hover:text-white hover:bg-white/10"
           title="Italic (Ctrl+I)"
         >
           <Italic className="h-4 w-4" />
@@ -100,9 +75,9 @@ const PlateToolbar: React.FC = () => {
           size="sm"
           onMouseDown={(e) => {
             e.preventDefault();
-            toggleUnderline();
+            handleUnderline();
           }}
-          className={`h-8 w-8 p-0 ${editor.marks?.underline ? 'bg-white/20 text-white' : 'text-gray-300 hover:text-white hover:bg-white/10'}`}
+          className="h-8 w-8 p-0 text-gray-300 hover:text-white hover:bg-white/10"
           title="Underline (Ctrl+U)"
         >
           <Underline className="h-4 w-4" />
@@ -118,7 +93,7 @@ const PlateToolbar: React.FC = () => {
           size="sm"
           onMouseDown={(e) => {
             e.preventDefault();
-            insertHeading(ELEMENT_H1);
+            handleHeading(1);
           }}
           className="h-8 w-8 p-0 text-gray-300 hover:text-white hover:bg-white/10"
           title="Heading 1"
@@ -131,7 +106,7 @@ const PlateToolbar: React.FC = () => {
           size="sm"
           onMouseDown={(e) => {
             e.preventDefault();
-            insertHeading(ELEMENT_H2);
+            handleHeading(2);
           }}
           className="h-8 w-8 p-0 text-gray-300 hover:text-white hover:bg-white/10"
           title="Heading 2"
@@ -144,7 +119,7 @@ const PlateToolbar: React.FC = () => {
           size="sm"
           onMouseDown={(e) => {
             e.preventDefault();
-            insertHeading(ELEMENT_H3);
+            handleHeading(3);
           }}
           className="h-8 w-8 p-0 text-gray-300 hover:text-white hover:bg-white/10"
           title="Heading 3"
@@ -162,7 +137,7 @@ const PlateToolbar: React.FC = () => {
           size="sm"
           onMouseDown={(e) => {
             e.preventDefault();
-            insertList(ELEMENT_UL);
+            handleBulletList();
           }}
           className="h-8 w-8 p-0 text-gray-300 hover:text-white hover:bg-white/10"
           title="Bullet List"
@@ -175,7 +150,7 @@ const PlateToolbar: React.FC = () => {
           size="sm"
           onMouseDown={(e) => {
             e.preventDefault();
-            insertList(ELEMENT_OL);
+            handleNumberedList();
           }}
           className="h-8 w-8 p-0 text-gray-300 hover:text-white hover:bg-white/10"
           title="Numbered List"
