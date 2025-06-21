@@ -15,31 +15,67 @@ const FormatControls: React.FC<FormatControlsProps> = ({ editor }) => {
   const formatButtons = [
     {
       icon: Bold,
-      isActive: () => editor.isActive('bold'),
-      onClick: () => editor.chain().focus().toggleBold().run(),
+      isActive: () => editor.isActive && editor.isActive('bold'),
+      onClick: () => {
+        try {
+          if (editor.chain && typeof editor.chain === 'function') {
+            editor.chain().focus().toggleBold().run();
+          } else {
+            document.execCommand('bold', false);
+          }
+        } catch {
+          document.execCommand('bold', false);
+        }
+      },
       title: 'Bold (Ctrl+B)',
       shortcut: 'Ctrl+B'
     },
     {
       icon: Italic,
-      isActive: () => editor.isActive('italic'),
-      onClick: () => editor.chain().focus().toggleItalic().run(),
+      isActive: () => editor.isActive && editor.isActive('italic'),
+      onClick: () => {
+        try {
+          if (editor.chain && typeof editor.chain === 'function') {
+            editor.chain().focus().toggleItalic().run();
+          } else {
+            document.execCommand('italic', false);
+          }
+        } catch {
+          document.execCommand('italic', false);
+        }
+      },
       title: 'Italic (Ctrl+I)',
       shortcut: 'Ctrl+I'
     },
     {
       icon: Underline,
-      isActive: () => editor.isActive('underline'),
-      onClick: () => editor.chain().focus().toggleUnderline().run(),
+      isActive: () => editor.isActive && editor.isActive('underline'),
+      onClick: () => {
+        try {
+          if (editor.chain && typeof editor.chain === 'function') {
+            editor.chain().focus().toggleUnderline().run();
+          } else {
+            document.execCommand('underline', false);
+          }
+        } catch {
+          document.execCommand('underline', false);
+        }
+      },
       title: 'Underline (Ctrl+U)',
       shortcut: 'Ctrl+U'
     },
     {
       icon: Strikethrough,
-      isActive: () => editor.isActive('strike'),
+      isActive: () => editor.isActive && editor.isActive('strike'),
       onClick: () => {
-        if (editor.can().toggleStrike()) {
-          editor.chain().focus().toggleStrike().run();
+        try {
+          if (editor.chain && typeof editor.chain === 'function' && editor.can && editor.can().toggleStrike()) {
+            editor.chain().focus().toggleStrike().run();
+          } else {
+            document.execCommand('strikeThrough', false);
+          }
+        } catch {
+          document.execCommand('strikeThrough', false);
         }
       },
       title: 'Strikethrough',
@@ -47,20 +83,35 @@ const FormatControls: React.FC<FormatControlsProps> = ({ editor }) => {
     },
     {
       icon: Code,
-      isActive: () => editor.isActive('code'),
-      onClick: () => editor.chain().focus().toggleCode().run(),
+      isActive: () => editor.isActive && editor.isActive('code'),
+      onClick: () => {
+        try {
+          if (editor.chain && typeof editor.chain === 'function') {
+            editor.chain().focus().toggleCode().run();
+          } else {
+            document.execCommand('formatBlock', false, 'code');
+          }
+        } catch {
+          document.execCommand('formatBlock', false, 'code');
+        }
+      },
       title: 'Inline Code',
       shortcut: null
     },
     {
       icon: Superscript,
-      isActive: () => editor.isActive('superscript'),
+      isActive: () => editor.isActive && editor.isActive('superscript'),
       onClick: () => {
-        // Fallback for superscript
         try {
-          editor.chain().focus().toggleSuperscript().run();
+          // Try Tiptap method first
+          if (editor.chain && typeof editor.chain === 'function') {
+            editor.chain().focus().toggleSuperscript().run();
+          } else {
+            // Fallback to document.execCommand
+            document.execCommand('superscript', false);
+          }
         } catch {
-          // Use document.execCommand as fallback
+          // Final fallback
           document.execCommand('superscript', false);
         }
       },
@@ -70,13 +121,18 @@ const FormatControls: React.FC<FormatControlsProps> = ({ editor }) => {
     },
     {
       icon: Subscript,
-      isActive: () => editor.isActive('subscript'),
+      isActive: () => editor.isActive && editor.isActive('subscript'),
       onClick: () => {
-        // Fallback for subscript
         try {
-          editor.chain().focus().toggleSubscript().run();
+          // Try Tiptap method first
+          if (editor.chain && typeof editor.chain === 'function') {
+            editor.chain().focus().toggleSubscript().run();
+          } else {
+            // Fallback to document.execCommand
+            document.execCommand('subscript', false);
+          }
         } catch {
-          // Use document.execCommand as fallback
+          // Final fallback
           document.execCommand('subscript', false);
         }
       },

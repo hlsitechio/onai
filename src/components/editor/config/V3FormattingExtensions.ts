@@ -6,6 +6,10 @@ import Highlight from '@tiptap/extension-highlight';
 import Typography from '@tiptap/extension-typography';
 import TaskList from '@tiptap/extension-task-list';
 import TaskItem from '@tiptap/extension-task-item';
+import Color from '@tiptap/extension-color';
+import TextStyle from '@tiptap/extension-text-style';
+import Superscript from '@tiptap/extension-superscript';
+import Subscript from '@tiptap/extension-subscript';
 
 export const getFormattingExtensions = () => [
   Link.configure({
@@ -39,4 +43,8 @@ export const getFormattingExtensions = () => [
       class: 'task-item',
     },
   }),
+  TextStyle,
+  Color,
+  Superscript,
+  Subscript,
 ];

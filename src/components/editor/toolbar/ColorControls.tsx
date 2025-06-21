@@ -34,7 +34,13 @@ const ColorControls: React.FC<ColorControlsProps> = ({ editor }) => {
   const handleTextColor = (color: string) => {
     setTextColor(color);
     try {
-      editor.chain().focus().setColor(color).run();
+      // Try Tiptap method first
+      if (editor && editor.chain && typeof editor.chain === 'function') {
+        editor.chain().focus().setColor(color).run();
+      } else {
+        // Fallback to document.execCommand
+        document.execCommand('foreColor', false, color);
+      }
     } catch {
       document.execCommand('foreColor', false, color);
     }
@@ -43,7 +49,13 @@ const ColorControls: React.FC<ColorControlsProps> = ({ editor }) => {
   const handleHighlight = (color: string) => {
     setHighlightColor(color);
     try {
-      editor.chain().focus().toggleHighlight({ color }).run();
+      // Try Tiptap method first
+      if (editor && editor.chain && typeof editor.chain === 'function') {
+        editor.chain().focus().toggleHighlight({ color }).run();
+      } else {
+        // Fallback to document.execCommand
+        document.execCommand('hiliteColor', false, color);
+      }
     } catch {
       document.execCommand('hiliteColor', false, color);
     }
