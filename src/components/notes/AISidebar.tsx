@@ -105,18 +105,7 @@ const AISidebar: React.FC<AISidebarProps> = ({
     }
   };
   return <div className="w-full glass-panel-dark rounded-xl overflow-hidden flex flex-col shadow-[0_8px_30px_rgb(0,0,0,0.4)] border border-white/5 h-full">
-      <div className="p-3 border-b border-white/5 flex items-center justify-between bg-[#03010a]">
-        <div className="flex items-center gap-2">
-          <Sparkles className="h-5 w-5 text-noteflow-400" />
-          <h3 className="text-white font-medium">AI Assistant</h3>
-        </div>
-        <div className="flex items-center gap-2">
-          <Button variant="ghost" size="icon" className="h-7 w-7 rounded-full bg-white/5 hover:bg-white/10" onClick={() => setIsDisclaimerOpen(true)} title="AI Usage & Privacy Information">
-            <InfoIcon className="h-3.5 w-3.5 text-slate-300" />
-          </Button>
-          <Badge variant="outline" className="bg-noteflow-500/20 text-noteflow-300 border-noteflow-500/30 text-xs">Free</Badge>
-        </div>
-      </div>
+      
 
       
       
