@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Bold, Italic, Underline, Strikethrough, Code } from 'lucide-react';
+import { Bold, Italic, Underline, Strikethrough, Code, Superscript, Subscript } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import type { Editor } from '@tiptap/react';
@@ -38,7 +38,6 @@ const FormatControls: React.FC<FormatControlsProps> = ({ editor }) => {
       icon: Strikethrough,
       isActive: () => editor.isActive('strike'),
       onClick: () => {
-        // Since we might not have strike in StarterKit, let's add it manually
         if (editor.can().toggleStrike()) {
           editor.chain().focus().toggleStrike().run();
         }
@@ -52,6 +51,38 @@ const FormatControls: React.FC<FormatControlsProps> = ({ editor }) => {
       onClick: () => editor.chain().focus().toggleCode().run(),
       title: 'Inline Code',
       shortcut: null
+    },
+    {
+      icon: Superscript,
+      isActive: () => editor.isActive('superscript'),
+      onClick: () => {
+        // Fallback for superscript
+        try {
+          editor.chain().focus().toggleSuperscript().run();
+        } catch {
+          // Use document.execCommand as fallback
+          document.execCommand('superscript', false);
+        }
+      },
+      title: 'Superscript',
+      shortcut: null,
+      className: 'hidden sm:flex'
+    },
+    {
+      icon: Subscript,
+      isActive: () => editor.isActive('subscript'),
+      onClick: () => {
+        // Fallback for subscript
+        try {
+          editor.chain().focus().toggleSubscript().run();
+        } catch {
+          // Use document.execCommand as fallback
+          document.execCommand('subscript', false);
+        }
+      },
+      title: 'Subscript',
+      shortcut: null,
+      className: 'hidden sm:flex'
     }
   ];
 
@@ -70,7 +101,8 @@ const FormatControls: React.FC<FormatControlsProps> = ({ editor }) => {
               "h-8 w-8 p-0 hover:bg-white/10 transition-colors",
               isActive 
                 ? "bg-white/20 text-white" 
-                : "text-gray-300 hover:text-white"
+                : "text-gray-300 hover:text-white",
+              button.className
             )}
             title={button.title}
           >
