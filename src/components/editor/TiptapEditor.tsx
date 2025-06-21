@@ -8,7 +8,7 @@ import EditorLoadingState from './EditorLoadingState';
 import EditorErrorState from './EditorErrorState';
 import HandwritingCanvas from './HandwritingCanvas';
 import OCRCameraCapture from '../ocr/components/OCRCameraCapture';
-import AIChatPanel from './ai-enhanced/AIChatPanel';
+import AIChatPanel from '../ai-chat/AIChatPanel';
 import AIEnhancedBubbleMenu from './ai-enhanced/AIEnhancedBubbleMenu';
 import AIFloatingToolbar from './ai-enhanced/AIFloatingToolbar';
 import { EditorContent } from '@tiptap/react';

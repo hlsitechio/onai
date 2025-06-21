@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Sparkles, MessageSquare, Zap, Settings } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import AIChatPanel from "../editor/ai-enhanced/AIChatPanel";
+import AIChatPanel from "../ai-chat/AIChatPanel";
 import { getUsageStats } from "@/utils/aiUtils";
 
 interface EnhancedAISidebarProps {
