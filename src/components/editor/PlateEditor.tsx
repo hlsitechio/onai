@@ -1,19 +1,19 @@
 
 import React, { useMemo } from 'react';
 import {
-  createPlateEditor,
+  createSlateEditor,
   PlateProvider,
   Plate,
-  createPlugins,
+  SlatePlugins,
 } from '@udecode/plate';
 import {
-  createBasicElementsPlugin,
+  BaseBasicElementsPlugin,
 } from '@udecode/plate-basic-elements';
 import {
-  createBasicMarksPlugin,
+  BaseBasicMarksPlugin,
 } from '@udecode/plate-basic-marks';
 import {
-  createListPlugin,
+  BaseListPlugin,
 } from '@udecode/plate-list';
 import PlateToolbar from './PlateToolbar';
 
@@ -45,11 +45,11 @@ const PlateEditor: React.FC<PlateEditorProps> = ({
 
   const editor = useMemo(
     () =>
-      createPlateEditor({
-        plugins: createPlugins([
-          createBasicElementsPlugin(),
-          createBasicMarksPlugin(),
-          createListPlugin(),
+      createSlateEditor({
+        plugins: SlatePlugins([
+          BaseBasicElementsPlugin(),
+          BaseBasicMarksPlugin(),
+          BaseListPlugin(),
         ]),
         value: initialValue,
       }),
