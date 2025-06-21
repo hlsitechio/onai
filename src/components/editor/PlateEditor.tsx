@@ -54,15 +54,22 @@ const PlateEditor: React.FC<PlateEditorProps> = ({
     }];
   }, [content]);
 
+  const editor = useMemo(() => 
+    createPlateEditor({ 
+      plugins,
+      value: initialValue
+    }), 
+    [initialValue]
+  );
+
   const handleChange = (value: any) => {
     setContent(JSON.stringify(value));
   };
 
   return (
     <div className="flex flex-col h-full bg-gradient-to-br from-[#03010a] to-[#0a0518] text-white">
-      <Plate
-        plugins={plugins}
-        initialValue={initialValue}
+      <Plate 
+        editor={editor}
         onChange={handleChange}
       >
         {!isFocusMode && (
