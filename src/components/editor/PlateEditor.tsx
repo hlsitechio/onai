@@ -48,10 +48,18 @@ const PlateEditor: React.FC<PlateEditorProps> = ({
   isFocusMode = false
 }) => {
   const initialValue = useMemo(() => {
-    return content ? JSON.parse(content) : [{ 
-      type: 'p', 
-      children: [{ text: '' }] 
-    }];
+    try {
+      return content ? JSON.parse(content) : [{ 
+        type: 'p', 
+        children: [{ text: '' }] 
+      }];
+    } catch (error) {
+      console.warn('Failed to parse content, using default:', error);
+      return [{ 
+        type: 'p', 
+        children: [{ text: content || '' }] 
+      }];
+    }
   }, [content]);
 
   const editor = useMemo(() => 
@@ -63,7 +71,11 @@ const PlateEditor: React.FC<PlateEditorProps> = ({
   );
 
   const handleChange = (value: any) => {
-    setContent(JSON.stringify(value));
+    try {
+      setContent(JSON.stringify(value));
+    } catch (error) {
+      console.error('Failed to serialize content:', error);
+    }
   };
 
   return (

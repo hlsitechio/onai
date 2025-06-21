@@ -50,8 +50,8 @@ export default defineConfig(({ mode }) => ({
     alias: {
       "@": path.resolve(process.cwd(), "./src"),
     },
-    // Ensure single React instance with simplified deduplication
-    dedupe: ['react', 'react-dom'],
+    // Ensure single instance with Plate.js compatible versions
+    dedupe: ['react', 'react-dom', '@udecode/slate', '@udecode/slate-react'],
   },
   build: {
     outDir: 'dist',
@@ -63,12 +63,12 @@ export default defineConfig(({ mode }) => ({
           vendor: ['react', 'react-dom'],
           query: ['@tanstack/react-query'],
           editor: [
-            '@tiptap/react',
-            '@tiptap/starter-kit',
-            '@tiptap/core',
-            '@tiptap/extension-link',
-            '@tiptap/extension-image',
-            '@tiptap/extension-table'
+            '@udecode/plate-common',
+            '@udecode/plate-basic-elements',
+            '@udecode/plate-basic-marks',
+            '@udecode/plate-list',
+            '@udecode/plate-link',
+            '@udecode/plate-media'
           ],
           ui: [
             '@radix-ui/react-tabs',
@@ -110,14 +110,16 @@ export default defineConfig(({ mode }) => ({
       '@radix-ui/react-tabs',
       '@radix-ui/react-slot',
       '@radix-ui/react-tooltip',
-      'loglevel'
+      'loglevel',
+      '@udecode/plate-common',
+      '@udecode/slate',
+      '@udecode/slate-react'
     ],
-    // Force pre-bundling of React and ensure consistency
+    // Force pre-bundling to resolve version conflicts
     force: true,
   },
   define: {
     global: 'globalThis',
-    // Ensure React is available globally for consistency
     'process.env.NODE_ENV': JSON.stringify(mode),
   },
 }));
