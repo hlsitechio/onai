@@ -50,15 +50,12 @@ export default defineConfig(({ mode }) => ({
     alias: {
       "@": path.resolve(process.cwd(), "./src"),
     },
-    // Enhanced deduplication for Plate.js and Slate compatibility
+    // Strict deduplication for Plate.js compatibility
     dedupe: [
       'react', 
       'react-dom', 
       '@udecode/slate', 
-      '@udecode/slate-react',
-      'slate',
-      'slate-react',
-      'slate-history'
+      '@udecode/slate-react'
     ],
   },
   build: {
