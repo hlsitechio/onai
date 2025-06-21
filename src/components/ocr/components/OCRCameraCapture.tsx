@@ -23,6 +23,7 @@ const OCRCameraCapture: React.FC<OCRCameraCaptureProps> = ({
   const [capturedPhoto, setCapturedPhoto] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [cameraError, setCameraError] = useState<string | null>(null);
+  const [isVideoReady, setIsVideoReady] = useState(false);
   const { toast } = useToast();
 
   const stopCamera = useCallback(() => {
@@ -37,12 +38,14 @@ const OCRCameraCapture: React.FC<OCRCameraCaptureProps> = ({
     if (videoRef.current) {
       videoRef.current.srcObject = null;
     }
+    setIsVideoReady(false);
   }, [stream]);
 
   const startCamera = useCallback(async () => {
     console.log('Starting camera...');
     setIsLoading(true);
     setCameraError(null);
+    setIsVideoReady(false);
     
     try {
       // Stop any existing stream first
@@ -50,70 +53,112 @@ const OCRCameraCapture: React.FC<OCRCameraCaptureProps> = ({
         stream.getTracks().forEach(track => track.stop());
       }
 
-      // Request camera access with fallback constraints
+      // Simplified camera constraints - less restrictive
+      const constraints = {
+        video: {
+          facingMode: 'environment', // Try back camera first
+          width: { ideal: 1280, min: 640, max: 1920 },
+          height: { ideal: 720, min: 480, max: 1080 }
+        }
+      };
+
       let mediaStream: MediaStream;
+      
       try {
-        // Try with back camera first
-        mediaStream = await navigator.mediaDevices.getUserMedia({
-          video: {
-            facingMode: { ideal: 'environment' },
-            width: { ideal: 1920, min: 640 },
-            height: { ideal: 1080, min: 480 }
-          }
-        });
-        console.log('Got back camera');
+        console.log('Trying back camera...');
+        mediaStream = await navigator.mediaDevices.getUserMedia(constraints);
       } catch (backCameraError) {
-        console.log('Back camera failed, trying front camera:', backCameraError);
-        // Fallback to any available camera
+        console.log('Back camera failed, trying any camera:', backCameraError);
+        // Fallback to any available camera with minimal constraints
         mediaStream = await navigator.mediaDevices.getUserMedia({
           video: {
-            width: { ideal: 1920, min: 640 },
-            height: { ideal: 1080, min: 480 }
+            width: { ideal: 1280, min: 320 },
+            height: { ideal: 720, min: 240 }
           }
         });
-        console.log('Got front camera');
       }
       
       console.log('Camera stream obtained:', mediaStream.getVideoTracks().length, 'video tracks');
+      console.log('Video track settings:', mediaStream.getVideoTracks()[0]?.getSettings());
       
       // Set stream state
       setStream(mediaStream);
       
-      // Assign to video element and play
+      // Assign to video element
       if (videoRef.current) {
         console.log('Assigning stream to video element');
-        videoRef.current.srcObject = mediaStream;
+        const video = videoRef.current;
         
-        // Wait for video to load metadata before playing
-        await new Promise<void>((resolve, reject) => {
-          const video = videoRef.current!;
+        // Clear any existing source
+        video.srcObject = null;
+        video.load();
+        
+        // Set the new stream
+        video.srcObject = mediaStream;
+        
+        // Set up event handlers
+        const handleLoadedMetadata = () => {
+          console.log('Video metadata loaded');
+          console.log('Video dimensions:', video.videoWidth, 'x', video.videoHeight);
+          console.log('Video ready state:', video.readyState);
           
-          const onLoadedMetadata = () => {
-            console.log('Video metadata loaded, dimensions:', video.videoWidth, 'x', video.videoHeight);
-            video.removeEventListener('loadedmetadata', onLoadedMetadata);
-            video.removeEventListener('error', onError);
-            resolve();
-          };
-          
-          const onError = (e: Event) => {
-            console.error('Video error:', e);
-            video.removeEventListener('loadedmetadata', onLoadedMetadata);
-            video.removeEventListener('error', onError);
-            reject(new Error('Video failed to load'));
-          };
-          
-          video.addEventListener('loadedmetadata', onLoadedMetadata);
-          video.addEventListener('error', onError);
-          
+          // Ensure video dimensions are valid
+          if (video.videoWidth > 0 && video.videoHeight > 0) {
+            setIsVideoReady(true);
+            console.log('Video is ready to display');
+          } else {
+            console.warn('Video dimensions are zero');
+          }
+        };
+        
+        const handleCanPlay = () => {
+          console.log('Video can play');
+          if (!isVideoReady && video.videoWidth > 0 && video.videoHeight > 0) {
+            setIsVideoReady(true);
+          }
+        };
+        
+        const handleError = (e: Event) => {
+          console.error('Video error event:', e);
+          setCameraError('Video playback failed');
+        };
+        
+        // Add event listeners
+        video.addEventListener('loadedmetadata', handleLoadedMetadata);
+        video.addEventListener('canplay', handleCanPlay);
+        video.addEventListener('error', handleError);
+        
+        // Cleanup function
+        const cleanup = () => {
+          video.removeEventListener('loadedmetadata', handleLoadedMetadata);
+          video.removeEventListener('canplay', handleCanPlay);
+          video.removeEventListener('error', handleError);
+        };
+        
+        try {
           // Start playing
-          video.play().catch(playError => {
-            console.error('Video play error:', playError);
-            reject(playError);
-          });
-        });
+          await video.play();
+          console.log('Video started playing');
+          
+          // Set a timeout to ensure video is ready
+          setTimeout(() => {
+            if (video.videoWidth > 0 && video.videoHeight > 0) {
+              setIsVideoReady(true);
+              console.log('Video ready after timeout check');
+            }
+          }, 1000);
+          
+        } catch (playError) {
+          console.error('Video play error:', playError);
+          setCameraError('Failed to start video playback');
+          cleanup();
+          throw playError;
+        }
         
-        console.log('Camera started successfully');
+        // Store cleanup for later use
+        (video as any)._cleanup = cleanup;
       }
+      
     } catch (error) {
       console.error('Camera access error:', error);
       setCameraError(error.message || 'Failed to access camera');
@@ -125,11 +170,13 @@ const OCRCameraCapture: React.FC<OCRCameraCaptureProps> = ({
     } finally {
       setIsLoading(false);
     }
-  }, []); // Remove dependencies to prevent loops
+  }, [toast]);
 
   const capturePhoto = useCallback(() => {
-    if (!videoRef.current || !canvasRef.current || !stream) {
-      console.error('Missing required elements for capture');
+    if (!videoRef.current || !canvasRef.current || !stream || !isVideoReady) {
+      console.error('Missing required elements for capture or video not ready');
+      console.log('Video ready:', isVideoReady);
+      console.log('Video dimensions:', videoRef.current?.videoWidth, 'x', videoRef.current?.videoHeight);
       return;
     }
     
@@ -148,8 +195,13 @@ const OCRCameraCapture: React.FC<OCRCameraCaptureProps> = ({
       
       const ctx = canvas.getContext('2d');
       if (ctx) {
-        ctx.drawImage(video, 0, 0);
-        const imageData = canvas.toDataURL('image/jpeg', 0.8);
+        // Clear canvas first
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        
+        // Draw the video frame
+        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+        
+        const imageData = canvas.toDataURL('image/jpeg', 0.9);
         console.log('Photo captured, data length:', imageData.length);
         setCapturedPhoto(imageData);
         stopCamera();
@@ -162,7 +214,7 @@ const OCRCameraCapture: React.FC<OCRCameraCaptureProps> = ({
         variant: "destructive"
       });
     }
-  }, [stream, stopCamera, toast]);
+  }, [stream, isVideoReady, stopCamera, toast]);
 
   const retakePhoto = useCallback(() => {
     console.log('Retaking photo');
@@ -193,8 +245,12 @@ const OCRCameraCapture: React.FC<OCRCameraCaptureProps> = ({
       if (stream) {
         stream.getTracks().forEach(track => track.stop());
       }
+      // Clean up video event listeners
+      if (videoRef.current && (videoRef.current as any)._cleanup) {
+        (videoRef.current as any)._cleanup();
+      }
     };
-  }, []); // Empty dependency array - only run once
+  }, []);
 
   return (
     <div className="fixed inset-0 z-[9999] bg-black flex flex-col">
@@ -215,7 +271,7 @@ const OCRCameraCapture: React.FC<OCRCameraCaptureProps> = ({
       </div>
 
       {/* Camera/Photo View */}
-      <div className="flex-1 relative flex items-center justify-center">
+      <div className="flex-1 relative flex items-center justify-center bg-black">
         {!capturedPhoto ? (
           <>
             {isLoading ? (
@@ -243,19 +299,34 @@ const OCRCameraCapture: React.FC<OCRCameraCaptureProps> = ({
                   className="w-full h-full object-cover"
                   playsInline
                   muted
-                  autoPlay
-                  style={{ transform: 'scaleX(-1)' }} // Mirror for better UX
+                  style={{ 
+                    display: isVideoReady ? 'block' : 'none',
+                    maxWidth: '100%',
+                    maxHeight: '100%'
+                  }}
                 />
                 
-                {/* Capture Guide Overlay */}
-                <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                  <div className="border-2 border-white/50 border-dashed rounded-lg w-4/5 h-2/3 flex items-center justify-center">
-                    <div className="text-white/70 text-center">
-                      <Camera className="h-8 w-8 mx-auto mb-2" />
-                      <p className="text-sm">Align text within this frame</p>
+                {/* Loading overlay while video is not ready */}
+                {!isVideoReady && (
+                  <div className="absolute inset-0 flex items-center justify-center bg-black">
+                    <div className="flex flex-col items-center justify-center text-white">
+                      <Loader2 className="h-8 w-8 animate-spin mb-4" />
+                      <span>Preparing camera...</span>
                     </div>
                   </div>
-                </div>
+                )}
+                
+                {/* Capture Guide Overlay */}
+                {isVideoReady && (
+                  <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                    <div className="border-2 border-white/50 border-dashed rounded-lg w-4/5 h-2/3 flex items-center justify-center">
+                      <div className="text-white/70 text-center">
+                        <Camera className="h-8 w-8 mx-auto mb-2" />
+                        <p className="text-sm">Align text within this frame</p>
+                      </div>
+                    </div>
+                  </div>
+                )}
               </>
             ) : (
               <div className="flex flex-col items-center justify-center text-white">
@@ -300,7 +371,7 @@ const OCRCameraCapture: React.FC<OCRCameraCaptureProps> = ({
           <div className="flex justify-center">
             <Button
               onClick={capturePhoto}
-              disabled={isLoading || !stream || !!cameraError}
+              disabled={isLoading || !stream || !!cameraError || !isVideoReady}
               className="w-16 h-16 rounded-full bg-white text-black hover:bg-gray-200 disabled:opacity-50"
             >
               <Camera className="h-6 w-6" />
