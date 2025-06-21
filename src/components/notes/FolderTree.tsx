@@ -79,7 +79,7 @@ const FolderTree: React.FC<FolderTreeProps> = ({
     return note?.title || 'Untitled Note';
   };
 
-  // Get notes by folder
+  // Get notes by folder - now using parent_id property correctly
   const getNotesByFolder = (folderId: string | null) => {
     return notes.filter(note => note.parent_id === folderId);
   };

@@ -45,7 +45,7 @@ const NotesSidebar: React.FC<NotesSidebarProps> = ({
     createNote,
     saveNote,
     deleteNote,
-    loadNotes,
+    loadNotes, // Now properly available from the hook
   } = useNotesManager();
 
   // Reload notes when component mounts or when save is triggered

@@ -12,6 +12,7 @@ export interface Note {
   created_at: string;
   updated_at: string;
   user_id?: string;
+  parent_id?: string | null; // Add parent_id for folder organization
 }
 
 export function useNotesManager() {
@@ -23,48 +24,50 @@ export function useNotesManager() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
 
+  // Load notes function - made available for external calls
+  const loadNotes = useCallback(async () => {
+    if (!user || authLoading) {
+      setLoading(false);
+      return;
+    }
+
+    try {
+      setLoading(true);
+      const notesData = await getAllNotesSecurely();
+      
+      // Convert the Record<string, string> to Note[]
+      const notesList: Note[] = Object.entries(notesData).map(([id, content]) => ({
+        id,
+        title: content.split('\n')[0]?.slice(0, 50) || 'Untitled',
+        content,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+        user_id: user.id,
+        parent_id: null // Default to no parent folder
+      }));
+
+      setNotes(notesList);
+      
+      // Set current note to the first one if available
+      if (notesList.length > 0 && !currentNote) {
+        setCurrentNote(notesList[0]);
+      }
+    } catch (error) {
+      console.error('Error loading notes:', error);
+      toast({
+        title: 'Error loading notes',
+        description: 'Failed to load your notes from Supabase.',
+        variant: 'destructive',
+      });
+    } finally {
+      setLoading(false);
+    }
+  }, [user, authLoading, toast, currentNote]);
+
   // Load notes when user is authenticated
   useEffect(() => {
-    const loadNotes = async () => {
-      if (!user || authLoading) {
-        setLoading(false);
-        return;
-      }
-
-      try {
-        setLoading(true);
-        const notesData = await getAllNotesSecurely();
-        
-        // Convert the Record<string, string> to Note[]
-        const notesList: Note[] = Object.entries(notesData).map(([id, content]) => ({
-          id,
-          title: content.split('\n')[0]?.slice(0, 50) || 'Untitled',
-          content,
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString(),
-          user_id: user.id
-        }));
-
-        setNotes(notesList);
-        
-        // Set current note to the first one if available
-        if (notesList.length > 0 && !currentNote) {
-          setCurrentNote(notesList[0]);
-        }
-      } catch (error) {
-        console.error('Error loading notes:', error);
-        toast({
-          title: 'Error loading notes',
-          description: 'Failed to load your notes from Supabase.',
-          variant: 'destructive',
-        });
-      } finally {
-        setLoading(false);
-      }
-    };
-
     loadNotes();
-  }, [user, authLoading, toast]);
+  }, [loadNotes]);
 
   const createNote = useCallback(async (title?: string, content?: string): Promise<Note | null> => {
     if (!user) {
@@ -83,7 +86,8 @@ export function useNotesManager() {
         content: content || '',
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
-        user_id: user.id
+        user_id: user.id,
+        parent_id: null
       };
 
       // Save to Supabase
@@ -226,5 +230,6 @@ export function useNotesManager() {
     createNote,
     saveNote,
     deleteNote,
+    loadNotes, // Export loadNotes function
   };
 }
