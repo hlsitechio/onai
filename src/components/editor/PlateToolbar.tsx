@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { useEditorRef } from '@udecode/plate';
+import { useEditorRef } from '@udecode/plate/react';
 import { Button } from '@/components/ui/button';
 import { 
   Bold, 
