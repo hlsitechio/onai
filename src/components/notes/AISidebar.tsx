@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -8,12 +9,15 @@ import { supabase } from "@/integrations/supabase/client";
 import AIDisclaimer from "./AIDisclaimer";
 import OCRButton from "../ocr/OCRButton";
 import OCRPopup from "../ocr/OCRPopup";
+import AIChatPanel from "../ai-chat/AIChatPanel";
 import { getUsageStats } from "@/utils/aiUtils";
+
 interface AISidebarProps {
   content: string;
   onApplyChanges: (newContent: string) => void;
   editorHeight?: number;
 }
+
 const AISidebar: React.FC<AISidebarProps> = ({
   content,
   onApplyChanges,
@@ -29,6 +33,7 @@ const AISidebar: React.FC<AISidebarProps> = ({
   const {
     user
   } = useAuth();
+
   const handleOCRTextExtracted = (text: string) => {
     onApplyChanges(content + (content.endsWith('\n') || content === '' ? '' : '\n') + text);
     toast({
@@ -36,6 +41,12 @@ const AISidebar: React.FC<AISidebarProps> = ({
       description: "Extracted text has been added to your note."
     });
   };
+
+  const handleApplyToEditor = (aiContent: string) => {
+    const newContent = content + '\n\n' + aiContent;
+    onApplyChanges(newContent);
+  };
+
   const handleUpgradeToPro = async () => {
     if (!user) {
       toast({
@@ -104,16 +115,21 @@ const AISidebar: React.FC<AISidebarProps> = ({
       setLoading(false);
     }
   };
-  return <div className="w-full glass-panel-dark rounded-xl overflow-hidden flex flex-col shadow-[0_8px_30px_rgb(0,0,0,0.4)] border border-white/5 h-full">
-      
 
-      
-      
+  return (
+    <div className="w-full glass-panel-dark rounded-xl overflow-hidden flex flex-col shadow-[0_8px_30px_rgb(0,0,0,0.4)] border border-white/5 h-full">
+      {/* AI Chat Panel */}
+      <AIChatPanel 
+        onApplyToEditor={handleApplyToEditor}
+      />
+
       {/* AI Disclaimer Dialog */}
       <AIDisclaimer isOpen={isDisclaimerOpen} onClose={() => setIsDisclaimerOpen(false)} />
 
       {/* OCR Popup */}
       <OCRPopup isOpen={isOCROpen} onClose={() => setIsOCROpen(false)} onTextExtracted={handleOCRTextExtracted} />
-    </div>;
+    </div>
+  );
 };
+
 export default AISidebar;
