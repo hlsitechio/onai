@@ -2,7 +2,13 @@
 import { StorageOperationResult } from './notesStorage';
 import { supabase } from '@/integrations/supabase/client';
 import { encryptContent, decryptContent } from './encryptionUtils';
-import { sanitizeInput, checkContentSecurity } from './securityValidation';
+import { 
+  sanitizeInput, 
+  checkContentSecurity, 
+  checkRateLimit,
+  validateUserAuthentication,
+  logSecurityValidation 
+} from './securityValidation';
 import { logNoteAccess } from './auditLogger';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -16,48 +22,87 @@ export interface SecureNote {
   user_id?: string;
 }
 
-// Enhanced note saving with security validation
+// Enhanced note saving with comprehensive security validation
 export const saveNoteSecurely = async (
   noteId: string, 
   content: string,
   isEncrypted: boolean = true
 ): Promise<StorageOperationResult> => {
   try {
-    // Check user authentication
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) {
+    // Enhanced authentication validation
+    const authResult = await validateUserAuthentication();
+    if (!authResult.isAuthenticated) {
+      await logSecurityValidation('auth_failure', { 
+        action: 'save_note',
+        note_id: noteId 
+      });
       return { 
         success: false, 
-        error: "User not authenticated. Please sign in to save notes." 
+        error: authResult.error || "User not authenticated. Please sign in to save notes." 
       };
     }
 
-    // Validate and sanitize content
-    const sanitizedContent = sanitizeInput(content);
-    const securityCheck = checkContentSecurity(sanitizedContent);
+    // Enhanced rate limiting
+    const rateLimitOk = await checkRateLimit('save_note', 30); // 30 saves per hour
+    if (!rateLimitOk) {
+      await logSecurityValidation('rate_limit_exceeded', { 
+        action: 'save_note',
+        note_id: noteId 
+      });
+      return {
+        success: false,
+        error: 'Rate limit exceeded. Please wait before saving again.'
+      };
+    }
+
+    // Enhanced content validation and sanitization
+    const sanitizedContent = sanitizeInput(content, { 
+      maxLength: 1048576, // 1MB
+      allowHtml: false,
+      strictMode: true 
+    });
+    
+    const securityCheck = checkContentSecurity(sanitizedContent, { maxLength: 1048576 });
     
     if (!securityCheck.isValid) {
+      await logSecurityValidation('content_blocked', {
+        action: 'save_note',
+        note_id: noteId,
+        reason: securityCheck.error,
+        flags: securityCheck.flags
+      });
       return {
         success: false,
         error: securityCheck.error || 'Content validation failed'
       };
     }
 
-    // Generate a title from the content (first line or first few words)
+    // Generate a secure title from the content
     const title = sanitizedContent
       .split('\n')[0]
+      .replace(/[<>]/g, '') // Remove any remaining angle brackets
       .substring(0, 50)
       .trim() || 'Untitled Note';
     
     // Prepare the content (encrypt if needed)
     const finalContent = isEncrypted ? await encryptContent(sanitizedContent) : sanitizedContent;
     
+    // Use database function for validation (the trigger will handle this)
+    const noteData = {
+      id: noteId,
+      title: sanitizeInput(title, { maxLength: 100, strictMode: true }),
+      content: finalContent,
+      updated_at: new Date().toISOString(),
+      is_encrypted: isEncrypted,
+      user_id: authResult.userId!
+    };
+
     // Check if the note already exists
     const { data: existingNote, error: checkError } = await supabase
       .from('notes')
       .select('id')
       .eq('id', noteId)
-      .eq('user_id', user.id)
+      .eq('user_id', authResult.userId!)
       .maybeSingle();
     
     if (checkError) {
@@ -71,13 +116,13 @@ export const saveNoteSecurely = async (
       result = await supabase
         .from('notes')
         .update({
-          title,
-          content: finalContent,
-          updated_at: new Date().toISOString(),
-          is_encrypted: isEncrypted
+          title: noteData.title,
+          content: noteData.content,
+          updated_at: noteData.updated_at,
+          is_encrypted: noteData.is_encrypted
         })
         .eq('id', noteId)
-        .eq('user_id', user.id);
+        .eq('user_id', authResult.userId!);
       
       // Log the update
       await logNoteAccess(noteId, 'update');
@@ -86,13 +131,8 @@ export const saveNoteSecurely = async (
       result = await supabase
         .from('notes')
         .insert({
-          id: noteId,
-          title,
-          content: finalContent,
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString(),
-          is_encrypted: isEncrypted,
-          user_id: user.id
+          ...noteData,
+          created_at: new Date().toISOString()
         });
       
       // Log the creation
@@ -106,6 +146,14 @@ export const saveNoteSecurely = async (
     return { success: true };
   } catch (error) {
     console.error("Error saving note securely:", error);
+    
+    // Log the error for security monitoring
+    await logSecurityValidation('auth_failure', {
+      action: 'save_note_error',
+      note_id: noteId,
+      error: error instanceof Error ? error.message : 'Unknown error'
+    });
+    
     return { 
       success: false, 
       error: error instanceof Error ? error.message : 'Unknown error saving note'
@@ -116,17 +164,24 @@ export const saveNoteSecurely = async (
 // Enhanced note retrieval with security checks
 export const getAllNotesSecurely = async (): Promise<Record<string, string>> => {
   try {
-    // Check user authentication
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) {
+    // Enhanced authentication validation
+    const authResult = await validateUserAuthentication();
+    if (!authResult.isAuthenticated) {
       console.warn("User not authenticated. Cannot retrieve notes.");
+      return {};
+    }
+
+    // Rate limiting for note retrieval
+    const rateLimitOk = await checkRateLimit('get_notes', 100); // 100 retrievals per hour
+    if (!rateLimitOk) {
+      console.warn("Rate limit exceeded for note retrieval.");
       return {};
     }
 
     const { data, error } = await supabase
       .from('notes')
       .select('id, content, is_encrypted')
-      .eq('user_id', user.id)
+      .eq('user_id', authResult.userId!)
       .order('updated_at', { ascending: false });
     
     if (error) {
@@ -142,17 +197,24 @@ export const getAllNotesSecurely = async (): Promise<Record<string, string>> => 
     
     for (const note of data) {
       try {
-        const content = note.is_encrypted 
+        let content = note.is_encrypted 
           ? await decryptContent(note.content)
           : note.content;
+        
+        // Additional security check on decrypted content
+        const securityCheck = checkContentSecurity(content);
+        if (!securityCheck.isValid) {
+          console.warn(`Security check failed for note ${note.id}:`, securityCheck.error);
+          content = 'Note content blocked due to security concerns.';
+        }
         
         notesMap[note.id] = content;
         
         // Log note access
         await logNoteAccess(note.id, 'read');
       } catch (decryptError) {
-        console.error(`Error decrypting note ${note.id}:`, decryptError);
-        // Skip this note if decryption fails
+        console.error(`Error processing note ${note.id}:`, decryptError);
+        // Skip this note if processing fails
       }
     }
     
@@ -166,12 +228,25 @@ export const getAllNotesSecurely = async (): Promise<Record<string, string>> => 
 // Enhanced note deletion with security checks
 export const deleteNoteSecurely = async (noteId: string): Promise<StorageOperationResult> => {
   try {
-    // Check user authentication
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) {
+    // Enhanced authentication validation
+    const authResult = await validateUserAuthentication();
+    if (!authResult.isAuthenticated) {
       return { 
         success: false, 
-        error: "User not authenticated. Please sign in to delete notes." 
+        error: authResult.error || "User not authenticated. Please sign in to delete notes." 
+      };
+    }
+
+    // Rate limiting for deletions
+    const rateLimitOk = await checkRateLimit('delete_note', 20); // 20 deletions per hour
+    if (!rateLimitOk) {
+      await logSecurityValidation('rate_limit_exceeded', { 
+        action: 'delete_note',
+        note_id: noteId 
+      });
+      return {
+        success: false,
+        error: 'Rate limit exceeded. Please wait before deleting again.'
       };
     }
 
@@ -180,7 +255,7 @@ export const deleteNoteSecurely = async (noteId: string): Promise<StorageOperati
       .from('notes')
       .select('id')
       .eq('id', noteId)
-      .eq('user_id', user.id)
+      .eq('user_id', authResult.userId!)
       .maybeSingle();
 
     if (checkError) {
@@ -198,7 +273,7 @@ export const deleteNoteSecurely = async (noteId: string): Promise<StorageOperati
       .from('notes')
       .delete()
       .eq('id', noteId)
-      .eq('user_id', user.id);
+      .eq('user_id', authResult.userId!);
     
     if (error) {
       throw error;

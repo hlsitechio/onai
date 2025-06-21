@@ -836,6 +836,15 @@ export type Database = {
         Args: { user_uuid: string }
         Returns: boolean
       }
+      check_enhanced_rate_limit: {
+        Args: {
+          user_uuid: string
+          action_type: string
+          max_requests?: number
+          time_window?: unknown
+        }
+        Returns: boolean
+      }
       check_rate_limit: {
         Args: {
           user_uuid: string
@@ -872,6 +881,10 @@ export type Database = {
       }
       validate_content_length: {
         Args: { content: string; max_length?: number }
+        Returns: boolean
+      }
+      validate_note_content: {
+        Args: { content: string }
         Returns: boolean
       }
     }
