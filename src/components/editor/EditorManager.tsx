@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useCallback } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { useNotesManager } from '@/hooks/useNotesManager.tsx';
@@ -360,7 +361,7 @@ const EditorManager: React.FC = () => {
               </div>
             </div>
           ) : (
-            // Normal mode layout - resizable panels
+            // Normal mode layout - resizable panels with free movement
             <ResizablePanelGroup 
               direction="horizontal" 
               className="h-full w-full"
@@ -372,9 +373,9 @@ const EditorManager: React.FC = () => {
                   <ResizablePanel 
                     id="notes-panel"
                     defaultSize={25} 
-                    minSize={15} 
-                    maxSize={45}
-                    collapsible={false}
+                    minSize={5} 
+                    maxSize={80}
+                    collapsible={true}
                     className="min-w-0"
                   >
                     <SidebarPanel>
@@ -392,7 +393,7 @@ const EditorManager: React.FC = () => {
                   </ResizablePanel>
                   <ResizableHandle 
                     withHandle={true}
-                    className="w-2 hover:w-3 transition-all duration-200 z-30"
+                    className="w-1 hover:w-2 transition-all duration-150 z-30"
                   />
                 </>
               )}
@@ -400,7 +401,7 @@ const EditorManager: React.FC = () => {
               {/* Main editor panel */}
               <ResizablePanel 
                 id="editor-panel"
-                minSize={30}
+                minSize={10}
                 className="flex flex-col min-w-0"
               >
                 <div className={cn(
@@ -438,14 +439,14 @@ const EditorManager: React.FC = () => {
                 <>
                   <ResizableHandle 
                     withHandle={true}
-                    className="w-2 hover:w-3 transition-all duration-200 z-30"
+                    className="w-1 hover:w-2 transition-all duration-150 z-30"
                   />
                   <ResizablePanel 
                     id="ai-panel"
                     defaultSize={25} 
-                    minSize={15} 
-                    maxSize={45}
-                    collapsible={false}
+                    minSize={5} 
+                    maxSize={80}
+                    collapsible={true}
                     className="min-w-0"
                   >
                     <SidebarPanel>
