@@ -1,5 +1,5 @@
 
-import React, { useRef, useEffect } from 'react';
+import React, { useRef, useEffect, useState } from 'react';
 import { cn } from '@/lib/utils';
 import { useDeviceDetection } from '@/hooks/useDeviceDetection';
 import { useToolbarActions } from '@/hooks/useToolbarActions';
@@ -23,6 +23,7 @@ const UnifiedEditor: React.FC<UnifiedEditorProps> = ({
   const { isMobile } = useDeviceDetection();
   const editorRef = useRef<HTMLDivElement>(null);
   const { execCommand } = useToolbarActions(editor);
+  const [isFocused, setIsFocused] = useState(false);
 
   useEffect(() => {
     if (editorRef.current && editorRef.current.innerHTML !== content) {
@@ -32,8 +33,17 @@ const UnifiedEditor: React.FC<UnifiedEditorProps> = ({
 
   const handleInput = () => {
     if (editorRef.current) {
-      setContent(editorRef.current.innerHTML);
+      const newContent = editorRef.current.innerHTML;
+      setContent(newContent);
     }
+  };
+
+  const handleFocus = () => {
+    setIsFocused(true);
+  };
+
+  const handleBlur = () => {
+    setIsFocused(false);
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -71,7 +81,7 @@ const UnifiedEditor: React.FC<UnifiedEditorProps> = ({
     // Handle Enter key for better line breaks
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
-      execCommand('insertHTML', '<br><br>');
+      execCommand('insertHTML', '<div><br></div>');
     }
 
     // Handle Tab key
@@ -87,50 +97,94 @@ const UnifiedEditor: React.FC<UnifiedEditorProps> = ({
     execCommand('insertText', text);
   };
 
+  const isEmpty = !content || content === '<div><br></div>' || content === '<p></p>' || content.trim() === '';
+
   return (
     <div className={cn(
-      "flex-1 flex flex-col relative",
-      isFocusMode && "focus-mode",
-      isMobile ? "bg-background" : "bg-gradient-to-br from-[#03010a] to-[#0a0518]"
+      "flex-1 flex flex-col relative overflow-hidden",
+      "bg-gradient-to-br from-[#0a0a0f] via-[#0d0d14] to-[#0f0f18]",
+      isFocusMode && "bg-black",
+      "border-0 outline-none"
     )}>
-      <div className="flex-1 relative overflow-hidden">
-        <div className="h-full flex flex-col">
-          <div
-            ref={editorRef}
-            contentEditable
-            onInput={handleInput}
-            onKeyDown={handleKeyDown}
-            onPaste={handlePaste}
-            className={cn(
-              "flex-1 outline-none leading-relaxed",
-              isMobile ? [
-                "p-4 prose prose-sm max-w-none dark:prose-invert",
-                "focus:ring-0 focus:outline-none text-foreground"
-              ] : [
-                "px-4 py-2 prose prose-lg max-w-none dark:prose-invert",
-                "focus:ring-0 focus:outline-none text-white",
-                "min-h-[300px]"
-              ],
-              !content && "text-muted-foreground"
-            )}
-            style={{
-              minHeight: '100%',
-              wordWrap: 'break-word',
-              overflowWrap: 'break-word'
-            }}
-            suppressContentEditableWarning={true}
-            data-placeholder={placeholder}
-          />
-          
-          {!content && (
-            <div className={cn(
-              "absolute pointer-events-none",
-              isMobile ? "top-4 left-4" : "top-2 left-4"
-            )}>
-              <AnimatedPlaceholder isVisible={true} />
-            </div>
+      {/* Enhanced editor container */}
+      <div className={cn(
+        "flex-1 relative overflow-auto",
+        "scrollbar-thin scrollbar-track-transparent scrollbar-thumb-white/10",
+        isFocused && "ring-1 ring-purple-500/30"
+      )}>
+        {/* Main editor */}
+        <div
+          ref={editorRef}
+          contentEditable
+          onInput={handleInput}
+          onFocus={handleFocus}
+          onBlur={handleBlur}
+          onKeyDown={handleKeyDown}
+          onPaste={handlePaste}
+          className={cn(
+            "w-full h-full outline-none border-none",
+            "text-white/90 leading-relaxed font-normal",
+            "prose prose-lg prose-invert max-w-none",
+            "prose-headings:text-white prose-p:text-white/90",
+            "prose-strong:text-white prose-em:text-white/80",
+            "prose-code:text-purple-300 prose-code:bg-purple-900/20",
+            "prose-pre:bg-gray-900/50 prose-pre:border prose-pre:border-white/10",
+            "prose-blockquote:border-l-purple-500 prose-blockquote:text-white/80",
+            "prose-ul:text-white/90 prose-ol:text-white/90",
+            "prose-li:text-white/90",
+            isMobile ? "p-4 text-base" : "p-8 text-lg",
+            "min-h-full",
+            "focus:outline-none focus:ring-0"
           )}
-        </div>
+          style={{
+            minHeight: '100%',
+            wordWrap: 'break-word',
+            overflowWrap: 'break-word',
+            lineHeight: '1.75'
+          }}
+          suppressContentEditableWarning={true}
+          data-placeholder={placeholder}
+        />
+        
+        {/* Enhanced placeholder */}
+        {isEmpty && (
+          <div className={cn(
+            "absolute pointer-events-none select-none",
+            isMobile ? "top-4 left-4" : "top-8 left-8",
+            "text-white/30 text-lg font-light"
+          )}>
+            <div className="flex flex-col gap-2">
+              <div className="flex items-center gap-2">
+                <div className="w-2 h-2 bg-purple-500 rounded-full animate-pulse" />
+                <span>{placeholder}</span>
+              </div>
+              <div className="text-sm text-white/20 ml-4">
+                {isMobile ? "Tap to start writing" : "Click here or use Ctrl+shortcuts for formatting"}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Focus mode indicator */}
+        {isFocusMode && (
+          <div className="absolute top-4 right-4 text-purple-400 text-sm font-medium opacity-50">
+            Focus Mode
+          </div>
+        )}
+
+        {/* Writing stats (word count, etc.) */}
+        {!isEmpty && (
+          <div className="absolute bottom-4 right-4 text-white/30 text-xs font-mono">
+            {(() => {
+              const tempDiv = document.createElement('div');
+              tempDiv.innerHTML = content;
+              const text = tempDiv.textContent || tempDiv.innerText || '';
+              const words = text.trim().split(/\s+/).filter(word => word.length > 0);
+              const chars = text.length;
+              return `${words.length} words • ${chars} chars`;
+            })()}
+          </div>
+        )}
       </div>
     </div>
   );

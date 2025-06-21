@@ -106,9 +106,11 @@ const EditorManager: React.FC = () => {
       {/* Header - conditionally rendered based on focus mode */}
       {!isFocusMode && <EditorHeader />}
 
-      {/* Main Content */}
+      {/* Main Content - ensure no old interface conflicts */}
       <div className={cn(
-        "w-full h-full overflow-hidden",
+        "w-full h-full overflow-hidden flex-1",
+        // Ensure clean slate styling
+        "!m-0 !p-0 !border-0 !outline-0",
         !isFocusMode && "pt-16"  
       )}>
         {isFocusMode ? (
