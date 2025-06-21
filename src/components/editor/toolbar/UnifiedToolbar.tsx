@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Save, Focus, Clock, PanelLeft, Sparkles, ChevronDown, CheckCircle } from 'lucide-react';
@@ -110,13 +111,14 @@ const UnifiedToolbar: React.FC<UnifiedToolbarProps> = ({
               size="sm"
               onClick={toggleLeftSidebar}
               className={cn(
-                "h-9 w-9 p-0 transition-colors",
+                "h-9 px-3 transition-colors flex items-center gap-2",
                 isLeftSidebarOpen 
-                  ? "text-purple-300 bg-purple-500/20" 
+                  ? "text-purple-300 bg-purple-500/20 border border-purple-500/30" 
                   : "text-white/70 hover:text-white hover:bg-white/10"
               )}
             >
               <PanelLeft className="h-4 w-4" />
+              <span className="text-sm font-medium">Notes</span>
             </Button>
             
             <Button
@@ -209,14 +211,14 @@ const UnifiedToolbar: React.FC<UnifiedToolbarProps> = ({
             size="sm"
             onClick={toggleLeftSidebar}
             className={cn(
-              "h-9 px-3 transition-colors",
+              "h-9 px-4 transition-colors flex items-center gap-2 rounded-lg",
               isLeftSidebarOpen 
-                ? "text-purple-300 bg-purple-500/20" 
-                : "text-white/70 hover:text-white hover:bg-white/10"
+                ? "text-purple-300 bg-purple-500/20 border border-purple-500/30 shadow-sm" 
+                : "text-white/70 hover:text-white hover:bg-white/10 border border-transparent"
             )}
           >
-            <PanelLeft className="h-4 w-4 mr-2" />
-            Notes
+            <PanelLeft className="h-4 w-4" />
+            <span className="text-sm font-medium">Notes</span>
           </Button>
 
           <div className="w-px h-6 bg-white/10" />
