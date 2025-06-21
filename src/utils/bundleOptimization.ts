@@ -4,9 +4,6 @@ export const LARGE_CHUNK_THRESHOLD = 500; // KB
 
 // Lazy load heavy components to reduce initial bundle size
 export const lazyComponents = {
-  // Editor components (heavy due to TipTap)
-  TiptapEditor: () => import('@/components/editor/TiptapEditor'),
-  
   // OCR components (Tesseract.js heavy)
   OCRButton: () => import('@/components/ocr/OCRButton'),
   OCRPopup: () => import('@/components/ocr/OCRPopup'),
@@ -23,8 +20,6 @@ export const lazyComponents = {
 
 // Identify heavy dependencies for optimization
 export const heavyDependencies = [
-  '@tiptap/react',
-  '@tiptap/starter-kit', 
   'tesseract.js',
   'recharts',
   'framer-motion',
