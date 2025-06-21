@@ -1,142 +1,138 @@
 
 /**
- * CleanConsoleManager
- * ====================
- * A utility class that:
- * 1. Hooks into Sentry's `captureConsoleIntegration` for internal logging
- * 2. Silences all console output from the browser
- * 3. Allows optional restoration or controlled visibility
- * 4. Tracks suppressed log counts (optional)
- * 
- * Notes:
- * - Sentry must be initialized before this manager for capture to work.
- * - DevTools system warnings (e.g., CSP, preload, quirks) are NOT suppressible by this tool.
+ * CleanConsoleManager v2 – Enhanced for 2025
+ * ==========================================
+ * 1. Captures and suppresses noisy logs
+ * 2. Supports selective method suppression
+ * 3. Integrates tightly with Sentry
+ * 4. Provides dev console controls and enhanced UX
+ * 5. Tracks suppressed counts with optional buffer storage
  */
 
 import * as Sentry from '@sentry/react';
 
 type ConsoleMethod = 'log' | 'info' | 'warn' | 'error' | 'debug';
+type ConsoleArgs = any[];
 
 const CONSOLE_METHODS: readonly ConsoleMethod[] = ['log', 'info', 'warn', 'error', 'debug'];
+
+interface CleanConsoleOptions {
+  enableBuffer?: boolean;
+  suppressMethods?: ConsoleMethod[];
+  enableSentryCapture?: boolean;
+}
+
+interface SuppressedLog {
+  method: ConsoleMethod;
+  args: ConsoleArgs;
+  timestamp: number;
+}
 
 export class CleanConsoleManager {
   private readonly originalMethods: Record<ConsoleMethod, (...args: any[]) => void> = {} as any;
   private isSuppressionActive = false;
-  private suppressedLogs: Record<ConsoleMethod, number>;
+  private suppressedLogs: Record<ConsoleMethod, number> = {
+    log: 0, info: 0, warn: 0, error: 0, debug: 0
+  };
+  private logBuffer: SuppressedLog[] = [];
 
-  private readonly thirdPartyIgnorePatterns: RegExp[] = [
+  private readonly ignorePatterns: RegExp[] = [
     /facebook\.com\/tr/,
     /gtag/,
-    /ga\.js/,
     /googletagmanager/,
     /doubleclick\.net/,
     /InterestGroups/,
     /deprecated/i
   ];
 
-  constructor() {
-    // Initialize suppressedLogs with all required properties
-    this.suppressedLogs = {
-      log: 0,
-      info: 0,
-      warn: 0,
-      error: 0,
-      debug: 0
+  private readonly options: Required<CleanConsoleOptions>;
+
+  constructor(options?: CleanConsoleOptions) {
+    this.options = {
+      enableBuffer: options?.enableBuffer ?? false,
+      suppressMethods: options?.suppressMethods ?? [...CONSOLE_METHODS],
+      enableSentryCapture: options?.enableSentryCapture ?? true
     };
-    
-    this.initializeCleanConsole();
+    this.init();
   }
 
-  private initializeCleanConsole() {
-    // Store original console methods for restoration
-    CONSOLE_METHODS.forEach(level => {
-      this.originalMethods[level] = console[level].bind(console);
-      this.suppressedLogs[level] = 0;
+  private init() {
+    CONSOLE_METHODS.forEach(method => {
+      this.originalMethods[method] = console[method].bind(console);
     });
-
-    // Suppress output
-    this.suppressConsoleOutput();
-
-    // Welcome message
-    setTimeout(() => this.showWelcomeMessage(), 200);
-
+    this.suppress();
+    this.welcomeBanner();
     this.isSuppressionActive = true;
   }
 
-  private suppressConsoleOutput() {
-    CONSOLE_METHODS.forEach(level => {
-      (console as any)[level] = (...args: any[]) => {
-        const firstArg = args[0];
+  private shouldIgnore(arg: any): boolean {
+    if (typeof arg !== 'string') return false;
+    return this.ignorePatterns.some(pattern => pattern.test(arg));
+  }
 
-        // Optional filtering of known noisy 3rd-party SDK logs
-        if (typeof firstArg === 'string') {
-          if (this.thirdPartyIgnorePatterns.some(pattern => pattern.test(firstArg))) {
-            return;
-          }
+  private suppress() {
+    this.options.suppressMethods.forEach(method => {
+      console[method] = (...args: ConsoleArgs) => {
+        if (this.shouldIgnore(args[0])) return;
+
+        this.suppressedLogs[method]++;
+
+        if (this.options.enableBuffer) {
+          this.logBuffer.push({ method, args, timestamp: Date.now() });
         }
 
-        // Track suppressed logs
-        this.suppressedLogs[level]++;
-
-        // Optional: Manual fallback capture to Sentry (if captureConsoleIntegration missed anything)
-        if (import.meta.env.PROD || import.meta.env.VITE_ENABLE_SENTRY === 'true') {
+        if (this.options.enableSentryCapture && (import.meta.env.PROD || import.meta.env.VITE_ENABLE_SENTRY === 'true')) {
           try {
-            const message = args.map(arg => 
-              typeof arg === 'object' ? JSON.stringify(arg) : String(arg)
-            ).join(' ');
-            
-            if (level === 'error') {
-              Sentry.captureException(new Error(`Console Error: ${message}`));
+            const msg = args.map(arg => (typeof arg === 'object' ? JSON.stringify(arg) : String(arg))).join(' ');
+            if (method === 'error') {
+              Sentry.captureException(new Error(`Console Error: ${msg}`));
             } else {
-              Sentry.captureMessage(`${level.toUpperCase()}: ${message}`, level as any);
+              Sentry.captureMessage(`[${method.toUpperCase()}] ${msg}`, method as any);
             }
-          } catch (e) {
-            // Silently fail if Sentry isn't available
+          } catch (_) {
+            // Fail silently
           }
         }
 
-        // Suppress all visual output. Sentry captures logs before this point.
+        // No visual output
       };
     });
   }
 
-  private showWelcomeMessage() {
-    if (!this.isSuppressionActive) return;
-
-    const originalLog = this.originalMethods.log;
-    if (originalLog) {
-      if (console.clear) console.clear();
-
-      setTimeout(() => {
-        console.log = originalLog;
-        console.log(
-          '%c🎉 Welcome to OnlineNote AI! 🎉',
-          'color: #4CAF50; font-size: 18px; font-weight: bold; text-shadow: 1px 1px 2px rgba(0,0,0,0.3);'
-        );
-        console.log(
-          '%c📊 Console suppression active - all logs captured in Sentry',
-          'color: #03A9F4; font-size: 12px;'
-        );
-        console.log = () => {};
-      }, 100);
-    }
+  private welcomeBanner() {
+    setTimeout(() => {
+      if (!this.originalMethods.log) return;
+      console.clear?.();
+      this.originalMethods.log?.(
+        '%c🎉 Welcome to OnlineNote AI – Logging Suppressed',
+        'color:#4CAF50;font-size:16px;font-weight:bold;text-shadow:1px 1px 2px rgba(0,0,0,0.2)'
+      );
+      this.originalMethods.log?.(
+        '%c🔒 Console output is suppressed. Logs sent to Sentry (if enabled).',
+        'color:#58A6D0;font-size:13px;'
+      );
+    }, 100);
   }
 
   public restoreConsole() {
     if (!this.isSuppressionActive) return;
 
-    Object.assign(console, this.originalMethods);
+    this.options.suppressMethods.forEach(method => {
+      console[method] = this.originalMethods[method];
+    });
+
     this.isSuppressionActive = false;
-    console.log('%c🔊 Console restored - all logs now visible', 'color: #03A9F4; font-weight: bold;');
-    console.log('📊 Suppressed log counts:', this.suppressedLogs);
+    this.originalMethods.log?.('%c🔊 Console restored.', 'color:#03A9F4;font-weight:bold;');
+    this.originalMethods.log?.('📊 Suppressed counts:', this.suppressedLogs);
   }
 
   public getStatus() {
     return {
       isActive: this.isSuppressionActive,
-      method: 'sentry_integration_with_suppression',
-      sentryCapture: 'active',
-      suppressedCounts: { ...this.suppressedLogs }
+      suppressedCounts: { ...this.suppressedLogs },
+      hasBuffer: this.options.enableBuffer,
+      bufferedLogs: this.options.enableBuffer ? this.logBuffer.length : undefined,
+      method: 'sentry_capture_and_suppress',
     };
   }
 
@@ -144,39 +140,38 @@ export class CleanConsoleManager {
     return { ...this.suppressedLogs };
   }
 
-  public clearAndShowWelcome() {
-    if (console.clear) console.clear();
+  public flushBuffer() {
+    if (!this.options.enableBuffer || this.logBuffer.length === 0) return;
 
-    const originalLog = this.originalMethods.log;
-    if (originalLog) {
-      setTimeout(() => {
-        console.log = originalLog;
-        console.log(
-          '%c🎉 Welcome to OnlineNote AI! 🎉',
-          'color: #4CAF50; font-size: 18px; font-weight: bold; text-shadow: 1px 1px 2px rgba(0,0,0,0.3);'
-        );
-        console.log(
-          '%c📊 Console suppression active - all logs captured in Sentry',
-          'color: #03A9F4; font-size: 12px;'
-        );
-        console.log = () => {};
-      }, 100);
-    }
+    this.originalMethods.log?.('%c🔁 Flushing buffered logs:', 'color:#FF9800; font-weight:bold;');
+    this.logBuffer.forEach(({ method, args }) => {
+      this.originalMethods[method]?.(...args);
+    });
+    this.logBuffer = [];
+  }
+
+  public clearBuffer() {
+    this.logBuffer = [];
   }
 }
 
-// ✅ Singleton instance to prevent multiple instantiations
-const consoleManager = new CleanConsoleManager();
+// ✅ Singleton Manager Instance
+const consoleManager = new CleanConsoleManager({
+  enableBuffer: true,
+  suppressMethods: ['log', 'warn', 'error', 'info', 'debug'],
+  enableSentryCapture: true
+});
 
-// ✅ Export runtime controls
+// ✅ Runtime Dev Controls
 export const cleanConsoleControls = {
   restore: () => consoleManager.restoreConsole(),
   getStatus: () => consoleManager.getStatus(),
   getSuppressedCounts: () => consoleManager.getSuppressedCounts(),
-  clearAndShowWelcome: () => consoleManager.clearAndShowWelcome()
+  flushBuffer: () => consoleManager.flushBuffer(),
+  clearBuffer: () => consoleManager.clearBuffer()
 };
 
-// ✅ DevTool shortcut for developers
+// ✅ Dev Shortcut for Browser Console
 if (import.meta.env.DEV && typeof window !== 'undefined') {
   (window as any).consoleControls = cleanConsoleControls;
 }
