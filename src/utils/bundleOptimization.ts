@@ -22,9 +22,7 @@ export const lazyComponents = {
 export const heavyDependencies = [
   'tesseract.js',
   'recharts',
-  'framer-motion',
-  'marked',
-  'lowlight'
+  'framer-motion'
 ];
 
 // Bundle analysis helper
