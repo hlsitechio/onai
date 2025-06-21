@@ -21,6 +21,12 @@ import ColorControls from './toolbar/ColorControls';
 import HistoryControls from './toolbar/HistoryControls';
 import TableControls from './toolbar/TableControls';
 import FontControls from './toolbar/FontControls';
+import FontSizeControls from './toolbar/FontSizeControls';
+import LinkControls from './toolbar/LinkControls';
+import ImageControls from './toolbar/ImageControls';
+import CodeBlockControls from './toolbar/CodeBlockControls';
+import QuoteControls from './toolbar/QuoteControls';
+import DividerControls from './toolbar/DividerControls';
 import QuickActions from './toolbar/QuickActions';
 
 interface EditorToolbarProps {
@@ -103,7 +109,12 @@ const EditorToolbar: React.FC<EditorToolbarProps> = ({
         redo: () => ({ run: () => execCommand('redo') }),
         setColor: (color: string) => ({ run: () => execCommand('foreColor', color) }),
         toggleHighlight: (attrs: any) => ({ run: () => execCommand('hiliteColor', attrs.color) }),
-        insertContent: (content: string) => ({ run: () => execCommand('insertHTML', content) })
+        insertContent: (content: string) => ({ run: () => execCommand('insertHTML', content) }),
+        setLink: (attrs: any) => ({ run: () => {} }),
+        unsetLink: () => ({ run: () => {} }),
+        setImage: (attrs: any) => ({ run: () => {} }),
+        toggleBlockquote: () => ({ run: () => {} }),
+        toggleCodeBlock: (attrs: any) => ({ run: () => {} })
       })
     }),
     state: {
@@ -144,6 +155,7 @@ const EditorToolbar: React.FC<EditorToolbarProps> = ({
 
           {/* Font Controls */}
           <FontControls />
+          <FontSizeControls />
 
           <div className="w-px h-6 bg-white/10 mx-1" />
 
@@ -187,7 +199,7 @@ const EditorToolbar: React.FC<EditorToolbarProps> = ({
 
       {/* Bottom Row - Secondary Controls (hidden on mobile) */}
       <div className="hidden md:flex flex-wrap items-center justify-between gap-2">
-        {/* Left side - Lists, alignment, colors, tables, insert */}
+        {/* Left side - Enhanced formatting controls */}
         <div className="flex flex-wrap items-center gap-1">
           {/* Color Controls */}
           <ColorControls editor={mockEditor as any} />
@@ -201,6 +213,19 @@ const EditorToolbar: React.FC<EditorToolbarProps> = ({
 
           {/* Alignment */}
           <AlignmentControls editor={mockEditor as any} />
+
+          <div className="w-px h-6 bg-white/10 mx-1" />
+
+          {/* Link and Image Controls */}
+          <LinkControls editor={mockEditor as any} />
+          <ImageControls editor={mockEditor as any} />
+
+          <div className="w-px h-6 bg-white/10 mx-1" />
+
+          {/* Code and Quote Controls */}
+          <CodeBlockControls editor={mockEditor as any} />
+          <QuoteControls editor={mockEditor as any} />
+          <DividerControls />
 
           <div className="w-px h-6 bg-white/10 mx-1" />
 

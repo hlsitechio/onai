@@ -1,11 +1,10 @@
 
 import React, { useState } from 'react';
-import { Palette, Highlighter, Type } from 'lucide-react';
+import { Palette, Type, Highlighter } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
   DropdownMenuContent,
-  DropdownMenuItem,
   DropdownMenuTrigger,
   DropdownMenuSeparator,
 } from '@/components/ui/dropdown-menu';
@@ -17,28 +16,30 @@ interface ColorControlsProps {
 }
 
 const ColorControls: React.FC<ColorControlsProps> = ({ editor }) => {
-  const [textColor, setTextColor] = useState('#000000');
-  const [highlightColor, setHighlightColor] = useState('#ffff00');
+  const [selectedTextColor, setSelectedTextColor] = useState('#ffffff');
+  const [selectedHighlightColor, setSelectedHighlightColor] = useState('#fbbf24');
 
   const textColors = [
-    '#000000', '#374151', '#6b7280', '#9ca3af',
-    '#ef4444', '#f97316', '#eab308', '#22c55e',
-    '#3b82f6', '#8b5cf6', '#ec4899', '#06b6d4'
+    '#000000', '#374151', '#6b7280', '#9ca3af', '#d1d5db', '#ffffff',
+    '#dc2626', '#ea580c', '#d97706', '#ca8a04', '#65a30d', '#16a34a',
+    '#059669', '#0891b2', '#0284c7', '#2563eb', '#4f46e5', '#7c3aed',
+    '#9333ea', '#c026d3', '#db2777', '#e11d48'
   ];
 
   const highlightColors = [
-    '#fef3c7', '#fed7aa', '#fecaca', '#f3e8ff',
-    '#dbeafe', '#d1fae5', '#ffedd5', '#fce7f3'
+    'transparent', '#fef3c7', '#fde68a', '#fbbf24', '#f59e0b',
+    '#fecaca', '#f87171', '#ef4444', '#dc2626',
+    '#d1fae5', '#86efac', '#4ade80', '#22c55e',
+    '#bfdbfe', '#60a5fa', '#3b82f6', '#2563eb',
+    '#e9d5ff', '#c084fc', '#a855f7', '#9333ea'
   ];
 
-  const handleTextColor = (color: string) => {
-    setTextColor(color);
+  const handleTextColorChange = (color: string) => {
+    setSelectedTextColor(color);
     try {
-      // Try Tiptap method first
-      if (editor && editor.chain && typeof editor.chain === 'function') {
+      if (editor && editor.chain) {
         editor.chain().focus().setColor(color).run();
       } else {
-        // Fallback to document.execCommand
         document.execCommand('foreColor', false, color);
       }
     } catch {
@@ -46,37 +47,20 @@ const ColorControls: React.FC<ColorControlsProps> = ({ editor }) => {
     }
   };
 
-  const handleHighlight = (color: string) => {
-    setHighlightColor(color);
+  const handleHighlightColorChange = (color: string) => {
+    setSelectedHighlightColor(color);
     try {
-      // Try Tiptap method first
-      if (editor && editor.chain && typeof editor.chain === 'function') {
-        editor.chain().focus().toggleHighlight({ color }).run();
+      if (editor && editor.chain) {
+        if (color === 'transparent') {
+          editor.chain().focus().unsetHighlight().run();
+        } else {
+          editor.chain().focus().toggleHighlight({ color }).run();
+        }
       } else {
-        // Fallback to document.execCommand
         document.execCommand('hiliteColor', false, color);
       }
     } catch {
       document.execCommand('hiliteColor', false, color);
-    }
-  };
-
-  const fontSizes = ['12px', '14px', '16px', '18px', '20px', '24px', '28px', '32px'];
-  
-  const handleFontSize = (size: string) => {
-    try {
-      // Try to use CSS styling
-      document.execCommand('fontSize', false, '7');
-      const fontElements = document.getElementsByTagName('font');
-      for (let i = 0; i < fontElements.length; i++) {
-        if (fontElements[i].size === '7') {
-          fontElements[i].removeAttribute('size');
-          fontElements[i].style.fontSize = size;
-        }
-      }
-    } catch {
-      // Fallback
-      document.execCommand('fontSize', false, size);
     }
   };
 
@@ -93,36 +77,34 @@ const ColorControls: React.FC<ColorControlsProps> = ({ editor }) => {
           >
             <Type className="h-4 w-4" />
             <div 
-              className="absolute bottom-1 left-1/2 transform -translate-x-1/2 w-3 h-0.5 rounded"
-              style={{ backgroundColor: textColor }}
+              className="absolute bottom-0 left-0 right-0 h-1 rounded-b"
+              style={{ backgroundColor: selectedTextColor }}
             />
           </Button>
         </DropdownMenuTrigger>
         
         <DropdownMenuContent 
           align="start" 
-          className="w-32 bg-[#27202C] border-white/10 text-white z-50 p-3"
+          className="w-64 bg-[#27202C] border-white/10 text-white z-50 p-3"
         >
-          <div className="grid grid-cols-6 gap-1">
+          <div className="mb-3">
+            <span className="text-sm font-medium">Text Color</span>
+          </div>
+          <div className="grid grid-cols-6 gap-2">
             {textColors.map((color) => (
               <button
                 key={color}
-                onClick={() => handleTextColor(color)}
-                className="w-5 h-5 rounded border border-white/20 hover:scale-110 transition-transform"
+                onClick={() => handleTextColorChange(color)}
+                className={cn(
+                  "w-8 h-8 rounded border-2 hover:scale-110 transition-transform",
+                  selectedTextColor === color 
+                    ? "border-white shadow-lg" 
+                    : "border-white/20 hover:border-white/40"
+                )}
                 style={{ backgroundColor: color }}
                 title={color}
               />
             ))}
-          </div>
-          <DropdownMenuSeparator className="bg-white/10 my-2" />
-          <div className="flex items-center gap-2">
-            <input
-              type="color"
-              value={textColor}
-              onChange={(e) => handleTextColor(e.target.value)}
-              className="w-6 h-6 rounded border-0 bg-transparent cursor-pointer"
-            />
-            <span className="text-xs text-gray-400">Custom</span>
           </div>
         </DropdownMenuContent>
       </DropdownMenu>
@@ -138,69 +120,50 @@ const ColorControls: React.FC<ColorControlsProps> = ({ editor }) => {
           >
             <Highlighter className="h-4 w-4" />
             <div 
-              className="absolute bottom-1 left-1/2 transform -translate-x-1/2 w-3 h-0.5 rounded"
-              style={{ backgroundColor: highlightColor }}
+              className="absolute bottom-0 left-0 right-0 h-1 rounded-b"
+              style={{ backgroundColor: selectedHighlightColor }}
             />
           </Button>
         </DropdownMenuTrigger>
         
         <DropdownMenuContent 
           align="start" 
-          className="w-32 bg-[#27202C] border-white/10 text-white z-50 p-3"
+          className="w-64 bg-[#27202C] border-white/10 text-white z-50 p-3"
         >
-          <div className="grid grid-cols-4 gap-1">
-            {highlightColors.map((color) => (
+          <div className="mb-3">
+            <span className="text-sm font-medium">Highlight Color</span>
+          </div>
+          <div className="grid grid-cols-6 gap-2">
+            {/* Remove highlight option */}
+            <button
+              onClick={() => handleHighlightColorChange('transparent')}
+              className={cn(
+                "w-8 h-8 rounded border-2 hover:scale-110 transition-transform flex items-center justify-center",
+                selectedHighlightColor === 'transparent' 
+                  ? "border-white shadow-lg" 
+                  : "border-white/20 hover:border-white/40",
+                "bg-transparent"
+              )}
+              title="Remove highlight"
+            >
+              <span className="text-red-400 text-xs font-bold">×</span>
+            </button>
+            
+            {highlightColors.slice(1).map((color) => (
               <button
                 key={color}
-                onClick={() => handleHighlight(color)}
-                className="w-5 h-5 rounded border border-white/20 hover:scale-110 transition-transform"
+                onClick={() => handleHighlightColorChange(color)}
+                className={cn(
+                  "w-8 h-8 rounded border-2 hover:scale-110 transition-transform",
+                  selectedHighlightColor === color 
+                    ? "border-white shadow-lg" 
+                    : "border-white/20 hover:border-white/40"
+                )}
                 style={{ backgroundColor: color }}
                 title={color}
               />
             ))}
           </div>
-          <DropdownMenuSeparator className="bg-white/10 my-2" />
-          <div className="flex items-center gap-2">
-            <input
-              type="color"
-              value={highlightColor}
-              onChange={(e) => handleHighlight(e.target.value)}
-              className="w-6 h-6 rounded border-0 bg-transparent cursor-pointer"
-            />
-            <span className="text-xs text-gray-400">Custom</span>
-          </div>
-        </DropdownMenuContent>
-      </DropdownMenu>
-
-      {/* Font Size */}
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button
-            variant="ghost"
-            size="sm"
-            className="h-8 px-2 hover:bg-white/10 transition-colors text-gray-300 hover:text-white"
-            title="Font Size"
-          >
-            <span className="text-xs">Size</span>
-            <svg className="w-3 h-3 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-            </svg>
-          </Button>
-        </DropdownMenuTrigger>
-        
-        <DropdownMenuContent 
-          align="start" 
-          className="w-24 bg-[#27202C] border-white/10 text-white z-50"
-        >
-          {fontSizes.map((size) => (
-            <DropdownMenuItem
-              key={size}
-              onClick={() => handleFontSize(size)}
-              className="flex items-center justify-center px-3 py-2 cursor-pointer hover:bg-white/10 focus:bg-white/10"
-            >
-              <span className="text-xs">{size}</span>
-            </DropdownMenuItem>
-          ))}
         </DropdownMenuContent>
       </DropdownMenu>
     </div>
