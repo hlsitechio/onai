@@ -1,21 +1,9 @@
 
 import React from "react";
-import DebugWrapper from "@/components/DebugWrapper";
-import PWAInstaller from "@/components/pwa/PWAInstaller";
-import PWAUpdateNotifier from "@/components/pwa/PWAUpdateNotifier";
-import EditorManager from "@/components/editor/EditorManager";
-import ErrorBoundary from "@/components/ErrorBoundary";
+import App from "@/app/App";
 
-const App = () => {
-  return (
-    <ErrorBoundary>
-      <DebugWrapper componentName="App">
-        <EditorManager />
-        <PWAInstaller />
-        <PWAUpdateNotifier />
-      </DebugWrapper>
-    </ErrorBoundary>
-  );
+const AppPage = () => {
+  return <App />;
 };
 
-export default App;
+export default AppPage;
