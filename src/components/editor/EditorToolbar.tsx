@@ -12,21 +12,21 @@ import {
   MoreHorizontal
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import FormatControls from './toolbar/FormatControls';
-import HeadingControls from './toolbar/HeadingControls';
-import ListControls from './toolbar/ListControls';
-import AlignmentControls from './toolbar/AlignmentControls';
-import InsertControls from './toolbar/InsertControls';
+import FormatControls from './toolbar/controls/FormatControls';
+import HeadingControls from './toolbar/controls/HeadingControls';
+import ListControls from './toolbar/controls/ListControls';
+import AlignmentControls from './toolbar/controls/AlignmentControls';
+import InsertControls from './toolbar/controls/InsertControls';
 import ColorControls from './toolbar/ColorControls';
-import HistoryControls from './toolbar/HistoryControls';
-import TableControls from './toolbar/TableControls';
-import FontControls from './toolbar/FontControls';
-import FontSizeControls from './toolbar/FontSizeControls';
-import LinkControls from './toolbar/LinkControls';
-import ImageControls from './toolbar/ImageControls';
-import CodeBlockControls from './toolbar/CodeBlockControls';
-import QuoteControls from './toolbar/QuoteControls';
-import DividerControls from './toolbar/DividerControls';
+import HistoryControls from './toolbar/controls/HistoryControls';
+import TableControls from './toolbar/controls/TableControls';
+import FontControls from './toolbar/controls/FontControls';
+import FontSizeControls from './toolbar/controls/FontSizeControls';
+import LinkControls from './toolbar/controls/LinkControls';
+import ImageControls from './toolbar/controls/ImageControls';
+import CodeBlockControls from './toolbar/controls/CodeBlockControls';
+import QuoteControls from './toolbar/controls/QuoteControls';
+import DividerControls from './toolbar/controls/DividerControls';
 import QuickActions from './toolbar/QuickActions';
 
 interface EditorToolbarProps {

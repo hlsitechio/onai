@@ -1,14 +1,13 @@
-
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Sparkles } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import type { Editor } from '@tiptap/react';
-import FormatControls from './toolbar/FormatControls';
-import HeadingControls from './toolbar/HeadingControls';
-import ListControls from './toolbar/ListControls';
-import AlignmentControls from './toolbar/AlignmentControls';
-import HistoryControls from './toolbar/HistoryControls';
+import FormatControls from './toolbar/controls/FormatControls';
+import HeadingControls from './toolbar/controls/HeadingControls';
+import ListControls from './toolbar/controls/ListControls';
+import AlignmentControls from './toolbar/controls/AlignmentControls';
+import HistoryControls from './toolbar/controls/HistoryControls';
 
 interface TiptapMainToolbarProps {
   editor: Editor;
