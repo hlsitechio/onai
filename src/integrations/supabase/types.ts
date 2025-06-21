@@ -916,7 +916,9 @@ export type Database = {
         Returns: string
       }
       validate_content_length: {
-        Args: { content: string; max_length?: number }
+        Args:
+          | Record<PropertyKey, never>
+          | { content: string; max_length?: number }
         Returns: boolean
       }
       validate_note_content: {
