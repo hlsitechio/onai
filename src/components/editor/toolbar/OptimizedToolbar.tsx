@@ -1,9 +1,10 @@
 
 import React from 'react';
-import { Bold, Italic, Underline, Strikethrough, Code, Heading1, Heading2, Heading3, List, ListOrdered, AlignLeft, AlignCenter, AlignRight, AlignJustify, Undo, Redo, Camera, Link, Image, Highlighter, Eraser } from 'lucide-react';
+import { Bold, Italic, Underline, Strikethrough, Code, Heading1, Heading2, Heading3, AlignLeft, AlignCenter, AlignRight, AlignJustify, Undo, Redo, Camera, Link, Image, Highlighter, Eraser } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import type { Editor } from '@tiptap/react';
+import ListButton from './ListButton';
 
 interface OptimizedToolbarProps {
   editor: Editor;
@@ -100,21 +101,6 @@ const OptimizedToolbar: React.FC<OptimizedToolbarProps> = ({
         }
       },
       title: 'Heading 3',
-    },
-  ];
-
-  const listButtons = [
-    {
-      icon: List,
-      isActive: () => editor.isActive('bulletList'),
-      onClick: () => editor.chain().focus().toggleBulletList().run(),
-      title: 'Bullet List',
-    },
-    {
-      icon: ListOrdered,
-      isActive: () => editor.isActive('orderedList'),
-      onClick: () => editor.chain().focus().toggleOrderedList().run(),
-      title: 'Numbered List',
     },
   ];
 
@@ -256,29 +242,9 @@ const OptimizedToolbar: React.FC<OptimizedToolbarProps> = ({
 
       <div className="w-px h-6 bg-white/10" />
 
-      {/* List controls */}
+      {/* List controls - Now using the new ListButton component */}
       <div className="flex items-center gap-1">
-        {listButtons.map((button, index) => {
-          const Icon = button.icon;
-          const isActive = button.isActive();
-          return (
-            <Button
-              key={index}
-              variant="ghost"
-              size="sm"
-              onClick={button.onClick}
-              className={cn(
-                "h-8 w-8 p-0 hover:bg-white/10 transition-colors",
-                isActive 
-                  ? "bg-white/20 text-white" 
-                  : "text-gray-300 hover:text-white"
-              )}
-              title={button.title}
-            >
-              <Icon className="h-4 w-4" />
-            </Button>
-          );
-        })}
+        <ListButton editor={editor} />
       </div>
 
       <div className="w-px h-6 bg-white/10 hidden md:block" />
