@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { useEditorContext } from '@tiptap/react';
+import { useCurrentEditor } from '@tiptap/react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 
@@ -10,7 +10,7 @@ interface HeadingButtonProps {
 }
 
 export const HeadingButton: React.FC<HeadingButtonProps> = ({ level, className }) => {
-  const { editor } = useEditorContext();
+  const { editor } = useCurrentEditor();
 
   if (!editor) {
     return null;
