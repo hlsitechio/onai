@@ -1,5 +1,5 @@
 
-import React, { useRef, useState, useCallback } from 'react';
+import React, { useRef, useState, useCallback, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Camera, X, RotateCcw, Check } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
@@ -20,9 +20,22 @@ const OCRCameraCapture: React.FC<OCRCameraCaptureProps> = ({
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
 
+  const stopCamera = useCallback(() => {
+    if (stream) {
+      stream.getTracks().forEach(track => track.stop());
+      setStream(null);
+    }
+  }, [stream]);
+
   const startCamera = useCallback(async () => {
     try {
       setIsLoading(true);
+      
+      // Stop any existing stream first
+      if (stream) {
+        stream.getTracks().forEach(track => track.stop());
+      }
+
       const mediaStream = await navigator.mediaDevices.getUserMedia({
         video: {
           facingMode: 'environment', // Use back camera for better text capture
@@ -34,7 +47,7 @@ const OCRCameraCapture: React.FC<OCRCameraCaptureProps> = ({
       setStream(mediaStream);
       if (videoRef.current) {
         videoRef.current.srcObject = mediaStream;
-        videoRef.current.play();
+        await videoRef.current.play();
       }
     } catch (error) {
       console.error('Error accessing camera:', error);
@@ -46,14 +59,7 @@ const OCRCameraCapture: React.FC<OCRCameraCaptureProps> = ({
     } finally {
       setIsLoading(false);
     }
-  }, [toast]);
-
-  const stopCamera = useCallback(() => {
-    if (stream) {
-      stream.getTracks().forEach(track => track.stop());
-      setStream(null);
-    }
-  }, [stream]);
+  }, []); // Remove stream dependency to prevent infinite loop
 
   const capturePhoto = useCallback(() => {
     if (videoRef.current && canvasRef.current) {
@@ -85,12 +91,17 @@ const OCRCameraCapture: React.FC<OCRCameraCaptureProps> = ({
     }
   }, [capturedPhoto, onPhotoCapture, onClose]);
 
-  React.useEffect(() => {
+  // Initialize camera only once when component mounts
+  useEffect(() => {
     startCamera();
+    
+    // Cleanup function to stop camera when component unmounts
     return () => {
-      stopCamera();
+      if (stream) {
+        stream.getTracks().forEach(track => track.stop());
+      }
     };
-  }, [startCamera, stopCamera]);
+  }, []); // Empty dependency array - only run once on mount
 
   return (
     <div className="fixed inset-0 z-[9999] bg-black flex flex-col">
@@ -116,6 +127,7 @@ const OCRCameraCapture: React.FC<OCRCameraCaptureProps> = ({
               className="w-full h-full object-cover"
               playsInline
               muted
+              autoPlay
             />
             
             {/* Capture Guide Overlay */}
