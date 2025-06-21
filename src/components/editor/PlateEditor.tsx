@@ -45,6 +45,18 @@ const PlateEditor: React.FC<PlateEditorProps> = ({
           break;
       }
     }
+
+    // Handle Enter key for better line breaks
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      document.execCommand('insertHTML', false, '<br><br>');
+    }
+  };
+
+  const handlePaste = (e: React.ClipboardEvent) => {
+    e.preventDefault();
+    const text = e.clipboardData.getData('text/plain');
+    document.execCommand('insertText', false, text);
   };
 
   return (
@@ -61,9 +73,14 @@ const PlateEditor: React.FC<PlateEditorProps> = ({
           contentEditable
           onInput={handleInput}
           onKeyDown={handleKeyDown}
-          className="h-full overflow-y-auto px-4 py-2 prose prose-invert dark:prose-invert max-w-none outline-none min-h-[300px] focus:outline-none bg-transparent text-white"
+          onPaste={handlePaste}
+          className="h-full overflow-y-auto px-4 py-2 prose prose-invert dark:prose-invert max-w-none outline-none min-h-[300px] focus:outline-none bg-transparent text-white leading-relaxed"
           data-placeholder="Start writing your note..."
           suppressContentEditableWarning
+          style={{
+            wordWrap: 'break-word',
+            overflowWrap: 'break-word'
+          }}
         />
       </div>
     </div>
