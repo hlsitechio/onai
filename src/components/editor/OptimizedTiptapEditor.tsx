@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
@@ -73,8 +72,8 @@ const OptimizedTiptapEditor: React.FC<OptimizedTiptapEditorProps> = ({
       Typography.configure({
         openDoubleQuote: '"',
         closeDoubleQuote: '"',
-        openSingleQuote: ''',
-        closeSingleQuote: ''',
+        openSingleQuote: '\'',
+        closeSingleQuote: '\'',
         ellipsis: '…',
         emDash: '—',
         enDash: '–',
