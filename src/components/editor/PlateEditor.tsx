@@ -4,8 +4,7 @@ import {
   createSlateEditor,
   PlateProvider,
   Plate,
-  SlatePlugins,
-} from '@udecode/plate';
+} from '@udecode/plate-common';
 import {
   BaseBasicElementsPlugin,
 } from '@udecode/plate-basic-elements';
@@ -43,17 +42,19 @@ const PlateEditor: React.FC<PlateEditorProps> = ({
     }
   }, [content]);
 
+  const plugins = useMemo(() => [
+    BaseBasicElementsPlugin,
+    BaseBasicMarksPlugin,
+    BaseListPlugin,
+  ], []);
+
   const editor = useMemo(
     () =>
       createSlateEditor({
-        plugins: SlatePlugins([
-          BaseBasicElementsPlugin(),
-          BaseBasicMarksPlugin(),
-          BaseListPlugin(),
-        ]),
+        plugins,
         value: initialValue,
       }),
-    [initialValue]
+    [plugins, initialValue]
   );
 
   const handleChange = (value: any) => {
