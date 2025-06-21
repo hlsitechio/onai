@@ -1,4 +1,3 @@
-
 import { OCRResult } from './ocr/types';
 import { ImagePreprocessor } from './ocr/imagePreprocessor';
 import { LanguageDetector } from './ocr/languageDetector';
@@ -6,7 +5,7 @@ import { GoogleVisionProvider } from './ocr/googleVisionProvider';
 import { TesseractProvider } from './ocr/tesseractProvider';
 import { TextProcessor } from './ocr/textProcessor';
 
-export { OCRResult, ImagePreprocessResult, StructuredData } from './ocr/types';
+export type { OCRResult, ImagePreprocessResult, StructuredData } from './ocr/types';
 
 export class EnhancedOCRService {
   private static instance: EnhancedOCRService;
