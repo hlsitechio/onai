@@ -12,7 +12,7 @@ export interface Note {
   created_at: string;
   updated_at: string;
   user_id?: string;
-  parent_id?: string | null; // Add parent_id for folder organization
+  parent_id?: string | null;
 }
 
 export function useNotesManager() {
@@ -24,18 +24,19 @@ export function useNotesManager() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
 
-  // Load notes function - made available for external calls
   const loadNotes = useCallback(async () => {
     if (!user || authLoading) {
+      console.log('useNotesManager: No user or still loading auth');
       setLoading(false);
       return;
     }
 
     try {
+      console.log('useNotesManager: Loading notes for user:', user.id);
       setLoading(true);
       const notesData = await getAllNotesSecurely();
+      console.log('useNotesManager: Loaded notes data:', notesData);
       
-      // Convert the Record<string, string> to Note[]
       const notesList: Note[] = Object.entries(notesData).map(([id, content]) => ({
         id,
         title: content.split('\n')[0]?.slice(0, 50) || 'Untitled',
@@ -43,17 +44,18 @@ export function useNotesManager() {
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
         user_id: user.id,
-        parent_id: null // Default to no parent folder
+        parent_id: null
       }));
 
+      console.log('useNotesManager: Processed notes list:', notesList);
       setNotes(notesList);
       
-      // Set current note to the first one if available
       if (notesList.length > 0 && !currentNote) {
+        console.log('useNotesManager: Setting current note to first note:', notesList[0]);
         setCurrentNote(notesList[0]);
       }
     } catch (error) {
-      console.error('Error loading notes:', error);
+      console.error('useNotesManager: Error loading notes:', error);
       toast({
         title: 'Error loading notes',
         description: 'Failed to load your notes from Supabase.',
@@ -64,13 +66,13 @@ export function useNotesManager() {
     }
   }, [user, authLoading, toast, currentNote]);
 
-  // Load notes when user is authenticated
   useEffect(() => {
     loadNotes();
   }, [loadNotes]);
 
   const createNote = useCallback(async (title?: string, content?: string): Promise<Note | null> => {
     if (!user) {
+      console.log('useNotesManager: Cannot create note - no user');
       toast({
         title: 'Authentication required',
         description: 'Please sign in to create notes.',
@@ -80,6 +82,7 @@ export function useNotesManager() {
     }
 
     try {
+      console.log('useNotesManager: Creating new note');
       const newNote: Note = {
         id: uuidv4(),
         title: title || 'New Note',
@@ -90,8 +93,9 @@ export function useNotesManager() {
         parent_id: null
       };
 
-      // Save to Supabase
+      console.log('useNotesManager: Saving new note to Supabase:', newNote);
       const result = await saveNoteSecurely(newNote.id, newNote.content);
+      console.log('useNotesManager: Save result:', result);
       
       if (!result.success) {
         throw new Error(result.error || 'Failed to create note');
@@ -107,7 +111,7 @@ export function useNotesManager() {
 
       return newNote;
     } catch (error) {
-      console.error('Error creating note:', error);
+      console.error('useNotesManager: Error creating note:', error);
       toast({
         title: 'Error creating note',
         description: 'Failed to create a new note.',
@@ -119,6 +123,7 @@ export function useNotesManager() {
 
   const saveNote = useCallback(async (noteId: string, updates: Partial<Note>): Promise<boolean> => {
     if (!user) {
+      console.log('useNotesManager: Cannot save note - no user');
       toast({
         title: 'Authentication required',
         description: 'Please sign in to save notes.',
@@ -128,29 +133,32 @@ export function useNotesManager() {
     }
 
     try {
+      console.log('useNotesManager: Attempting to save note:', noteId, updates);
       setSaving(true);
       
       const noteToUpdate = notes.find(note => note.id === noteId);
       if (!noteToUpdate) {
+        console.error('useNotesManager: Note not found:', noteId);
         throw new Error('Note not found');
       }
 
       const updatedContent = updates.content || noteToUpdate.content;
+      console.log('useNotesManager: Saving content to Supabase:', updatedContent.substring(0, 100) + '...');
       
-      // Save to Supabase
       const result = await saveNoteSecurely(noteId, updatedContent);
+      console.log('useNotesManager: Supabase save result:', result);
       
       if (!result.success) {
         throw new Error(result.error || 'Failed to save note');
       }
 
-      // Update local state
       const updatedNote = {
         ...noteToUpdate,
         ...updates,
         updated_at: new Date().toISOString()
       };
 
+      console.log('useNotesManager: Updating local state with:', updatedNote);
       setNotes(prev => prev.map(note => 
         note.id === noteId ? updatedNote : note
       ));
@@ -166,7 +174,7 @@ export function useNotesManager() {
 
       return true;
     } catch (error) {
-      console.error('Error saving note:', error);
+      console.error('useNotesManager: Error saving note:', error);
       toast({
         title: 'Error saving note',
         description: 'Failed to save your note to Supabase.',
@@ -180,6 +188,7 @@ export function useNotesManager() {
 
   const deleteNote = useCallback(async (noteId: string): Promise<boolean> => {
     if (!user) {
+      console.log('useNotesManager: Cannot delete note - no user');
       toast({
         title: 'Authentication required',
         description: 'Please sign in to delete notes.',
@@ -189,17 +198,16 @@ export function useNotesManager() {
     }
 
     try {
-      // Delete from Supabase
+      console.log('useNotesManager: Deleting note:', noteId);
       const result = await deleteNoteSecurely(noteId);
+      console.log('useNotesManager: Delete result:', result);
       
       if (!result.success) {
         throw new Error(result.error || 'Failed to delete note');
       }
 
-      // Update local state
       setNotes(prev => prev.filter(note => note.id !== noteId));
       
-      // If we deleted the current note, clear it
       if (currentNote?.id === noteId) {
         setCurrentNote(null);
       }
@@ -211,7 +219,7 @@ export function useNotesManager() {
 
       return true;
     } catch (error) {
-      console.error('Error deleting note:', error);
+      console.error('useNotesManager: Error deleting note:', error);
       toast({
         title: 'Error deleting note',
         description: 'Failed to delete your note from Supabase.',
@@ -230,6 +238,6 @@ export function useNotesManager() {
     createNote,
     saveNote,
     deleteNote,
-    loadNotes, // Export loadNotes function
+    loadNotes,
   };
 }

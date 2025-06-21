@@ -27,25 +27,31 @@ export const useEditorHandlers = ({
 }: UseEditorHandlersProps) => {
   
   const handleSave = useCallback(async () => {
-    console.log('Save triggered - Current note:', currentNote?.id);
-    console.log('Save triggered - Content length:', content.length);
+    console.log('useEditorHandlers: Save triggered');
+    console.log('useEditorHandlers: Current note:', currentNote?.id);
+    console.log('useEditorHandlers: Content length:', content.length);
+    console.log('useEditorHandlers: Content preview:', content.substring(0, 100));
+    
+    // Basic validation - don't save completely empty content
+    if (!content.trim()) {
+      console.log('useEditorHandlers: Content is empty, not saving');
+      return;
+    }
     
     if (!currentNote) {
-      console.log('No current note, creating new note...');
-      // Create a new note if none exists
+      console.log('useEditorHandlers: No current note, creating new note');
       const newNote = await createNote('New Note', content);
       if (newNote) {
         setCurrentNote(newNote);
         setLastSaved(new Date());
-        console.log('New note created and saved:', newNote.id);
+        console.log('useEditorHandlers: New note created and saved:', newNote.id);
       } else {
-        console.error('Failed to create new note');
+        console.error('useEditorHandlers: Failed to create new note');
       }
       return;
     }
 
-    // Update existing note
-    console.log('Saving existing note:', currentNote.id);
+    console.log('useEditorHandlers: Saving existing note:', currentNote.id);
     const success = await saveNote(currentNote.id, {
       content,
       title: content.split('\n')[0]?.slice(0, 50) || 'Untitled',
@@ -54,58 +60,56 @@ export const useEditorHandlers = ({
 
     if (success) {
       setLastSaved(new Date());
-      console.log('Note saved successfully to Supabase');
+      console.log('useEditorHandlers: Note saved successfully');
     } else {
-      console.error('Failed to save note to Supabase');
+      console.error('useEditorHandlers: Failed to save note');
     }
   }, [content, currentNote, saveNote, createNote, setCurrentNote, setLastSaved]);
 
   const handleNoteLoad = useCallback((noteId: string) => {
-    console.log('Loading note:', noteId);
+    console.log('useEditorHandlers: Loading note:', noteId);
     const note = notes.find(n => n.id === noteId);
     if (note) {
       setCurrentNote(note);
       setContent(note.content);
-      console.log('Note loaded:', note.id);
+      console.log('useEditorHandlers: Note loaded:', note.id);
     } else {
-      console.error('Note not found:', noteId);
+      console.error('useEditorHandlers: Note not found:', noteId);
     }
   }, [notes, setCurrentNote, setContent]);
 
   const handleDeleteNote = useCallback(async (noteId: string) => {
-    console.log('Deleting note:', noteId);
+    console.log('useEditorHandlers: Deleting note:', noteId);
     const success = await deleteNote(noteId);
     if (success) {
-      // If we deleted the current note, clear it
       if (currentNote?.id === noteId) {
         setCurrentNote(null);
         setContent('');
       }
-      console.log('Note deleted successfully');
+      console.log('useEditorHandlers: Note deleted successfully');
     } else {
-      console.error('Failed to delete note');
+      console.error('useEditorHandlers: Failed to delete note');
     }
   }, [deleteNote, currentNote, setCurrentNote, setContent]);
 
   const createNewNote = useCallback(async () => {
-    console.log('Creating new note...');
+    console.log('useEditorHandlers: Creating new note');
     const newNote = await createNote();
     if (newNote) {
       setCurrentNote(newNote);
       setContent('');
-      console.log('New note created:', newNote.id);
+      console.log('useEditorHandlers: New note created:', newNote.id);
     } else {
-      console.error('Failed to create new note');
+      console.error('useEditorHandlers: Failed to create new note');
     }
   }, [createNote, setCurrentNote, setContent]);
 
   const handleImportNotes = useCallback(async (importedNotes: Record<string, string>) => {
-    console.log('Importing notes:', Object.keys(importedNotes).length);
-    // Import each note
+    console.log('useEditorHandlers: Importing notes:', Object.keys(importedNotes).length);
     for (const [noteId, noteContent] of Object.entries(importedNotes)) {
       await createNote(`Imported Note`, noteContent);
     }
-    console.log('Notes import completed');
+    console.log('useEditorHandlers: Notes import completed');
   }, [createNote]);
 
   return {
