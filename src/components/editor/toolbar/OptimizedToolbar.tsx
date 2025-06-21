@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Bold, Italic, Underline, Strikethrough, Code, Heading1, Heading2, Heading3, List, ListOrdered, AlignLeft, AlignCenter, AlignRight, AlignJustify, Undo, Redo, Camera, Link, Image, Highlight } from 'lucide-react';
+import { Bold, Italic, Underline, Strikethrough, Code, Heading1, Heading2, Heading3, List, ListOrdered, AlignLeft, AlignCenter, AlignRight, AlignJustify, Undo, Redo, Camera, Link, Image, Highlighter } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import type { Editor } from '@tiptap/react';
@@ -54,7 +54,7 @@ const OptimizedToolbar: React.FC<OptimizedToolbarProps> = ({
       title: 'Inline Code',
     },
     {
-      icon: Highlight,
+      icon: Highlighter,
       isActive: () => editor.isActive('highlight'),
       onClick: () => editor.chain().focus().toggleHighlight().run(),
       title: 'Highlight',
