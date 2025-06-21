@@ -4,19 +4,16 @@ import StarterKit from '@tiptap/starter-kit';
 import { useCallback, useEffect, useState } from 'react';
 import React from 'react';
 
-// Import all necessary extensions
+// Import necessary extensions for the optimized setup
 import Link from '@tiptap/extension-link';
 import Underline from '@tiptap/extension-underline';
 import TextAlign from '@tiptap/extension-text-align';
 import Highlight from '@tiptap/extension-highlight';
-import Typography from '@tiptap/extension-typography';
 import TaskList from '@tiptap/extension-task-list';
 import TaskItem from '@tiptap/extension-task-item';
 import Image from '@tiptap/extension-image';
-import Table from '@tiptap/extension-table';
-import TableRow from '@tiptap/extension-table-row';
-import TableCell from '@tiptap/extension-table-cell';
-import TableHeader from '@tiptap/extension-table-header';
+import Placeholder from '@tiptap/extension-placeholder';
+import CharacterCount from '@tiptap/extension-character-count';
 
 interface UseTiptapEditorProps {
   content: string;
@@ -41,10 +38,10 @@ export const useTiptapEditor = ({ content, setContent, isFocusMode }: UseTiptapE
   const [selectedText, setSelectedText] = useState('');
   const [editorReady, setEditorReady] = useState(false);
 
+  // Optimized editor configuration following v3 best practices
   const editor = useEditor({
     extensions: [
       StarterKit.configure({
-        // Keep StarterKit simple and disable conflicting extensions
         heading: {
           levels: [1, 2, 3, 4, 5, 6],
         },
@@ -56,10 +53,15 @@ export const useTiptapEditor = ({ content, setContent, isFocusMode }: UseTiptapE
           keepMarks: true,
           keepAttributes: false,
         },
-        // Disable extensions we'll configure separately
-        strike: false, // We'll add this back if needed
       }),
-      // Add additional extensions with proper error handling
+      Placeholder.configure({
+        placeholder: 'Start writing your note...',
+        showOnlyWhenEditable: true,
+        showOnlyCurrent: false,
+      }),
+      CharacterCount.configure({
+        limit: 50000,
+      }),
       Link.configure({
         openOnClick: false,
         HTMLAttributes: {
@@ -76,14 +78,12 @@ export const useTiptapEditor = ({ content, setContent, isFocusMode }: UseTiptapE
         alignments: ['left', 'center', 'right', 'justify'],
         defaultAlignment: 'left',
       }),
-      // Ensure Highlight is properly configured
       Highlight.configure({
         multicolor: true,
         HTMLAttributes: {
           class: 'bg-yellow-200 text-black px-1 rounded',
         },
       }),
-      Typography,
       TaskList.configure({
         HTMLAttributes: {
           class: 'task-list',
@@ -101,29 +101,14 @@ export const useTiptapEditor = ({ content, setContent, isFocusMode }: UseTiptapE
         },
         allowBase64: true,
       }),
-      Table.configure({
-        resizable: true,
-        HTMLAttributes: {
-          class: 'border-collapse table-auto w-full',
-        },
-      }),
-      TableRow.configure({
-        HTMLAttributes: {
-          class: 'border-b',
-        },
-      }),
-      TableHeader.configure({
-        HTMLAttributes: {
-          class: 'font-bold text-left p-2 border',
-        },
-      }),
-      TableCell.configure({
-        HTMLAttributes: {
-          class: 'p-2 border',
-        },
-      }),
     ],
-    content: content || '<p></p>',
+    content: content || '',
+    autofocus: true,
+    editorProps: {
+      attributes: {
+        class: 'prose prose-invert dark:prose-invert max-w-none outline-none min-h-[300px] px-4 py-2 focus:outline-none',
+      },
+    },
     onUpdate: ({ editor }) => {
       const html = editor.getHTML();
       const textContent = editor.getText().trim();
@@ -141,18 +126,13 @@ export const useTiptapEditor = ({ content, setContent, isFocusMode }: UseTiptapE
     onCreate: ({ editor }) => {
       setIsLoading(false);
       setEditorReady(true);
-      console.log('Editor created with extensions:', editor.extensionManager.extensions.map(ext => ext.name));
-    },
-    editorProps: {
-      attributes: {
-        class: 'prose prose-invert max-w-none focus:outline-none min-h-[200px] p-4',
-      },
+      console.log('Optimized Tiptap editor created with extensions:', editor.extensionManager.extensions.map(ext => ext.name));
     },
   });
 
   useEffect(() => {
     if (editor && editorReady && content !== editor.getHTML()) {
-      editor.commands.setContent(content || '<p></p>', false);
+      editor.commands.setContent(content || '', false);
     }
   }, [content, editor, editorReady]);
 
