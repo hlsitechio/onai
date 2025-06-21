@@ -1,6 +1,7 @@
 
 import React from 'react';
-import { useEditorRef } from '@udecode/plate/react';
+import { useEditorRef } from '@udecode/plate-common/react';
+import { insertNodes, toggleMark, isMarkActive } from '@udecode/plate-common';
 import { Button } from '@/components/ui/button';
 import { 
   Bold, 
@@ -29,27 +30,6 @@ const PlateToolbar: React.FC = () => {
   
   if (!editor) return null;
   
-  // Simple mark and node manipulation functions
-  const toggleMark = (editor: any, mark: string) => {
-    const isActive = editor.marks?.[mark];
-    if (isActive) {
-      editor.removeMark(mark);
-    } else {
-      editor.addMark(mark, true);
-    }
-  };
-
-  const isMarkActive = (editor: any, mark: string) => {
-    return !!editor.marks?.[mark];
-  };
-
-  const insertNodes = (editor: any, node: any) => {
-    const { selection } = editor;
-    if (selection) {
-      editor.insertNode(node);
-    }
-  };
-  
   // Check if marks are active
   const isBoldActive = isMarkActive(editor, MARK_BOLD);
   const isItalicActive = isMarkActive(editor, MARK_ITALIC);
@@ -57,17 +37,17 @@ const PlateToolbar: React.FC = () => {
 
   const handleToggleBold = (e: React.MouseEvent) => {
     e.preventDefault();
-    toggleMark(editor, MARK_BOLD);
+    toggleMark(editor, { key: MARK_BOLD });
   };
   
   const handleToggleItalic = (e: React.MouseEvent) => {
     e.preventDefault();
-    toggleMark(editor, MARK_ITALIC);
+    toggleMark(editor, { key: MARK_ITALIC });
   };
   
   const handleToggleUnderline = (e: React.MouseEvent) => {
     e.preventDefault();
-    toggleMark(editor, MARK_UNDERLINE);
+    toggleMark(editor, { key: MARK_UNDERLINE });
   };
 
   const insertHeading = (level: 1 | 2 | 3) => (e: React.MouseEvent) => {

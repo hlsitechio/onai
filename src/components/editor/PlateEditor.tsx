@@ -2,9 +2,9 @@
 import React, { useMemo } from 'react';
 import {
   createPlateEditor,
-  PlateProvider,
   Plate,
 } from '@udecode/plate/react';
+import { PlateProvider } from '@udecode/plate-common/react';
 import {
   BasicElementsPlugin,
 } from '@udecode/plate-basic-elements/react';
@@ -53,9 +53,6 @@ const PlateEditor: React.FC<PlateEditorProps> = ({
       createPlateEditor({
         plugins,
         value: initialValue,
-        override: {
-          components: {},
-        },
       }),
     [plugins, initialValue]
   );
@@ -79,8 +76,10 @@ const PlateEditor: React.FC<PlateEditorProps> = ({
         
         <div className="flex-1 relative overflow-hidden">
           <Plate
-            className="h-full overflow-y-auto px-4 py-2 prose prose-invert dark:prose-invert max-w-none outline-none min-h-[300px] focus:outline-none bg-transparent text-white"
-            placeholder="Start writing your note..."
+            editableProps={{
+              className: "h-full overflow-y-auto px-4 py-2 prose prose-invert dark:prose-invert max-w-none outline-none min-h-[300px] focus:outline-none bg-transparent text-white",
+              placeholder: "Start writing your note..."
+            }}
           />
         </div>
       </PlateProvider>
