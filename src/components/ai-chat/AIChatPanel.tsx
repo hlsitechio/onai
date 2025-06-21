@@ -79,6 +79,37 @@ const AIChatPanel: React.FC<AIChatPanelProps> = ({ onClose, onApplyToEditor }) =
         )}
       </div>
 
+      {/* AI Response Section */}
+      {response && (
+        <Card className="bg-black/30 border-white/10 flex-1">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm text-noteflow-400">AI Response</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-white text-sm whitespace-pre-wrap mb-4">
+              {response}
+            </div>
+            
+            {onApplyToEditor && (
+              <Button 
+                onClick={handleApplyToEditor}
+                size="sm"
+                className="bg-noteflow-500 hover:bg-noteflow-600 text-white"
+              >
+                Apply to Editor
+              </Button>
+            )}
+          </CardContent>
+        </Card>
+      )}
+
+      {!response && !isLoading && (
+        <div className="flex-1 flex items-center justify-center text-slate-400 text-sm">
+          Ask the AI assistant anything to get started
+        </div>
+      )}
+
+      {/* Input Form - Now at the bottom */}
       <form onSubmit={handleSubmit} className="space-y-3">
         <Textarea
           value={input}
@@ -117,35 +148,6 @@ const AIChatPanel: React.FC<AIChatPanelProps> = ({ onClose, onApplyToEditor }) =
           </Button>
         </div>
       </form>
-
-      {response && (
-        <Card className="bg-black/30 border-white/10 flex-1">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm text-noteflow-400">AI Response</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-white text-sm whitespace-pre-wrap mb-4">
-              {response}
-            </div>
-            
-            {onApplyToEditor && (
-              <Button 
-                onClick={handleApplyToEditor}
-                size="sm"
-                className="bg-noteflow-500 hover:bg-noteflow-600 text-white"
-              >
-                Apply to Editor
-              </Button>
-            )}
-          </CardContent>
-        </Card>
-      )}
-
-      {!response && !isLoading && (
-        <div className="flex-1 flex items-center justify-center text-slate-400 text-sm">
-          Ask the AI assistant anything to get started
-        </div>
-      )}
     </div>
   );
 };
