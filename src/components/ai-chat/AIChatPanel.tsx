@@ -4,17 +4,15 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Badge } from '@/components/ui/badge';
-import { Separator } from '@/components/ui/separator';
 import { 
   Sparkles, 
   Send, 
-  Crown, 
   Loader2, 
   Copy, 
   Check, 
   Trash2,
-  Settings,
-  MessageSquare,
+  User,
+  Bot,
   Zap
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
@@ -38,7 +36,7 @@ const AIChatPanel: React.FC<AIChatPanelProps> = ({ onClose, onApplyToEditor }) =
     {
       id: '1',
       role: 'assistant',
-      content: 'Hi! I\'m your AI writing assistant powered by Gemini 2.5 Flash. I can help you with writing, editing, brainstorming, and much more. What would you like to work on today?',
+      content: 'Hello! I\'m your AI writing assistant powered by Gemini 2.5 Flash. I can help you with:\n\n• Writing and editing\n• Content analysis and improvement\n• Brainstorming ideas\n• Text summarization\n• Translation\n• Grammar and style corrections\n• And much more!\n\nWhat would you like to work on today?',
       timestamp: new Date()
     }
   ]);
@@ -57,6 +55,10 @@ const AIChatPanel: React.FC<AIChatPanelProps> = ({ onClose, onApplyToEditor }) =
   useEffect(() => {
     scrollToBottom();
   }, [messages]);
+
+  useEffect(() => {
+    inputRef.current?.focus();
+  }, []);
 
   const handleSendMessage = async () => {
     if (!inputValue.trim() || isProcessing) return;
@@ -77,14 +79,22 @@ const AIChatPanel: React.FC<AIChatPanelProps> = ({ onClose, onApplyToEditor }) =
     };
 
     setMessages(prev => [...prev, userMessage, loadingMessage]);
+    const currentInput = inputValue;
     setInputValue('');
     setIsProcessing(true);
 
     try {
+      const conversationContext = messages
+        .slice(-6) // Last 6 messages for context
+        .map(m => `${m.role}: ${m.content}`)
+        .join('\n');
+      
+      const fullPrompt = `Previous conversation:\n${conversationContext}\n\nUser: ${currentInput}`;
+      
       const response = await callGeminiAI(
-        inputValue,
-        messages.map(m => `${m.role}: ${m.content}`).join('\n'),
-        'improve'
+        fullPrompt,
+        '',
+        'chat'
       );
 
       setMessages(prev => prev.map(msg => 
@@ -162,103 +172,106 @@ const AIChatPanel: React.FC<AIChatPanelProps> = ({ onClose, onApplyToEditor }) =
   };
 
   return (
-    <div className="flex flex-col h-full bg-black/40 backdrop-blur-lg border border-white/10 text-white rounded-xl overflow-hidden">
+    <div className="flex flex-col h-full">
       {/* Header */}
-      <div className="p-4 border-b border-white/10 bg-[#03010a]">
-        <div className="flex items-center justify-between mb-3">
-          <div className="flex items-center gap-2">
-            <Sparkles className="h-5 w-5 text-noteflow-400" />
-            <h2 className="text-lg font-semibold">AI Chat Assistant</h2>
-            <Badge variant="outline" className="bg-noteflow-500/20 text-noteflow-300 border-noteflow-500/30 text-xs">
-              Gemini 2.5 Flash
-            </Badge>
+      <div className="flex items-center justify-between p-4 border-b border-white/10 bg-gradient-to-r from-[#03010a] to-[#0a0518]">
+        <div className="flex items-center gap-3">
+          <div className="w-8 h-8 rounded-full bg-gradient-to-r from-noteflow-400 to-purple-500 flex items-center justify-center">
+            <Sparkles className="h-4 w-4 text-white" />
           </div>
-          <div className="flex items-center gap-2">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={clearChat}
-              className="h-8 w-8 p-0 text-slate-400 hover:text-white"
-              title="Clear chat"
-            >
-              <Trash2 className="h-4 w-4" />
-            </Button>
-            {onClose && (
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={onClose}
-                className="h-8 w-8 p-0 text-slate-400 hover:text-white"
-              >
-                ×
-              </Button>
-            )}
+          <div>
+            <h2 className="text-lg font-semibold text-white">AI Chat Assistant</h2>
+            <div className="flex items-center gap-2">
+              <Badge variant="outline" className="bg-noteflow-500/20 text-noteflow-300 border-noteflow-500/30 text-xs">
+                Gemini 2.5 Flash
+              </Badge>
+              <span className="text-xs text-slate-400">
+                {usageStats.used}/{usageStats.limit} requests today
+              </span>
+            </div>
           </div>
         </div>
-
-        {/* Usage Stats */}
-        <div className="flex items-center justify-between text-xs text-slate-400">
-          <span>{usageStats.used}/{usageStats.limit} requests today</span>
-          <div className="w-20 bg-black/30 rounded-full h-1.5">
-            <div 
-              className={`h-1.5 rounded-full ${usageStats.percent > 80 ? 'bg-red-500' : 'bg-noteflow-500'}`} 
-              style={{ width: `${usageStats.percent}%` }}
-            />
-          </div>
-        </div>
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={clearChat}
+          className="text-slate-400 hover:text-white"
+          title="Clear chat"
+        >
+          <Trash2 className="h-4 w-4" />
+        </Button>
       </div>
 
-      {/* Messages */}
+      {/* Messages Area */}
       <ScrollArea className="flex-1 p-4">
-        <div className="space-y-4">
+        <div className="max-w-4xl mx-auto space-y-6">
           {messages.map((message) => (
-            <div
-              key={message.id}
-              className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
-            >
-              <div
-                className={`max-w-[80%] rounded-lg p-3 ${
-                  message.role === 'user'
-                    ? 'bg-noteflow-500/20 border border-noteflow-500/30'
-                    : 'bg-black/30 border border-white/10'
-                }`}
-              >
-                {message.isLoading ? (
-                  <div className="flex items-center gap-2 text-slate-400">
-                    <Loader2 className="h-4 w-4 animate-spin" />
-                    <span>AI is thinking...</span>
-                  </div>
+            <div key={message.id} className="flex gap-4">
+              {/* Avatar */}
+              <div className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center ${
+                message.role === 'user' 
+                  ? 'bg-gradient-to-r from-blue-500 to-blue-600' 
+                  : 'bg-gradient-to-r from-noteflow-500 to-purple-500'
+              }`}>
+                {message.role === 'user' ? (
+                  <User className="h-4 w-4 text-white" />
                 ) : (
-                  <>
-                    <div className="text-sm whitespace-pre-wrap">{message.content}</div>
-                    {message.role === 'assistant' && (
-                      <div className="flex items-center gap-2 mt-2 pt-2 border-t border-white/10">
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => copyToClipboard(message.content, message.id)}
-                          className="h-6 px-2 text-xs text-slate-400 hover:text-white"
-                        >
-                          {copiedId === message.id ? (
-                            <Check className="h-3 w-3" />
-                          ) : (
-                            <Copy className="h-3 w-3" />
-                          )}
-                        </Button>
-                        {onApplyToEditor && (
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => applyToEditor(message.content)}
-                            className="h-6 px-2 text-xs text-noteflow-400 hover:text-noteflow-300"
-                          >
-                            <Zap className="h-3 w-3 mr-1" />
-                            Apply
-                          </Button>
-                        )}
-                      </div>
+                  <Bot className="h-4 w-4 text-white" />
+                )}
+              </div>
+
+              {/* Message Content */}
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-2 mb-2">
+                  <span className="text-sm font-medium text-white">
+                    {message.role === 'user' ? 'You' : 'AI Assistant'}
+                  </span>
+                  <span className="text-xs text-slate-500">
+                    {message.timestamp.toLocaleTimeString()}
+                  </span>
+                </div>
+                
+                <div className="prose prose-invert max-w-none">
+                  {message.isLoading ? (
+                    <div className="flex items-center gap-2 text-slate-400 py-2">
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                      <span>AI is thinking...</span>
+                    </div>
+                  ) : (
+                    <div className="text-gray-200 whitespace-pre-wrap leading-relaxed">
+                      {message.content}
+                    </div>
+                  )}
+                </div>
+
+                {/* Action Buttons */}
+                {message.role === 'assistant' && !message.isLoading && (
+                  <div className="flex items-center gap-2 mt-3 pt-2 border-t border-white/10">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => copyToClipboard(message.content, message.id)}
+                      className="h-8 px-3 text-xs text-slate-400 hover:text-white"
+                    >
+                      {copiedId === message.id ? (
+                        <Check className="h-3 w-3 mr-1" />
+                      ) : (
+                        <Copy className="h-3 w-3 mr-1" />
+                      )}
+                      Copy
+                    </Button>
+                    {onApplyToEditor && (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => applyToEditor(message.content)}
+                        className="h-8 px-3 text-xs text-noteflow-400 hover:text-noteflow-300"
+                      >
+                        <Zap className="h-3 w-3 mr-1" />
+                        Apply to Editor
+                      </Button>
                     )}
-                  </>
+                  </div>
                 )}
               </div>
             </div>
@@ -267,34 +280,43 @@ const AIChatPanel: React.FC<AIChatPanelProps> = ({ onClose, onApplyToEditor }) =
         </div>
       </ScrollArea>
 
-      {/* Input */}
-      <div className="p-4 border-t border-white/10 bg-[#03010a]">
-        <div className="flex gap-2">
-          <Input
-            ref={inputRef}
-            value={inputValue}
-            onChange={(e) => setInputValue(e.target.value)}
-            onKeyPress={handleKeyPress}
-            placeholder="Type your message... (Enter to send)"
-            className="flex-1 bg-black/30 border-white/10 text-white placeholder:text-slate-400 focus:border-noteflow-500"
-            disabled={isProcessing}
-          />
-          <Button
-            onClick={handleSendMessage}
-            disabled={!inputValue.trim() || isProcessing}
-            className="bg-noteflow-500 hover:bg-noteflow-600 text-white px-4"
-          >
-            {isProcessing ? (
-              <Loader2 className="h-4 w-4 animate-spin" />
-            ) : (
-              <Send className="h-4 w-4" />
-            )}
-          </Button>
-        </div>
-        
-        <div className="flex items-center justify-between mt-2 text-xs text-slate-500">
-          <span>Powered by Gemini 2.5 Flash</span>
-          <span>Press Enter to send, Shift+Enter for new line</span>
+      {/* Input Area */}
+      <div className="border-t border-white/10 bg-gradient-to-r from-[#03010a] to-[#0a0518] p-4">
+        <div className="max-w-4xl mx-auto">
+          <div className="flex gap-3 items-end">
+            <div className="flex-1">
+              <Input
+                ref={inputRef}
+                value={inputValue}
+                onChange={(e) => setInputValue(e.target.value)}
+                onKeyPress={handleKeyPress}
+                placeholder="Message AI Assistant..."
+                className="bg-black/30 border-white/20 text-white placeholder:text-slate-400 focus:border-noteflow-500 min-h-[44px] resize-none"
+                disabled={isProcessing}
+              />
+            </div>
+            <Button
+              onClick={handleSendMessage}
+              disabled={!inputValue.trim() || isProcessing}
+              className="bg-noteflow-500 hover:bg-noteflow-600 text-white px-4 h-[44px]"
+            >
+              {isProcessing ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <Send className="h-4 w-4" />
+              )}
+            </Button>
+          </div>
+          
+          <div className="flex items-center justify-between mt-2 text-xs text-slate-500">
+            <span>Powered by Gemini 2.5 Flash • Press Enter to send</span>
+            <div className="w-16 bg-black/30 rounded-full h-1">
+              <div 
+                className={`h-1 rounded-full ${usageStats.percent > 80 ? 'bg-red-500' : 'bg-noteflow-500'}`} 
+                style={{ width: `${usageStats.percent}%` }}
+              />
+            </div>
+          </div>
         </div>
       </div>
     </div>

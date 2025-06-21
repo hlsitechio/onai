@@ -1,6 +1,6 @@
 
 import React, { useState } from "react";
-import AIChatSidebar from "../ai-chat/AIChatSidebar";
+import AIChatPanel from "../ai-chat/AIChatPanel";
 import { Button } from "@/components/ui/button";
 import { X, Maximize2, Minimize2 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -22,11 +22,11 @@ const EnhancedAISidebar: React.FC<EnhancedAISidebarProps> = ({
 
   return (
     <div className={cn(
-      "h-full flex flex-col bg-gradient-to-br from-[#03010a] to-[#0a0518] border-l border-white/10",
-      isExpanded ? "w-[600px]" : "w-full"
+      "h-full flex flex-col bg-gradient-to-br from-[#03010a] to-[#0a0518]",
+      isExpanded ? "w-[800px]" : "w-full"
     )}>
       {/* Header Controls */}
-      <div className="flex items-center justify-between p-2 border-b border-white/10">
+      <div className="flex items-center justify-between p-3 border-b border-white/10 bg-black/20">
         <div className="flex items-center gap-2">
           <Button
             variant="ghost"
@@ -51,11 +51,10 @@ const EnhancedAISidebar: React.FC<EnhancedAISidebarProps> = ({
         )}
       </div>
 
-      {/* Chat Interface */}
+      {/* Full AI Chat Interface */}
       <div className="flex-1 overflow-hidden">
-        <AIChatSidebar 
-          content={content}
-          onApplyChanges={onApplyChanges}
+        <AIChatPanel 
+          onApplyToEditor={onApplyChanges}
           onClose={onClose}
         />
       </div>
