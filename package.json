@@ -71,6 +71,7 @@
     "@tiptap/react": "^2.14.0",
     "@tiptap/starter-kit": "^2.14.0",
     "@types/uuid": "^10.0.0",
+    "@udecode/plate": "^48.0.5",
     "@udecode/plate-basic-elements": "^48.0.0",
     "@udecode/plate-basic-marks": "^49.0.0",
     "@udecode/plate-common": "^41.0.13",
