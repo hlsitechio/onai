@@ -2,6 +2,7 @@
 import React from 'react';
 import { useOthers, useSelf } from '@/lib/liveblocks';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import type { UserInfo } from '@/lib/liveblocks';
 
 const UserAwareness: React.FC = () => {
   const others = useOthers();
@@ -18,7 +19,7 @@ const UserAwareness: React.FC = () => {
     <div className="absolute top-4 right-4 z-50 flex items-center gap-2 bg-black/60 backdrop-blur-sm rounded-full p-2">
       <div className="flex -space-x-2">
         {allUsers.slice(0, 5).map((user, index) => {
-          const userInfo = user.info?.user;
+          const userInfo = user.presence?.user as UserInfo | undefined;
           const initials = userInfo?.name ? userInfo.name.slice(0, 2).toUpperCase() : 'U';
           
           return (

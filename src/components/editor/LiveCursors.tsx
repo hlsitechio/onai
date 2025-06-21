@@ -2,6 +2,7 @@
 import React from 'react';
 import { useOthers } from '@/lib/liveblocks';
 import type { Editor } from '@tiptap/react';
+import type { UserInfo } from '@/lib/liveblocks';
 
 interface LiveCursorsProps {
   editor: Editor;
@@ -12,8 +13,10 @@ const LiveCursors: React.FC<LiveCursorsProps> = ({ editor }) => {
 
   return (
     <>
-      {others.map(({ connectionId, presence, info }) => {
-        if (!presence.cursor || !info) return null;
+      {others.map(({ connectionId, presence }) => {
+        if (!presence.cursor || !presence.user) return null;
+
+        const user = presence.user as UserInfo;
 
         return (
           <div
@@ -27,15 +30,15 @@ const LiveCursors: React.FC<LiveCursorsProps> = ({ editor }) => {
             {/* Cursor */}
             <div
               className="w-0.5 h-5 rounded-full"
-              style={{ backgroundColor: info.user?.color || '#000' }}
+              style={{ backgroundColor: user.color || '#000' }}
             />
             
             {/* User label */}
             <div
               className="absolute top-6 left-0 px-2 py-1 text-xs text-white rounded whitespace-nowrap"
-              style={{ backgroundColor: info.user?.color || '#000' }}
+              style={{ backgroundColor: user.color || '#000' }}
             >
-              {info.user?.name || 'Anonymous'}
+              {user.name || 'Anonymous'}
             </div>
           </div>
         );

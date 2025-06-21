@@ -36,7 +36,6 @@ const CollaborativeTiptapEditor: React.FC<CollaborativeTiptapEditorProps> = ({
   roomId
 }) => {
   const room = useRoom();
-  const userInfo = useSelf((me) => me.info);
 
   // Create Yjs document and provider
   const { yDoc, yProvider } = useMemo(() => {
@@ -47,11 +46,9 @@ const CollaborativeTiptapEditor: React.FC<CollaborativeTiptapEditorProps> = ({
 
   // Initialize user info if not set
   useEffect(() => {
-    if (!userInfo) {
-      const newUserInfo = generateUserInfo();
-      room.updateMyPresence({ user: newUserInfo });
-    }
-  }, [userInfo, room]);
+    const newUserInfo = generateUserInfo();
+    room.updatePresence({ user: newUserInfo });
+  }, [room]);
 
   const editor = useEditor({
     extensions: [
@@ -64,7 +61,7 @@ const CollaborativeTiptapEditor: React.FC<CollaborativeTiptapEditorProps> = ({
       }),
       CollaborationCursor.configure({
         provider: yProvider,
-        user: userInfo || generateUserInfo(),
+        user: generateUserInfo(),
       }),
       Placeholder.configure({
         placeholder: 'Start writing together...',

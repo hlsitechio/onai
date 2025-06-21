@@ -12,14 +12,17 @@ const client = createClient({
   throttle: 16,
 });
 
+// Define user info interface
+export interface UserInfo {
+  name: string;
+  avatar?: string;
+  color: string;
+}
+
 // Define presence and storage types for TypeScript
 type Presence = {
   cursor: { x: number; y: number } | null;
-  user?: {
-    name: string;
-    avatar?: string;
-    color: string;
-  };
+  user?: UserInfo;
 };
 
 type Storage = {
@@ -52,7 +55,7 @@ export const generateUserColor = () => {
 };
 
 // Helper function to generate user info
-export const generateUserInfo = () => ({
+export const generateUserInfo = (): UserInfo => ({
   name: `User ${Math.floor(Math.random() * 1000)}`,
   color: generateUserColor(),
 });
