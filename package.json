@@ -12,6 +12,9 @@
   },
   "dependencies": {
     "@hookform/resolvers": "^3.9.0",
+    "@liveblocks/client": "^3.0.0",
+    "@liveblocks/react": "^3.0.0",
+    "@liveblocks/yjs": "^3.0.0",
     "@radix-ui/react-accordion": "^1.2.0",
     "@radix-ui/react-alert-dialog": "^1.1.1",
     "@radix-ui/react-aspect-ratio": "^1.1.0",
@@ -45,6 +48,7 @@
     "@tiptap/core": "^2.14.0",
     "@tiptap/extension-character-count": "^2.22.1",
     "@tiptap/extension-code-block-lowlight": "^2.14.0",
+    "@tiptap/extension-collaboration-cursor": "^2.22.1",
     "@tiptap/extension-color": "^2.14.0",
     "@tiptap/extension-dropcursor": "^2.14.0",
     "@tiptap/extension-focus": "^2.14.0",
@@ -97,6 +101,7 @@
     "tesseract.js": "^5.1.1",
     "uuid": "^11.1.0",
     "vaul": "^0.9.3",
+    "yjs": "^13.6.27",
     "zod": "^3.23.8"
   },
   "devDependencies": {

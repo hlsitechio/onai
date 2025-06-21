@@ -1,10 +1,10 @@
-
 import React from 'react';
 import { Bold, Italic, Underline, Strikethrough, Code, Heading1, Heading2, Heading3, AlignLeft, AlignCenter, AlignRight, AlignJustify, Undo, Redo, Camera, Link, Image, Highlighter, Eraser } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import type { Editor } from '@tiptap/react';
 import ListButton from './ListButton';
+import CollaborationSettings from '../CollaborationSettings';
 
 interface OptimizedToolbarProps {
   editor: Editor;
@@ -12,6 +12,11 @@ interface OptimizedToolbarProps {
   isCameraOCRProcessing: boolean;
   characterCount: number;
   characterLimit: number;
+  // New collaboration props
+  isCollaborative?: boolean;
+  onToggleCollaboration?: (enabled: boolean) => void;
+  roomId?: string;
+  onRoomIdChange?: (roomId: string) => void;
 }
 
 const OptimizedToolbar: React.FC<OptimizedToolbarProps> = ({
@@ -19,7 +24,11 @@ const OptimizedToolbar: React.FC<OptimizedToolbarProps> = ({
   onCameraOCRClick,
   isCameraOCRProcessing,
   characterCount,
-  characterLimit
+  characterLimit,
+  isCollaborative = false,
+  onToggleCollaboration,
+  roomId = 'default-room',
+  onRoomIdChange
 }) => {
   if (!editor) return null;
 
@@ -317,6 +326,22 @@ const OptimizedToolbar: React.FC<OptimizedToolbarProps> = ({
 
       <div className="w-px h-6 bg-white/10" />
 
+      {/* Collaboration Settings */}
+      {onToggleCollaboration && onRoomIdChange && (
+        <>
+          <div className="flex items-center gap-1">
+            <CollaborationSettings
+              isCollaborative={isCollaborative}
+              onToggleCollaboration={onToggleCollaboration}
+              roomId={roomId}
+              onRoomIdChange={onRoomIdChange}
+            />
+          </div>
+
+          <div className="w-px h-6 bg-white/10" />
+        </>
+      )}
+
       {/* Clear formatting */}
       <div className="flex items-center gap-1">
         <Button
@@ -361,6 +386,9 @@ const OptimizedToolbar: React.FC<OptimizedToolbarProps> = ({
       {/* Character count */}
       <div className="ml-auto text-xs text-gray-400 hidden sm:block">
         {characterCount}/{characterLimit}
+        {isCollaborative && (
+          <span className="ml-2 text-green-400">● Live</span>
+        )}
       </div>
     </div>
   );
