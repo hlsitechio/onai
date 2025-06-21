@@ -1,11 +1,9 @@
 
 import React, { useMemo } from 'react';
-import { Plate, PlateContent, createPlateEditor } from 'platejs/react';
-import { 
-  BasicElementsPlugin,
-  BasicMarksPlugin,
-  ListPlugin
-} from 'platejs';
+import { Plate, PlateContent, createPlateEditor } from '@udecode/plate-common/react';
+import { createBasicElementsPlugin } from '@udecode/plate-basic-elements/react';
+import { createBasicMarksPlugin } from '@udecode/plate-basic-marks/react';
+import { createListPlugin } from '@udecode/plate-list/react';
 import PlateToolbar from './PlateToolbar';
 
 interface PlateEditorProps {
@@ -15,9 +13,9 @@ interface PlateEditorProps {
 }
 
 const plugins = [
-  BasicElementsPlugin,
-  BasicMarksPlugin,
-  ListPlugin,
+  createBasicElementsPlugin(),
+  createBasicMarksPlugin(),
+  createListPlugin(),
 ];
 
 const PlateEditor: React.FC<PlateEditorProps> = ({
