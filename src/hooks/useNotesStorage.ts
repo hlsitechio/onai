@@ -3,12 +3,15 @@ import { useState, useEffect, useCallback } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { v4 as uuidv4 } from 'uuid';
 
+// Use the same Note interface as useNotesManager for consistency
 interface Note {
   id: string;
+  title: string; // Required, not optional
   content: string;
-  title?: string;
-  createdAt: Date;
-  updatedAt: Date;
+  created_at: string;
+  updated_at: string;
+  user_id?: string;
+  parent_id?: string | null;
 }
 
 export function useNotesStorage() {
@@ -46,14 +49,15 @@ export function useNotesStorage() {
 
   const saveNote = useCallback((noteId: string, content: string) => {
     const now = new Date();
+    const nowISO = now.toISOString();
     setNotes(prev => ({
       ...prev,
       [noteId]: {
         id: noteId,
         content,
         title: content.split('\n')[0].substring(0, 50) || 'Untitled',
-        createdAt: prev[noteId]?.createdAt || now,
-        updatedAt: now
+        created_at: prev[noteId]?.created_at || nowISO,
+        updated_at: nowISO
       }
     }));
     setCurrentContent(content);
@@ -72,13 +76,13 @@ export function useNotesStorage() {
 
   const createNote = useCallback(() => {
     const newNoteId = uuidv4();
-    const now = new Date();
+    const now = new Date().toISOString();
     const newNote: Note = {
       id: newNoteId,
       content: '',
       title: 'New Note',
-      createdAt: now,
-      updatedAt: now
+      created_at: now,
+      updated_at: now
     };
     
     setNotes(prev => ({
@@ -117,7 +121,7 @@ export function useNotesStorage() {
       [noteId]: {
         ...prev[noteId],
         title: newTitle,
-        updatedAt: new Date()
+        updated_at: new Date().toISOString()
       }
     }));
   }, []);

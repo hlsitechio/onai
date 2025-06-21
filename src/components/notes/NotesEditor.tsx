@@ -3,7 +3,7 @@ import React, { useState, useCallback, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Sparkles, PanelRight, X } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { useNotesStorage } from "@/hooks/useNotesStorage";
+import { useNotesManager, Note } from "@/hooks/useNotesManager";
 import { useDeviceDetection } from "@/hooks/useDeviceDetection";
 import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from "@/components/ui/resizable";
 import NotesSidebar from "./NotesSidebar";
@@ -19,38 +19,85 @@ const NotesEditor: React.FC = () => {
   const { toast } = useToast();
   const {
     notes,
-    currentContent,
-    saveNote,
-    loadNote,
+    currentNote,
+    setCurrentNote,
+    loading,
+    saving,
     createNote,
+    saveNote,
     deleteNote,
-    renameNote
-  } = useNotesStorage();
+    loadNotes,
+  } = useNotesManager();
 
   // Show mobile layout for mobile devices
   if (isMobile) {
     return <MobileLayout />;
   }
 
-  const currentNote = selectedNoteId ? notes[selectedNoteId] : null;
+  // Convert notes array to Record format for NotesSidebar compatibility
+  const notesRecord: Record<string, Note> = {};
+  notes.forEach(note => {
+    notesRecord[note.id] = note;
+  });
+
+  const currentContent = currentNote?.content || '';
 
   const handleApplyAIContent = (aiContent: string) => {
     if (selectedNoteId && currentContent !== undefined) {
       const newContent = currentContent + '\n\n' + aiContent;
-      saveNote(selectedNoteId, newContent);
+      if (currentNote) {
+        saveNote(currentNote.id, { content: newContent });
+      }
       toast({
         title: "AI content applied",
         description: "The AI response has been added to your note.",
       });
     } else {
       // Create a new note with AI content
-      const newNoteId = createNote();
-      saveNote(newNoteId, aiContent);
-      setSelectedNoteId(newNoteId);
+      createNote('New Note', aiContent).then(newNote => {
+        if (newNote) {
+          setSelectedNoteId(newNote.id);
+          setCurrentNote(newNote);
+        }
+      });
       toast({
         title: "New note created",
         description: "A new note has been created with the AI response.",
       });
+    }
+  };
+
+  const handleLoadNote = (noteId: string) => {
+    const note = notes.find(n => n.id === noteId);
+    if (note) {
+      setSelectedNoteId(noteId);
+      setCurrentNote(note);
+    }
+  };
+
+  const handleCreateNote = async () => {
+    const newNote = await createNote();
+    if (newNote) {
+      setSelectedNoteId(newNote.id);
+      setCurrentNote(newNote);
+    }
+  };
+
+  const handleDeleteNote = async (noteId: string) => {
+    const success = await deleteNote(noteId);
+    if (success && selectedNoteId === noteId) {
+      setSelectedNoteId(null);
+      setCurrentNote(null);
+    }
+  };
+
+  const handleRenameNote = async (noteId: string, newTitle: string) => {
+    await saveNote(noteId, { title: newTitle });
+  };
+
+  const handleContentChange = (content: string) => {
+    if (currentNote) {
+      saveNote(currentNote.id, { content });
     }
   };
 
@@ -73,23 +120,13 @@ const NotesEditor: React.FC = () => {
               className="min-w-0"
             >
               <NotesSidebar
-                notes={notes}
+                notes={notesRecord}
                 selectedNoteId={selectedNoteId}
-                onLoadNote={(noteId) => {
-                  setSelectedNoteId(noteId);
-                  loadNote(noteId);
-                }}
-                onCreateNote={() => {
-                  const newNoteId = createNote();
-                  setSelectedNoteId(newNoteId);
-                }}
-                onDeleteNote={(noteId) => {
-                  deleteNote(noteId);
-                  if (selectedNoteId === noteId) {
-                    setSelectedNoteId(null);
-                  }
-                }}
-                onRenameNote={renameNote}
+                onLoadNote={handleLoadNote}
+                onCreateNote={handleCreateNote}
+                onDeleteNote={handleDeleteNote}
+                onRenameNote={handleRenameNote}
+                saving={saving}
               />
             </ResizablePanel>
             <ResizableHandle withHandle={true} />
@@ -114,7 +151,7 @@ const NotesEditor: React.FC = () => {
                 <PanelRight className={`h-4 w-4 transition-transform ${sidebarOpen ? 'rotate-180' : ''}`} />
               </Button>
               <span className="text-white text-sm">
-                {currentNote ? `Note: ${currentNote.id}` : 'No note selected'}
+                {currentNote ? `Note: ${currentNote.title}` : 'No note selected'}
               </span>
             </div>
 
@@ -135,12 +172,8 @@ const NotesEditor: React.FC = () => {
           <div className="flex-1">
             <NoteEditor
               noteId={selectedNoteId}
-              content={currentContent || ''}
-              onContentChange={(content) => {
-                if (selectedNoteId) {
-                  saveNote(selectedNoteId, content);
-                }
-              }}
+              content={currentContent}
+              onContentChange={handleContentChange}
             />
           </div>
         </ResizablePanel>
