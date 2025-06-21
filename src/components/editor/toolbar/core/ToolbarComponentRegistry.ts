@@ -4,7 +4,7 @@ import FormatControls from '../controls/FormatControls';
 import HeadingControls from '../controls/HeadingControls';
 import ListControls from '../controls/ListControls';
 import AlignmentControls from '../controls/AlignmentControls';
-import ColorControls from '../controls/ColorControls';
+import ColorControls from '../ColorControls';
 import LinkControls from '../controls/LinkControls';
 import ImageControls from '../controls/ImageControls';
 import CodeBlockControls from '../controls/CodeBlockControls';
