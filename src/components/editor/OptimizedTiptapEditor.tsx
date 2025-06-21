@@ -11,6 +11,7 @@ import Highlight from '@tiptap/extension-highlight';
 import TaskList from '@tiptap/extension-task-list';
 import TaskItem from '@tiptap/extension-task-item';
 import Image from '@tiptap/extension-image';
+import Typography from '@tiptap/extension-typography';
 import { useStylusDetection } from '@/hooks/useStylusDetection';
 import { useCameraOCR } from '@/hooks/useCameraOCR';
 import { useToast } from '@/hooks/use-toast';
@@ -45,7 +46,7 @@ const OptimizedTiptapEditor: React.FC<OptimizedTiptapEditorProps> = ({
     handlePhotoCapture
   } = useCameraOCR();
 
-  // Clean, stable editor setup following v3 best practices
+  // Enhanced editor setup with Typography extension and improved configuration
   const editor = useEditor({
     extensions: [
       StarterKit.configure({
@@ -69,6 +70,15 @@ const OptimizedTiptapEditor: React.FC<OptimizedTiptapEditorProps> = ({
       CharacterCount.configure({
         limit: 50000,
       }),
+      Typography.configure({
+        openDoubleQuote: '"',
+        closeDoubleQuote: '"',
+        openSingleQuote: ''',
+        closeSingleQuote: ''',
+        ellipsis: '…',
+        emDash: '—',
+        enDash: '–',
+      }),
       Underline,
       Link.configure({
         openOnClick: false,
@@ -89,13 +99,13 @@ const OptimizedTiptapEditor: React.FC<OptimizedTiptapEditorProps> = ({
       }),
       TaskList.configure({
         HTMLAttributes: {
-          class: 'task-list',
+          class: 'task-list not-prose',
         },
       }),
       TaskItem.configure({
         nested: true,
         HTMLAttributes: {
-          class: 'task-item',
+          class: 'task-item flex items-start gap-2',
         },
       }),
       Image.configure({
@@ -106,10 +116,10 @@ const OptimizedTiptapEditor: React.FC<OptimizedTiptapEditorProps> = ({
       }),
     ],
     content: content || '',
-    autofocus: true,
+    autofocus: 'start',
     editorProps: {
       attributes: {
-        class: 'prose prose-invert dark:prose-invert max-w-none outline-none min-h-[300px] px-4 py-2 focus:outline-none',
+        class: 'prose prose-invert dark:prose-invert max-w-none outline-none min-h-[300px] px-4 py-2 focus:outline-none bg-transparent text-white',
       },
     },
     onUpdate: ({ editor }) => {
@@ -122,7 +132,7 @@ const OptimizedTiptapEditor: React.FC<OptimizedTiptapEditorProps> = ({
       }
     },
     onCreate: ({ editor }) => {
-      console.log('Optimized Tiptap editor created successfully');
+      console.log('Enhanced Tiptap editor created with Typography support');
     },
   });
 
@@ -168,7 +178,7 @@ const OptimizedTiptapEditor: React.FC<OptimizedTiptapEditorProps> = ({
       <div className="h-full flex items-center justify-center bg-black/20 rounded-lg">
         <div className="text-center space-y-4">
           <div className="w-6 h-6 border-2 border-noteflow-400 border-t-transparent rounded-full animate-spin mx-auto"></div>
-          <p className="text-gray-400 text-sm">Loading optimized editor...</p>
+          <p className="text-gray-400 text-sm">Loading enhanced editor...</p>
         </div>
       </div>
     );
@@ -178,7 +188,7 @@ const OptimizedTiptapEditor: React.FC<OptimizedTiptapEditorProps> = ({
     <div className="relative h-full flex">
       {/* Main Editor Area */}
       <div className="flex-1 flex flex-col">
-        {/* Optimized Toolbar */}
+        {/* Enhanced Toolbar */}
         {!isFocusMode && (
           <div className="flex items-center justify-between border-b border-white/10 p-2">
             <OptimizedToolbar 
@@ -220,6 +230,11 @@ const OptimizedTiptapEditor: React.FC<OptimizedTiptapEditorProps> = ({
               editor={editor} 
               className="h-full overflow-y-auto focus-within:outline-none"
             />
+            
+            {/* Enhanced Character Count Display */}
+            <div className="absolute bottom-2 right-4 text-xs text-gray-400 bg-black/30 px-2 py-1 rounded backdrop-blur-sm">
+              {editor.storage.characterCount.characters()}/{50000} characters
+            </div>
           </div>
         ) : (
           <div className="flex-1 p-4">

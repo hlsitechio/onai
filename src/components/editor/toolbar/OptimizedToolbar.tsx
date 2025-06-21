@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Bold, Italic, Underline, Strikethrough, Code, Heading1, Heading2, Heading3, List, ListOrdered, AlignLeft, AlignCenter, AlignRight, AlignJustify, Undo, Redo, Camera, Link, Image, Highlighter } from 'lucide-react';
+import { Bold, Italic, Underline, Strikethrough, Code, Heading1, Heading2, Heading3, List, ListOrdered, AlignLeft, AlignCenter, AlignRight, AlignJustify, Undo, Redo, Camera, Link, Image, Highlighter, Eraser } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import type { Editor } from '@tiptap/react';
@@ -196,6 +196,10 @@ const OptimizedToolbar: React.FC<OptimizedToolbarProps> = ({
     input.click();
   };
 
+  const handleClearFormatting = () => {
+    editor.chain().focus().unsetAllMarks().clearNodes().run();
+  };
+
   return (
     <div className="flex items-center gap-1 flex-wrap toolbar bg-[#27202C] rounded-lg p-2">
       {/* Format controls */}
@@ -342,6 +346,21 @@ const OptimizedToolbar: React.FC<OptimizedToolbarProps> = ({
           title="Camera OCR"
         >
           <Camera className="h-4 w-4" />
+        </Button>
+      </div>
+
+      <div className="w-px h-6 bg-white/10" />
+
+      {/* Clear formatting */}
+      <div className="flex items-center gap-1">
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={handleClearFormatting}
+          className="h-8 w-8 p-0 text-gray-300 hover:text-white hover:bg-white/10 transition-colors"
+          title="Clear Formatting"
+        >
+          <Eraser className="h-4 w-4" />
         </Button>
       </div>
 
