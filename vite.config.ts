@@ -50,14 +50,10 @@ export default defineConfig(({ mode }) => ({
     alias: {
       "@": path.resolve(process.cwd(), "./src"),
     },
-    // Enhanced deduplication for Plate.js compatibility
+    // Basic deduplication for React
     dedupe: [
       'react', 
-      'react-dom', 
-      '@udecode/slate', 
-      '@udecode/slate-react',
-      'slate',
-      'slate-react'
+      'react-dom'
     ],
   },
   build: {
@@ -118,9 +114,7 @@ export default defineConfig(({ mode }) => ({
       '@radix-ui/react-slot',
       '@radix-ui/react-tooltip',
       'loglevel',
-      '@udecode/plate-common',
-      '@udecode/slate',
-      '@udecode/slate-react'
+      '@udecode/plate-common'
     ],
     // Force pre-bundling to resolve version conflicts
     force: true,
