@@ -1,10 +1,20 @@
 
 import React, { useMemo } from 'react';
-import { createPlateEditor } from '@udecode/plate-common';
-import { PlateProvider, Plate } from '@udecode/plate-react';
-import { BasicElementsPlugin } from '@udecode/plate-basic-elements';
-import { BasicMarksPlugin } from '@udecode/plate-basic-marks';
-import { ListPlugin } from '@udecode/plate-list';
+import {
+  createPlateEditor,
+  PlateProvider,
+  Plate,
+  createPlugins,
+} from '@udecode/plate';
+import {
+  createBasicElementsPlugin,
+} from '@udecode/plate-basic-elements';
+import {
+  createBasicMarksPlugin,
+} from '@udecode/plate-basic-marks';
+import {
+  createListPlugin,
+} from '@udecode/plate-list';
 import PlateToolbar from './PlateToolbar';
 
 interface PlateEditorProps {
@@ -33,22 +43,23 @@ const PlateEditor: React.FC<PlateEditorProps> = ({
     }
   }, [content]);
 
-  const editor = useMemo(() => 
-    createPlateEditor({ 
-      plugins: [
-        BasicElementsPlugin(),
-        BasicMarksPlugin(),
-        ListPlugin(),
-      ],
-      value: initialValue
-    }), 
+  const editor = useMemo(
+    () =>
+      createPlateEditor({
+        plugins: createPlugins([
+          createBasicElementsPlugin(),
+          createBasicMarksPlugin(),
+          createListPlugin(),
+        ]),
+        value: initialValue,
+      }),
     [initialValue]
   );
 
   const handleChange = (value: any) => {
     try {
       setContent(JSON.stringify(value));
-    } catch (error) {
+    } catch (error) {  
       console.error('Failed to serialize content:', error);
     }
   };

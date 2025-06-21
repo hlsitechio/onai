@@ -1,6 +1,13 @@
+
 import React from 'react';
-import { usePlateEditorState } from '@udecode/plate-react';
-import { toggleMark, isMarkActive, insertNodes } from '@udecode/plate-utils';
+import { 
+  usePlateEditorState,
+  toggleMark,
+  isMarkActive,
+  insertNodes,
+  getPluginType,
+  PlateEditor as PlateEditorType,
+} from '@udecode/plate';
 import { Button } from '@/components/ui/button';
 import { 
   Bold, 
@@ -25,7 +32,7 @@ const ELEMENT_OL = 'ol';
 const ELEMENT_LI = 'li';
 
 const PlateToolbar: React.FC = () => {
-  const editor = usePlateEditorState();
+  const editor = usePlateEditorState() as PlateEditorType;
   
   if (!editor) return null;
   
