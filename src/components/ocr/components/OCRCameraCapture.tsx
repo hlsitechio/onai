@@ -22,18 +22,26 @@ const OCRCameraCapture: React.FC<OCRCameraCaptureProps> = ({
   const [stream, setStream] = useState<MediaStream | null>(null);
   const [capturedPhoto, setCapturedPhoto] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [isMounted, setIsMounted] = useState(true);
   const { toast } = useToast();
 
   const stopCamera = useCallback(() => {
     if (stream) {
-      stream.getTracks().forEach(track => track.stop());
+      console.log('Stopping camera stream...');
+      stream.getTracks().forEach(track => {
+        track.stop();
+        console.log('Track stopped:', track.kind);
+      });
       setStream(null);
     }
   }, [stream]);
 
   const startCamera = useCallback(async () => {
+    if (!isMounted) return;
+    
     try {
       setIsLoading(true);
+      console.log('Starting camera...');
       
       // Stop any existing stream first
       if (stream) {
@@ -42,31 +50,44 @@ const OCRCameraCapture: React.FC<OCRCameraCaptureProps> = ({
 
       const mediaStream = await navigator.mediaDevices.getUserMedia({
         video: {
-          facingMode: 'environment', // Use back camera for better text capture
+          facingMode: 'environment',
           width: { ideal: 1920 },
           height: { ideal: 1080 }
         }
       });
       
+      if (!isMounted) {
+        // Component was unmounted while getting camera access
+        mediaStream.getTracks().forEach(track => track.stop());
+        return;
+      }
+      
       setStream(mediaStream);
       if (videoRef.current) {
         videoRef.current.srcObject = mediaStream;
         await videoRef.current.play();
+        console.log('Camera started successfully');
       }
     } catch (error) {
       console.error('Error accessing camera:', error);
-      toast({
-        title: "Camera access failed",
-        description: "Please grant camera permission to capture text images.",
-        variant: "destructive"
-      });
+      if (isMounted) {
+        toast({
+          title: "Camera access failed",
+          description: "Please grant camera permission to capture text images.",
+          variant: "destructive"
+        });
+      }
     } finally {
-      setIsLoading(false);
+      if (isMounted) {
+        setIsLoading(false);
+      }
     }
-  }, []); // Remove stream dependency to prevent infinite loop
+  }, [isMounted, toast]); // Remove stream dependency to prevent loops
 
   const capturePhoto = useCallback(() => {
-    if (videoRef.current && canvasRef.current) {
+    if (!videoRef.current || !canvasRef.current) return;
+    
+    try {
       const canvas = canvasRef.current;
       const video = videoRef.current;
       
@@ -79,9 +100,17 @@ const OCRCameraCapture: React.FC<OCRCameraCaptureProps> = ({
         const imageData = canvas.toDataURL('image/jpeg', 0.8);
         setCapturedPhoto(imageData);
         stopCamera();
+        console.log('Photo captured successfully');
       }
+    } catch (error) {
+      console.error('Error capturing photo:', error);
+      toast({
+        title: "Capture failed",
+        description: "Failed to capture photo. Please try again.",
+        variant: "destructive"
+      });
     }
-  }, [stopCamera]);
+  }, [stopCamera, toast]);
 
   const retakePhoto = useCallback(() => {
     setCapturedPhoto(null);
@@ -95,17 +124,31 @@ const OCRCameraCapture: React.FC<OCRCameraCaptureProps> = ({
     }
   }, [capturedPhoto, onPhotoCapture]);
 
-  // Initialize camera only once when component mounts
+  const handleClose = useCallback(() => {
+    console.log('Closing camera modal...');
+    setIsMounted(false);
+    stopCamera();
+    onClose();
+  }, [stopCamera, onClose]);
+
+  // Initialize camera when component mounts
   useEffect(() => {
+    setIsMounted(true);
     startCamera();
     
-    // Cleanup function to stop camera when component unmounts
     return () => {
+      console.log('Camera component unmounting...');
+      setIsMounted(false);
       if (stream) {
         stream.getTracks().forEach(track => track.stop());
       }
     };
-  }, []); // Empty dependency array - only run once on mount
+  }, []); // Empty dependency array - only run once
+
+  // Don't render if not mounted
+  if (!isMounted) {
+    return null;
+  }
 
   return (
     <div className="fixed inset-0 z-[9999] bg-black flex flex-col">
@@ -117,7 +160,7 @@ const OCRCameraCapture: React.FC<OCRCameraCaptureProps> = ({
         <Button
           variant="ghost"
           size="sm"
-          onClick={onClose}
+          onClick={handleClose}
           className="text-white hover:bg-white/10"
           disabled={isProcessing}
         >
@@ -129,23 +172,32 @@ const OCRCameraCapture: React.FC<OCRCameraCaptureProps> = ({
       <div className="flex-1 relative flex items-center justify-center">
         {!capturedPhoto ? (
           <>
-            <video
-              ref={videoRef}
-              className="w-full h-full object-cover"
-              playsInline
-              muted
-              autoPlay
-            />
-            
-            {/* Capture Guide Overlay */}
-            <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-              <div className="border-2 border-white/50 border-dashed rounded-lg w-4/5 h-2/3 flex items-center justify-center">
-                <div className="text-white/70 text-center">
-                  <Camera className="h-8 w-8 mx-auto mb-2" />
-                  <p className="text-sm">Align text within this frame</p>
-                </div>
+            {isLoading ? (
+              <div className="flex items-center justify-center">
+                <Loader2 className="h-8 w-8 animate-spin text-white" />
+                <span className="ml-2 text-white">Starting camera...</span>
               </div>
-            </div>
+            ) : (
+              <>
+                <video
+                  ref={videoRef}
+                  className="w-full h-full object-cover"
+                  playsInline
+                  muted
+                  autoPlay
+                />
+                
+                {/* Capture Guide Overlay */}
+                <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                  <div className="border-2 border-white/50 border-dashed rounded-lg w-4/5 h-2/3 flex items-center justify-center">
+                    <div className="text-white/70 text-center">
+                      <Camera className="h-8 w-8 mx-auto mb-2" />
+                      <p className="text-sm">Align text within this frame</p>
+                    </div>
+                  </div>
+                </div>
+              </>
+            )}
           </>
         ) : (
           <div className="w-full h-full flex items-center justify-center">

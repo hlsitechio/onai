@@ -167,9 +167,10 @@ const TiptapEditor: React.FC<TiptapEditorProps> = ({
         </div>
       )}
 
-      {/* Camera OCR Modal */}
+      {/* Camera OCR Modal - Add key to force remount */}
       {isCameraOpen && (
         <OCRCameraCapture
+          key="camera-capture" 
           onPhotoCapture={handlePhotoCapture}
           onClose={closeCamera}
           isProcessing={isCameraProcessing}
