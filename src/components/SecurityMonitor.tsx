@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -6,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Shield, AlertTriangle, CheckCircle, Clock, Users, FileText } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
+import type { Json } from '@/integrations/supabase/types';
 
 interface SecurityIncident {
   id: string;
@@ -13,7 +13,7 @@ interface SecurityIncident {
   severity: string;
   created_at: string;
   resolved: boolean;
-  details: Record<string, any>;
+  details: Json;
 }
 
 interface SecurityStats {
@@ -107,6 +107,15 @@ export function SecurityMonitor() {
       case 'low': return 'secondary';
       default: return 'outline';
     }
+  };
+
+  const formatIncidentDetails = (details: Json): string => {
+    if (!details) return '';
+    if (typeof details === 'string') return details;
+    if (typeof details === 'object') {
+      return JSON.stringify(details, null, 2);
+    }
+    return String(details);
   };
 
   if (isLoading) {
@@ -214,9 +223,9 @@ export function SecurityMonitor() {
                   <p className="text-sm text-muted-foreground">
                     {new Date(incident.created_at).toLocaleString()}
                   </p>
-                  {incident.details && Object.keys(incident.details).length > 0 && (
+                  {incident.details && (
                     <div className="text-xs bg-muted p-2 rounded">
-                      <pre>{JSON.stringify(incident.details, null, 2)}</pre>
+                      <pre>{formatIncidentDetails(incident.details)}</pre>
                     </div>
                   )}
                 </div>
