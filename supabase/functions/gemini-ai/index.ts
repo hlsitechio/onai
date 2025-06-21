@@ -22,7 +22,7 @@ const corsHeaders = {
 };
 
 // Gemini API configuration - UPDATED TO 2.5 FLASH
-const GEMINI_MODEL = 'gemini-2.5-flash-preview-05-20';
+const GEMINI_MODEL = 'gemini-2.0-flash-exp';
 const GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta';
 const GEMINI_API_KEY = getEnv('GEMINI_API_KEY');
 
@@ -182,8 +182,8 @@ serve(async (req) => {
       generationConfig: {
         temperature: getTemperatureForRequestType(requestType),
         topP: 0.95,
-        topK: 64, // Updated to recommended value for Gemini 2.5 Flash
-        maxOutputTokens: 2048,
+        topK: 40,
+        maxOutputTokens: 8192,
       }
     };
     
@@ -199,7 +199,7 @@ serve(async (req) => {
     
     // Call Gemini API
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 45000); // 45 second timeout (increased)
+    const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
     
     const apiUrl = `${GEMINI_API_URL}/models/${GEMINI_MODEL}:generateContent?key=${GEMINI_API_KEY}`;
     
@@ -316,6 +316,8 @@ function getTemperatureForRequestType(requestType: string): number {
     case 'ideas':
     case 'generate_ideas':
       return 0.7; // More creative
+    case 'chat':
+      return 0.6; // Conversational and creative
     default:
       return 0.4;
   }
@@ -337,7 +339,9 @@ function getSystemInstructionForRequestType(requestType: string): string | null 
       return 'You are a summarization expert. Create concise, comprehensive summaries that capture all key points and main ideas.';
     case 'image_analyze':
       return 'You are an expert at analyzing images. Describe what you see in detail, including objects, people, text, colors, composition, and any relevant context.';
+    case 'chat':
+      return 'You are a helpful, knowledgeable assistant. Provide clear, accurate, and engaging responses. Be conversational but professional. If asked about writing or editing, focus on being helpful and constructive.';
     default:
-      return null;
+      return 'You are a helpful assistant. Provide clear, accurate, and useful responses to user queries.';
   }
 }
