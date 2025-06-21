@@ -4,6 +4,7 @@ import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from '@/componen
 import UnifiedEditor from './UnifiedEditor';
 import UnifiedToolbar from './toolbar/UnifiedToolbar';
 import NotesSidebarContainer from '../notes/NotesSidebarContainer';
+import NotesSidebar from '../notes/NotesSidebar';
 import EnhancedAISidebar from '../notes/EnhancedAISidebar';
 
 interface EditorNormalLayoutProps {
@@ -43,19 +44,37 @@ const EditorNormalLayout: React.FC<EditorNormalLayoutProps> = ({
   createNewNote,
   handleImportNotes,
 }) => {
+  // Convert Record<string, string> to Note format for NotesSidebar
+  const notesForSidebar = Object.entries(allNotes).reduce((acc, [id, content]) => {
+    acc[id] = {
+      id,
+      content,
+      title: content.slice(0, 50) || 'Untitled',
+      createdAt: new Date(),
+      updatedAt: new Date()
+    };
+    return acc;
+  }, {} as Record<string, any>);
+
   return (
     <ResizablePanelGroup direction="horizontal" className="h-full">
       {/* Left Sidebar */}
       {isLeftSidebarOpen && (
         <>
           <ResizablePanel defaultSize={20} minSize={15} maxSize={40}>
-            <NotesSidebarContainer
-              allNotes={allNotes}
-              onLoadNote={handleNoteLoad}
-              onDeleteNote={handleDeleteNote}
-              onCreateNew={createNewNote}
-              onImportNotes={handleImportNotes}
-            />
+            <NotesSidebarContainer>
+              <NotesSidebar
+                notes={notesForSidebar}
+                selectedNoteId={null}
+                onLoadNote={handleNoteLoad}
+                onCreateNote={createNewNote}
+                onDeleteNote={handleDeleteNote}
+                onRenameNote={(noteId: string, newTitle: string) => {
+                  // Handle note renaming if needed
+                  console.log('Rename note:', noteId, newTitle);
+                }}
+              />
+            </NotesSidebarContainer>
           </ResizablePanel>
           <ResizableHandle withHandle />
         </>
@@ -95,7 +114,7 @@ const EditorNormalLayout: React.FC<EditorNormalLayoutProps> = ({
             <EnhancedAISidebar
               onClose={() => toggleAISidebar()}
               content={content}
-              onApplyToEditor={(aiContent: string) => {
+              onApplyChanges={(aiContent: string) => {
                 setContent(content + '\n\n' + aiContent);
               }}
             />

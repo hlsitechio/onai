@@ -130,7 +130,9 @@ const EditorManager: React.FC = () => {
             handleDeleteNote={handleDeleteNote}
             allNotes={allNotes}
             createNewNote={createNewNote}
-            handleImportNotes={handleImportNotes}
+            handleImportNotes={(event: React.ChangeEvent<HTMLInputElement>) => {
+              handleImportNotes(event);
+            }}
           />
         )}
       </div>
