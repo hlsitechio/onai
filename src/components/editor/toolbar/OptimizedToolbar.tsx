@@ -1,173 +1,87 @@
+
 import React from 'react';
 import { Bold, Italic, Underline, Strikethrough, Code, Heading1, Heading2, Heading3, AlignLeft, AlignCenter, AlignRight, AlignJustify, Undo, Redo, Camera, Link, Image, Highlighter, Eraser } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
-import type { Editor } from '@tiptap/react';
-import ListButton from './ListButton';
-import CollaborationSettings from '../CollaborationSettings';
 
 interface OptimizedToolbarProps {
-  editor: Editor;
   onCameraOCRClick: () => void;
   isCameraOCRProcessing: boolean;
   characterCount: number;
   characterLimit: number;
-  // New collaboration props
-  isCollaborative?: boolean;
-  onToggleCollaboration?: (enabled: boolean) => void;
-  roomId?: string;
-  onRoomIdChange?: (roomId: string) => void;
 }
 
 const OptimizedToolbar: React.FC<OptimizedToolbarProps> = ({
-  editor,
   onCameraOCRClick,
   isCameraOCRProcessing,
   characterCount,
-  characterLimit,
-  isCollaborative = false,
-  onToggleCollaboration,
-  roomId = 'default-room',
-  onRoomIdChange
+  characterLimit
 }) => {
-  if (!editor) return null;
+  const handleBold = () => {
+    document.execCommand('bold', false);
+  };
 
-  const formatButtons = [
-    {
-      icon: Bold,
-      isActive: () => editor.isActive('bold'),
-      onClick: () => editor.chain().focus().toggleBold().run(),
-      title: 'Bold (Ctrl+B)',
-    },
-    {
-      icon: Italic,
-      isActive: () => editor.isActive('italic'),
-      onClick: () => editor.chain().focus().toggleItalic().run(),
-      title: 'Italic (Ctrl+I)',
-    },
-    {
-      icon: Underline,
-      isActive: () => editor.isActive('underline'),
-      onClick: () => editor.chain().focus().toggleUnderline().run(),
-      title: 'Underline (Ctrl+U)',
-    },
-    {
-      icon: Strikethrough,
-      isActive: () => editor.isActive('strike'),
-      onClick: () => editor.chain().focus().toggleStrike().run(),
-      title: 'Strikethrough',
-    },
-    {
-      icon: Code,
-      isActive: () => editor.isActive('code'),
-      onClick: () => editor.chain().focus().toggleCode().run(),
-      title: 'Inline Code',
-    },
-    {
-      icon: Highlighter,
-      isActive: () => editor.isActive('highlight'),
-      onClick: () => editor.chain().focus().toggleHighlight().run(),
-      title: 'Highlight',
-    },
-  ];
+  const handleItalic = () => {
+    document.execCommand('italic', false);
+  };
 
-  const headingButtons = [
-    {
-      icon: Heading1,
-      level: 1 as const,
-      isActive: () => editor.isActive('heading', { level: 1 }),
-      onClick: () => {
-        if (editor.isActive('heading', { level: 1 })) {
-          editor.chain().focus().setParagraph().run();
-        } else {
-          editor.chain().focus().toggleHeading({ level: 1 }).run();
-        }
-      },
-      title: 'Heading 1',
-    },
-    {
-      icon: Heading2,
-      level: 2 as const,
-      isActive: () => editor.isActive('heading', { level: 2 }),
-      onClick: () => {
-        if (editor.isActive('heading', { level: 2 })) {
-          editor.chain().focus().setParagraph().run();
-        } else {
-          editor.chain().focus().toggleHeading({ level: 2 }).run();
-        }
-      },
-      title: 'Heading 2',
-    },
-    {
-      icon: Heading3,
-      level: 3 as const,
-      isActive: () => editor.isActive('heading', { level: 3 }),
-      onClick: () => {
-        if (editor.isActive('heading', { level: 3 })) {
-          editor.chain().focus().setParagraph().run();
-        } else {
-          editor.chain().focus().toggleHeading({ level: 3 }).run();
-        }
-      },
-      title: 'Heading 3',
-    },
-  ];
+  const handleUnderline = () => {
+    document.execCommand('underline', false);
+  };
 
-  const alignmentButtons = [
-    {
-      icon: AlignLeft,
-      alignment: 'left',
-      isActive: () => editor.isActive({ textAlign: 'left' }) || (!editor.isActive({ textAlign: 'center' }) && !editor.isActive({ textAlign: 'right' }) && !editor.isActive({ textAlign: 'justify' })),
-      onClick: () => editor.chain().focus().setTextAlign('left').run(),
-      title: 'Align Left',
-    },
-    {
-      icon: AlignCenter,
-      alignment: 'center',
-      isActive: () => editor.isActive({ textAlign: 'center' }),
-      onClick: () => editor.chain().focus().setTextAlign('center').run(),
-      title: 'Align Center',
-    },
-    {
-      icon: AlignRight,
-      alignment: 'right',
-      isActive: () => editor.isActive({ textAlign: 'right' }),
-      onClick: () => editor.chain().focus().setTextAlign('right').run(),
-      title: 'Align Right',
-    },
-    {
-      icon: AlignJustify,
-      alignment: 'justify',
-      isActive: () => editor.isActive({ textAlign: 'justify' }),
-      onClick: () => editor.chain().focus().setTextAlign('justify').run(),
-      title: 'Justify',
-    },
-  ];
+  const handleStrikethrough = () => {
+    document.execCommand('strikeThrough', false);
+  };
 
-  const historyButtons = [
-    {
-      icon: Undo,
-      onClick: () => editor.chain().focus().undo().run(),
-      canExecute: () => editor.can().chain().focus().undo().run(),
-      title: 'Undo (Ctrl+Z)',
-    },
-    {
-      icon: Redo,
-      onClick: () => editor.chain().focus().redo().run(),
-      canExecute: () => editor.can().chain().focus().redo().run(),
-      title: 'Redo (Ctrl+Y)',
-    },
-  ];
+  const handleCode = () => {
+    document.execCommand('formatBlock', false, 'pre');
+  };
+
+  const handleHighlight = () => {
+    document.execCommand('hiliteColor', false, 'yellow');
+  };
+
+  const handleHeading = (level: number) => {
+    document.execCommand('formatBlock', false, `h${level}`);
+  };
+
+  const handleAlignLeft = () => {
+    document.execCommand('justifyLeft', false);
+  };
+
+  const handleAlignCenter = () => {
+    document.execCommand('justifyCenter', false);
+  };
+
+  const handleAlignRight = () => {
+    document.execCommand('justifyRight', false);
+  };
+
+  const handleAlignJustify = () => {
+    document.execCommand('justifyFull', false);
+  };
+
+  const handleUndo = () => {
+    document.execCommand('undo', false);
+  };
+
+  const handleRedo = () => {
+    document.execCommand('redo', false);
+  };
+
+  const handleBulletList = () => {
+    document.execCommand('insertUnorderedList', false);
+  };
+
+  const handleNumberedList = () => {
+    document.execCommand('insertOrderedList', false);
+  };
 
   const handleLinkInsert = () => {
     const url = window.prompt('Enter URL:');
     if (url) {
-      if (editor.state.selection.empty) {
-        const text = window.prompt('Enter link text:') || url;
-        editor.chain().focus().insertContent(`<a href="${url}">${text}</a>`).run();
-      } else {
-        editor.chain().focus().setLink({ href: url }).run();
-      }
+      const text = window.prompt('Enter link text:') || url;
+      document.execCommand('insertHTML', false, `<a href="${url}">${text}</a>`);
     }
   };
 
@@ -182,7 +96,7 @@ const OptimizedToolbar: React.FC<OptimizedToolbarProps> = ({
         reader.onload = (event) => {
           const url = event.target?.result as string;
           if (url) {
-            editor.chain().focus().setImage({ src: url }).run();
+            document.execCommand('insertHTML', false, `<img src="${url}" alt="Uploaded image" style="max-width: 100%; height: auto;" />`);
           }
         };
         reader.readAsDataURL(file);
@@ -192,8 +106,82 @@ const OptimizedToolbar: React.FC<OptimizedToolbarProps> = ({
   };
 
   const handleClearFormatting = () => {
-    editor.chain().focus().unsetAllMarks().clearNodes().run();
+    document.execCommand('removeFormat', false);
   };
+
+  const formatButtons = [
+    {
+      icon: Bold,
+      onClick: handleBold,
+      title: 'Bold (Ctrl+B)',
+    },
+    {
+      icon: Italic,
+      onClick: handleItalic,
+      title: 'Italic (Ctrl+I)',
+    },
+    {
+      icon: Underline,
+      onClick: handleUnderline,
+      title: 'Underline (Ctrl+U)',
+    },
+    {
+      icon: Strikethrough,
+      onClick: handleStrikethrough,
+      title: 'Strikethrough',
+    },
+    {
+      icon: Code,
+      onClick: handleCode,
+      title: 'Code Block',
+    },
+    {
+      icon: Highlighter,
+      onClick: handleHighlight,
+      title: 'Highlight',
+    },
+  ];
+
+  const headingButtons = [
+    {
+      icon: Heading1,
+      onClick: () => handleHeading(1),
+      title: 'Heading 1',
+    },
+    {
+      icon: Heading2,
+      onClick: () => handleHeading(2),
+      title: 'Heading 2',
+    },
+    {
+      icon: Heading3,
+      onClick: () => handleHeading(3),
+      title: 'Heading 3',
+    },
+  ];
+
+  const alignmentButtons = [
+    {
+      icon: AlignLeft,
+      onClick: handleAlignLeft,
+      title: 'Align Left',
+    },
+    {
+      icon: AlignCenter,
+      onClick: handleAlignCenter,
+      title: 'Align Center',
+    },
+    {
+      icon: AlignRight,
+      onClick: handleAlignRight,
+      title: 'Align Right',
+    },
+    {
+      icon: AlignJustify,
+      onClick: handleAlignJustify,
+      title: 'Justify',
+    },
+  ];
 
   return (
     <div className="flex items-center gap-1 flex-wrap toolbar bg-[#27202C] rounded-lg p-2">
@@ -201,19 +189,16 @@ const OptimizedToolbar: React.FC<OptimizedToolbarProps> = ({
       <div className="flex items-center gap-1">
         {formatButtons.map((button, index) => {
           const Icon = button.icon;
-          const isActive = button.isActive();
           return (
             <Button
               key={index}
               variant="ghost"
               size="sm"
-              onClick={button.onClick}
-              className={cn(
-                "h-8 w-8 p-0 hover:bg-white/10 transition-colors",
-                isActive 
-                  ? "bg-white/20 text-white" 
-                  : "text-gray-300 hover:text-white"
-              )}
+              onMouseDown={(e) => {
+                e.preventDefault();
+                button.onClick();
+              }}
+              className="h-8 w-8 p-0 text-gray-300 hover:text-white hover:bg-white/10 transition-colors"
               title={button.title}
             >
               <Icon className="h-4 w-4" />
@@ -226,21 +211,18 @@ const OptimizedToolbar: React.FC<OptimizedToolbarProps> = ({
 
       {/* Heading controls */}
       <div className="flex items-center gap-1">
-        {headingButtons.map((button) => {
+        {headingButtons.map((button, index) => {
           const Icon = button.icon;
-          const isActive = button.isActive();
           return (
             <Button
-              key={button.level}
+              key={index}
               variant="ghost"
               size="sm"
-              onClick={button.onClick}
-              className={cn(
-                "h-8 w-8 p-0 hover:bg-white/10 transition-colors",
-                isActive 
-                  ? "bg-white/20 text-white" 
-                  : "text-gray-300 hover:text-white"
-              )}
+              onMouseDown={(e) => {
+                e.preventDefault();
+                button.onClick();
+              }}
+              className="h-8 w-8 p-0 text-gray-300 hover:text-white hover:bg-white/10 transition-colors"
               title={button.title}
             >
               <Icon className="h-4 w-4" />
@@ -251,30 +233,65 @@ const OptimizedToolbar: React.FC<OptimizedToolbarProps> = ({
 
       <div className="w-px h-6 bg-white/10" />
 
-      {/* List controls - Now using the new ListButton component */}
+      {/* List controls */}
       <div className="flex items-center gap-1">
-        <ListButton editor={editor} />
+        <Button
+          variant="ghost"
+          size="sm"
+          onMouseDown={(e) => {
+            e.preventDefault();
+            handleBulletList();
+          }}
+          className="h-8 w-8 p-0 text-gray-300 hover:text-white hover:bg-white/10 transition-colors"
+          title="Bullet List"
+        >
+          <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <line x1="8" y1="6" x2="21" y2="6"></line>
+            <line x1="8" y1="12" x2="21" y2="12"></line>
+            <line x1="8" y1="18" x2="21" y2="18"></line>
+            <line x1="3" y1="6" x2="3.01" y2="6"></line>
+            <line x1="3" y1="12" x2="3.01" y2="12"></line>
+            <line x1="3" y1="18" x2="3.01" y2="18"></line>
+          </svg>
+        </Button>
+
+        <Button
+          variant="ghost"
+          size="sm"
+          onMouseDown={(e) => {
+            e.preventDefault();
+            handleNumberedList();
+          }}
+          className="h-8 w-8 p-0 text-gray-300 hover:text-white hover:bg-white/10 transition-colors"
+          title="Numbered List"
+        >
+          <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <line x1="10" y1="6" x2="21" y2="6"></line>
+            <line x1="10" y1="12" x2="21" y2="12"></line>
+            <line x1="10" y1="18" x2="21" y2="18"></line>
+            <path d="M4 6h1v4"></path>
+            <path d="M4 10h2"></path>
+            <path d="M6 18H4c0-1 2-2 2-3s-1-1.5-2-1"></path>
+          </svg>
+        </Button>
       </div>
 
       <div className="w-px h-6 bg-white/10 hidden md:block" />
 
       {/* Alignment controls - hidden on mobile */}
       <div className="hidden md:flex items-center gap-1">
-        {alignmentButtons.map((button) => {
+        {alignmentButtons.map((button, index) => {
           const Icon = button.icon;
-          const isActive = button.isActive();
           return (
             <Button
-              key={button.alignment}
+              key={index}
               variant="ghost"
               size="sm"
-              onClick={button.onClick}
-              className={cn(
-                "h-8 w-8 p-0 hover:bg-white/10 transition-colors",
-                isActive 
-                  ? "bg-white/20 text-white" 
-                  : "text-gray-300 hover:text-white"
-              )}
+              onMouseDown={(e) => {
+                e.preventDefault();
+                button.onClick();
+              }}
+              className="h-8 w-8 p-0 text-gray-300 hover:text-white hover:bg-white/10 transition-colors"
               title={button.title}
             >
               <Icon className="h-4 w-4" />
@@ -291,12 +308,7 @@ const OptimizedToolbar: React.FC<OptimizedToolbarProps> = ({
           variant="ghost"
           size="sm"
           onClick={handleLinkInsert}
-          className={cn(
-            "h-8 w-8 p-0 hover:bg-white/10 transition-colors",
-            editor.isActive('link') 
-              ? "bg-white/20 text-white" 
-              : "text-gray-300 hover:text-white"
-          )}
+          className="h-8 w-8 p-0 text-gray-300 hover:text-white hover:bg-white/10 transition-colors"
           title="Insert Link"
         >
           <Link className="h-4 w-4" />
@@ -326,22 +338,6 @@ const OptimizedToolbar: React.FC<OptimizedToolbarProps> = ({
 
       <div className="w-px h-6 bg-white/10" />
 
-      {/* Collaboration Settings */}
-      {onToggleCollaboration && onRoomIdChange && (
-        <>
-          <div className="flex items-center gap-1">
-            <CollaborationSettings
-              isCollaborative={isCollaborative}
-              onToggleCollaboration={onToggleCollaboration}
-              roomId={roomId}
-              onRoomIdChange={onRoomIdChange}
-            />
-          </div>
-
-          <div className="w-px h-6 bg-white/10" />
-        </>
-      )}
-
       {/* Clear formatting */}
       <div className="flex items-center gap-1">
         <Button
@@ -359,36 +355,30 @@ const OptimizedToolbar: React.FC<OptimizedToolbarProps> = ({
 
       {/* History controls */}
       <div className="flex items-center gap-1">
-        {historyButtons.map((button, index) => {
-          const Icon = button.icon;
-          const canExecute = button.canExecute();
-          return (
-            <Button
-              key={index}
-              variant="ghost"
-              size="sm"
-              onClick={button.onClick}
-              disabled={!canExecute}
-              className={cn(
-                "h-8 w-8 p-0 hover:bg-white/10 transition-colors",
-                canExecute
-                  ? "text-gray-300 hover:text-white"
-                  : "text-gray-500 cursor-not-allowed"
-              )}
-              title={button.title}
-            >
-              <Icon className="h-4 w-4" />
-            </Button>
-          );
-        })}
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={handleUndo}
+          className="h-8 w-8 p-0 text-gray-300 hover:text-white hover:bg-white/10 transition-colors"
+          title="Undo (Ctrl+Z)"
+        >
+          <Undo className="h-4 w-4" />
+        </Button>
+
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={handleRedo}
+          className="h-8 w-8 p-0 text-gray-300 hover:text-white hover:bg-white/10 transition-colors"
+          title="Redo (Ctrl+Y)"
+        >
+          <Redo className="h-4 w-4" />
+        </Button>
       </div>
 
       {/* Character count */}
       <div className="ml-auto text-xs text-gray-400 hidden sm:block">
         {characterCount}/{characterLimit}
-        {isCollaborative && (
-          <span className="ml-2 text-green-400">● Live</span>
-        )}
       </div>
     </div>
   );
