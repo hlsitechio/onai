@@ -1,8 +1,10 @@
 
 import React from 'react';
-import { useEditorRef } from '@udecode/plate-common/react';
+import { usePlateEditorState } from '@udecode/plate-common/react';
 import { 
-  toggleMark, 
+  toggleBold,
+  toggleItalic,
+  toggleUnderline,
   insertNodes,
   isMarkActive 
 } from '@udecode/plate-common';
@@ -30,33 +32,38 @@ const ELEMENT_OL = 'ol';
 const ELEMENT_LI = 'li';
 
 const PlateToolbar: React.FC = () => {
-  const editor = useEditorRef();
+  const editor = usePlateEditorState();
+  
+  if (!editor) return null;
   
   // Check if marks are active
-  const isBoldActive = editor ? isMarkActive(editor, MARK_BOLD) : false;
-  const isItalicActive = editor ? isMarkActive(editor, MARK_ITALIC) : false;
-  const isUnderlineActive = editor ? isMarkActive(editor, MARK_UNDERLINE) : false;
+  const isBoldActive = isMarkActive(editor, MARK_BOLD);
+  const isItalicActive = isMarkActive(editor, MARK_ITALIC);
+  const isUnderlineActive = isMarkActive(editor, MARK_UNDERLINE);
 
-  const toggleBold = () => {
-    if (editor) toggleMark(editor, { key: MARK_BOLD });
+  const handleToggleBold = (e: React.MouseEvent) => {
+    e.preventDefault();
+    toggleBold(editor);
   };
   
-  const toggleItalic = () => {
-    if (editor) toggleMark(editor, { key: MARK_ITALIC });
+  const handleToggleItalic = (e: React.MouseEvent) => {
+    e.preventDefault();
+    toggleItalic(editor);
   };
   
-  const toggleUnderline = () => {
-    if (editor) toggleMark(editor, { key: MARK_UNDERLINE });
+  const handleToggleUnderline = (e: React.MouseEvent) => {
+    e.preventDefault();
+    toggleUnderline(editor);
   };
 
-  const insertHeading = (level: 1 | 2 | 3) => {
-    if (!editor) return;
+  const insertHeading = (level: 1 | 2 | 3) => (e: React.MouseEvent) => {
+    e.preventDefault();
     const elementType = level === 1 ? ELEMENT_H1 : level === 2 ? ELEMENT_H2 : ELEMENT_H3;
     insertNodes(editor, { type: elementType, children: [{ text: '' }] });
   };
 
-  const insertList = (ordered: boolean) => {
-    if (!editor) return;
+  const insertList = (ordered: boolean) => (e: React.MouseEvent) => {
+    e.preventDefault();
     const elementType = ordered ? ELEMENT_OL : ELEMENT_UL;
     insertNodes(editor, { 
       type: elementType, 
@@ -71,7 +78,7 @@ const PlateToolbar: React.FC = () => {
         <Button
           variant="ghost"
           size="sm"
-          onClick={toggleBold}
+          onMouseDown={handleToggleBold}
           className={`h-8 w-8 p-0 ${isBoldActive ? 'bg-white/20 text-white' : 'text-gray-300 hover:text-white hover:bg-white/10'}`}
           title="Bold (Ctrl+B)"
         >
@@ -81,7 +88,7 @@ const PlateToolbar: React.FC = () => {
         <Button
           variant="ghost"
           size="sm"
-          onClick={toggleItalic}
+          onMouseDown={handleToggleItalic}
           className={`h-8 w-8 p-0 ${isItalicActive ? 'bg-white/20 text-white' : 'text-gray-300 hover:text-white hover:bg-white/10'}`}
           title="Italic (Ctrl+I)"
         >
@@ -91,7 +98,7 @@ const PlateToolbar: React.FC = () => {
         <Button
           variant="ghost"
           size="sm"
-          onClick={toggleUnderline}
+          onMouseDown={handleToggleUnderline}
           className={`h-8 w-8 p-0 ${isUnderlineActive ? 'bg-white/20 text-white' : 'text-gray-300 hover:text-white hover:bg-white/10'}`}
           title="Underline (Ctrl+U)"
         >
@@ -106,7 +113,7 @@ const PlateToolbar: React.FC = () => {
         <Button
           variant="ghost"
           size="sm"
-          onClick={() => insertHeading(1)}
+          onMouseDown={insertHeading(1)}
           className="h-8 w-8 p-0 text-gray-300 hover:text-white hover:bg-white/10"
           title="Heading 1"
         >
@@ -116,7 +123,7 @@ const PlateToolbar: React.FC = () => {
         <Button
           variant="ghost"
           size="sm"
-          onClick={() => insertHeading(2)}
+          onMouseDown={insertHeading(2)}
           className="h-8 w-8 p-0 text-gray-300 hover:text-white hover:bg-white/10"
           title="Heading 2"
         >
@@ -126,7 +133,7 @@ const PlateToolbar: React.FC = () => {
         <Button
           variant="ghost"
           size="sm"
-          onClick={() => insertHeading(3)}
+          onMouseDown={insertHeading(3)}
           className="h-8 w-8 p-0 text-gray-300 hover:text-white hover:bg-white/10"
           title="Heading 3"
         >
@@ -141,7 +148,7 @@ const PlateToolbar: React.FC = () => {
         <Button
           variant="ghost"
           size="sm"
-          onClick={() => insertList(false)}
+          onMouseDown={insertList(false)}
           className="h-8 w-8 p-0 text-gray-300 hover:text-white hover:bg-white/10"
           title="Bullet List"
         >
@@ -151,7 +158,7 @@ const PlateToolbar: React.FC = () => {
         <Button
           variant="ghost"
           size="sm"
-          onClick={() => insertList(true)}
+          onMouseDown={insertList(true)}
           className="h-8 w-8 p-0 text-gray-300 hover:text-white hover:bg-white/10"
           title="Numbered List"
         >
