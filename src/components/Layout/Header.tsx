@@ -13,22 +13,37 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { useTheme } from '@/providers/ThemeProvider';
 import { useAuth } from '../../contexts/AuthContext';
+import { useToast } from '@/hooks/use-toast';
 
 const Header: React.FC = () => {
   const { theme, setTheme } = useTheme();
   const { user } = useAuth();
+  const { toast } = useToast();
 
   const toggleTheme = () => {
+    console.log('Current theme:', theme);
     // Simple toggle between light and dark
     if (theme === 'dark') {
       setTheme('light');
+      console.log('Switching to light mode');
     } else {
       setTheme('dark');
+      console.log('Switching to dark mode');
     }
+  };
+
+  const handleNotificationClick = () => {
+    console.log('Notification button clicked');
+    toast({
+      title: "Notifications",
+      description: "You have 3 new notifications",
+    });
   };
 
   // Determine if dark mode is currently active
   const isDarkMode = theme === 'dark' || (theme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
+
+  console.log('Header render - theme:', theme, 'isDarkMode:', isDarkMode);
 
   return (
     <header className="fixed top-0 right-0 left-0 z-50 bg-background/80 backdrop-blur-lg border-b border-border/50 md:left-[var(--sidebar-width)]">
@@ -48,6 +63,7 @@ const Header: React.FC = () => {
           <Button
             variant="ghost"
             size="icon"
+            onClick={handleNotificationClick}
             className="relative glass shadow-medium hover:bg-white/20 dark:hover:bg-slate-700/30"
           >
             <Bell className="w-5 h-5" />
@@ -61,9 +77,9 @@ const Header: React.FC = () => {
             className="glass shadow-medium hover:bg-white/20 dark:hover:bg-slate-700/30"
           >
             {isDarkMode ? (
-              <Moon className="h-5 w-5" />
-            ) : (
               <Sun className="h-5 w-5" />
+            ) : (
+              <Moon className="h-5 w-5" />
             )}
             <span className="sr-only">Toggle theme</span>
           </Button>

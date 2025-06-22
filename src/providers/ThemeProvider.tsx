@@ -29,12 +29,15 @@ export function ThemeProvider({
 }: ThemeProviderProps) {
   const [theme, setTheme] = useState<Theme>(() => {
     if (typeof window !== 'undefined') {
-      return (localStorage.getItem(storageKey) as Theme) || defaultTheme;
+      const stored = localStorage.getItem(storageKey) as Theme;
+      console.log('ThemeProvider init - stored theme:', stored);
+      return stored || defaultTheme;
     }
     return defaultTheme;
   });
 
   useEffect(() => {
+    console.log('ThemeProvider effect - theme changed to:', theme);
     const root = window.document.documentElement;
 
     root.classList.remove('light', 'dark');
@@ -45,18 +48,21 @@ export function ThemeProvider({
         ? 'dark'
         : 'light';
 
+      console.log('System theme detected as:', systemTheme);
       root.classList.add(systemTheme);
       return;
     }
 
+    console.log('Adding theme class:', theme);
     root.classList.add(theme);
   }, [theme]);
 
   const value = {
     theme,
-    setTheme: (theme: Theme) => {
-      localStorage.setItem(storageKey, theme);
-      setTheme(theme);
+    setTheme: (newTheme: Theme) => {
+      console.log('setTheme called with:', newTheme);
+      localStorage.setItem(storageKey, newTheme);
+      setTheme(newTheme);
     },
   };
 
