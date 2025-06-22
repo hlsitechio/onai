@@ -21,9 +21,7 @@ type CustomText = {
 
 declare module 'slate' {
   interface CustomTypes {
-    Editor: Editor & {
-      [key: string]: unknown;
-    };
+    Editor: Editor;
     Element: CustomElement;
     Text: CustomText;
   }
@@ -57,7 +55,7 @@ const isBlockActive = (editor: Editor, format: CustomElement['type']) => {
   const [match] = Array.from(
     Editor.nodes(editor, {
       at: Editor.unhangRange(editor, selection),
-      match: n => !Editor.isEditor(n) && SlateElement.isElement(n) && n.type === format,
+      match: n => !Editor.isEditor(n) && SlateElement.isElement(n) && (n as CustomElement).type === format,
     })
   );
 
@@ -69,7 +67,7 @@ const toggleBlock = (editor: Editor, format: CustomElement['type']) => {
   const isList = format === 'numbered-list' || format === 'bulleted-list';
 
   Transforms.unwrapNodes(editor, {
-    match: n => !Editor.isEditor(n) && SlateElement.isElement(n) && ['numbered-list', 'bulleted-list'].includes(n.type),
+    match: n => !Editor.isEditor(n) && SlateElement.isElement(n) && ['numbered-list', 'bulleted-list'].includes((n as CustomElement).type),
     split: true,
   });
 
@@ -87,7 +85,9 @@ const toggleBlock = (editor: Editor, format: CustomElement['type']) => {
 
 // Render functions
 const Element = ({ attributes, children, element }: RenderElementProps) => {
-  switch (element.type) {
+  const customElement = element as CustomElement;
+  
+  switch (customElement.type) {
     case 'block-quote':
       return (
         <blockquote {...attributes} className="border-l-4 border-gray-300 pl-4 italic text-gray-600">
@@ -132,11 +132,13 @@ const Element = ({ attributes, children, element }: RenderElementProps) => {
 };
 
 const Leaf = ({ attributes, children, leaf }: RenderLeafProps) => {
-  if (leaf.bold) {
+  const customLeaf = leaf as CustomText;
+  
+  if (customLeaf.bold) {
     children = <strong>{children}</strong>;
   }
 
-  if (leaf.code) {
+  if (customLeaf.code) {
     children = (
       <code className="bg-gray-100 px-1 py-0.5 rounded text-sm font-mono">
         {children}
@@ -144,11 +146,11 @@ const Leaf = ({ attributes, children, leaf }: RenderLeafProps) => {
     );
   }
 
-  if (leaf.italic) {
+  if (customLeaf.italic) {
     children = <em>{children}</em>;
   }
 
-  if (leaf.underline) {
+  if (customLeaf.underline) {
     children = <u>{children}</u>;
   }
 
