@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { motion, AnimatePresence, Variants } from 'framer-motion';
 import { Crown, Focus, Heart, Save, ChevronUp, ChevronDown, PanelLeftClose, PanelLeftOpen } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -98,17 +98,15 @@ const EditorHeader: React.FC<EditorHeaderProps> = ({
   onCollapseAllBars,
 }) => {
   const { state, setOpen } = useSidebar();
-  const [allBarsCollapsed, setAllBarsCollapsed] = useState(false);
 
   const handleCollapseAll = () => {
-    if (allBarsCollapsed) {
+    // Use the actual sidebar state to determine the action
+    if (state === 'collapsed') {
       // Expand all bars
       setOpen(true);
-      setAllBarsCollapsed(false);
     } else {
       // Collapse all bars
       setOpen(false);
-      setAllBarsCollapsed(true);
     }
     // Trigger the AI assistant collapse/expand
     onCollapseAllBars?.();
@@ -145,12 +143,12 @@ const EditorHeader: React.FC<EditorHeaderProps> = ({
               onClick={handleCollapseAll}
               className="text-gray-600 bg-gray-50/20 dark:bg-gray-800/20 dark:text-gray-400 hover:scale-105 transition-all backdrop-blur-sm border-0"
             >
-              {allBarsCollapsed ? (
+              {state === 'collapsed' ? (
                 <PanelLeftOpen className="w-4 h-4 mr-1" />
               ) : (
                 <PanelLeftClose className="w-4 h-4 mr-1" />
               )}
-              {allBarsCollapsed ? 'Expand All' : 'Collapse All'}
+              {state === 'collapsed' ? 'Expand All' : 'Collapse All'}
             </Button>
           </motion.div>
           <motion.div variants={buttonVariants} whileHover="hover" whileTap="tap">
@@ -297,12 +295,12 @@ const EditorHeader: React.FC<EditorHeaderProps> = ({
             onClick={handleCollapseAll}
             className="text-gray-600 bg-gray-50/20 dark:bg-gray-800/20 dark:text-gray-400 hover:scale-105 transition-all backdrop-blur-sm border-0"
           >
-            {allBarsCollapsed ? (
+            {state === 'collapsed' ? (
               <PanelLeftOpen className="w-4 h-4 mr-2" />
             ) : (
               <PanelLeftClose className="w-4 h-4 mr-2" />
             )}
-            {allBarsCollapsed ? 'Expand All Bars' : 'Collapse All Bars'}
+            {state === 'collapsed' ? 'Expand All Bars' : 'Collapse All Bars'}
           </Button>
         </motion.div>
         <motion.div variants={buttonVariants} whileHover="hover" whileTap="tap">
