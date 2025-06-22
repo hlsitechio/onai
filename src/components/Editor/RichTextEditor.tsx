@@ -1,21 +1,12 @@
 
-import React, { useMemo, useState, useCallback } from 'react';
-import { createEditor, Descendant, Editor, Transforms, Range, Element as SlateElement } from 'slate';
-import { Slate, Editable, withReact, ReactEditor } from 'slate-react';
-import { withHistory } from 'slate-history';
+import React, { useState } from 'react';
 import SmartToolbar from './SmartToolbar';
 import EnhancedAIAssistant from './EnhancedAIAssistant';
 import TextSelectionContextMenu from './TextSelectionContextMenu';
-import ElementRenderer from './rendering/ElementRenderer';
-import LeafRenderer from './rendering/LeafRenderer';
-import { CustomText, CustomElement, SlateValue } from './types';
-import { 
-  toggleMark, 
-  toggleBlock, 
-  isMarkActive, 
-  isBlockActive, 
-  parseInitialValue 
-} from './utils/editorUtils';
+import EditorContent from './components/EditorContent';
+import { useRichTextEditor } from './hooks/useRichTextEditor';
+import { useTextSelection } from './hooks/useTextSelection';
+import { useEditorFormatting } from './hooks/useEditorFormatting';
 
 interface RichTextEditorProps {
   value: string;
@@ -34,138 +25,32 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
   canSave = true,
   isSaving = false
 }) => {
-  const editor = useMemo(() => withHistory(withReact(createEditor())), []);
   const [showAIAssistant, setShowAIAssistant] = useState(false);
-  const [selectedText, setSelectedText] = useState('');
-  const [assistantPosition, setAssistantPosition] = useState<{ x: number; y: number } | undefined>();
-  const [contextMenuPosition, setContextMenuPosition] = useState<{ x: number; y: number } | null>(null);
 
-  // Parse the value from string to Slate value
-  const initialValue: Descendant[] = useMemo(() => parseInitialValue(value), [value]);
-  const [slateValue, setSlateValue] = useState<SlateValue>(initialValue);
+  // Custom hooks for editor functionality
+  const {
+    editor,
+    slateValue,
+    handleChange,
+    handleTextInsert,
+    handleAIInsert,
+    handleAIReplace,
+  } = useRichTextEditor({ value, onChange });
 
-  const handleChange = useCallback((newValue: Descendant[]) => {
-    setSlateValue(newValue);
-    // Convert Slate value to string for storage
-    onChange(JSON.stringify(newValue));
-  }, [onChange]);
+  const {
+    selectedText,
+    assistantPosition,
+    contextMenuPosition,
+    handleTextSelection,
+    handleContextMenuReplace,
+    closeContextMenu,
+  } = useTextSelection(editor);
 
-  const renderElement = useCallback((props: any) => <ElementRenderer {...props} />, []);
-  const renderLeaf = useCallback((props: any) => <LeafRenderer {...props} />, []);
-
-  const handleTextSelection = useCallback(() => {
-    const { selection } = editor;
-    if (selection && !Range.isCollapsed(selection)) {
-      const selectedText = Editor.string(editor, selection);
-      setSelectedText(selectedText);
-      
-      const domSelection = window.getSelection();
-      if (domSelection && domSelection.rangeCount > 0) {
-        const range = domSelection.getRangeAt(0);
-        const rect = range.getBoundingClientRect();
-        
-        // Set position for context menu
-        setContextMenuPosition({
-          x: rect.left + rect.width / 2,
-          y: rect.top
-        });
-        
-        // Set position for AI assistant
-        setAssistantPosition({
-          x: rect.left + rect.width / 2,
-          y: rect.top - 10
-        });
-      }
-    } else {
-      setSelectedText('');
-      setContextMenuPosition(null);
-    }
-  }, [editor]);
-
-  const handleAIInsert = useCallback((text: string) => {
-    const { selection } = editor;
-    if (selection) {
-      Transforms.insertText(editor, `\n\n${text}`, { at: selection });
-    }
-  }, [editor]);
-
-  const handleAIReplace = useCallback((text: string) => {
-    const { selection } = editor;
-    if (selection && !Range.isCollapsed(selection)) {
-      Transforms.delete(editor, { at: selection });
-      Transforms.insertText(editor, text, { at: selection });
-    }
-  }, [editor]);
-
-  const handleContextMenuReplace = useCallback((text: string) => {
-    const { selection } = editor;
-    if (selection && !Range.isCollapsed(selection)) {
-      Transforms.delete(editor, { at: selection });
-      Transforms.insertText(editor, text, { at: selection });
-      setContextMenuPosition(null);
-      setSelectedText('');
-    }
-  }, [editor]);
-
-  const handleTextInsert = useCallback((text: string) => {
-    const { selection } = editor;
-    if (selection) {
-      // Insert text at current cursor position
-      Transforms.insertText(editor, text, { at: selection });
-    } else {
-      // If no selection, insert at the end
-      const endPoint = Editor.end(editor, []);
-      Transforms.select(editor, endPoint);
-      Transforms.insertText(editor, text);
-    }
-    
-    // Focus the editor after insertion
-    ReactEditor.focus(editor);
-  }, [editor]);
-
-  const handleFormatClick = useCallback((formatId: string, event: React.MouseEvent) => {
-    event.preventDefault();
-    
-    const textFormats = ['bold', 'italic', 'underline', 'code'];
-    const blockFormats = ['heading-one', 'heading-two', 'block-quote', 'numbered-list', 'bulleted-list'];
-    
-    if (textFormats.includes(formatId)) {
-      toggleMark(editor, formatId as keyof CustomText);
-    } else if (blockFormats.includes(formatId)) {
-      toggleBlock(editor, formatId as CustomElement['type']);
-    }
-  }, [editor]);
-
-  const getActiveFormats = useCallback(() => {
-    const formats = new Set<string>();
-    
-    // Check text formatting
-    const marks = Editor.marks(editor);
-    if (marks) {
-      Object.keys(marks).forEach(mark => {
-        if (marks[mark]) formats.add(mark);
-      });
-    }
-    
-    // Check block formatting
-    const { selection } = editor;
-    if (selection) {
-      const [match] = Array.from(
-        Editor.nodes(editor, {
-          at: Editor.unhangRange(editor, selection),
-          match: n => !Editor.isEditor(n) && SlateElement.isElement(n),
-        })
-      );
-      
-      if (match) {
-        const [node] = match;
-        const element = node as CustomElement;
-        formats.add(element.type);
-      }
-    }
-    
-    return formats;
-  }, [editor]);
+  const {
+    handleFormatClick,
+    getActiveFormats,
+    handleKeyboardShortcuts,
+  } = useEditorFormatting(editor);
 
   return (
     <>
@@ -181,49 +66,15 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
           isSaving={isSaving}
         />
 
-        <div className="editor-content p-8 min-h-[500px] max-h-[700px] overflow-y-auto bg-white/5 backdrop-blur-sm dark:bg-slate-900/20">
-          <Slate editor={editor} initialValue={slateValue} onValueChange={handleChange}>
-            <Editable
-              renderElement={renderElement}
-              renderLeaf={renderLeaf}
-              placeholder={placeholder}
-              className="focus:outline-none prose prose-lg max-w-none text-gray-800 leading-relaxed dark:text-slate-200 dark:placeholder-slate-500"
-              spellCheck
-              onSelect={handleTextSelection}
-              onKeyDown={(event) => {
-                if (!event.ctrlKey) return;
-
-                switch (event.key) {
-                  case 'b': {
-                    event.preventDefault();
-                    toggleMark(editor, 'bold');
-                    break;
-                  }
-                  case 'i': {
-                    event.preventDefault();
-                    toggleMark(editor, 'italic');
-                    break;
-                  }
-                  case 'u': {
-                    event.preventDefault();
-                    toggleMark(editor, 'underline');
-                    break;
-                  }
-                  case '`': {
-                    event.preventDefault();
-                    toggleMark(editor, 'code');
-                    break;
-                  }
-                }
-                
-                if (event.ctrlKey && event.key === '/') {
-                  event.preventDefault();
-                  setShowAIAssistant(true);
-                }
-              }}
-            />
-          </Slate>
-        </div>
+        <EditorContent
+          editor={editor}
+          slateValue={slateValue}
+          onChange={handleChange}
+          placeholder={placeholder}
+          onSelect={handleTextSelection}
+          onKeyDown={handleKeyboardShortcuts}
+          onAIToggle={() => setShowAIAssistant(true)}
+        />
       </div>
 
       {/* Context Menu for Text Selection */}
@@ -232,10 +83,7 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
         onTextReplace={handleContextMenuReplace}
         onTextInsert={handleAIInsert}
         position={contextMenuPosition}
-        onClose={() => {
-          setContextMenuPosition(null);
-          setSelectedText('');
-        }}
+        onClose={closeContextMenu}
       />
 
       <EnhancedAIAssistant
