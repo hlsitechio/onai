@@ -32,8 +32,8 @@ const NotesEditorContainer: React.FC = () => {
       id: note.id,
       title: note.title || 'Untitled Note',
       content: note.content,
-      createdAt: note.createdAt,
-      updatedAt: note.updatedAt,
+      createdAt: new Date(note.created_at),
+      updatedAt: new Date(note.updated_at),
     };
   });
 
@@ -72,9 +72,14 @@ const NotesEditorContainer: React.FC = () => {
   };
 
   const handleRenameNote = async (noteId: string, newTitle: string) => {
-    // This would need to be implemented in the notes manager
-    // For now, just return true to indicate success
-    return true;
+    // Find the note to update
+    const noteToUpdate = notes.find(n => n.id === noteId);
+    if (noteToUpdate) {
+      // Update the note with the new title
+      const success = await saveNote(noteId, { title: newTitle });
+      return success;
+    }
+    return false;
   };
 
   const handleContentChange = (newContent: string) => {
@@ -85,7 +90,7 @@ const NotesEditorContainer: React.FC = () => {
       setCurrentNote(updatedNote);
       // Trigger save
       setTimeout(() => {
-        saveNote(updatedNote);
+        saveNote(currentNote.id, { content: newContent });
       }, 1000);
     }
   };
@@ -95,7 +100,7 @@ const NotesEditorContainer: React.FC = () => {
     if (currentNote) {
       const updatedNote = { ...currentNote, content: aiContent };
       setCurrentNote(updatedNote);
-      saveNote(updatedNote);
+      saveNote(currentNote.id, { content: aiContent });
     }
   };
 
