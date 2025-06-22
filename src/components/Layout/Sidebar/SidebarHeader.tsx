@@ -49,8 +49,9 @@ export function SidebarHeader() {
   const isCollapsed = state === 'collapsed';
 
   return (
-    <div className="flex items-center justify-between">
-      <div className="flex items-center gap-3 group-data-[collapsible=icon]:justify-center">
+    <div className={`flex items-center ${isCollapsed ? 'justify-center' : 'justify-between'}`}>
+      {/* Logo and Title Section */}
+      <div className={`flex items-center gap-3 ${isCollapsed ? 'justify-center' : ''}`}>
         <motion.div 
           variants={iconVariants}
           animate={isCollapsed ? 'collapsed' : 'expanded'}
@@ -65,16 +66,19 @@ export function SidebarHeader() {
               initial="collapsed"
               animate="expanded"
               exit="collapsed"
-              className="text-xl font-bold text-foreground group-data-[collapsible=icon]:hidden"
+              className="text-xl font-bold text-foreground"
             >
               Online Note AI
             </motion.span>
           )}
         </AnimatePresence>
       </div>
+
+      {/* Toggle Button - Always Visible */}
       <motion.div
         whileHover={{ scale: 1.05 }}
         whileTap={{ scale: 0.95 }}
+        className={isCollapsed ? 'absolute top-4 right-2' : ''}
       >
         <Button
           variant="ghost"
