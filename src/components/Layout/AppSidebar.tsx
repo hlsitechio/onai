@@ -82,9 +82,9 @@ export function AppSidebar() {
                     onClick={() => navigate(item.path)}
                     isActive={location.pathname === item.path}
                     tooltip={item.label}
-                    className={`h-12 rounded-xl transition-all duration-200 relative isolate ${
+                    className={`h-12 rounded-xl transition-all duration-200 relative isolate border-0 ${
                       location.pathname === item.path 
-                        ? 'bg-primary/10 text-primary border border-primary/20' 
+                        ? 'bg-primary/10 text-primary' 
                         : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground hover:translate-x-1'
                     }`}
                   >
