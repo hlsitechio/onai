@@ -11,6 +11,7 @@ import Login from './Auth/Login';
 import Register from './Auth/Register';
 import { AuthProvider, useAuth } from '../contexts/AuthContext';
 import { NotesProvider } from '../contexts/NotesContext';
+import { ThemeProvider } from '../providers/ThemeProvider';
 
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const { isAuthenticated } = useAuth();
@@ -49,11 +50,13 @@ const AppRoutes = () => {
 
 const Index = () => {
   return (
-    <AuthProvider>
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-purple-50">
-        <AppRoutes />
-      </div>
-    </AuthProvider>
+    <ThemeProvider defaultTheme="system" storageKey="online-note-ai-theme">
+      <AuthProvider>
+        <div className="min-h-screen bg-gradient-to-br from-background via-muted/20 to-accent/20">
+          <AppRoutes />
+        </div>
+      </AuthProvider>
+    </ThemeProvider>
   );
 };
 

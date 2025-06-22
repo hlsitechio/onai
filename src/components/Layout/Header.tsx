@@ -10,31 +10,34 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import { ThemeToggle } from '@/components/ui/theme-toggle';
 import { useAuth } from '../../contexts/AuthContext';
 
 const Header: React.FC = () => {
   const { user } = useAuth();
 
   return (
-    <div className="fixed top-0 right-0 left-0 md:left-[280px] h-16 bg-white border-b border-gray-200 z-[999] px-6">
+    <div className="fixed top-0 right-0 left-0 md:left-[280px] h-16 bg-background/80 backdrop-blur-md border-b border-border z-[999] px-6">
       <div className="flex items-center justify-between h-full">
         {/* Search */}
         <div className="w-96">
           <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
             <Input
               placeholder="Search notes, chats, or create new..."
-              className="pl-10 rounded-xl bg-gray-50 border-none focus:bg-white focus:ring-2 focus:ring-blue-100 focus:border-blue-200"
+              className="pl-10 rounded-xl bg-muted/50 border-none focus:bg-background focus:ring-2 focus:ring-ring/20 focus:border-border"
             />
           </div>
         </div>
 
-        {/* User Menu */}
-        <div className="flex items-center gap-4">
+        {/* Actions */}
+        <div className="flex items-center gap-3">
           <Button className="rounded-xl">
             <Book className="w-4 h-4 mr-2" />
             New Note
           </Button>
+
+          <ThemeToggle />
 
           <DropdownMenu>
             <DropdownMenuTrigger asChild>

@@ -28,15 +28,15 @@ const Sidebar: React.FC = () => {
   const { user, logout } = useAuth();
 
   return (
-    <div className="fixed left-0 top-0 h-screen w-[280px] bg-white border-r border-gray-200 shadow-lg z-[1000] hidden md:block">
+    <div className="fixed left-0 top-0 h-screen w-[280px] bg-background/95 backdrop-blur-md border-r border-border shadow-lg z-[1000] hidden md:block">
       <div className="flex flex-col h-full">
         {/* Logo */}
-        <div className="p-6 border-b border-gray-200">
+        <div className="p-6 border-b border-border">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-500 rounded-xl flex items-center justify-center">
               <Github className="text-white w-5 h-5" />
             </div>
-            <span className="text-xl font-bold text-gray-800">
+            <span className="text-xl font-bold text-foreground">
               Online Note AI
             </span>
           </div>
@@ -50,8 +50,8 @@ const Sidebar: React.FC = () => {
               variant={location.pathname === item.path ? "secondary" : "ghost"}
               className={`w-full justify-start h-12 rounded-xl transition-all duration-200 ${
                 location.pathname === item.path 
-                  ? 'bg-blue-50 text-blue-600' 
-                  : 'text-gray-600 hover:bg-blue-50 hover:text-blue-600 hover:translate-x-1'
+                  ? 'bg-primary/10 text-primary border border-primary/20' 
+                  : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground hover:translate-x-1'
               }`}
               onClick={() => navigate(item.path)}
             >
@@ -71,10 +71,10 @@ const Sidebar: React.FC = () => {
               <AvatarFallback>{user?.name?.[0]}</AvatarFallback>
             </Avatar>
             <div className="flex-1">
-              <p className="font-semibold text-sm text-gray-800">
+              <p className="font-semibold text-sm text-foreground">
                 {user?.name}
               </p>
-              <p className="text-xs text-gray-500">
+              <p className="text-xs text-muted-foreground">
                 {user?.email}
               </p>
             </div>
@@ -82,7 +82,7 @@ const Sidebar: React.FC = () => {
           <Button
             variant="ghost"
             size="sm"
-            className="w-full hover:bg-red-50 hover:text-red-600"
+            className="w-full hover:bg-destructive/10 hover:text-destructive"
             onClick={logout}
           >
             Sign Out
