@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Rnd } from 'react-rnd';
 import { Note } from "@/hooks/useNotesManager";
 import { SidebarNote } from "./NotesEditorContainer";
@@ -35,6 +35,18 @@ const NotesEditorFlexibleLayout: React.FC<NotesEditorFlexibleLayoutProps> = ({
   const [aiPanelOpen, setAiPanelOpen] = useState(false);
   const [sidebarWidth, setSidebarWidth] = useState(320);
   const [aiPanelWidth, setAiPanelWidth] = useState(320);
+  
+  // Client-only window width for SSR safety
+  const [windowWidth, setWindowWidth] = useState(0);
+  
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      setWindowWidth(window.innerWidth);
+      const handleResize = () => setWindowWidth(window.innerWidth);
+      window.addEventListener("resize", handleResize);
+      return () => window.removeEventListener("resize", handleResize);
+    }
+  }, []);
 
   const currentContent = currentNote?.content || '';
 
@@ -73,9 +85,10 @@ const NotesEditorFlexibleLayout: React.FC<NotesEditorFlexibleLayoutProps> = ({
               right: '-2px',
               background: 'transparent',
               cursor: 'col-resize',
+              transition: 'background 0.3s ease',
             }
           }}
-          className="z-20"
+          className="z-20 transition-all duration-300"
         >
           <div className="h-full bg-slate-900/90 backdrop-blur-xl border-r border-slate-700/50">
             <NotesSidebar
@@ -93,7 +106,7 @@ const NotesEditorFlexibleLayout: React.FC<NotesEditorFlexibleLayoutProps> = ({
 
       {/* Main Editor Area */}
       <div 
-        className="flex flex-col bg-slate-900/50 backdrop-blur-xl z-10 flex-1"
+        className="flex flex-col bg-slate-900/50 backdrop-blur-xl z-10 flex-1 transition-all duration-300"
         style={{
           marginLeft: sidebarOpen ? `${sidebarWidth}px` : '0px',
           marginRight: aiPanelOpen ? `${aiPanelWidth}px` : '0px',
@@ -126,8 +139,8 @@ const NotesEditorFlexibleLayout: React.FC<NotesEditorFlexibleLayoutProps> = ({
       {aiPanelOpen && (
         <Rnd
           size={{ width: aiPanelWidth, height: '100%' }}
-          position={{ x: window.innerWidth - aiPanelWidth, y: 0 }}
-          onResizeStop={(e, direction, ref, delta, position) => {
+          position={{ x: 0, y: 0 }}
+          onResizeStop={(e, direction, ref) => {
             setAiPanelWidth(ref.offsetWidth);
           }}
           minWidth={250}
@@ -149,13 +162,14 @@ const NotesEditorFlexibleLayout: React.FC<NotesEditorFlexibleLayoutProps> = ({
               left: '-2px',
               background: 'transparent',
               cursor: 'col-resize',
+              transition: 'background 0.3s ease',
             }
           }}
-          className="z-20"
+          className="z-30 transition-all duration-300"
           style={{
             position: 'fixed',
-            right: 0,
             top: 0,
+            right: 0,
           }}
         >
           <div className="h-full bg-slate-900/90 backdrop-blur-xl border-l border-slate-700/50">
