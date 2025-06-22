@@ -124,52 +124,39 @@ const NotesEditorFlexibleLayout: React.FC<NotesEditorFlexibleLayoutProps> = ({
 
       {/* AI Panel - Resizable */}
       {aiPanelOpen && (
-        <Rnd
-          size={{ width: aiPanelWidth, height: '100%' }}
-          position={{ x: window.innerWidth - aiPanelWidth, y: 0 }}
-          onResizeStop={(e, direction, ref, delta, position) => {
-            setAiPanelWidth(ref.offsetWidth);
-          }}
-          onDragStop={(e, d) => {
-            // Keep it anchored to the right side
-            setAiPanelWidth(window.innerWidth - d.x);
-          }}
-          minWidth={250}
-          maxWidth={800}
-          disableDragging={true}
-          enableResizing={{
-            top: false,
-            right: false,
-            bottom: false,
-            left: true,
-            topRight: false,
-            bottomRight: false,
-            bottomLeft: false,
-            topLeft: false,
-          }}
-          resizeHandleStyles={{
-            left: {
-              width: '4px',
-              left: '-2px',
-              background: 'transparent',
-              cursor: 'col-resize',
-            }
-          }}
-          className="z-20"
-          style={{
-            position: 'fixed',
-            right: 0,
-            top: 0,
-          }}
+        <div
+          className="fixed right-0 top-0 h-full z-20 bg-slate-900/90 backdrop-blur-xl border-l border-slate-700/50"
+          style={{ width: `${aiPanelWidth}px` }}
         >
-          <div className="h-full bg-slate-900/90 backdrop-blur-xl border-l border-slate-700/50">
-            <EnhancedAISidebar
-              onClose={() => setAiPanelOpen(false)}
-              content={currentContent}
-              onApplyChanges={onApplyAIContent}
-            />
-          </div>
-        </Rnd>
+          {/* Resize Handle */}
+          <div
+            className="absolute left-0 top-0 w-1 h-full cursor-col-resize bg-transparent hover:bg-purple-500/20 transition-colors"
+            onMouseDown={(e) => {
+              const startX = e.clientX;
+              const startWidth = aiPanelWidth;
+              
+              const handleMouseMove = (e: MouseEvent) => {
+                const newWidth = startWidth - (e.clientX - startX);
+                const clampedWidth = Math.max(250, Math.min(800, newWidth));
+                setAiPanelWidth(clampedWidth);
+              };
+              
+              const handleMouseUp = () => {
+                document.removeEventListener('mousemove', handleMouseMove);
+                document.removeEventListener('mouseup', handleMouseUp);
+              };
+              
+              document.addEventListener('mousemove', handleMouseMove);
+              document.addEventListener('mouseup', handleMouseUp);
+            }}
+          />
+          
+          <EnhancedAISidebar
+            onClose={() => setAiPanelOpen(false)}
+            content={currentContent}
+            onApplyChanges={onApplyAIContent}
+          />
+        </div>
       )}
     </div>
   );
