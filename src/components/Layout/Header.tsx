@@ -19,14 +19,16 @@ const Header: React.FC = () => {
   const { user } = useAuth();
 
   const toggleTheme = () => {
+    // Simple toggle between light and dark
     if (theme === 'dark') {
       setTheme('light');
-    } else if (theme === 'light') {
-      setTheme('system');
     } else {
       setTheme('dark');
     }
   };
+
+  // Determine if dark mode is currently active
+  const isDarkMode = theme === 'dark' || (theme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
 
   return (
     <header className="fixed top-0 right-0 left-0 z-50 bg-background/80 backdrop-blur-lg border-b border-border/50 md:left-[var(--sidebar-width)]">
@@ -58,8 +60,11 @@ const Header: React.FC = () => {
             onClick={toggleTheme}
             className="glass shadow-medium hover:bg-white/20 dark:hover:bg-slate-700/30"
           >
-            <Sun className="h-5 w-5 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
-            <Moon className="absolute h-5 w-5 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
+            {isDarkMode ? (
+              <Moon className="h-5 w-5" />
+            ) : (
+              <Sun className="h-5 w-5" />
+            )}
             <span className="sr-only">Toggle theme</span>
           </Button>
 
