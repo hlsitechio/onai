@@ -12,6 +12,7 @@ import {
   Trash2,
   Palette
 } from 'lucide-react';
+import { DragDropContext, Droppable, Draggable, DropResult } from 'react-beautiful-dnd';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import {
@@ -78,82 +79,95 @@ const TreeNode: React.FC<TreeNodeProps> = ({
 
   return (
     <div>
-      {/* Folder Node */}
-      <div
-        className="flex items-center gap-1 py-1 hover:bg-accent/50 rounded-sm group"
-        style={{ paddingLeft: `${paddingLeft}px` }}
-      >
-        {/* Tree Lines */}
-        {level > 0 && (
-          <div className="absolute left-2 h-full border-l border-border/30" 
-               style={{ left: `${(level - 1) * 20 + 8}px` }} />
-        )}
-        
-        <Button
-          variant="ghost"
-          size="sm"
-          className="p-0 h-4 w-4"
-          onClick={() => onToggleFolder(folder.id)}
-        >
-          {childFolders.length > 0 || folderNotes.length > 0 ? (
-            isExpanded ? <ChevronDown className="h-3 w-3" /> : <ChevronRight className="h-3 w-3" />
-          ) : (
-            <div className="h-3 w-3" />
-          )}
-        </Button>
-        
-        <div 
-          className="w-2 h-2 rounded-full mr-1" 
-          style={{ backgroundColor: folder.color }}
-        />
-        
-        {isExpanded ? (
-          <FolderOpen className="h-4 w-4 text-muted-foreground" />
-        ) : (
-          <Folder className="h-4 w-4 text-muted-foreground" />
-        )}
-        
-        <span className="text-sm truncate flex-1">{folder.name}</span>
-        
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button
-              variant="ghost"
-              size="sm"
-              className="p-0 h-4 w-4 opacity-0 group-hover:opacity-100"
+      {/* Folder Node - Droppable */}
+      <Droppable droppableId={`folder-${folder.id}`} type="NOTE">
+        {(provided, snapshot) => (
+          <div
+            ref={provided.innerRef}
+            {...provided.droppableProps}
+            className={`${
+              snapshot.isDraggingOver ? 'bg-blue-50 dark:bg-blue-900/20' : ''
+            } transition-colors rounded-sm`}
+          >
+            <div
+              className="flex items-center gap-1 py-1 hover:bg-accent/50 rounded-sm group"
+              style={{ paddingLeft: `${paddingLeft}px` }}
             >
-              <MoreHorizontal className="h-3 w-3" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuItem onClick={() => onEditFolder(folder)}>
-              <Edit3 className="h-4 w-4 mr-2" />
-              Rename
-            </DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <div className="p-2">
-              <div className="grid grid-cols-6 gap-1">
-                {colors.map((color) => (
-                  <button
-                    key={color}
-                    className="w-4 h-4 rounded-full border border-border hover:scale-110 transition-transform"
-                    style={{ backgroundColor: color }}
-                    onClick={() => onChangeColor(folder.id, color, 'folder')}
-                  />
-                ))}
-              </div>
+              {/* Tree Lines */}
+              {level > 0 && (
+                <div className="absolute left-2 h-full border-l border-border/30" 
+                     style={{ left: `${(level - 1) * 20 + 8}px` }} />
+              )}
+              
+              <Button
+                variant="ghost"
+                size="sm"
+                className="p-0 h-4 w-4"
+                onClick={() => onToggleFolder(folder.id)}
+              >
+                {childFolders.length > 0 || folderNotes.length > 0 ? (
+                  isExpanded ? <ChevronDown className="h-3 w-3" /> : <ChevronRight className="h-3 w-3" />
+                ) : (
+                  <div className="h-3 w-3" />
+                )}
+              </Button>
+              
+              <div 
+                className="w-2 h-2 rounded-full mr-1" 
+                style={{ backgroundColor: folder.color }}
+              />
+              
+              {isExpanded ? (
+                <FolderOpen className="h-4 w-4 text-muted-foreground" />
+              ) : (
+                <Folder className="h-4 w-4 text-muted-foreground" />
+              )}
+              
+              <span className="text-sm truncate flex-1">{folder.name}</span>
+              
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="p-0 h-4 w-4 opacity-0 group-hover:opacity-100"
+                  >
+                    <MoreHorizontal className="h-3 w-3" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem onClick={() => onEditFolder(folder)}>
+                    <Edit3 className="h-4 w-4 mr-2" />
+                    Rename
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <div className="p-2">
+                    <div className="grid grid-cols-6 gap-1">
+                      {colors.map((color) => (
+                        <button
+                          key={color}
+                          className="w-4 h-4 rounded-full border border-border hover:scale-110 transition-transform"
+                          style={{ backgroundColor: color }}
+                          onClick={() => onChangeColor(folder.id, color, 'folder')}
+                        />
+                      ))}
+                    </div>
+                  </div>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem 
+                    onClick={() => onDeleteFolder(folder.id)}
+                    className="text-destructive"
+                  >
+                    <Trash2 className="h-4 w-4 mr-2" />
+                    Delete
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             </div>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem 
-              onClick={() => onDeleteFolder(folder.id)}
-              className="text-destructive"
-            >
-              <Trash2 className="h-4 w-4 mr-2" />
-              Delete
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      </div>
+            {provided.placeholder}
+          </div>
+        )}
+      </Droppable>
 
       {/* Child Items */}
       {isExpanded && (
@@ -176,72 +190,83 @@ const TreeNode: React.FC<TreeNodeProps> = ({
             />
           ))}
           
-          {/* Notes in this folder */}
-          {folderNotes.map((note) => (
-            <div
-              key={note.id}
-              className="flex items-center gap-1 py-1 hover:bg-accent/50 rounded-sm group cursor-pointer"
-              style={{ paddingLeft: `${(level + 1) * 20}px` }}
-              onClick={() => onEditNote(note)}
-            >
-              {/* Tree Line */}
-              <div className="absolute left-2 h-full border-l border-border/30" 
-                   style={{ left: `${level * 20 + 8}px` }} />
-              
-              <div className="h-4 w-4" />
-              
-              <div 
-                className="w-2 h-2 rounded-full mr-1" 
-                style={{ backgroundColor: note.color }}
-              />
-              
-              <FileText className="h-4 w-4 text-muted-foreground" />
-              
-              <span className="text-sm truncate flex-1">{note.title}</span>
-              
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="p-0 h-4 w-4 opacity-0 group-hover:opacity-100"
-                    onClick={(e) => e.stopPropagation()}
-                  >
-                    <MoreHorizontal className="h-3 w-3" />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                  <DropdownMenuItem onClick={() => onEditNote(note)}>
-                    <Edit3 className="h-4 w-4 mr-2" />
-                    Edit
-                  </DropdownMenuItem>
-                  <DropdownMenuSeparator />
-                  <div className="p-2">
-                    <div className="grid grid-cols-6 gap-1">
-                      {colors.map((color) => (
-                        <button
-                          key={color}
-                          className="w-4 h-4 rounded-full border border-border hover:scale-110 transition-transform"
-                          style={{ backgroundColor: color }}
-                          onClick={() => onChangeColor(note.id, color, 'note')}
-                        />
-                      ))}
-                    </div>
-                  </div>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem 
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      onDeleteNote(note.id);
-                    }}
-                    className="text-destructive"
-                  >
-                    <Trash2 className="h-4 w-4 mr-2" />
-                    Delete
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </div>
+          {/* Notes in this folder - Draggable */}
+          {folderNotes.map((note, index) => (
+            <Draggable key={note.id} draggableId={note.id} index={index}>
+              {(provided, snapshot) => (
+                <div
+                  ref={provided.innerRef}
+                  {...provided.draggableProps}
+                  {...provided.dragHandleProps}
+                  className={`flex items-center gap-1 py-1 hover:bg-accent/50 rounded-sm group cursor-pointer ${
+                    snapshot.isDragging ? 'bg-blue-100 shadow-lg dark:bg-blue-900/30' : ''
+                  } transition-all`}
+                  style={{
+                    paddingLeft: `${(level + 1) * 20}px`,
+                    ...provided.draggableProps.style,
+                  }}
+                  onClick={() => !snapshot.isDragging && onEditNote(note)}
+                >
+                  {/* Tree Line */}
+                  <div className="absolute left-2 h-full border-l border-border/30" 
+                       style={{ left: `${level * 20 + 8}px` }} />
+                  
+                  <div className="h-4 w-4" />
+                  
+                  <div 
+                    className="w-2 h-2 rounded-full mr-1" 
+                    style={{ backgroundColor: note.color }}
+                  />
+                  
+                  <FileText className="h-4 w-4 text-muted-foreground" />
+                  
+                  <span className="text-sm truncate flex-1">{note.title}</span>
+                  
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="p-0 h-4 w-4 opacity-0 group-hover:opacity-100"
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        <MoreHorizontal className="h-3 w-3" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      <DropdownMenuItem onClick={() => onEditNote(note)}>
+                        <Edit3 className="h-4 w-4 mr-2" />
+                        Edit
+                      </DropdownMenuItem>
+                      <DropdownMenuSeparator />
+                      <div className="p-2">
+                        <div className="grid grid-cols-6 gap-1">
+                          {colors.map((color) => (
+                            <button
+                              key={color}
+                              className="w-4 h-4 rounded-full border border-border hover:scale-110 transition-transform"
+                              style={{ backgroundColor: color }}
+                              onClick={() => onChangeColor(note.id, color, 'note')}
+                            />
+                          ))}
+                        </div>
+                      </div>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem 
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onDeleteNote(note.id);
+                        }}
+                        className="text-destructive"
+                      >
+                        <Trash2 className="h-4 w-4 mr-2" />
+                        Delete
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </div>
+              )}
+            </Draggable>
           ))}
         </div>
       )}
@@ -326,145 +351,193 @@ const NotesTree: React.FC = () => {
     }
   };
 
+  const handleDragEnd = async (result: DropResult) => {
+    const { destination, source, draggableId } = result;
+
+    if (!destination) return;
+
+    // If dropped in the same place, do nothing
+    if (
+      destination.droppableId === source.droppableId &&
+      destination.index === source.index
+    ) {
+      return;
+    }
+
+    // Extract folder ID from droppableId
+    const targetFolderId = destination.droppableId.replace('folder-', '');
+    
+    // Update note's folder
+    if (targetFolderId === 'unorganized') {
+      await updateNote(draggableId, { folderId: undefined });
+    } else {
+      await updateNote(draggableId, { folderId: targetFolderId });
+    }
+  };
+
   return (
-    <div className="p-2 space-y-1">
-      <div className="flex items-center justify-between mb-2">
-        <span className="text-sm font-medium text-muted-foreground">Notes</span>
-        <Dialog open={showNewFolderDialog} onOpenChange={setShowNewFolderDialog}>
-          <DialogTrigger asChild>
-            <Button variant="ghost" size="sm" className="p-0 h-4 w-4">
-              <Plus className="h-3 w-3" />
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="sm:max-w-md">
-            <DialogHeader>
-              <DialogTitle>Create New Folder</DialogTitle>
-            </DialogHeader>
-            <div className="flex items-center space-x-2">
-              <Input
-                placeholder="Folder name"
-                value={newFolderName}
-                onChange={(e) => setNewFolderName(e.target.value)}
-                onKeyPress={(e) => {
-                  if (e.key === 'Enter') {
-                    handleCreateFolder();
-                  }
-                }}
-              />
-              <Button onClick={handleCreateFolder}>Create</Button>
-            </div>
-          </DialogContent>
-        </Dialog>
-      </div>
-
-      <div className="space-y-1 relative">
-        {/* Root Folders */}
-        {rootFolders.map((folder) => (
-          <TreeNode
-            key={folder.id}
-            folder={folder}
-            notes={notes}
-            folders={folders}
-            level={0}
-            expandedFolders={expandedFolders}
-            onToggleFolder={handleToggleFolder}
-            onEditFolder={handleEditFolder}
-            onDeleteFolder={handleDeleteFolder}
-            onEditNote={handleEditNote}
-            onDeleteNote={handleDeleteNote}
-            onChangeColor={handleChangeColor}
-          />
-        ))}
-
-        {/* Unorganized Notes */}
-        {unorganizedNotes.length > 0 && (
-          <div className="mt-4">
-            <div className="text-xs text-muted-foreground mb-2 px-2">Unorganized</div>
-            {unorganizedNotes.map((note) => (
-              <div
-                key={note.id}
-                className="flex items-center gap-1 py-1 hover:bg-accent/50 rounded-sm group cursor-pointer px-2"
-                onClick={() => handleEditNote(note)}
-              >
-                <div 
-                  className="w-2 h-2 rounded-full mr-1" 
-                  style={{ backgroundColor: note.color }}
+    <DragDropContext onDragEnd={handleDragEnd}>
+      <div className="p-2 space-y-1">
+        <div className="flex items-center justify-between mb-2">
+          <span className="text-sm font-medium text-muted-foreground">Notes</span>
+          <Dialog open={showNewFolderDialog} onOpenChange={setShowNewFolderDialog}>
+            <DialogTrigger asChild>
+              <Button variant="ghost" size="sm" className="p-0 h-4 w-4">
+                <Plus className="h-3 w-3" />
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="sm:max-w-md">
+              <DialogHeader>
+                <DialogTitle>Create New Folder</DialogTitle>
+              </DialogHeader>
+              <div className="flex items-center space-x-2">
+                <Input
+                  placeholder="Folder name"
+                  value={newFolderName}
+                  onChange={(e) => setNewFolderName(e.target.value)}
+                  onKeyPress={(e) => {
+                    if (e.key === 'Enter') {
+                      handleCreateFolder();
+                    }
+                  }}
                 />
-                <FileText className="h-4 w-4 text-muted-foreground" />
-                <span className="text-sm truncate flex-1">{note.title}</span>
-                
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="p-0 h-4 w-4 opacity-0 group-hover:opacity-100"
-                      onClick={(e) => e.stopPropagation()}
-                    >
-                      <MoreHorizontal className="h-3 w-3" />
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end">
-                    <DropdownMenuItem onClick={() => handleEditNote(note)}>
-                      <Edit3 className="h-4 w-4 mr-2" />
-                      Edit
-                    </DropdownMenuItem>
-                    <DropdownMenuSeparator />
-                    <div className="p-2">
-                      <div className="grid grid-cols-6 gap-1">
-                        {colors.map((color) => (
-                          <button
-                            key={color}
-                            className="w-4 h-4 rounded-full border border-border hover:scale-110 transition-transform"
-                            style={{ backgroundColor: color }}
-                            onClick={() => handleChangeColor(note.id, color, 'note')}
-                          />
-                        ))}
-                      </div>
-                    </div>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem 
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleDeleteNote(note.id);
-                      }}
-                      className="text-destructive"
-                    >
-                      <Trash2 className="h-4 w-4 mr-2" />
-                      Delete
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
+                <Button onClick={handleCreateFolder}>Create</Button>
               </div>
-            ))}
-          </div>
+            </DialogContent>
+          </Dialog>
+        </div>
+
+        <div className="space-y-1 relative">
+          {/* Root Folders */}
+          {rootFolders.map((folder) => (
+            <TreeNode
+              key={folder.id}
+              folder={folder}
+              notes={notes}
+              folders={folders}
+              level={0}
+              expandedFolders={expandedFolders}
+              onToggleFolder={handleToggleFolder}
+              onEditFolder={handleEditFolder}
+              onDeleteFolder={handleDeleteFolder}
+              onEditNote={handleEditNote}
+              onDeleteNote={handleDeleteNote}
+              onChangeColor={handleChangeColor}
+            />
+          ))}
+
+          {/* Unorganized Notes - Droppable */}
+          {unorganizedNotes.length > 0 && (
+            <div className="mt-4">
+              <div className="text-xs text-muted-foreground mb-2 px-2">Unorganized</div>
+              <Droppable droppableId="folder-unorganized" type="NOTE">
+                {(provided, snapshot) => (
+                  <div
+                    ref={provided.innerRef}
+                    {...provided.droppableProps}
+                    className={`${
+                      snapshot.isDraggingOver ? 'bg-blue-50 dark:bg-blue-900/20' : ''
+                    } transition-colors rounded-sm p-1`}
+                  >
+                    {unorganizedNotes.map((note, index) => (
+                      <Draggable key={note.id} draggableId={note.id} index={index}>
+                        {(provided, snapshot) => (
+                          <div
+                            ref={provided.innerRef}
+                            {...provided.draggableProps}
+                            {...provided.dragHandleProps}
+                            className={`flex items-center gap-1 py-1 hover:bg-accent/50 rounded-sm group cursor-pointer px-2 ${
+                              snapshot.isDragging ? 'bg-blue-100 shadow-lg dark:bg-blue-900/30' : ''
+                            } transition-all`}
+                            style={provided.draggableProps.style}
+                            onClick={() => !snapshot.isDragging && handleEditNote(note)}
+                          >
+                            <div 
+                              className="w-2 h-2 rounded-full mr-1" 
+                              style={{ backgroundColor: note.color }}
+                            />
+                            <FileText className="h-4 w-4 text-muted-foreground" />
+                            <span className="text-sm truncate flex-1">{note.title}</span>
+                            
+                            <DropdownMenu>
+                              <DropdownMenuTrigger asChild>
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  className="p-0 h-4 w-4 opacity-0 group-hover:opacity-100"
+                                  onClick={(e) => e.stopPropagation()}
+                                >
+                                  <MoreHorizontal className="h-3 w-3" />
+                                </Button>
+                              </DropdownMenuTrigger>
+                              <DropdownMenuContent align="end">
+                                <DropdownMenuItem onClick={() => handleEditNote(note)}>
+                                  <Edit3 className="h-4 w-4 mr-2" />
+                                  Edit
+                                </DropdownMenuItem>
+                                <DropdownMenuSeparator />
+                                <div className="p-2">
+                                  <div className="grid grid-cols-6 gap-1">
+                                    {colors.map((color) => (
+                                      <button
+                                        key={color}
+                                        className="w-4 h-4 rounded-full border border-border hover:scale-110 transition-transform"
+                                        style={{ backgroundColor: color }}
+                                        onClick={() => handleChangeColor(note.id, color, 'note')}
+                                      />
+                                    ))}
+                                  </div>
+                                </div>
+                                <DropdownMenuSeparator />
+                                <DropdownMenuItem 
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleDeleteNote(note.id);
+                                  }}
+                                  className="text-destructive"
+                                >
+                                  <Trash2 className="h-4 w-4 mr-2" />
+                                  Delete
+                                </DropdownMenuItem>
+                              </DropdownMenuContent>
+                            </DropdownMenu>
+                          </div>
+                        )}
+                      </Draggable>
+                    ))}
+                    {provided.placeholder}
+                  </div>
+                )}
+              </Droppable>
+            </div>
+          )}
+        </div>
+
+        {/* Edit Folder Dialog */}
+        {editingFolder && (
+          <Dialog open={!!editingFolder} onOpenChange={() => setEditingFolder(null)}>
+            <DialogContent className="sm:max-w-md">
+              <DialogHeader>
+                <DialogTitle>Rename Folder</DialogTitle>
+              </DialogHeader>
+              <div className="flex items-center space-x-2">
+                <Input
+                  placeholder="Folder name"
+                  value={newFolderName}
+                  onChange={(e) => setNewFolderName(e.target.value)}
+                  onKeyPress={(e) => {
+                    if (e.key === 'Enter') {
+                      handleSaveFolder();
+                    }
+                  }}
+                />
+                <Button onClick={handleSaveFolder}>Save</Button>
+              </div>
+            </DialogContent>
+          </Dialog>
         )}
       </div>
-
-      {/* Edit Folder Dialog */}
-      {editingFolder && (
-        <Dialog open={!!editingFolder} onOpenChange={() => setEditingFolder(null)}>
-          <DialogContent className="sm:max-w-md">
-            <DialogHeader>
-              <DialogTitle>Rename Folder</DialogTitle>
-            </DialogHeader>
-            <div className="flex items-center space-x-2">
-              <Input
-                placeholder="Folder name"
-                value={newFolderName}
-                onChange={(e) => setNewFolderName(e.target.value)}
-                onKeyPress={(e) => {
-                  if (e.key === 'Enter') {
-                    handleSaveFolder();
-                  }
-                }}
-              />
-              <Button onClick={handleSaveFolder}>Save</Button>
-            </div>
-          </DialogContent>
-        </Dialog>
-      )}
-    </div>
+    </DragDropContext>
   );
 };
 
