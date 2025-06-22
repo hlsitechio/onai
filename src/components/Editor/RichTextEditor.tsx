@@ -5,6 +5,7 @@ import { Slate, Editable, withReact, ReactEditor } from 'slate-react';
 import { withHistory } from 'slate-history';
 import SmartToolbar from './SmartToolbar';
 import EnhancedAIAssistant from './EnhancedAIAssistant';
+import TextSelectionContextMenu from './TextSelectionContextMenu';
 import ElementRenderer from './rendering/ElementRenderer';
 import LeafRenderer from './rendering/LeafRenderer';
 import { CustomText, CustomElement, SlateValue } from './types';
@@ -31,6 +32,7 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
   const [showAIAssistant, setShowAIAssistant] = useState(false);
   const [selectedText, setSelectedText] = useState('');
   const [assistantPosition, setAssistantPosition] = useState<{ x: number; y: number } | undefined>();
+  const [contextMenuPosition, setContextMenuPosition] = useState<{ x: number; y: number } | null>(null);
 
   // Parse the value from string to Slate value
   const initialValue: Descendant[] = useMemo(() => parseInitialValue(value), [value]);
@@ -55,6 +57,14 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
       if (domSelection && domSelection.rangeCount > 0) {
         const range = domSelection.getRangeAt(0);
         const rect = range.getBoundingClientRect();
+        
+        // Set position for context menu
+        setContextMenuPosition({
+          x: rect.left + rect.width / 2,
+          y: rect.top
+        });
+        
+        // Set position for AI assistant
         setAssistantPosition({
           x: rect.left + rect.width / 2,
           y: rect.top - 10
@@ -62,6 +72,7 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
       }
     } else {
       setSelectedText('');
+      setContextMenuPosition(null);
     }
   }, [editor]);
 
@@ -77,6 +88,16 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
     if (selection && !Range.isCollapsed(selection)) {
       Transforms.delete(editor, { at: selection });
       Transforms.insertText(editor, text, { at: selection });
+    }
+  }, [editor]);
+
+  const handleContextMenuReplace = useCallback((text: string) => {
+    const { selection } = editor;
+    if (selection && !Range.isCollapsed(selection)) {
+      Transforms.delete(editor, { at: selection });
+      Transforms.insertText(editor, text, { at: selection });
+      setContextMenuPosition(null);
+      setSelectedText('');
     }
   }, [editor]);
 
@@ -195,6 +216,18 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
           </Slate>
         </div>
       </div>
+
+      {/* Context Menu for Text Selection */}
+      <TextSelectionContextMenu
+        selectedText={selectedText}
+        onTextReplace={handleContextMenuReplace}
+        onTextInsert={handleAIInsert}
+        position={contextMenuPosition}
+        onClose={() => {
+          setContextMenuPosition(null);
+          setSelectedText('');
+        }}
+      />
 
       <EnhancedAIAssistant
         selectedText={selectedText}
