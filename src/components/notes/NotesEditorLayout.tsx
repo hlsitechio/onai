@@ -44,7 +44,6 @@ const NotesEditorLayout: React.FC<NotesEditorLayoutProps> = ({
       <ResizablePanelGroup 
         direction="horizontal" 
         className="h-full w-full relative z-10"
-        autoSaveId="notes-editor-layout"
       >
         {/* Notes Sidebar */}
         {sidebarOpen && (
