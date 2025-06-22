@@ -132,15 +132,33 @@ const TreeNode: React.FC<TreeNodeProps> = ({
                 </DropdownMenuContent>
               </DropdownMenu>
             </div>
+            
+            {/* Child Items - Notes in this folder need to be in a separate droppable */}
+            {isExpanded && folderNotes.length > 0 && (
+              <div>
+                {folderNotes.map((note, index) => (
+                  <div key={note.id} style={{ paddingLeft: `${(level + 1) * 20}px` }}>
+                    <NoteItem
+                      note={note}
+                      index={index}
+                      level={level + 1}
+                      onEditNote={onEditNote}
+                      onDeleteNote={onDeleteNote}
+                      onChangeColor={onChangeColor}
+                    />
+                  </div>
+                ))}
+              </div>
+            )}
+            
             {provided.placeholder}
           </div>
         )}
       </Droppable>
 
-      {/* Child Items */}
-      {isExpanded && (
+      {/* Child Folders */}
+      {isExpanded && childFolders.length > 0 && (
         <div>
-          {/* Child Folders */}
           {childFolders.map((childFolder) => (
             <TreeNode
               key={childFolder.id}
@@ -152,19 +170,6 @@ const TreeNode: React.FC<TreeNodeProps> = ({
               onToggleFolder={onToggleFolder}
               onEditFolder={onEditFolder}
               onDeleteFolder={onDeleteFolder}
-              onEditNote={onEditNote}
-              onDeleteNote={onDeleteNote}
-              onChangeColor={onChangeColor}
-            />
-          ))}
-          
-          {/* Notes in this folder */}
-          {folderNotes.map((note, index) => (
-            <NoteItem
-              key={note.id}
-              note={note}
-              index={index}
-              level={level + 1}
               onEditNote={onEditNote}
               onDeleteNote={onDeleteNote}
               onChangeColor={onChangeColor}
