@@ -4,10 +4,6 @@ import DebugWrapper from "@/components/DebugWrapper";
 import Header from "@/components/Header";
 import Hero from "@/components/Hero";
 import EnhancedFeatures from "@/components/EnhancedFeatures";
-import FeatureShowcase from "@/components/FeatureShowcase";
-import Features from "@/components/Features";
-import WhyChooseUs from "@/components/WhyChooseUs";
-import HowItWorks from "@/components/HowItWorks";
 import SponsorsWallOfFame from "@/components/SponsorsWallOfFame";
 import PricingSection from "@/components/PricingSection";
 import NewsletterSection from "@/components/NewsletterSection";
@@ -70,10 +66,6 @@ const Landing = () => {
           <Hero />
           <SponsorsWallOfFame />
           <EnhancedFeatures />
-          <FeatureShowcase />
-          <Features />
-          <WhyChooseUs />
-          <HowItWorks />
           <PricingSection />
           <NewsletterSection />
           <SitemapSection />
