@@ -7,7 +7,9 @@ import {
   Edit, 
   Plus,
   Search,
-  Github
+  Github,
+  PanelLeftClose,
+  PanelLeftOpen
 } from 'lucide-react';
 import {
   Sidebar,
@@ -20,6 +22,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarSeparator,
+  useSidebar,
 } from '@/components/ui/sidebar';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
@@ -37,17 +40,33 @@ export function AppSidebar() {
   const location = useLocation();
   const navigate = useNavigate();
   const { user, logout } = useAuth();
+  const { state, toggleSidebar } = useSidebar();
 
   return (
     <Sidebar className="glass border-r border-border/50 backdrop-blur-md">
       <SidebarHeader className="p-6">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-500 rounded-xl flex items-center justify-center">
-            <Github className="text-white w-5 h-5" />
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3 group-data-[collapsible=icon]:justify-center">
+            <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-500 rounded-xl flex items-center justify-center">
+              <Github className="text-white w-5 h-5" />
+            </div>
+            <span className="text-xl font-bold text-foreground group-data-[collapsible=icon]:hidden">
+              Online Note AI
+            </span>
           </div>
-          <span className="text-xl font-bold text-foreground group-data-[collapsible=icon]:hidden">
-            Online Note AI
-          </span>
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={toggleSidebar}
+            className="h-8 w-8 glass shadow-medium hover:bg-white/20 dark:hover:bg-slate-700/30 group-data-[collapsible=icon]:mx-auto"
+            title={state === 'expanded' ? 'Collapse sidebar' : 'Expand sidebar'}
+          >
+            {state === 'expanded' ? (
+              <PanelLeftClose className="w-4 h-4" />
+            ) : (
+              <PanelLeftOpen className="w-4 h-4" />
+            )}
+          </Button>
         </div>
       </SidebarHeader>
 
