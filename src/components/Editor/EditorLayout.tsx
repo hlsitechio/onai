@@ -23,6 +23,9 @@ interface EditorLayoutProps {
   onAddTag: () => void;
   onRemoveTag: (tag: string) => void;
   onSuggestionApply: (original: string, suggestion: string) => void;
+  onSave?: () => void;
+  canSave?: boolean;
+  isSaving?: boolean;
   collapseAssistantRef?: React.MutableRefObject<(() => void) | undefined>;
   expandAssistantRef?: React.MutableRefObject<(() => void) | undefined>;
   showCollapseAllButton?: boolean;
@@ -45,6 +48,9 @@ const EditorLayout: React.FC<EditorLayoutProps> = ({
   onAddTag,
   onRemoveTag,
   onSuggestionApply,
+  onSave,
+  canSave = true,
+  isSaving = false,
   collapseAssistantRef,
   expandAssistantRef,
   showCollapseAllButton = false,
@@ -120,6 +126,9 @@ const EditorLayout: React.FC<EditorLayoutProps> = ({
                   <RichTextEditor
                     value={content}
                     onChange={onContentChange}
+                    onSave={onSave}
+                    canSave={canSave}
+                    isSaving={isSaving}
                     placeholder="Start writing your masterpiece... The world's most advanced AI is here to help you craft something extraordinary."
                   />
                 </div>

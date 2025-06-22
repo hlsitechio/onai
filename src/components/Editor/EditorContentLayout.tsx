@@ -26,12 +26,14 @@ const EditorContentLayout: React.FC<EditorContentLayoutProps> = ({
   category,
   tags,
   newTag,
+  isSaving,
   onTitleChange,
   onContentChange,
   onCategoryChange,
   onNewTagChange,
   onAddTag,
   onRemoveTag,
+  onSave,
   onSuggestionApply,
   collapseAssistantRef,
   expandAssistantRef,
@@ -46,6 +48,8 @@ const EditorContentLayout: React.FC<EditorContentLayoutProps> = ({
     }
     return isHeaderCollapsed ? "h-[calc(100vh-80px)]" : "h-[calc(100vh-120px)]";
   };
+
+  const canSave = title.trim().length > 0;
 
   return (
     <div className={getLayoutHeight()}>
@@ -63,6 +67,9 @@ const EditorContentLayout: React.FC<EditorContentLayoutProps> = ({
         onAddTag={onAddTag}
         onRemoveTag={onRemoveTag}
         onSuggestionApply={onSuggestionApply}
+        onSave={onSave}
+        canSave={canSave}
+        isSaving={isSaving}
         collapseAssistantRef={collapseAssistantRef}
         expandAssistantRef={expandAssistantRef}
         showCollapseAllButton={isHeaderHidden}

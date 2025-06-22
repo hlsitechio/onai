@@ -21,12 +21,18 @@ interface RichTextEditorProps {
   value: string;
   onChange: (value: string) => void;
   placeholder?: string;
+  onSave?: () => void;
+  canSave?: boolean;
+  isSaving?: boolean;
 }
 
 const RichTextEditor: React.FC<RichTextEditorProps> = ({ 
   value, 
   onChange, 
-  placeholder = "Start writing something amazing..." 
+  placeholder = "Start writing something amazing...",
+  onSave,
+  canSave = true,
+  isSaving = false
 }) => {
   const editor = useMemo(() => withHistory(withReact(createEditor())), []);
   const [showAIAssistant, setShowAIAssistant] = useState(false);
@@ -167,9 +173,12 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
         <SmartToolbar
           onFormatClick={handleFormatClick}
           onAIClick={() => setShowAIAssistant(true)}
+          onSave={onSave || (() => {})}
           onTextInsert={handleTextInsert}
           activeFormats={getActiveFormats()}
           selectedText={selectedText}
+          canSave={canSave}
+          isSaving={isSaving}
         />
 
         <div className="editor-content p-8 min-h-[500px] max-h-[700px] overflow-y-auto bg-white/5 backdrop-blur-sm dark:bg-slate-900/20">
