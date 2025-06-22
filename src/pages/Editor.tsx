@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import { useNotes } from '../contexts/NotesContext';
 import { NoteCategory } from '../types/note';
@@ -28,6 +27,7 @@ const Editor: React.FC = () => {
   const [isFocusMode, setIsFocusMode] = useState(false);
   const [isHeaderCollapsed, setIsHeaderCollapsed] = useState(false);
   const [isHeaderHidden, setIsHeaderHidden] = useState(false);
+  const [isAssistantCollapsed, setIsAssistantCollapsed] = useState(false);
   
   // References to trigger AI assistant collapse/expand
   const collapseAssistantRef = useRef<() => void>();
@@ -101,15 +101,11 @@ const Editor: React.FC = () => {
     setIsHeaderHidden(!isHeaderHidden);
     
     if (isHeaderHidden) {
-      // Expand AI assistant when showing header
-      if (expandAssistantRef.current) {
-        expandAssistantRef.current();
-      }
+      // When showing header, expand AI assistant
+      setIsAssistantCollapsed(false);
     } else {
-      // Collapse AI assistant when hiding header
-      if (collapseAssistantRef.current) {
-        collapseAssistantRef.current();
-      }
+      // When hiding header, collapse AI assistant
+      setIsAssistantCollapsed(true);
     }
   };
 

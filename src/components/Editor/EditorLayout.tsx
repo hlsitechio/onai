@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { PanelLeftOpen, PanelLeftClose } from 'lucide-react';
+import { PanelLeftOpen } from 'lucide-react';
 import { motion } from 'framer-motion';
 import RichTextEditor from './RichTextEditor';
 import CollapsibleAssistant from './CollapsibleAssistant';
@@ -49,15 +49,26 @@ const EditorLayout: React.FC<EditorLayoutProps> = ({
   onCollapseAllBars,
 }) => {
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
+  const [isAssistantCollapsed, setIsAssistantCollapsed] = useState(false);
+
+  // Update refs to control assistant collapse state
+  React.useEffect(() => {
+    if (collapseAssistantRef) {
+      collapseAssistantRef.current = () => setIsAssistantCollapsed(true);
+    }
+    if (expandAssistantRef) {
+      expandAssistantRef.current = () => setIsAssistantCollapsed(false);
+    }
+  }, [collapseAssistantRef, expandAssistantRef]);
 
   return (
     <div className="relative">
-      {/* Floating Collapse All Button (shown when header is hidden) */}
+      {/* Floating Show All Bars Button - moved to top-right corner */}
       {showCollapseAllButton && (
         <motion.div
           initial={{ opacity: 0, scale: 0.8 }}
           animate={{ opacity: 1, scale: 1 }}
-          className="fixed top-4 left-4 z-50"
+          className="fixed top-6 right-6 z-50"
         >
           <Button
             onClick={onCollapseAllBars}
@@ -111,8 +122,8 @@ const EditorLayout: React.FC<EditorLayoutProps> = ({
             content={content}
             onSuggestionApply={onSuggestionApply}
             onCollapseChange={setIsSidebarCollapsed}
-            collapseRef={collapseAssistantRef}
-            expandRef={expandAssistantRef}
+            isCollapsed={isAssistantCollapsed}
+            onCollapseToggle={setIsAssistantCollapsed}
           />
         </div>
       </div>

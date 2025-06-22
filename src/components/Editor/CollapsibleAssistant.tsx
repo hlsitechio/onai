@@ -16,6 +16,8 @@ interface CollapsibleAssistantProps {
   onCollapseChange?: (isCollapsed: boolean) => void;
   collapseRef?: React.MutableRefObject<(() => void) | undefined>;
   expandRef?: React.MutableRefObject<(() => void) | undefined>;
+  isCollapsed?: boolean;
+  onCollapseToggle?: (collapsed: boolean) => void;
 }
 
 const sidebarVariants: Variants = {
@@ -62,9 +64,15 @@ const CollapsibleAssistant: React.FC<CollapsibleAssistantProps> = ({
   onSuggestionApply,
   onCollapseChange,
   collapseRef,
-  expandRef
+  expandRef,
+  isCollapsed: controlledCollapsed,
+  onCollapseToggle
 }) => {
-  const [isCollapsed, setIsCollapsed] = useState(false);
+  const [internalCollapsed, setInternalCollapsed] = useState(false);
+  
+  // Use controlled state if provided, otherwise use internal state
+  const isCollapsed = controlledCollapsed !== undefined ? controlledCollapsed : internalCollapsed;
+  const setIsCollapsed = onCollapseToggle || setInternalCollapsed;
 
   useEffect(() => {
     onCollapseChange?.(isCollapsed);
@@ -78,7 +86,7 @@ const CollapsibleAssistant: React.FC<CollapsibleAssistantProps> = ({
     if (expandRef) {
       expandRef.current = () => setIsCollapsed(false);
     }
-  }, [collapseRef, expandRef]);
+  }, [collapseRef, expandRef, setIsCollapsed]);
 
   const handleToggle = (collapsed: boolean) => {
     setIsCollapsed(collapsed);
