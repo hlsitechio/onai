@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import { useNotes } from '../contexts/NotesContext';
 import { NoteCategory } from '../types/note';
@@ -28,8 +27,9 @@ const Editor: React.FC = () => {
   const [isFocusMode, setIsFocusMode] = useState(false);
   const [isHeaderCollapsed, setIsHeaderCollapsed] = useState(false);
   
-  // Reference to trigger AI assistant collapse
+  // References to trigger AI assistant collapse/expand
   const collapseAssistantRef = useRef<() => void>();
+  const expandAssistantRef = useRef<() => void>();
 
   // Load current note when it changes
   useEffect(() => {
@@ -95,9 +95,11 @@ const Editor: React.FC = () => {
   };
 
   const handleCollapseAllBars = () => {
-    // Trigger AI assistant collapse
+    // Toggle AI assistant collapse/expand
     if (collapseAssistantRef.current) {
       collapseAssistantRef.current();
+    } else if (expandAssistantRef.current) {
+      expandAssistantRef.current();
     }
   };
 
@@ -138,6 +140,7 @@ const Editor: React.FC = () => {
                   onRemoveTag={removeTag}
                   onSuggestionApply={handleSuggestionApply}
                   collapseAssistantRef={collapseAssistantRef}
+                  expandAssistantRef={expandAssistantRef}
                 />
               </div>
             )}
@@ -159,6 +162,7 @@ const Editor: React.FC = () => {
                   onRemoveTag={removeTag}
                   onSuggestionApply={handleSuggestionApply}
                   collapseAssistantRef={collapseAssistantRef}
+                  expandAssistantRef={expandAssistantRef}
                 />
               </div>
             )}

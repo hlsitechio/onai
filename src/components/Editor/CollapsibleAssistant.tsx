@@ -15,6 +15,7 @@ interface CollapsibleAssistantProps {
   onSuggestionApply: (original: string, suggestion: string) => void;
   onCollapseChange?: (isCollapsed: boolean) => void;
   collapseRef?: React.MutableRefObject<(() => void) | undefined>;
+  expandRef?: React.MutableRefObject<(() => void) | undefined>;
 }
 
 const sidebarVariants: Variants = {
@@ -60,7 +61,8 @@ const CollapsibleAssistant: React.FC<CollapsibleAssistantProps> = ({
   content,
   onSuggestionApply,
   onCollapseChange,
-  collapseRef
+  collapseRef,
+  expandRef
 }) => {
   const [isCollapsed, setIsCollapsed] = useState(false);
 
@@ -68,12 +70,15 @@ const CollapsibleAssistant: React.FC<CollapsibleAssistantProps> = ({
     onCollapseChange?.(isCollapsed);
   }, [isCollapsed, onCollapseChange]);
 
-  // Update the ref whenever it changes
+  // Update the refs whenever they change
   useEffect(() => {
     if (collapseRef) {
       collapseRef.current = () => setIsCollapsed(true);
     }
-  }, [collapseRef]);
+    if (expandRef) {
+      expandRef.current = () => setIsCollapsed(false);
+    }
+  }, [collapseRef, expandRef]);
 
   const handleToggle = (collapsed: boolean) => {
     setIsCollapsed(collapsed);
