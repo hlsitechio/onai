@@ -10,6 +10,7 @@ import Settings from './Settings';
 import Login from './Auth/Login';
 import Register from './Auth/Register';
 import { AuthProvider, useAuth } from '../contexts/AuthContext';
+import { NotesProvider } from '../contexts/NotesContext';
 
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const { isAuthenticated } = useAuth();
@@ -30,17 +31,19 @@ const AppRoutes = () => {
   }
 
   return (
-    <Layout>
-      <Routes>
-        <Route path="/" element={<Dashboard />} />
-        <Route path="/dashboard" element={<Dashboard />} />
-        <Route path="/chat" element={<Chat />} />
-        <Route path="/editor" element={<Editor />} />
-        <Route path="/notes" element={<Notes />} />
-        <Route path="/settings" element={<Settings />} />
-        <Route path="*" element={<Navigate to="/dashboard" />} />
-      </Routes>
-    </Layout>
+    <NotesProvider>
+      <Layout>
+        <Routes>
+          <Route path="/" element={<Dashboard />} />
+          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/chat" element={<Chat />} />
+          <Route path="/editor" element={<Editor />} />
+          <Route path="/notes" element={<Notes />} />
+          <Route path="/settings" element={<Settings />} />
+          <Route path="*" element={<Navigate to="/dashboard" />} />
+        </Routes>
+      </Layout>
+    </NotesProvider>
   );
 };
 
