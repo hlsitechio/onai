@@ -44,6 +44,7 @@ const Editor: React.FC = () => {
             isFocusMode={editorState.isFocusMode}
             isHeaderCollapsed={editorState.isHeaderCollapsed}
             isHeaderHidden={editorState.isHeaderHidden}
+            isAssistantCollapsed={editorState.isAssistantCollapsed}
             
             // Form handlers
             onTitleChange={editorState.setTitle}

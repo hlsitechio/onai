@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { PanelLeftOpen, Eye } from 'lucide-react';
@@ -28,6 +28,7 @@ interface EditorLayoutProps {
   showCollapseAllButton?: boolean;
   onCollapseAllBars?: () => void;
   isAllBarsCollapsed?: boolean;
+  isAssistantCollapsed?: boolean;
 }
 
 const EditorLayout: React.FC<EditorLayoutProps> = ({
@@ -49,17 +50,17 @@ const EditorLayout: React.FC<EditorLayoutProps> = ({
   showCollapseAllButton = false,
   onCollapseAllBars,
   isAllBarsCollapsed = false,
+  isAssistantCollapsed = false,
 }) => {
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
-  const [isAssistantCollapsed, setIsAssistantCollapsed] = useState(false);
 
   // Update refs to control assistant collapse state
   React.useEffect(() => {
     if (collapseAssistantRef) {
-      collapseAssistantRef.current = () => setIsAssistantCollapsed(true);
+      collapseAssistantRef.current = () => setIsSidebarCollapsed(true);
     }
     if (expandAssistantRef) {
-      expandAssistantRef.current = () => setIsAssistantCollapsed(false);
+      expandAssistantRef.current = () => setIsSidebarCollapsed(false);
     }
   }, [collapseAssistantRef, expandAssistantRef]);
 
@@ -134,7 +135,7 @@ const EditorLayout: React.FC<EditorLayoutProps> = ({
             onSuggestionApply={onSuggestionApply}
             onCollapseChange={setIsSidebarCollapsed}
             isCollapsed={isAssistantCollapsed}
-            onCollapseToggle={setIsAssistantCollapsed}
+            onCollapseToggle={() => {}}
           />
         </div>
       </div>

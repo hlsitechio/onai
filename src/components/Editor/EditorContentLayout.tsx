@@ -16,6 +16,7 @@ const categories: NoteCategory[] = [
 interface EditorContentLayoutProps extends EditorFormState, EditorFormHandlers, EditorRefs {
   isHeaderHidden: boolean;
   isHeaderCollapsed: boolean;
+  isAssistantCollapsed: boolean;
   onCollapseAllBars: () => void;
 }
 
@@ -36,6 +37,7 @@ const EditorContentLayout: React.FC<EditorContentLayoutProps> = ({
   expandAssistantRef,
   isHeaderHidden,
   isHeaderCollapsed,
+  isAssistantCollapsed,
   onCollapseAllBars,
 }) => {
   const getLayoutHeight = () => {
@@ -66,6 +68,7 @@ const EditorContentLayout: React.FC<EditorContentLayoutProps> = ({
         showCollapseAllButton={isHeaderHidden}
         onCollapseAllBars={onCollapseAllBars}
         isAllBarsCollapsed={isHeaderHidden}
+        isAssistantCollapsed={isAssistantCollapsed}
       />
     </div>
   );

@@ -8,6 +8,7 @@ import { EditorUIState, EditorUIHandlers, EditorRefs } from './EditorUIProps';
 
 interface EditorContentProps extends EditorFormState, EditorFormHandlers, EditorUIState, EditorUIHandlers, EditorRefs {
   currentNote: any;
+  isAssistantCollapsed: boolean;
 }
 
 const EditorContent: React.FC<EditorContentProps> = ({
@@ -33,6 +34,7 @@ const EditorContent: React.FC<EditorContentProps> = ({
   isFocusMode,
   isHeaderCollapsed,
   isHeaderHidden,
+  isAssistantCollapsed,
   onFocusModeToggle,
   onHeaderCollapseToggle,
   onCollapseAllBars,
@@ -88,6 +90,7 @@ const EditorContent: React.FC<EditorContentProps> = ({
           expandAssistantRef={expandAssistantRef}
           isHeaderHidden={isHeaderHidden}
           isHeaderCollapsed={isHeaderCollapsed}
+          isAssistantCollapsed={isAssistantCollapsed}
           onCollapseAllBars={onCollapseAllBars}
         />
       )}
