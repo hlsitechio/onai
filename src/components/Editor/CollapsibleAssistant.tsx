@@ -1,5 +1,4 @@
-
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   ChevronLeft, 
   ChevronRight, 
@@ -25,13 +24,23 @@ import WritingSuggestions from './WritingSuggestions';
 interface CollapsibleAssistantProps {
   content: string;
   onSuggestionApply: (original: string, suggestion: string) => void;
+  onCollapseChange?: (isCollapsed: boolean) => void;
 }
 
 const CollapsibleAssistant: React.FC<CollapsibleAssistantProps> = ({
   content,
-  onSuggestionApply
+  onSuggestionApply,
+  onCollapseChange
 }) => {
   const [isCollapsed, setIsCollapsed] = useState(false);
+
+  useEffect(() => {
+    onCollapseChange?.(isCollapsed);
+  }, [isCollapsed, onCollapseChange]);
+
+  const handleToggle = (collapsed: boolean) => {
+    setIsCollapsed(collapsed);
+  };
 
   if (isCollapsed) {
     return (
@@ -44,7 +53,7 @@ const CollapsibleAssistant: React.FC<CollapsibleAssistantProps> = ({
                 <Button
                   variant="ghost"
                   size="icon"
-                  onClick={() => setIsCollapsed(false)}
+                  onClick={() => handleToggle(false)}
                   className="w-10 h-10 glass shadow-medium hover:bg-white/20 dark:hover:bg-slate-700/30"
                 >
                   <PanelRightOpen className="w-4 h-4" />
@@ -151,7 +160,7 @@ const CollapsibleAssistant: React.FC<CollapsibleAssistantProps> = ({
           <Button
             variant="ghost"
             size="icon"
-            onClick={() => setIsCollapsed(true)}
+            onClick={() => handleToggle(true)}
             className="w-8 h-8 glass shadow-medium hover:bg-white/20 dark:hover:bg-slate-700/30"
           >
             <PanelRightClose className="w-4 h-4" />

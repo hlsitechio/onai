@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import RichTextEditor from './RichTextEditor';
 import CollapsibleAssistant from './CollapsibleAssistant';
@@ -37,10 +37,16 @@ const EditorLayout: React.FC<EditorLayoutProps> = ({
   onRemoveTag,
   onSuggestionApply,
 }) => {
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
+
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 h-full">
+    <div className={`grid gap-6 h-full transition-all duration-300 ${
+      isSidebarCollapsed 
+        ? 'grid-cols-1 lg:grid-cols-[1fr_4rem]' 
+        : 'grid-cols-1 lg:grid-cols-4'
+    }`}>
       {/* Main Editor Column */}
-      <div className="lg:col-span-3">
+      <div className={isSidebarCollapsed ? 'lg:col-span-1' : 'lg:col-span-3'}>
         <Card className="flex-1 h-full glass shadow-large">
           <CardContent className="p-8 h-full">
             <div className="space-y-6 h-full flex flex-col">
@@ -75,6 +81,7 @@ const EditorLayout: React.FC<EditorLayoutProps> = ({
         <CollapsibleAssistant
           content={content}
           onSuggestionApply={onSuggestionApply}
+          onCollapseChange={setIsSidebarCollapsed}
         />
       </div>
     </div>
