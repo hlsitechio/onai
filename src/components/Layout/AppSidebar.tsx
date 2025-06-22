@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { 
@@ -7,7 +6,6 @@ import {
   Edit, 
   Plus,
   Search,
-  Github,
   PanelLeftClose,
   PanelLeftOpen,
   Calendar,
@@ -65,16 +63,9 @@ export function AppSidebar() {
         <Sidebar collapsible="icon" className="glass border-r border-border/50 backdrop-blur-md">
           <SidebarHeader className="p-3">
             <div className="flex flex-col items-center gap-3">
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-500 rounded-xl flex items-center justify-center">
-                    <Github className="text-white w-5 h-5" />
-                  </div>
-                </TooltipTrigger>
-                <TooltipContent side="right">
-                  <p>Online Note AI</p>
-                </TooltipContent>
-              </Tooltip>
+              <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-500 rounded-xl flex items-center justify-center">
+                <span className="text-white font-bold text-sm">AI</span>
+              </div>
               
               <Tooltip>
                 <TooltipTrigger asChild>
@@ -183,7 +174,7 @@ export function AppSidebar() {
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3 group-data-[collapsible=icon]:justify-center">
             <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-500 rounded-xl flex items-center justify-center">
-              <Github className="text-white w-5 h-5" />
+              <span className="text-white font-bold text-sm">AI</span>
             </div>
             <span className="text-xl font-bold text-foreground group-data-[collapsible=icon]:hidden">
               Online Note AI
