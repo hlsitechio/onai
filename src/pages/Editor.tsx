@@ -62,6 +62,7 @@ const Editor: React.FC = () => {
         category,
         tags,
         isFavorite,
+        color: currentNote?.color || '#64748b', // Keep existing color or use default
       };
 
       if (currentNote) {

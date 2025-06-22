@@ -8,6 +8,8 @@ export interface Note {
   createdAt: Date;
   updatedAt: Date;
   isFavorite: boolean;
+  folderId?: string;
+  color: string;
 }
 
 export interface NoteCategory {
@@ -21,4 +23,5 @@ export interface NoteFilters {
   tags?: string[];
   searchTerm?: string;
   isFavorite?: boolean;
+  folderId?: string;
 }

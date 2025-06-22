@@ -28,13 +28,13 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '../../contexts/AuthContext';
+import NotesTree from '../Sidebar/NotesTree';
 
 const menuItems = [
   { icon: Book, label: 'Dashboard', path: '/dashboard' },
   { icon: Plus, label: 'AI Chat', path: '/chat' },
   { icon: Edit, label: 'Editor', path: '/editor' },
   { icon: Calendar, label: 'Calendar', path: '/calendar' },
-  { icon: Search, label: 'Notes', path: '/notes' },
   { icon: Settings, label: 'Settings', path: '/settings' },
 ];
 
@@ -95,6 +95,13 @@ export function AppSidebar() {
               ))}
             </SidebarMenu>
           </SidebarGroupContent>
+        </SidebarGroup>
+
+        <SidebarSeparator />
+
+        {/* Notes Tree Section */}
+        <SidebarGroup className="group-data-[collapsible=icon]:hidden">
+          <NotesTree />
         </SidebarGroup>
       </SidebarContent>
 

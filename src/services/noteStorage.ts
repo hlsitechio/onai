@@ -14,6 +14,7 @@ export class NoteStorageService {
         ...note,
         createdAt: new Date(note.createdAt),
         updatedAt: new Date(note.updatedAt),
+        color: note.color || '#64748b', // Default color for existing notes
       }));
     } catch (error) {
       console.error('Error loading notes:', error);
@@ -28,6 +29,7 @@ export class NoteStorageService {
       id: Date.now().toString(),
       createdAt: new Date(),
       updatedAt: new Date(),
+      color: note.color || '#64748b', // Default color
     };
     
     notes.push(newNote);
