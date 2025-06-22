@@ -1,4 +1,3 @@
-
 import React, { useState, useRef } from 'react';
 import { Camera, Upload, Image, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -32,7 +31,7 @@ const OCRScreenCapture: React.FC<OCRScreenCaptureProps> = ({ onTextReceived, isV
       }
 
       const stream = await navigator.mediaDevices.getDisplayMedia({
-        video: { mediaSource: 'screen' }
+        video: true
       });
 
       const video = document.createElement('video');
@@ -82,17 +81,17 @@ const OCRScreenCapture: React.FC<OCRScreenCaptureProps> = ({ onTextReceived, isV
       const worker = await createWorker('eng');
       
       // Set up progress tracking
+      worker.logger = (m) => {
+        if (m.status === 'recognizing text') {
+          setProgress(Math.round(m.progress * 100));
+        }
+      };
+      
       await worker.setParameters({
         tessedit_char_whitelist: '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz .,!?-:;()[]{}"\'/\\@#$%^&*+=<>|`~_',
       });
 
-      const { data: { text } } = await worker.recognize(imageSource, {
-        logger: m => {
-          if (m.status === 'recognizing text') {
-            setProgress(Math.round(m.progress * 100));
-          }
-        }
-      });
+      const { data: { text } } = await worker.recognize(imageSource);
 
       await worker.terminate();
       
