@@ -58,11 +58,11 @@ const SmartToolbar: React.FC<SmartToolbarProps> = ({
   ];
 
   return (
-    <div className="flex items-center justify-between p-4 border-b-2 border-gradient-to-r from-blue-100 to-purple-100 bg-gradient-to-r from-gray-50 via-blue-50/30 to-purple-50/30">
+    <div className="flex items-center justify-between p-4 border-b-2 border-gradient-to-r from-blue-100 to-purple-100 bg-gradient-to-r from-gray-50 via-blue-50/30 to-purple-50/30 dark:from-slate-800 dark:via-slate-800/80 dark:to-slate-700/80 dark:border-slate-700/50">
       <div className="flex items-center gap-1">
         {formatGroups.map((group, groupIndex) => (
           <React.Fragment key={group.name}>
-            {groupIndex > 0 && <Separator orientation="vertical" className="h-6 mx-2" />}
+            {groupIndex > 0 && <Separator orientation="vertical" className="h-6 mx-2 dark:bg-slate-600/50" />}
             <div className="flex items-center gap-1">
               {group.items.map((item) => {
                 const Icon = item.icon;
@@ -73,17 +73,17 @@ const SmartToolbar: React.FC<SmartToolbarProps> = ({
                     key={item.id}
                     variant="ghost"
                     size="sm"
-                    className={`relative transition-all duration-200 hover:bg-gradient-to-r hover:from-blue-100 hover:to-purple-100 ${
+                    className={`relative transition-all duration-200 hover:bg-gradient-to-r hover:from-blue-100 hover:to-purple-100 dark:hover:from-slate-700/50 dark:hover:to-slate-600/50 ${
                       isActive 
-                        ? 'bg-gradient-to-r from-blue-500 to-purple-500 text-white shadow-lg hover:from-blue-600 hover:to-purple-600' 
-                        : 'text-gray-600 hover:text-gray-800'
+                        ? 'bg-gradient-to-r from-blue-500 to-purple-500 text-white shadow-lg hover:from-blue-600 hover:to-purple-600 dark:from-blue-600 dark:to-purple-600 dark:hover:from-blue-700 dark:hover:to-purple-700' 
+                        : 'text-gray-600 hover:text-gray-800 dark:text-slate-300 dark:hover:text-white'
                     }`}
                     onMouseDown={(event) => onFormatClick(item.id, event)}
                     title={item.tooltip}
                   >
                     <Icon className="w-4 h-4" />
                     {isActive && (
-                      <div className="absolute -top-1 -right-1 w-2 h-2 bg-yellow-400 rounded-full animate-pulse" />
+                      <div className="absolute -top-1 -right-1 w-2 h-2 bg-yellow-400 dark:bg-yellow-300 rounded-full animate-pulse" />
                     )}
                   </Button>
                 );
@@ -95,16 +95,16 @@ const SmartToolbar: React.FC<SmartToolbarProps> = ({
       
       <div className="flex items-center gap-3">
         {selectedText && (
-          <Badge variant="secondary" className="bg-blue-100 text-blue-700 border-blue-200">
+          <Badge variant="secondary" className="bg-blue-100 text-blue-700 border-blue-200 dark:bg-blue-900/30 dark:text-blue-300 dark:border-blue-700/50">
             {selectedText.length} chars selected
           </Badge>
         )}
         
-        <Separator orientation="vertical" className="h-6" />
+        <Separator orientation="vertical" className="h-6 dark:bg-slate-600/50" />
         
         <Button
           onClick={onAIClick}
-          className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-medium px-4 py-2 rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105"
+          className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 dark:from-blue-500 dark:to-purple-500 dark:hover:from-blue-600 dark:hover:to-purple-600 text-white font-medium px-4 py-2 rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105"
         >
           <Sparkles className="w-4 h-4 mr-2 animate-pulse" />
           AI Assistant
@@ -113,7 +113,7 @@ const SmartToolbar: React.FC<SmartToolbarProps> = ({
         <Button
           variant="outline"
           size="sm"
-          className="border-2 border-purple-200 hover:bg-purple-50 text-purple-600 hover:text-purple-700"
+          className="border-2 border-purple-200 hover:bg-purple-50 text-purple-600 hover:text-purple-700 dark:border-purple-400/30 dark:hover:bg-purple-900/20 dark:text-purple-300 dark:hover:text-purple-200"
         >
           <Zap className="w-4 h-4 mr-1" />
           Pro
