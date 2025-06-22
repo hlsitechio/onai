@@ -1,0 +1,51 @@
+
+import React from 'react';
+import { ResizablePanel, ResizableHandle } from "@/components/ui/resizable";
+import NotesSidebar from "./NotesSidebar";
+import { SidebarNote } from "./NotesEditorContainer";
+
+interface NotesEditorSidebarPanelProps {
+  notesRecord: Record<string, SidebarNote>;
+  selectedNoteId: string | null;
+  saving: boolean;
+  onLoadNote: (noteId: string) => void;
+  onCreateNote: () => void;
+  onDeleteNote: (noteId: string) => void;
+  onRenameNote: (noteId: string, newTitle: string) => void;
+}
+
+const NotesEditorSidebarPanel: React.FC<NotesEditorSidebarPanelProps> = ({
+  notesRecord,
+  selectedNoteId,
+  saving,
+  onLoadNote,
+  onCreateNote,
+  onDeleteNote,
+  onRenameNote,
+}) => {
+  return (
+    <>
+      <ResizablePanel 
+        id="notes-sidebar"
+        defaultSize={20} 
+        minSize={10} 
+        maxSize={60}
+        collapsible={true}
+        className="min-w-0"
+      >
+        <NotesSidebar
+          notes={notesRecord}
+          selectedNoteId={selectedNoteId}
+          onLoadNote={onLoadNote}
+          onCreateNote={onCreateNote}
+          onDeleteNote={onDeleteNote}
+          onRenameNote={onRenameNote}
+          saving={saving}
+        />
+      </ResizablePanel>
+      <ResizableHandle withHandle={true} />
+    </>
+  );
+};
+
+export default NotesEditorSidebarPanel;
