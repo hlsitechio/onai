@@ -82,14 +82,14 @@ export function AppSidebar() {
                     onClick={() => navigate(item.path)}
                     isActive={location.pathname === item.path}
                     tooltip={item.label}
-                    className={`h-12 rounded-xl transition-all duration-200 ${
+                    className={`h-12 rounded-xl transition-all duration-200 relative isolate ${
                       location.pathname === item.path 
                         ? 'bg-primary/10 text-primary border border-primary/20' 
                         : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground hover:translate-x-1'
                     }`}
                   >
-                    <item.icon className="w-5 h-5" />
-                    <span>{item.label}</span>
+                    <item.icon className="w-5 h-5 flex-shrink-0" />
+                    <span className="truncate">{item.label}</span>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               ))}
@@ -102,15 +102,15 @@ export function AppSidebar() {
 
       <SidebarFooter className="p-4">
         <div className="flex items-center gap-3 mb-4 group-data-[collapsible=icon]:justify-center">
-          <Avatar className="w-12 h-12">
+          <Avatar className="w-12 h-12 flex-shrink-0">
             <AvatarImage src={user?.avatar} />
             <AvatarFallback>{user?.name?.[0]}</AvatarFallback>
           </Avatar>
-          <div className="flex-1 group-data-[collapsible=icon]:hidden">
-            <p className="font-semibold text-sm text-foreground">
+          <div className="flex-1 group-data-[collapsible=icon]:hidden min-w-0">
+            <p className="font-semibold text-sm text-foreground truncate">
               {user?.name}
             </p>
-            <p className="text-xs text-muted-foreground">
+            <p className="text-xs text-muted-foreground truncate">
               {user?.email}
             </p>
           </div>
