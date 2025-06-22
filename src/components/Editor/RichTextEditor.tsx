@@ -1,3 +1,4 @@
+
 import React, { useMemo, useState, useCallback } from 'react';
 import { createEditor, Descendant, Editor, Transforms, Element as SlateElement, Range, Text } from 'slate';
 import { Slate, Editable, withReact, RenderElementProps, RenderLeafProps, ReactEditor } from 'slate-react';
@@ -89,44 +90,44 @@ const Element = ({ attributes, children, element }: RenderElementProps) => {
   switch (customElement.type) {
     case 'block-quote':
       return (
-        <blockquote {...attributes} className="border-l-4 border-primary/40 pl-6 py-2 italic text-muted-foreground bg-muted/20 rounded-r-lg my-4">
+        <blockquote {...attributes} className="border-l-4 border-primary/40 pl-6 py-2 italic text-muted-foreground bg-muted/20 rounded-r-lg my-4 dark:border-blue-500/50 dark:text-slate-400 dark:bg-slate-800/40">
           {children}
         </blockquote>
       );
     case 'bulleted-list':
       return (
-        <ul {...attributes} className="list-disc list-inside space-y-1 my-4 pl-4">
+        <ul {...attributes} className="list-disc list-inside space-y-1 my-4 pl-4 dark:text-slate-300">
           {children}
         </ul>
       );
     case 'heading-one':
       return (
-        <h1 {...attributes} className="text-3xl font-bold mb-4 text-foreground leading-tight">
+        <h1 {...attributes} className="text-3xl font-bold mb-4 text-foreground leading-tight dark:text-slate-100">
           {children}
         </h1>
       );
     case 'heading-two':
       return (
-        <h2 {...attributes} className="text-2xl font-semibold mb-3 text-foreground leading-tight">
+        <h2 {...attributes} className="text-2xl font-semibold mb-3 text-foreground leading-tight dark:text-slate-200">
           {children}
         </h2>
       );
     case 'list-item':
-      return <li {...attributes} className="py-1">{children}</li>;
+      return <li {...attributes} className="py-1 dark:text-slate-300">{children}</li>;
     case 'numbered-list':
       return (
-        <ol {...attributes} className="list-decimal list-inside space-y-1 my-4 pl-4">
+        <ol {...attributes} className="list-decimal list-inside space-y-1 my-4 pl-4 dark:text-slate-300">
           {children}
         </ol>
       );
     case 'code-block':
       return (
-        <pre {...attributes} className="bg-muted/50 border border-border p-4 rounded-lg font-mono text-sm my-4 overflow-x-auto">
-          <code className="text-foreground">{children}</code>
+        <pre {...attributes} className="bg-muted/50 border border-border p-4 rounded-lg font-mono text-sm my-4 overflow-x-auto dark:bg-slate-800/80 dark:border-slate-600 dark:text-slate-200">
+          <code className="text-foreground dark:text-slate-200">{children}</code>
         </pre>
       );
     default:
-      return <p {...attributes} className="mb-4 leading-relaxed text-foreground">{children}</p>;
+      return <p {...attributes} className="mb-4 leading-relaxed text-foreground dark:text-slate-300">{children}</p>;
   }
 };
 
@@ -134,23 +135,23 @@ const Leaf = ({ attributes, children, leaf }: RenderLeafProps) => {
   const customLeaf = leaf as CustomText;
   
   if (customLeaf.bold) {
-    children = <strong className="font-semibold">{children}</strong>;
+    children = <strong className="font-semibold dark:text-slate-100">{children}</strong>;
   }
 
   if (customLeaf.code) {
     children = (
-      <code className="bg-muted px-2 py-1 rounded-md text-sm font-mono border border-border">
+      <code className="bg-muted px-2 py-1 rounded-md text-sm font-mono border border-border dark:bg-slate-800 dark:text-blue-300 dark:border-slate-600">
         {children}
       </code>
     );
   }
 
   if (customLeaf.italic) {
-    children = <em className="italic">{children}</em>;
+    children = <em className="italic dark:text-slate-300">{children}</em>;
   }
 
   if (customLeaf.underline) {
-    children = <u className="underline decoration-2 underline-offset-2">{children}</u>;
+    children = <u className="underline decoration-2 underline-offset-2 dark:decoration-blue-400/70">{children}</u>;
   }
 
   return <span {...attributes}>{children}</span>;
@@ -273,7 +274,7 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({ value, onChange, placeh
 
   return (
     <>
-      <div className="border-2 border-blue-200/50 rounded-2xl shadow-large overflow-hidden bg-gradient-to-br from-white via-blue-50/20 to-purple-50/20 backdrop-blur-sm">
+      <div className="border-2 border-blue-200/50 rounded-2xl shadow-large overflow-hidden bg-gradient-to-br from-white via-blue-50/20 to-purple-50/20 backdrop-blur-sm dark:from-slate-800 dark:via-slate-800/80 dark:to-slate-700/80 dark:border-slate-600/50">
         <SmartToolbar
           onFormatClick={handleFormatClick}
           onAIClick={() => setShowAIAssistant(true)}
@@ -281,13 +282,13 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({ value, onChange, placeh
           selectedText={selectedText}
         />
 
-        <div className="editor-content p-8 min-h-[500px] max-h-[700px] overflow-y-auto">
+        <div className="editor-content p-8 min-h-[500px] max-h-[700px] overflow-y-auto bg-white/50 dark:bg-slate-900/70">
           <Slate editor={editor} initialValue={slateValue} onValueChange={handleChange}>
             <Editable
               renderElement={renderElement}
               renderLeaf={renderLeaf}
               placeholder={placeholder}
-              className="focus:outline-none prose prose-lg max-w-none text-gray-800 leading-relaxed"
+              className="focus:outline-none prose prose-lg max-w-none text-gray-800 leading-relaxed dark:text-slate-200 dark:placeholder-slate-500"
               spellCheck
               onSelect={handleTextSelection}
               onKeyDown={(event) => {
