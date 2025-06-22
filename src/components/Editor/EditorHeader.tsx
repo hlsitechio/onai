@@ -1,9 +1,10 @@
 
 import React from 'react';
 import { motion, AnimatePresence, Variants } from 'framer-motion';
-import { Crown, Focus, Heart, Save, ChevronUp, ChevronDown } from 'lucide-react';
+import { Crown, Focus, Heart, Save, ChevronUp, ChevronDown, PanelLeftClose } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { useSidebar } from '@/components/ui/sidebar';
 
 interface EditorHeaderProps {
   isNewNote: boolean;
@@ -16,6 +17,7 @@ interface EditorHeaderProps {
   onFocusModeToggle: () => void;
   onHeaderCollapseToggle?: () => void;
   onSave: () => void;
+  onCollapseAllBars?: () => void;
 }
 
 const headerVariants: Variants = {
@@ -94,7 +96,17 @@ const EditorHeader: React.FC<EditorHeaderProps> = ({
   onFocusModeToggle,
   onHeaderCollapseToggle,
   onSave,
+  onCollapseAllBars,
 }) => {
+  const { state, setOpen } = useSidebar();
+
+  const handleCollapseAll = () => {
+    // Collapse the sidebar
+    setOpen(false);
+    // Trigger the AI assistant collapse
+    onCollapseAllBars?.();
+  };
+
   if (isCollapsed) {
     return (
       <motion.div
@@ -119,6 +131,17 @@ const EditorHeader: React.FC<EditorHeaderProps> = ({
           </motion.span>
         </div>
         <div className="flex gap-2">
+          <motion.div variants={buttonVariants} whileHover="hover" whileTap="tap">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handleCollapseAll}
+              className="text-gray-600 bg-gray-50/20 dark:bg-gray-800/20 dark:text-gray-400 hover:scale-105 transition-all backdrop-blur-sm border-0"
+            >
+              <PanelLeftClose className="w-4 h-4 mr-1" />
+              Collapse All
+            </Button>
+          </motion.div>
           <motion.div variants={buttonVariants} whileHover="hover" whileTap="tap">
             <Button
               variant="ghost"
@@ -256,6 +279,17 @@ const EditorHeader: React.FC<EditorHeaderProps> = ({
         </AnimatePresence>
       </div>
       <div className="flex gap-3">
+        <motion.div variants={buttonVariants} whileHover="hover" whileTap="tap">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={handleCollapseAll}
+            className="text-gray-600 bg-gray-50/20 dark:bg-gray-800/20 dark:text-gray-400 hover:scale-105 transition-all backdrop-blur-sm border-0"
+          >
+            <PanelLeftClose className="w-4 h-4 mr-2" />
+            Collapse All Bars
+          </Button>
+        </motion.div>
         <motion.div variants={buttonVariants} whileHover="hover" whileTap="tap">
           <Button
             variant="ghost"

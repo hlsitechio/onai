@@ -20,6 +20,7 @@ interface EditorLayoutProps {
   onAddTag: () => void;
   onRemoveTag: (tag: string) => void;
   onSuggestionApply: (original: string, suggestion: string) => void;
+  collapseAssistantRef?: React.MutableRefObject<(() => void) | undefined>;
 }
 
 const EditorLayout: React.FC<EditorLayoutProps> = ({
@@ -36,6 +37,7 @@ const EditorLayout: React.FC<EditorLayoutProps> = ({
   onAddTag,
   onRemoveTag,
   onSuggestionApply,
+  collapseAssistantRef,
 }) => {
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
 
@@ -82,6 +84,7 @@ const EditorLayout: React.FC<EditorLayoutProps> = ({
           content={content}
           onSuggestionApply={onSuggestionApply}
           onCollapseChange={setIsSidebarCollapsed}
+          collapseRef={collapseAssistantRef}
         />
       </div>
     </div>

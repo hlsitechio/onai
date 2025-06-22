@@ -1,5 +1,4 @@
-
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useImperativeHandle } from 'react';
 import { motion, AnimatePresence, Variants } from 'framer-motion';
 import { 
   ChevronLeft, 
@@ -27,6 +26,7 @@ interface CollapsibleAssistantProps {
   content: string;
   onSuggestionApply: (original: string, suggestion: string) => void;
   onCollapseChange?: (isCollapsed: boolean) => void;
+  collapseRef?: React.MutableRefObject<(() => void) | undefined>;
 }
 
 const sidebarVariants: Variants = {
@@ -92,13 +92,26 @@ const iconVariants: Variants = {
 const CollapsibleAssistant: React.FC<CollapsibleAssistantProps> = ({
   content,
   onSuggestionApply,
-  onCollapseChange
+  onCollapseChange,
+  collapseRef
 }) => {
   const [isCollapsed, setIsCollapsed] = useState(false);
 
   useEffect(() => {
     onCollapseChange?.(isCollapsed);
   }, [isCollapsed, onCollapseChange]);
+
+  // Expose collapse function via ref
+  useImperativeHandle(collapseRef, () => ({
+    collapse: () => setIsCollapsed(true)
+  }), []);
+
+  // Update the ref whenever it changes
+  useEffect(() => {
+    if (collapseRef) {
+      collapseRef.current = () => setIsCollapsed(true);
+    }
+  }, [collapseRef]);
 
   const handleToggle = (collapsed: boolean) => {
     setIsCollapsed(collapsed);
@@ -161,6 +174,7 @@ const CollapsibleAssistant: React.FC<CollapsibleAssistantProps> = ({
 
         {/* Content */}
         <div className="flex-1 p-4 space-y-4 overflow-auto">
+          {/* ... keep existing code (AnimatePresence with collapsed and expanded content) */}
           <AnimatePresence>
             {isCollapsed ? (
               <motion.div

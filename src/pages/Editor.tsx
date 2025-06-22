@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react';
+
+import React, { useState, useEffect, useRef } from 'react';
 import { useNotes } from '../contexts/NotesContext';
 import { NoteCategory } from '../types/note';
 import FocusMode from '../components/Editor/FocusMode';
@@ -26,6 +27,9 @@ const Editor: React.FC = () => {
   const [isSaving, setIsSaving] = useState(false);
   const [isFocusMode, setIsFocusMode] = useState(false);
   const [isHeaderCollapsed, setIsHeaderCollapsed] = useState(false);
+  
+  // Reference to trigger AI assistant collapse
+  const collapseAssistantRef = useRef<() => void>();
 
   // Load current note when it changes
   useEffect(() => {
@@ -90,6 +94,13 @@ const Editor: React.FC = () => {
     setContent(updatedContent);
   };
 
+  const handleCollapseAllBars = () => {
+    // Trigger AI assistant collapse
+    if (collapseAssistantRef.current) {
+      collapseAssistantRef.current();
+    }
+  };
+
   return (
     <SidebarProvider>
       <div className="flex min-h-screen w-full bg-background">
@@ -107,6 +118,7 @@ const Editor: React.FC = () => {
               onFocusModeToggle={() => setIsFocusMode(true)}
               onHeaderCollapseToggle={() => setIsHeaderCollapsed(!isHeaderCollapsed)}
               onSave={handleSave}
+              onCollapseAllBars={handleCollapseAllBars}
             />
 
             {!isFocusMode && !isHeaderCollapsed && (
@@ -125,6 +137,7 @@ const Editor: React.FC = () => {
                   onAddTag={addTag}
                   onRemoveTag={removeTag}
                   onSuggestionApply={handleSuggestionApply}
+                  collapseAssistantRef={collapseAssistantRef}
                 />
               </div>
             )}
@@ -145,6 +158,7 @@ const Editor: React.FC = () => {
                   onAddTag={addTag}
                   onRemoveTag={removeTag}
                   onSuggestionApply={handleSuggestionApply}
+                  collapseAssistantRef={collapseAssistantRef}
                 />
               </div>
             )}
