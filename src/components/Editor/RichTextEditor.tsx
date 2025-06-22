@@ -1,9 +1,10 @@
 import React, { useMemo, useState, useCallback } from 'react';
-import { createEditor, Descendant, Editor, Transforms, Element as SlateElement } from 'slate';
-import { Slate, Editable, withReact, RenderElementProps, RenderLeafProps } from 'slate-react';
+import { createEditor, Descendant, Editor, Transforms, Element as SlateElement, Range, Text } from 'slate';
+import { Slate, Editable, withReact, RenderElementProps, RenderLeafProps, ReactEditor } from 'slate-react';
 import { withHistory } from 'slate-history';
 import { Button } from '@/components/ui/button';
-import { Bold, Italic, Underline, Code, List, ListOrdered, Quote, Heading1, Heading2 } from 'lucide-react';
+import { Bold, Italic, Underline, Code, List, ListOrdered, Quote, Heading1, Heading2, Bot, Sparkles } from 'lucide-react';
+import AICopilot from './AICopilot';
 
 // Define custom types for Slate
 type CustomElement = {
@@ -158,6 +159,9 @@ const Leaf = ({ attributes, children, leaf }: RenderLeafProps) => {
 
 const RichTextEditor: React.FC<RichTextEditorProps> = ({ value, onChange, placeholder = "Start writing..." }) => {
   const editor = useMemo(() => withHistory(withReact(createEditor())), []);
+  const [showAICopilot, setShowAICopilot] = useState(false);
+  const [selectedText, setSelectedText] = useState('');
+  const [copilotPosition, setCopilotPosition] = useState<{ x: number; y: number } | undefined>();
 
   // Parse the value from string to Slate value
   const initialValue: Descendant[] = useMemo(() => {
@@ -189,162 +193,251 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({ value, onChange, placeh
   const renderElement = useCallback((props: RenderElementProps) => <Element {...props} />, []);
   const renderLeaf = useCallback((props: RenderLeafProps) => <Leaf {...props} />, []);
 
+  const handleTextSelection = useCallback(() => {
+    const { selection } = editor;
+    if (selection && !Range.isCollapsed(selection)) {
+      const selectedText = Editor.string(editor, selection);
+      setSelectedText(selectedText);
+      
+      // Get cursor position for copilot placement
+      const domSelection = window.getSelection();
+      if (domSelection && domSelection.rangeCount > 0) {
+        const range = domSelection.getRangeAt(0);
+        const rect = range.getBoundingClientRect();
+        setCopilotPosition({
+          x: rect.left + rect.width / 2,
+          y: rect.top - 10
+        });
+      }
+    } else {
+      setSelectedText('');
+    }
+  }, [editor]);
+
+  const handleAIInsert = useCallback((text: string) => {
+    const { selection } = editor;
+    if (selection) {
+      Transforms.insertText(editor, `\n\n${text}`, { at: selection });
+    }
+  }, [editor]);
+
+  const handleAIReplace = useCallback((text: string) => {
+    const { selection } = editor;
+    if (selection && !Range.isCollapsed(selection)) {
+      Transforms.delete(editor, { at: selection });
+      Transforms.insertText(editor, text, { at: selection });
+    }
+  }, [editor]);
+
+  const handleAIAssist = () => {
+    setShowAICopilot(true);
+    if (!selectedText) {
+      setCopilotPosition(undefined); // Center the copilot if no text is selected
+    }
+  };
+
   return (
-    <div className="border border-border rounded-xl shadow-soft overflow-hidden bg-card">
-      {/* Enhanced Toolbar */}
-      <div className="editor-toolbar">
-        <div className="flex items-center gap-1">
-          <Button
-            variant="ghost"
-            size="sm"
-            className={`editor-button ${isMarkActive(editor, 'bold') ? 'active' : ''}`}
-            onMouseDown={(event) => {
-              event.preventDefault();
-              toggleMark(editor, 'bold');
-            }}
-          >
-            <Bold className="w-4 h-4" />
-          </Button>
-          
-          <Button
-            variant="ghost"
-            size="sm"
-            className={`editor-button ${isMarkActive(editor, 'italic') ? 'active' : ''}`}
-            onMouseDown={(event) => {
-              event.preventDefault();
-              toggleMark(editor, 'italic');
-            }}
-          >
-            <Italic className="w-4 h-4" />
-          </Button>
-          
-          <Button
-            variant="ghost"
-            size="sm"
-            className={`editor-button ${isMarkActive(editor, 'underline') ? 'active' : ''}`}
-            onMouseDown={(event) => {
-              event.preventDefault();
-              toggleMark(editor, 'underline');
-            }}
-          >
-            <Underline className="w-4 h-4" />
-          </Button>
-          
-          <Button
-            variant="ghost"
-            size="sm"
-            className={`editor-button ${isMarkActive(editor, 'code') ? 'active' : ''}`}
-            onMouseDown={(event) => {
-              event.preventDefault();
-              toggleMark(editor, 'code');
-            }}
-          >
-            <Code className="w-4 h-4" />
-          </Button>
+    <>
+      <div className="border border-border rounded-xl shadow-soft overflow-hidden bg-card">
+        {/* Enhanced Toolbar */}
+        <div className="editor-toolbar">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-1">
+              <Button
+                variant="ghost"
+                size="sm"
+                className={`editor-button ${isMarkActive(editor, 'bold') ? 'active' : ''}`}
+                onMouseDown={(event) => {
+                  event.preventDefault();
+                  toggleMark(editor, 'bold');
+                }}
+              >
+                <Bold className="w-4 h-4" />
+              </Button>
+              
+              <Button
+                variant="ghost"
+                size="sm"
+                className={`editor-button ${isMarkActive(editor, 'italic') ? 'active' : ''}`}
+                onMouseDown={(event) => {
+                  event.preventDefault();
+                  toggleMark(editor, 'italic');
+                }}
+              >
+                <Italic className="w-4 h-4" />
+              </Button>
+              
+              <Button
+                variant="ghost"
+                size="sm"
+                className={`editor-button ${isMarkActive(editor, 'underline') ? 'active' : ''}`}
+                onMouseDown={(event) => {
+                  event.preventDefault();
+                  toggleMark(editor, 'underline');
+                }}
+              >
+                <Underline className="w-4 h-4" />
+              </Button>
+              
+              <Button
+                variant="ghost"
+                size="sm"
+                className={`editor-button ${isMarkActive(editor, 'code') ? 'active' : ''}`}
+                onMouseDown={(event) => {
+                  event.preventDefault();
+                  toggleMark(editor, 'code');
+                }}
+              >
+                <Code className="w-4 h-4" />
+              </Button>
 
-          <div className="w-px h-6 bg-border mx-2" />
+              <div className="w-px h-6 bg-border mx-2" />
 
-          <Button
-            variant="ghost"
-            size="sm"
-            className={`editor-button ${isBlockActive(editor, 'heading-one') ? 'active' : ''}`}
-            onMouseDown={(event) => {
-              event.preventDefault();
-              toggleBlock(editor, 'heading-one');
-            }}
-          >
-            <Heading1 className="w-4 h-4" />
-          </Button>
-          
-          <Button
-            variant="ghost"
-            size="sm"
-            className={`editor-button ${isBlockActive(editor, 'heading-two') ? 'active' : ''}`}
-            onMouseDown={(event) => {
-              event.preventDefault();
-              toggleBlock(editor, 'heading-two');
-            }}
-          >
-            <Heading2 className="w-4 h-4" />
-          </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                className={`editor-button ${isBlockActive(editor, 'heading-one') ? 'active' : ''}`}
+                onMouseDown={(event) => {
+                  event.preventDefault();
+                  toggleBlock(editor, 'heading-one');
+                }}
+              >
+                <Heading1 className="w-4 h-4" />
+              </Button>
+              
+              <Button
+                variant="ghost"
+                size="sm"
+                className={`editor-button ${isBlockActive(editor, 'heading-two') ? 'active' : ''}`}
+                onMouseDown={(event) => {
+                  event.preventDefault();
+                  toggleBlock(editor, 'heading-two');
+                }}
+              >
+                <Heading2 className="w-4 h-4" />
+              </Button>
 
-          <Button
-            variant="ghost"
-            size="sm"
-            className={`editor-button ${isBlockActive(editor, 'block-quote') ? 'active' : ''}`}
-            onMouseDown={(event) => {
-              event.preventDefault();
-              toggleBlock(editor, 'block-quote');
-            }}
-          >
-            <Quote className="w-4 h-4" />
-          </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                className={`editor-button ${isBlockActive(editor, 'block-quote') ? 'active' : ''}`}
+                onMouseDown={(event) => {
+                  event.preventDefault();
+                  toggleBlock(editor, 'block-quote');
+                }}
+              >
+                <Quote className="w-4 h-4" />
+              </Button>
 
-          <Button
-            variant="ghost"
-            size="sm"
-            className={`editor-button ${isBlockActive(editor, 'numbered-list') ? 'active' : ''}`}
-            onMouseDown={(event) => {
-              event.preventDefault();
-              toggleBlock(editor, 'numbered-list');
-            }}
-          >
-            <ListOrdered className="w-4 h-4" />
-          </Button>
-          
-          <Button
-            variant="ghost"
-            size="sm"
-            className={`editor-button ${isBlockActive(editor, 'bulleted-list') ? 'active' : ''}`}
-            onMouseDown={(event) => {
-              event.preventDefault();
-              toggleBlock(editor, 'bulleted-list');
-            }}
-          >
-            <List className="w-4 h-4" />
-          </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                className={`editor-button ${isBlockActive(editor, 'numbered-list') ? 'active' : ''}`}
+                onMouseDown={(event) => {
+                  event.preventDefault();
+                  toggleBlock(editor, 'numbered-list');
+                }}
+              >
+                <ListOrdered className="w-4 h-4" />
+              </Button>
+              
+              <Button
+                variant="ghost"
+                size="sm"
+                className={`editor-button ${isBlockActive(editor, 'bulleted-list') ? 'active' : ''}`}
+                onMouseDown={(event) => {
+                  event.preventDefault();
+                  toggleBlock(editor, 'bulleted-list');
+                }}
+              >
+                <List className="w-4 h-4" />
+              </Button>
+            </div>
+            
+            {/* AI Assistant Button */}
+            <div className="flex items-center gap-2">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={handleAIAssist}
+                className="text-primary hover:bg-primary/10"
+              >
+                <Bot className="w-4 h-4 mr-1" />
+                AI Assistant
+              </Button>
+              
+              {selectedText && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setShowAICopilot(true)}
+                  className="text-purple-600 hover:bg-purple-50"
+                >
+                  <Sparkles className="w-4 h-4 mr-1" />
+                  Enhance
+                </Button>
+              )}
+            </div>
+          </div>
+        </div>
+
+        {/* Enhanced Editor Content */}
+        <div className="editor-content">
+          <Slate editor={editor} initialValue={slateValue} onValueChange={handleChange}>
+            <Editable
+              renderElement={renderElement}
+              renderLeaf={renderLeaf}
+              placeholder={placeholder}
+              className="focus:outline-none prose prose-sm max-w-none"
+              spellCheck
+              onSelect={handleTextSelection}
+              onKeyDown={(event) => {
+                if (!event.ctrlKey) return;
+
+                switch (event.key) {
+                  case 'b': {
+                    event.preventDefault();
+                    toggleMark(editor, 'bold');
+                    break;
+                  }
+                  case 'i': {
+                    event.preventDefault();
+                    toggleMark(editor, 'italic');
+                    break;
+                  }
+                  case 'u': {
+                    event.preventDefault();
+                    toggleMark(editor, 'underline');
+                    break;
+                  }
+                  case '`': {
+                    event.preventDefault();
+                    toggleMark(editor, 'code');
+                    break;
+                  }
+                }
+                
+                // Quick AI shortcut
+                if (event.ctrlKey && event.key === '/') {
+                  event.preventDefault();
+                  handleAIAssist();
+                }
+              }}
+            />
+          </Slate>
         </div>
       </div>
 
-      {/* Enhanced Editor Content */}
-      <div className="editor-content">
-        <Slate editor={editor} initialValue={slateValue} onValueChange={handleChange}>
-          <Editable
-            renderElement={renderElement}
-            renderLeaf={renderLeaf}
-            placeholder={placeholder}
-            className="focus:outline-none prose prose-sm max-w-none"
-            spellCheck
-            onKeyDown={(event) => {
-              if (!event.ctrlKey) return;
-
-              switch (event.key) {
-                case 'b': {
-                  event.preventDefault();
-                  toggleMark(editor, 'bold');
-                  break;
-                }
-                case 'i': {
-                  event.preventDefault();
-                  toggleMark(editor, 'italic');
-                  break;
-                }
-                case 'u': {
-                  event.preventDefault();
-                  toggleMark(editor, 'underline');
-                  break;
-                }
-                case '`': {
-                  event.preventDefault();
-                  toggleMark(editor, 'code');
-                  break;
-                }
-              }
-            }}
-          />
-        </Slate>
-      </div>
-    </div>
+      {/* AI Copilot */}
+      <AICopilot
+        selectedText={selectedText}
+        onTextInsert={handleAIInsert}
+        onTextReplace={handleAIReplace}
+        isVisible={showAICopilot}
+        onClose={() => setShowAICopilot(false)}
+        position={copilotPosition}
+      />
+    </>
   );
 };
 
