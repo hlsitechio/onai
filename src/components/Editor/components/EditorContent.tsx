@@ -1,13 +1,12 @@
 
 import React, { useCallback } from 'react';
-import { Slate, Editable } from 'slate-react';
-import { Editor } from 'slate';
+import { Slate, Editable, ReactEditor } from 'slate-react';
 import { SlateValue } from '../types';
 import ElementRenderer from '../rendering/ElementRenderer';
 import LeafRenderer from '../rendering/LeafRenderer';
 
 interface EditorContentProps {
-  editor: Editor;
+  editor: ReactEditor;
   slateValue: SlateValue;
   onChange: (value: any[]) => void;
   placeholder: string;
