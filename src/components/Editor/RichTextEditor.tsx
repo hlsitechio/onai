@@ -80,6 +80,22 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
     }
   }, [editor]);
 
+  const handleTextInsert = useCallback((text: string) => {
+    const { selection } = editor;
+    if (selection) {
+      // Insert text at current cursor position
+      Transforms.insertText(editor, text, { at: selection });
+    } else {
+      // If no selection, insert at the end
+      const endPoint = Editor.end(editor, []);
+      Transforms.select(editor, endPoint);
+      Transforms.insertText(editor, text);
+    }
+    
+    // Focus the editor after insertion
+    ReactEditor.focus(editor);
+  }, [editor]);
+
   const handleFormatClick = useCallback((formatId: string, event: React.MouseEvent) => {
     event.preventDefault();
     
@@ -130,6 +146,7 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
         <SmartToolbar
           onFormatClick={handleFormatClick}
           onAIClick={() => setShowAIAssistant(true)}
+          onTextInsert={handleTextInsert}
           activeFormats={getActiveFormats()}
           selectedText={selectedText}
         />
