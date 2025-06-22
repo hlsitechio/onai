@@ -26,8 +26,7 @@ const NotesEditorMainPanel: React.FC<NotesEditorMainPanelProps> = ({
 
   return (
     <ResizablePanel 
-      defaultSize={aiPanelOpen ? 50 : 75}
-      minSize={30}
+      minSize={20}
       className="flex flex-col bg-slate-900/50 backdrop-blur-xl"
     >
       {/* Top Bar */}

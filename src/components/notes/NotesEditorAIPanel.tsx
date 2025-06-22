@@ -20,8 +20,8 @@ const NotesEditorAIPanel: React.FC<NotesEditorAIPanelProps> = ({
       />
       <ResizablePanel 
         defaultSize={25} 
-        minSize={20} 
-        maxSize={50}
+        minSize={10} 
+        maxSize={80}
         className="min-w-0"
       >
         <div className="h-full bg-slate-900/90 backdrop-blur-xl border-l border-slate-700/50">

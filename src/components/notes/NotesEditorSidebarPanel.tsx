@@ -27,8 +27,8 @@ const NotesEditorSidebarPanel: React.FC<NotesEditorSidebarPanelProps> = ({
     <>
       <ResizablePanel 
         defaultSize={25} 
-        minSize={15} 
-        maxSize={50}
+        minSize={10} 
+        maxSize={80}
         className="min-w-0"
       >
         <div className="h-full bg-slate-900/90 backdrop-blur-xl border-r border-slate-700/50">
