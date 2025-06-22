@@ -2,9 +2,8 @@ import React, { useMemo, useState, useCallback } from 'react';
 import { createEditor, Descendant, Editor, Transforms, Element as SlateElement, Range, Text } from 'slate';
 import { Slate, Editable, withReact, RenderElementProps, RenderLeafProps, ReactEditor } from 'slate-react';
 import { withHistory } from 'slate-history';
-import { Button } from '@/components/ui/button';
-import { Bold, Italic, Underline, Code, List, ListOrdered, Quote, Heading1, Heading2, Bot, Sparkles } from 'lucide-react';
-import AICopilot from './AICopilot';
+import SmartToolbar from './SmartToolbar';
+import EnhancedAIAssistant from './EnhancedAIAssistant';
 
 // Define custom types for Slate
 type CustomElement = {
@@ -157,11 +156,11 @@ const Leaf = ({ attributes, children, leaf }: RenderLeafProps) => {
   return <span {...attributes}>{children}</span>;
 };
 
-const RichTextEditor: React.FC<RichTextEditorProps> = ({ value, onChange, placeholder = "Start writing..." }) => {
+const RichTextEditor: React.FC<RichTextEditorProps> = ({ value, onChange, placeholder = "Start writing something amazing..." }) => {
   const editor = useMemo(() => withHistory(withReact(createEditor())), []);
-  const [showAICopilot, setShowAICopilot] = useState(false);
+  const [showAIAssistant, setShowAIAssistant] = useState(false);
   const [selectedText, setSelectedText] = useState('');
-  const [copilotPosition, setCopilotPosition] = useState<{ x: number; y: number } | undefined>();
+  const [assistantPosition, setAssistantPosition] = useState<{ x: number; y: number } | undefined>();
 
   // Parse the value from string to Slate value
   const initialValue: Descendant[] = useMemo(() => {
@@ -199,12 +198,11 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({ value, onChange, placeh
       const selectedText = Editor.string(editor, selection);
       setSelectedText(selectedText);
       
-      // Get cursor position for copilot placement
       const domSelection = window.getSelection();
       if (domSelection && domSelection.rangeCount > 0) {
         const range = domSelection.getRangeAt(0);
         const rect = range.getBoundingClientRect();
-        setCopilotPosition({
+        setAssistantPosition({
           x: rect.left + rect.width / 2,
           y: rect.top - 10
         });
@@ -229,166 +227,67 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({ value, onChange, placeh
     }
   }, [editor]);
 
-  const handleAIAssist = () => {
-    setShowAICopilot(true);
-    if (!selectedText) {
-      setCopilotPosition(undefined); // Center the copilot if no text is selected
+  const handleFormatClick = useCallback((formatId: string, event: React.MouseEvent) => {
+    event.preventDefault();
+    
+    const textFormats = ['bold', 'italic', 'underline', 'code'];
+    const blockFormats = ['heading-one', 'heading-two', 'block-quote', 'numbered-list', 'bulleted-list'];
+    
+    if (textFormats.includes(formatId)) {
+      toggleMark(editor, formatId as keyof CustomText);
+    } else if (blockFormats.includes(formatId)) {
+      toggleBlock(editor, formatId as CustomElement['type']);
     }
-  };
+  }, [editor]);
+
+  const getActiveFormats = useCallback(() => {
+    const formats = new Set<string>();
+    
+    // Check text formatting
+    const marks = Editor.marks(editor);
+    if (marks) {
+      Object.keys(marks).forEach(mark => {
+        if (marks[mark]) formats.add(mark);
+      });
+    }
+    
+    // Check block formatting
+    const { selection } = editor;
+    if (selection) {
+      const [match] = Array.from(
+        Editor.nodes(editor, {
+          at: Editor.unhangRange(editor, selection),
+          match: n => !Editor.isEditor(n) && SlateElement.isElement(n),
+        })
+      );
+      
+      if (match) {
+        const [node] = match;
+        const element = node as CustomElement;
+        formats.add(element.type);
+      }
+    }
+    
+    return formats;
+  }, [editor]);
 
   return (
     <>
-      <div className="border border-border rounded-xl shadow-soft overflow-hidden bg-card">
-        {/* Enhanced Toolbar */}
-        <div className="editor-toolbar">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-1">
-              <Button
-                variant="ghost"
-                size="sm"
-                className={`editor-button ${isMarkActive(editor, 'bold') ? 'active' : ''}`}
-                onMouseDown={(event) => {
-                  event.preventDefault();
-                  toggleMark(editor, 'bold');
-                }}
-              >
-                <Bold className="w-4 h-4" />
-              </Button>
-              
-              <Button
-                variant="ghost"
-                size="sm"
-                className={`editor-button ${isMarkActive(editor, 'italic') ? 'active' : ''}`}
-                onMouseDown={(event) => {
-                  event.preventDefault();
-                  toggleMark(editor, 'italic');
-                }}
-              >
-                <Italic className="w-4 h-4" />
-              </Button>
-              
-              <Button
-                variant="ghost"
-                size="sm"
-                className={`editor-button ${isMarkActive(editor, 'underline') ? 'active' : ''}`}
-                onMouseDown={(event) => {
-                  event.preventDefault();
-                  toggleMark(editor, 'underline');
-                }}
-              >
-                <Underline className="w-4 h-4" />
-              </Button>
-              
-              <Button
-                variant="ghost"
-                size="sm"
-                className={`editor-button ${isMarkActive(editor, 'code') ? 'active' : ''}`}
-                onMouseDown={(event) => {
-                  event.preventDefault();
-                  toggleMark(editor, 'code');
-                }}
-              >
-                <Code className="w-4 h-4" />
-              </Button>
+      <div className="border-2 border-blue-200/50 rounded-2xl shadow-large overflow-hidden bg-gradient-to-br from-white via-blue-50/20 to-purple-50/20 backdrop-blur-sm">
+        <SmartToolbar
+          onFormatClick={handleFormatClick}
+          onAIClick={() => setShowAIAssistant(true)}
+          activeFormats={getActiveFormats()}
+          selectedText={selectedText}
+        />
 
-              <div className="w-px h-6 bg-border mx-2" />
-
-              <Button
-                variant="ghost"
-                size="sm"
-                className={`editor-button ${isBlockActive(editor, 'heading-one') ? 'active' : ''}`}
-                onMouseDown={(event) => {
-                  event.preventDefault();
-                  toggleBlock(editor, 'heading-one');
-                }}
-              >
-                <Heading1 className="w-4 h-4" />
-              </Button>
-              
-              <Button
-                variant="ghost"
-                size="sm"
-                className={`editor-button ${isBlockActive(editor, 'heading-two') ? 'active' : ''}`}
-                onMouseDown={(event) => {
-                  event.preventDefault();
-                  toggleBlock(editor, 'heading-two');
-                }}
-              >
-                <Heading2 className="w-4 h-4" />
-              </Button>
-
-              <Button
-                variant="ghost"
-                size="sm"
-                className={`editor-button ${isBlockActive(editor, 'block-quote') ? 'active' : ''}`}
-                onMouseDown={(event) => {
-                  event.preventDefault();
-                  toggleBlock(editor, 'block-quote');
-                }}
-              >
-                <Quote className="w-4 h-4" />
-              </Button>
-
-              <Button
-                variant="ghost"
-                size="sm"
-                className={`editor-button ${isBlockActive(editor, 'numbered-list') ? 'active' : ''}`}
-                onMouseDown={(event) => {
-                  event.preventDefault();
-                  toggleBlock(editor, 'numbered-list');
-                }}
-              >
-                <ListOrdered className="w-4 h-4" />
-              </Button>
-              
-              <Button
-                variant="ghost"
-                size="sm"
-                className={`editor-button ${isBlockActive(editor, 'bulleted-list') ? 'active' : ''}`}
-                onMouseDown={(event) => {
-                  event.preventDefault();
-                  toggleBlock(editor, 'bulleted-list');
-                }}
-              >
-                <List className="w-4 h-4" />
-              </Button>
-            </div>
-            
-            {/* AI Assistant Button */}
-            <div className="flex items-center gap-2">
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={handleAIAssist}
-                className="text-primary hover:bg-primary/10"
-              >
-                <Bot className="w-4 h-4 mr-1" />
-                AI Assistant
-              </Button>
-              
-              {selectedText && (
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => setShowAICopilot(true)}
-                  className="text-purple-600 hover:bg-purple-50"
-                >
-                  <Sparkles className="w-4 h-4 mr-1" />
-                  Enhance
-                </Button>
-              )}
-            </div>
-          </div>
-        </div>
-
-        {/* Enhanced Editor Content */}
-        <div className="editor-content">
+        <div className="editor-content p-8 min-h-[500px] max-h-[700px] overflow-y-auto">
           <Slate editor={editor} initialValue={slateValue} onValueChange={handleChange}>
             <Editable
               renderElement={renderElement}
               renderLeaf={renderLeaf}
               placeholder={placeholder}
-              className="focus:outline-none prose prose-sm max-w-none"
+              className="focus:outline-none prose prose-lg max-w-none text-gray-800 leading-relaxed"
               spellCheck
               onSelect={handleTextSelection}
               onKeyDown={(event) => {
@@ -417,10 +316,9 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({ value, onChange, placeh
                   }
                 }
                 
-                // Quick AI shortcut
                 if (event.ctrlKey && event.key === '/') {
                   event.preventDefault();
-                  handleAIAssist();
+                  setShowAIAssistant(true);
                 }
               }}
             />
@@ -428,14 +326,13 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({ value, onChange, placeh
         </div>
       </div>
 
-      {/* AI Copilot */}
-      <AICopilot
+      <EnhancedAIAssistant
         selectedText={selectedText}
         onTextInsert={handleAIInsert}
         onTextReplace={handleAIReplace}
-        isVisible={showAICopilot}
-        onClose={() => setShowAICopilot(false)}
-        position={copilotPosition}
+        isVisible={showAIAssistant}
+        onClose={() => setShowAIAssistant(false)}
+        position={assistantPosition}
       />
     </>
   );
