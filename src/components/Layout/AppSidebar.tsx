@@ -43,7 +43,7 @@ export function AppSidebar() {
   const { state, toggleSidebar } = useSidebar();
 
   return (
-    <Sidebar className="glass border-r border-border/50 backdrop-blur-md">
+    <Sidebar collapsible="icon" className="glass border-r border-border/50 backdrop-blur-md">
       <SidebarHeader className="p-6">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3 group-data-[collapsible=icon]:justify-center">
