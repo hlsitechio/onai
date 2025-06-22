@@ -101,11 +101,6 @@ const CollapsibleAssistant: React.FC<CollapsibleAssistantProps> = ({
     onCollapseChange?.(isCollapsed);
   }, [isCollapsed, onCollapseChange]);
 
-  // Expose collapse function via ref
-  useImperativeHandle(collapseRef, () => ({
-    collapse: () => setIsCollapsed(true)
-  }), []);
-
   // Update the ref whenever it changes
   useEffect(() => {
     if (collapseRef) {
@@ -174,7 +169,6 @@ const CollapsibleAssistant: React.FC<CollapsibleAssistantProps> = ({
 
         {/* Content */}
         <div className="flex-1 p-4 space-y-4 overflow-auto">
-          {/* ... keep existing code (AnimatePresence with collapsed and expanded content) */}
           <AnimatePresence>
             {isCollapsed ? (
               <motion.div
