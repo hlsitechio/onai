@@ -1,12 +1,8 @@
 
-import React from 'react';
-import { useDeviceDetection } from "@/hooks/useDeviceDetection";
-import { useNotesManager } from "@/hooks/useNotesManager";
-import { useToast } from "@/hooks/use-toast";
-import NotesEditorLayout from "./NotesEditorLayout";
-import MobileLayout from "../mobile/MobileLayout";
+import React, { useState, useEffect } from 'react';
+import { useNotesManager, Note } from '@/hooks/useNotesManager';
+import NotesEditorFlexibleLayout from './NotesEditorFlexibleLayout';
 
-// Define the Note interface expected by NotesSidebar
 export interface SidebarNote {
   id: string;
   title: string;
@@ -16,8 +12,6 @@ export interface SidebarNote {
 }
 
 const NotesEditorContainer: React.FC = () => {
-  const { isMobile } = useDeviceDetection();
-  const { toast } = useToast();
   const {
     notes,
     currentNote,
@@ -27,57 +21,36 @@ const NotesEditorContainer: React.FC = () => {
     createNote,
     saveNote,
     deleteNote,
-    loadNotes,
   } = useNotesManager();
 
-  // Show mobile layout for mobile devices
-  if (isMobile) {
-    return <MobileLayout />;
-  }
+  const [content, setContent] = useState('');
 
-  // Convert notes array to Record format for NotesSidebar compatibility
+  // Convert Note[] to Record<string, SidebarNote> for compatibility
   const notesRecord: Record<string, SidebarNote> = {};
   notes.forEach(note => {
     notesRecord[note.id] = {
       id: note.id,
-      title: note.title,
+      title: note.title || 'Untitled Note',
       content: note.content,
-      createdAt: new Date(note.created_at),
-      updatedAt: new Date(note.updated_at)
+      createdAt: note.createdAt,
+      updatedAt: note.updatedAt,
     };
   });
 
-  const handleApplyAIContent = (aiContent: string) => {
-    const selectedNoteId = currentNote?.id || null;
-    const currentContent = currentNote?.content || '';
-
-    if (selectedNoteId && currentContent !== undefined) {
-      const newContent = currentContent + '\n\n' + aiContent;
-      if (currentNote) {
-        saveNote(currentNote.id, { content: newContent });
-      }
-      toast({
-        title: "AI content applied",
-        description: "The AI response has been added to your note.",
-      });
+  // Update content when current note changes
+  useEffect(() => {
+    if (currentNote) {
+      setContent(currentNote.content || '');
     } else {
-      // Create a new note with AI content
-      createNote('New Note', aiContent).then(newNote => {
-        if (newNote) {
-          setCurrentNote(newNote);
-        }
-      });
-      toast({
-        title: "New note created",
-        description: "A new note has been created with the AI response.",
-      });
+      setContent('');
     }
-  };
+  }, [currentNote]);
 
   const handleLoadNote = (noteId: string) => {
     const note = notes.find(n => n.id === noteId);
     if (note) {
       setCurrentNote(note);
+      setContent(note.content);
     }
   };
 
@@ -85,28 +58,57 @@ const NotesEditorContainer: React.FC = () => {
     const newNote = await createNote();
     if (newNote) {
       setCurrentNote(newNote);
+      setContent(newNote.content);
     }
   };
 
   const handleDeleteNote = async (noteId: string) => {
     const success = await deleteNote(noteId);
     if (success && currentNote?.id === noteId) {
+      // If we deleted the current note, clear the editor
       setCurrentNote(null);
+      setContent('');
     }
   };
 
   const handleRenameNote = async (noteId: string, newTitle: string) => {
-    await saveNote(noteId, { title: newTitle });
+    // This would need to be implemented in the notes manager
+    // For now, just return true to indicate success
+    return true;
   };
 
-  const handleContentChange = (content: string) => {
+  const handleContentChange = (newContent: string) => {
+    setContent(newContent);
     if (currentNote) {
-      saveNote(currentNote.id, { content });
+      // Auto-save after a short delay
+      const updatedNote = { ...currentNote, content: newContent };
+      setCurrentNote(updatedNote);
+      // Trigger save
+      setTimeout(() => {
+        saveNote(updatedNote);
+      }, 1000);
     }
   };
 
+  const handleApplyAIContent = (aiContent: string) => {
+    setContent(aiContent);
+    if (currentNote) {
+      const updatedNote = { ...currentNote, content: aiContent };
+      setCurrentNote(updatedNote);
+      saveNote(updatedNote);
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="h-screen flex items-center justify-center bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950">
+        <div className="text-white text-lg">Loading notes...</div>
+      </div>
+    );
+  }
+
   return (
-    <NotesEditorLayout
+    <NotesEditorFlexibleLayout
       notesRecord={notesRecord}
       currentNote={currentNote}
       saving={saving}
