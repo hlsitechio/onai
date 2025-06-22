@@ -3,9 +3,10 @@ import React, { useState, useEffect } from 'react';
 import { useNotes } from '../contexts/NotesContext';
 import { NoteCategory } from '../types/note';
 import FocusMode from '../components/Editor/FocusMode';
-import Layout from '../components/Layout/Layout';
 import EditorHeader from '../components/Editor/EditorHeader';
 import EditorLayout from '../components/Editor/EditorLayout';
+import { AppSidebar } from '../components/Layout/AppSidebar';
+import { SidebarProvider, SidebarInset } from '@/components/ui/sidebar';
 
 const categories: NoteCategory[] = [
   { value: 'general', label: 'General', color: 'gray' },
@@ -90,33 +91,40 @@ const Editor: React.FC = () => {
   };
 
   return (
-    <Layout>
-      <div className="space-y-6 h-[calc(100vh-120px)]">
-        <EditorHeader
-          isNewNote={!currentNote}
-          isFavorite={isFavorite}
-          isSaving={isSaving}
-          canSave={title.trim().length > 0}
-          onFavoriteToggle={() => setIsFavorite(!isFavorite)}
-          onFocusModeToggle={() => setIsFocusMode(true)}
-          onSave={handleSave}
-        />
+    <SidebarProvider>
+      <div className="flex min-h-screen w-full bg-background">
+        <AppSidebar />
+        <SidebarInset className="flex-1">
+          <div className="p-4 space-y-4 h-screen overflow-hidden">
+            <EditorHeader
+              isNewNote={!currentNote}
+              isFavorite={isFavorite}
+              isSaving={isSaving}
+              canSave={title.trim().length > 0}
+              onFavoriteToggle={() => setIsFavorite(!isFavorite)}
+              onFocusModeToggle={() => setIsFocusMode(true)}
+              onSave={handleSave}
+            />
 
-        <EditorLayout
-          title={title}
-          content={content}
-          category={category}
-          tags={tags}
-          newTag={newTag}
-          categories={categories}
-          onTitleChange={setTitle}
-          onContentChange={setContent}
-          onCategoryChange={setCategory}
-          onNewTagChange={setNewTag}
-          onAddTag={addTag}
-          onRemoveTag={removeTag}
-          onSuggestionApply={handleSuggestionApply}
-        />
+            <div className="h-[calc(100vh-120px)]">
+              <EditorLayout
+                title={title}
+                content={content}
+                category={category}
+                tags={tags}
+                newTag={newTag}
+                categories={categories}
+                onTitleChange={setTitle}
+                onContentChange={setContent}
+                onCategoryChange={setCategory}
+                onNewTagChange={setNewTag}
+                onAddTag={addTag}
+                onRemoveTag={removeTag}
+                onSuggestionApply={handleSuggestionApply}
+              />
+            </div>
+          </div>
+        </SidebarInset>
       </div>
 
       {/* Focus Mode Modal */}
@@ -130,7 +138,7 @@ const Editor: React.FC = () => {
         onSave={handleSave}
         isSaving={isSaving}
       />
-    </Layout>
+    </SidebarProvider>
   );
 };
 

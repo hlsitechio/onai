@@ -54,19 +54,17 @@ const AppRoutes = () => {
 
   return (
     <NotesProvider>
-      <Layout>
-        <Routes>
-          <Route path="/" element={<Dashboard />} />
-          <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/chat" element={<Chat />} />
-          <Route path="/editor" element={<Editor />} />
-          <Route path="/notes" element={<Navigate to="/editor" />} />
-          <Route path="/notes-list" element={<Notes />} />
-          <Route path="/calendar" element={<Calendar />} />
-          <Route path="/settings" element={<Settings />} />
-          <Route path="*" element={<Navigate to="/dashboard" />} />
-        </Routes>
-      </Layout>
+      <Routes>
+        <Route path="/" element={<Layout><Dashboard /></Layout>} />
+        <Route path="/dashboard" element={<Layout><Dashboard /></Layout>} />
+        <Route path="/chat" element={<Layout><Chat /></Layout>} />
+        <Route path="/editor" element={<Editor />} />
+        <Route path="/notes" element={<Navigate to="/editor" />} />
+        <Route path="/notes-list" element={<Layout><Notes /></Layout>} />
+        <Route path="/calendar" element={<Layout><Calendar /></Layout>} />
+        <Route path="/settings" element={<Layout><Settings /></Layout>} />
+        <Route path="*" element={<Navigate to="/dashboard" />} />
+      </Routes>
     </NotesProvider>
   );
 };
