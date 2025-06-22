@@ -1,7 +1,6 @@
 
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { Routes, Route, Navigate } from 'react-router-dom';
 import Layout from '../components/Layout/Layout';
 import Dashboard from './Dashboard';
 import Chat from './Chat';
@@ -11,8 +10,6 @@ import Settings from './Settings';
 import Login from './Auth/Login';
 import Register from './Auth/Register';
 import { AuthProvider, useAuth } from '../contexts/AuthContext';
-
-const queryClient = new QueryClient();
 
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const { isAuthenticated } = useAuth();
@@ -49,15 +46,11 @@ const AppRoutes = () => {
 
 const Index = () => {
   return (
-    <QueryClientProvider client={queryClient}>
-      <AuthProvider>
-        <Router>
-          <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-purple-50">
-            <AppRoutes />
-          </div>
-        </Router>
-      </AuthProvider>
-    </QueryClientProvider>
+    <AuthProvider>
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-purple-50">
+        <AppRoutes />
+      </div>
+    </AuthProvider>
   );
 };
 
