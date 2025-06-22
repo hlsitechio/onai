@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -61,8 +60,12 @@ export const CalendarEventForm: React.FC<CalendarEventFormProps> = ({
 
   const handleFormSubmit = (data: EventFormData) => {
     const eventData: Omit<CalendarEvent, 'id'> = {
-      ...data,
+      title: data.title,
+      description: data.description,
       date: data.date.toISOString(),
+      time: data.time,
+      type: data.type,
+      priority: data.priority,
       createdAt: new Date(),
       updatedAt: new Date(),
     };
