@@ -14,7 +14,7 @@ import { useNoteOperations } from './NoteOperations';
 import { useFolderState } from './FolderState';
 
 const NotesTree: React.FC = () => {
-  const { notes, updateNote, deleteNote, setCurrentNote } = useNotes();
+  const { notes, updateNote, deleteNote, setCurrentNote, createNote } = useNotes();
   const { folders, createFolder, updateFolder, deleteFolder } = useFolders();
   const navigate = useNavigate();
   
@@ -52,6 +52,19 @@ const NotesTree: React.FC = () => {
     navigate,
   });
 
+  const handleCreateNote = async (title: string) => {
+    const newNote = await createNote({
+      title,
+      content: '',
+      category: 'general',
+      tags: [],
+      isFavorite: false,
+      color: '#64748b',
+    });
+    setCurrentNote(newNote);
+    navigate('/editor');
+  };
+
   const rootFolders = folders.filter(f => !f.parentId);
   const unorganizedNotes = notes.filter(n => !n.folderId);
 
@@ -66,7 +79,10 @@ const NotesTree: React.FC = () => {
   return (
     <DragDropContext onDragEnd={handleDragEnd}>
       <div className="p-2 space-y-1">
-        <NotesTreeHeader onCreateFolder={handleCreateFolder} />
+        <NotesTreeHeader 
+          onCreateFolder={handleCreateFolder}
+          onCreateNote={handleCreateNote}
+        />
 
         <div className="space-y-1 relative">
           {/* Root Folders */}
