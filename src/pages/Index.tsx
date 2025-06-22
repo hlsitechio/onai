@@ -5,6 +5,7 @@ import Layout from '../components/Layout/Layout';
 import Dashboard from './Dashboard';
 import Chat from './Chat';
 import Editor from './Editor';
+import Calendar from './Calendar';
 import Notes from './Notes';
 import Settings from './Settings';
 import Login from './Auth/Login';
@@ -39,6 +40,7 @@ const AppRoutes = () => {
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/chat" element={<Chat />} />
           <Route path="/editor" element={<Editor />} />
+          <Route path="/calendar" element={<Calendar />} />
           <Route path="/notes" element={<Notes />} />
           <Route path="/settings" element={<Settings />} />
           <Route path="*" element={<Navigate to="/dashboard" />} />

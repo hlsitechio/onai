@@ -9,7 +9,8 @@ import {
   Search,
   Github,
   PanelLeftClose,
-  PanelLeftOpen
+  PanelLeftOpen,
+  Calendar
 } from 'lucide-react';
 import {
   Sidebar,
@@ -32,6 +33,7 @@ const menuItems = [
   { icon: Book, label: 'Dashboard', path: '/dashboard' },
   { icon: Plus, label: 'AI Chat', path: '/chat' },
   { icon: Edit, label: 'Editor', path: '/editor' },
+  { icon: Calendar, label: 'Calendar', path: '/calendar' },
   { icon: Search, label: 'Notes', path: '/notes' },
   { icon: Settings, label: 'Settings', path: '/settings' },
 ];
