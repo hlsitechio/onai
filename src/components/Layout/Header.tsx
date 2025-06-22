@@ -11,12 +11,22 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
-import { useTheme } from 'next-themes';
+import { useTheme } from '@/providers/ThemeProvider';
 import { useAuth } from '../../contexts/AuthContext';
 
 const Header: React.FC = () => {
   const { theme, setTheme } = useTheme();
   const { user } = useAuth();
+
+  const toggleTheme = () => {
+    if (theme === 'dark') {
+      setTheme('light');
+    } else if (theme === 'light') {
+      setTheme('system');
+    } else {
+      setTheme('dark');
+    }
+  };
 
   return (
     <header className="fixed top-0 right-0 left-0 z-50 bg-background/80 backdrop-blur-lg border-b border-border/50 md:left-[var(--sidebar-width)]">
@@ -45,7 +55,7 @@ const Header: React.FC = () => {
           <Button
             variant="ghost"
             size="icon"
-            onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+            onClick={toggleTheme}
             className="glass shadow-medium hover:bg-white/20 dark:hover:bg-slate-700/30"
           >
             <Sun className="h-5 w-5 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />

@@ -1,7 +1,7 @@
-
 import React from 'react';
 import { Settings as SettingsIcon, Book, Github } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
+import { useTheme } from '@/providers/ThemeProvider';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -13,15 +13,23 @@ import { Separator } from '@/components/ui/separator';
 
 const Settings: React.FC = () => {
   const { user } = useAuth();
+  const { theme, setTheme } = useTheme();
+
+  const handleThemeToggle = (checked: boolean) => {
+    setTheme(checked ? 'dark' : 'light');
+  };
+
+  // Determine if dark mode is currently active
+  const isDarkMode = theme === 'dark' || (theme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
 
   return (
     <div className="space-y-6">
       {/* Header */}
       <div>
-        <h1 className="text-2xl font-bold text-gray-800">
+        <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-200">
           Settings
         </h1>
-        <p className="text-gray-600">
+        <p className="text-gray-600 dark:text-gray-400">
           Manage your account and preferences
         </p>
       </div>
@@ -39,11 +47,11 @@ const Settings: React.FC = () => {
               </Avatar>
               <div className="space-y-3 flex-1">
                 <div>
-                  <label className="text-sm text-gray-600 mb-1 block">Full Name</label>
+                  <label className="text-sm text-gray-600 dark:text-gray-400 mb-1 block">Full Name</label>
                   <Input defaultValue={user?.name} className="rounded-lg" />
                 </div>
                 <div>
-                  <label className="text-sm text-gray-600 mb-1 block">Email</label>
+                  <label className="text-sm text-gray-600 dark:text-gray-400 mb-1 block">Email</label>
                   <Input defaultValue={user?.email} className="rounded-lg" />
                 </div>
               </div>
@@ -66,9 +74,12 @@ const Settings: React.FC = () => {
               <div className="flex justify-between items-center">
                 <div>
                   <p className="font-medium">Dark Mode</p>
-                  <p className="text-sm text-gray-600">Toggle dark theme</p>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">Toggle dark theme</p>
                 </div>
-                <Switch />
+                <Switch 
+                  checked={isDarkMode}
+                  onCheckedChange={handleThemeToggle}
+                />
               </div>
 
               <Separator />
@@ -76,7 +87,7 @@ const Settings: React.FC = () => {
               <div className="flex justify-between items-center">
                 <div>
                   <p className="font-medium">AI Suggestions</p>
-                  <p className="text-sm text-gray-600">Get AI-powered writing suggestions</p>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">Get AI-powered writing suggestions</p>
                 </div>
                 <Switch defaultChecked />
               </div>
@@ -86,7 +97,7 @@ const Settings: React.FC = () => {
               <div className="flex justify-between items-center">
                 <div>
                   <p className="font-medium">Auto-save</p>
-                  <p className="text-sm text-gray-600">Automatically save notes while typing</p>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">Automatically save notes while typing</p>
                 </div>
                 <Switch defaultChecked />
               </div>
@@ -96,7 +107,7 @@ const Settings: React.FC = () => {
               <div className="flex justify-between items-center">
                 <div className="flex-1">
                   <p className="font-medium">Default Category</p>
-                  <p className="text-sm text-gray-600">Default category for new notes</p>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">Default category for new notes</p>
                 </div>
                 <Select defaultValue="general">
                   <SelectTrigger className="w-48 rounded-lg">
@@ -122,14 +133,14 @@ const Settings: React.FC = () => {
           <div className="space-y-6">
             <div className="flex justify-between items-center">
               <h3 className="text-lg font-semibold">AI Assistant</h3>
-              <Badge className="rounded-full bg-green-100 text-green-700">Active</Badge>
+              <Badge className="rounded-full bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300">Active</Badge>
             </div>
             
             <div className="space-y-4">
               <div className="flex justify-between items-center">
                 <div className="flex-1">
                   <p className="font-medium">AI Model</p>
-                  <p className="text-sm text-gray-600">Choose your preferred AI model</p>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">Choose your preferred AI model</p>
                 </div>
                 <Select defaultValue="gpt-3.5">
                   <SelectTrigger className="w-48 rounded-lg">
@@ -148,7 +159,7 @@ const Settings: React.FC = () => {
               <div className="flex justify-between items-center">
                 <div>
                   <p className="font-medium">Smart Formatting</p>
-                  <p className="text-sm text-gray-600">AI-powered text formatting and structure</p>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">AI-powered text formatting and structure</p>
                 </div>
                 <Switch defaultChecked />
               </div>
@@ -158,7 +169,7 @@ const Settings: React.FC = () => {
               <div className="flex justify-between items-center">
                 <div>
                   <p className="font-medium">Context Awareness</p>
-                  <p className="text-sm text-gray-600">AI considers your previous notes for better suggestions</p>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">AI considers your previous notes for better suggestions</p>
                 </div>
                 <Switch defaultChecked />
               </div>
@@ -177,7 +188,7 @@ const Settings: React.FC = () => {
               <div className="flex justify-between items-center">
                 <div>
                   <p className="font-medium">Export Notes</p>
-                  <p className="text-sm text-gray-600">Download all your notes as JSON or Markdown</p>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">Download all your notes as JSON or Markdown</p>
                 </div>
                 <Button size="sm" variant="outline">
                   <Book className="w-4 h-4 mr-2" />
@@ -190,7 +201,7 @@ const Settings: React.FC = () => {
               <div className="flex justify-between items-center">
                 <div>
                   <p className="font-medium">Backup to Cloud</p>
-                  <p className="text-sm text-gray-600">Automatically backup your data</p>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">Automatically backup your data</p>
                 </div>
                 <Switch defaultChecked />
               </div>
@@ -206,12 +217,12 @@ const Settings: React.FC = () => {
             <h3 className="text-lg font-semibold">About</h3>
             
             <div className="flex justify-between items-center">
-              <span className="text-gray-600">Version</span>
+              <span className="text-gray-600 dark:text-gray-400">Version</span>
               <span className="font-medium">1.0.0</span>
             </div>
             
             <div className="flex justify-between items-center">
-              <span className="text-gray-600">GitHub</span>
+              <span className="text-gray-600 dark:text-gray-400">GitHub</span>
               <Button size="sm" variant="ghost">
                 <Github className="w-4 h-4 mr-2" />
                 View Source
