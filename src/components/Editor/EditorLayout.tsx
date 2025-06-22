@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { PanelLeftOpen } from 'lucide-react';
+import { PanelLeftOpen, Eye } from 'lucide-react';
 import { motion } from 'framer-motion';
 import RichTextEditor from './RichTextEditor';
 import CollapsibleAssistant from './CollapsibleAssistant';
@@ -27,6 +27,7 @@ interface EditorLayoutProps {
   expandAssistantRef?: React.MutableRefObject<(() => void) | undefined>;
   showCollapseAllButton?: boolean;
   onCollapseAllBars?: () => void;
+  isAllBarsCollapsed?: boolean;
 }
 
 const EditorLayout: React.FC<EditorLayoutProps> = ({
@@ -47,6 +48,7 @@ const EditorLayout: React.FC<EditorLayoutProps> = ({
   expandAssistantRef,
   showCollapseAllButton = false,
   onCollapseAllBars,
+  isAllBarsCollapsed = false,
 }) => {
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [isAssistantCollapsed, setIsAssistantCollapsed] = useState(false);
@@ -74,8 +76,17 @@ const EditorLayout: React.FC<EditorLayoutProps> = ({
             onClick={onCollapseAllBars}
             className="glass shadow-large bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white border-0"
           >
-            <PanelLeftOpen className="w-4 h-4 mr-2" />
-            Show All Bars
+            {isAllBarsCollapsed ? (
+              <>
+                <Eye className="w-4 h-4 mr-2" />
+                Show All Bars
+              </>
+            ) : (
+              <>
+                <PanelLeftOpen className="w-4 h-4 mr-2" />
+                Collapse All
+              </>
+            )}
           </Button>
         </motion.div>
       )}

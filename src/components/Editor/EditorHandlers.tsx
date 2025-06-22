@@ -82,14 +82,13 @@ export const useEditorHandlers = ({
   };
 
   const handleCollapseAllBars = () => {
-    // Toggle header visibility and AI assistant collapse/expand
-    setIsHeaderHidden(!isHeaderHidden);
-    
     if (isHeaderHidden) {
-      // When showing header, expand AI assistant
+      // Currently collapsed - show all bars
+      setIsHeaderHidden(false);
       setIsAssistantCollapsed(false);
     } else {
-      // When hiding header, collapse AI assistant
+      // Currently expanded - collapse all bars
+      setIsHeaderHidden(true);
       setIsAssistantCollapsed(true);
     }
   };

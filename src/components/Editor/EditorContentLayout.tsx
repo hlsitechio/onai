@@ -65,6 +65,7 @@ const EditorContentLayout: React.FC<EditorContentLayoutProps> = ({
         expandAssistantRef={expandAssistantRef}
         showCollapseAllButton={isHeaderHidden}
         onCollapseAllBars={onCollapseAllBars}
+        isAllBarsCollapsed={isHeaderHidden}
       />
     </div>
   );
