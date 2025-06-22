@@ -101,28 +101,31 @@ const Editor: React.FC = () => {
               isFavorite={isFavorite}
               isSaving={isSaving}
               canSave={title.trim().length > 0}
+              isCollapsed={isFocusMode}
               onFavoriteToggle={() => setIsFavorite(!isFavorite)}
               onFocusModeToggle={() => setIsFocusMode(true)}
               onSave={handleSave}
             />
 
-            <div className="h-[calc(100vh-120px)]">
-              <EditorLayout
-                title={title}
-                content={content}
-                category={category}
-                tags={tags}
-                newTag={newTag}
-                categories={categories}
-                onTitleChange={setTitle}
-                onContentChange={setContent}
-                onCategoryChange={setCategory}
-                onNewTagChange={setNewTag}
-                onAddTag={addTag}
-                onRemoveTag={removeTag}
-                onSuggestionApply={handleSuggestionApply}
-              />
-            </div>
+            {!isFocusMode && (
+              <div className="h-[calc(100vh-120px)]">
+                <EditorLayout
+                  title={title}
+                  content={content}
+                  category={category}
+                  tags={tags}
+                  newTag={newTag}
+                  categories={categories}
+                  onTitleChange={setTitle}
+                  onContentChange={setContent}
+                  onCategoryChange={setCategory}
+                  onNewTagChange={setNewTag}
+                  onAddTag={addTag}
+                  onRemoveTag={removeTag}
+                  onSuggestionApply={handleSuggestionApply}
+                />
+              </div>
+            )}
           </div>
         </SidebarInset>
       </div>
