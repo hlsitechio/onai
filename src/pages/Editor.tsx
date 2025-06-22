@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useRef } from 'react';
 import { useNotes } from '../contexts/NotesContext';
 import { NoteCategory } from '../types/note';
@@ -26,6 +27,7 @@ const Editor: React.FC = () => {
   const [isSaving, setIsSaving] = useState(false);
   const [isFocusMode, setIsFocusMode] = useState(false);
   const [isHeaderCollapsed, setIsHeaderCollapsed] = useState(false);
+  const [isHeaderHidden, setIsHeaderHidden] = useState(false);
   
   // References to trigger AI assistant collapse/expand
   const collapseAssistantRef = useRef<() => void>();
@@ -95,11 +97,19 @@ const Editor: React.FC = () => {
   };
 
   const handleCollapseAllBars = () => {
-    // Toggle AI assistant collapse/expand
-    if (collapseAssistantRef.current) {
-      collapseAssistantRef.current();
-    } else if (expandAssistantRef.current) {
-      expandAssistantRef.current();
+    // Toggle header visibility and AI assistant collapse/expand
+    setIsHeaderHidden(!isHeaderHidden);
+    
+    if (isHeaderHidden) {
+      // Expand AI assistant when showing header
+      if (expandAssistantRef.current) {
+        expandAssistantRef.current();
+      }
+    } else {
+      // Collapse AI assistant when hiding header
+      if (collapseAssistantRef.current) {
+        collapseAssistantRef.current();
+      }
     }
   };
 
@@ -109,22 +119,25 @@ const Editor: React.FC = () => {
         <AppSidebar />
         <SidebarInset className="flex-1">
           <div className="p-4 space-y-4 h-screen overflow-hidden">
-            <EditorHeader
-              isNewNote={!currentNote}
-              isFavorite={isFavorite}
-              isSaving={isSaving}
-              canSave={title.trim().length > 0}
-              isCollapsed={isFocusMode}
-              isHeaderCollapsed={isHeaderCollapsed}
-              onFavoriteToggle={() => setIsFavorite(!isFavorite)}
-              onFocusModeToggle={() => setIsFocusMode(true)}
-              onHeaderCollapseToggle={() => setIsHeaderCollapsed(!isHeaderCollapsed)}
-              onSave={handleSave}
-              onCollapseAllBars={handleCollapseAllBars}
-            />
+            {/* Conditionally render header based on isHeaderHidden */}
+            {!isHeaderHidden && (
+              <EditorHeader
+                isNewNote={!currentNote}
+                isFavorite={isFavorite}
+                isSaving={isSaving}
+                canSave={title.trim().length > 0}
+                isCollapsed={isFocusMode}
+                isHeaderCollapsed={isHeaderCollapsed}
+                onFavoriteToggle={() => setIsFavorite(!isFavorite)}
+                onFocusModeToggle={() => setIsFocusMode(true)}
+                onHeaderCollapseToggle={() => setIsHeaderCollapsed(!isHeaderCollapsed)}
+                onSave={handleSave}
+                onCollapseAllBars={handleCollapseAllBars}
+              />
+            )}
 
             {!isFocusMode && !isHeaderCollapsed && (
-              <div className="h-[calc(100vh-120px)]">
+              <div className={isHeaderHidden ? "h-[calc(100vh-32px)]" : "h-[calc(100vh-120px)]"}>
                 <EditorLayout
                   title={title}
                   content={content}
@@ -141,12 +154,14 @@ const Editor: React.FC = () => {
                   onSuggestionApply={handleSuggestionApply}
                   collapseAssistantRef={collapseAssistantRef}
                   expandAssistantRef={expandAssistantRef}
+                  showCollapseAllButton={isHeaderHidden}
+                  onCollapseAllBars={handleCollapseAllBars}
                 />
               </div>
             )}
 
             {!isFocusMode && isHeaderCollapsed && (
-              <div className="h-[calc(100vh-80px)]">
+              <div className={isHeaderHidden ? "h-[calc(100vh-32px)]" : "h-[calc(100vh-80px)]"}>
                 <EditorLayout
                   title={title}
                   content={content}
@@ -163,6 +178,8 @@ const Editor: React.FC = () => {
                   onSuggestionApply={handleSuggestionApply}
                   collapseAssistantRef={collapseAssistantRef}
                   expandAssistantRef={expandAssistantRef}
+                  showCollapseAllButton={isHeaderHidden}
+                  onCollapseAllBars={handleCollapseAllBars}
                 />
               </div>
             )}
