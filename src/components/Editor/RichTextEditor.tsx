@@ -89,44 +89,44 @@ const Element = ({ attributes, children, element }: RenderElementProps) => {
   switch (customElement.type) {
     case 'block-quote':
       return (
-        <blockquote {...attributes} className="border-l-4 border-gray-300 pl-4 italic text-gray-600">
+        <blockquote {...attributes} className="border-l-4 border-primary/40 pl-6 py-2 italic text-muted-foreground bg-muted/20 rounded-r-lg my-4">
           {children}
         </blockquote>
       );
     case 'bulleted-list':
       return (
-        <ul {...attributes} className="list-disc list-inside">
+        <ul {...attributes} className="list-disc list-inside space-y-1 my-4 pl-4">
           {children}
         </ul>
       );
     case 'heading-one':
       return (
-        <h1 {...attributes} className="text-2xl font-bold mb-2">
+        <h1 {...attributes} className="text-3xl font-bold mb-4 text-foreground leading-tight">
           {children}
         </h1>
       );
     case 'heading-two':
       return (
-        <h2 {...attributes} className="text-xl font-semibold mb-2">
+        <h2 {...attributes} className="text-2xl font-semibold mb-3 text-foreground leading-tight">
           {children}
         </h2>
       );
     case 'list-item':
-      return <li {...attributes}>{children}</li>;
+      return <li {...attributes} className="py-1">{children}</li>;
     case 'numbered-list':
       return (
-        <ol {...attributes} className="list-decimal list-inside">
+        <ol {...attributes} className="list-decimal list-inside space-y-1 my-4 pl-4">
           {children}
         </ol>
       );
     case 'code-block':
       return (
-        <pre {...attributes} className="bg-gray-100 p-3 rounded font-mono text-sm">
-          <code>{children}</code>
+        <pre {...attributes} className="bg-muted/50 border border-border p-4 rounded-lg font-mono text-sm my-4 overflow-x-auto">
+          <code className="text-foreground">{children}</code>
         </pre>
       );
     default:
-      return <p {...attributes}>{children}</p>;
+      return <p {...attributes} className="mb-4 leading-relaxed text-foreground">{children}</p>;
   }
 };
 
@@ -134,23 +134,23 @@ const Leaf = ({ attributes, children, leaf }: RenderLeafProps) => {
   const customLeaf = leaf as CustomText;
   
   if (customLeaf.bold) {
-    children = <strong>{children}</strong>;
+    children = <strong className="font-semibold">{children}</strong>;
   }
 
   if (customLeaf.code) {
     children = (
-      <code className="bg-gray-100 px-1 py-0.5 rounded text-sm font-mono">
+      <code className="bg-muted px-2 py-1 rounded-md text-sm font-mono border border-border">
         {children}
       </code>
     );
   }
 
   if (customLeaf.italic) {
-    children = <em>{children}</em>;
+    children = <em className="italic">{children}</em>;
   }
 
   if (customLeaf.underline) {
-    children = <u>{children}</u>;
+    children = <u className="underline decoration-2 underline-offset-2">{children}</u>;
   }
 
   return <span {...attributes}>{children}</span>;
@@ -190,128 +190,130 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({ value, onChange, placeh
   const renderLeaf = useCallback((props: RenderLeafProps) => <Leaf {...props} />, []);
 
   return (
-    <div className="border rounded-lg">
-      {/* Toolbar */}
-      <div className="border-b p-2 flex gap-1 flex-wrap">
-        <Button
-          variant="ghost"
-          size="sm"
-          className={`p-2 ${isMarkActive(editor, 'bold') ? 'bg-gray-200' : ''}`}
-          onMouseDown={(event) => {
-            event.preventDefault();
-            toggleMark(editor, 'bold');
-          }}
-        >
-          <Bold className="w-4 h-4" />
-        </Button>
-        
-        <Button
-          variant="ghost"
-          size="sm"
-          className={`p-2 ${isMarkActive(editor, 'italic') ? 'bg-gray-200' : ''}`}
-          onMouseDown={(event) => {
-            event.preventDefault();
-            toggleMark(editor, 'italic');
-          }}
-        >
-          <Italic className="w-4 h-4" />
-        </Button>
-        
-        <Button
-          variant="ghost"
-          size="sm"
-          className={`p-2 ${isMarkActive(editor, 'underline') ? 'bg-gray-200' : ''}`}
-          onMouseDown={(event) => {
-            event.preventDefault();
-            toggleMark(editor, 'underline');
-          }}
-        >
-          <Underline className="w-4 h-4" />
-        </Button>
-        
-        <Button
-          variant="ghost"
-          size="sm"
-          className={`p-2 ${isMarkActive(editor, 'code') ? 'bg-gray-200' : ''}`}
-          onMouseDown={(event) => {
-            event.preventDefault();
-            toggleMark(editor, 'code');
-          }}
-        >
-          <Code className="w-4 h-4" />
-        </Button>
+    <div className="border border-border rounded-xl shadow-soft overflow-hidden bg-card">
+      {/* Enhanced Toolbar */}
+      <div className="editor-toolbar">
+        <div className="flex items-center gap-1">
+          <Button
+            variant="ghost"
+            size="sm"
+            className={`editor-button ${isMarkActive(editor, 'bold') ? 'active' : ''}`}
+            onMouseDown={(event) => {
+              event.preventDefault();
+              toggleMark(editor, 'bold');
+            }}
+          >
+            <Bold className="w-4 h-4" />
+          </Button>
+          
+          <Button
+            variant="ghost"
+            size="sm"
+            className={`editor-button ${isMarkActive(editor, 'italic') ? 'active' : ''}`}
+            onMouseDown={(event) => {
+              event.preventDefault();
+              toggleMark(editor, 'italic');
+            }}
+          >
+            <Italic className="w-4 h-4" />
+          </Button>
+          
+          <Button
+            variant="ghost"
+            size="sm"
+            className={`editor-button ${isMarkActive(editor, 'underline') ? 'active' : ''}`}
+            onMouseDown={(event) => {
+              event.preventDefault();
+              toggleMark(editor, 'underline');
+            }}
+          >
+            <Underline className="w-4 h-4" />
+          </Button>
+          
+          <Button
+            variant="ghost"
+            size="sm"
+            className={`editor-button ${isMarkActive(editor, 'code') ? 'active' : ''}`}
+            onMouseDown={(event) => {
+              event.preventDefault();
+              toggleMark(editor, 'code');
+            }}
+          >
+            <Code className="w-4 h-4" />
+          </Button>
 
-        <div className="w-px h-6 bg-gray-300 mx-1" />
+          <div className="w-px h-6 bg-border mx-2" />
 
-        <Button
-          variant="ghost"
-          size="sm"
-          className={`p-2 ${isBlockActive(editor, 'heading-one') ? 'bg-gray-200' : ''}`}
-          onMouseDown={(event) => {
-            event.preventDefault();
-            toggleBlock(editor, 'heading-one');
-          }}
-        >
-          <Heading1 className="w-4 h-4" />
-        </Button>
-        
-        <Button
-          variant="ghost"
-          size="sm"
-          className={`p-2 ${isBlockActive(editor, 'heading-two') ? 'bg-gray-200' : ''}`}
-          onMouseDown={(event) => {
-            event.preventDefault();
-            toggleBlock(editor, 'heading-two');
-          }}
-        >
-          <Heading2 className="w-4 h-4" />
-        </Button>
+          <Button
+            variant="ghost"
+            size="sm"
+            className={`editor-button ${isBlockActive(editor, 'heading-one') ? 'active' : ''}`}
+            onMouseDown={(event) => {
+              event.preventDefault();
+              toggleBlock(editor, 'heading-one');
+            }}
+          >
+            <Heading1 className="w-4 h-4" />
+          </Button>
+          
+          <Button
+            variant="ghost"
+            size="sm"
+            className={`editor-button ${isBlockActive(editor, 'heading-two') ? 'active' : ''}`}
+            onMouseDown={(event) => {
+              event.preventDefault();
+              toggleBlock(editor, 'heading-two');
+            }}
+          >
+            <Heading2 className="w-4 h-4" />
+          </Button>
 
-        <Button
-          variant="ghost"
-          size="sm"
-          className={`p-2 ${isBlockActive(editor, 'block-quote') ? 'bg-gray-200' : ''}`}
-          onMouseDown={(event) => {
-            event.preventDefault();
-            toggleBlock(editor, 'block-quote');
-          }}
-        >
-          <Quote className="w-4 h-4" />
-        </Button>
+          <Button
+            variant="ghost"
+            size="sm"
+            className={`editor-button ${isBlockActive(editor, 'block-quote') ? 'active' : ''}`}
+            onMouseDown={(event) => {
+              event.preventDefault();
+              toggleBlock(editor, 'block-quote');
+            }}
+          >
+            <Quote className="w-4 h-4" />
+          </Button>
 
-        <Button
-          variant="ghost"
-          size="sm"
-          className={`p-2 ${isBlockActive(editor, 'numbered-list') ? 'bg-gray-200' : ''}`}
-          onMouseDown={(event) => {
-            event.preventDefault();
-            toggleBlock(editor, 'numbered-list');
-          }}
-        >
-          <ListOrdered className="w-4 h-4" />
-        </Button>
-        
-        <Button
-          variant="ghost"
-          size="sm"
-          className={`p-2 ${isBlockActive(editor, 'bulleted-list') ? 'bg-gray-200' : ''}`}
-          onMouseDown={(event) => {
-            event.preventDefault();
-            toggleBlock(editor, 'bulleted-list');
-          }}
-        >
-          <List className="w-4 h-4" />
-        </Button>
+          <Button
+            variant="ghost"
+            size="sm"
+            className={`editor-button ${isBlockActive(editor, 'numbered-list') ? 'active' : ''}`}
+            onMouseDown={(event) => {
+              event.preventDefault();
+              toggleBlock(editor, 'numbered-list');
+            }}
+          >
+            <ListOrdered className="w-4 h-4" />
+          </Button>
+          
+          <Button
+            variant="ghost"
+            size="sm"
+            className={`editor-button ${isBlockActive(editor, 'bulleted-list') ? 'active' : ''}`}
+            onMouseDown={(event) => {
+              event.preventDefault();
+              toggleBlock(editor, 'bulleted-list');
+            }}
+          >
+            <List className="w-4 h-4" />
+          </Button>
+        </div>
       </div>
 
-      {/* Editor */}
-      <div className="p-4">
+      {/* Enhanced Editor Content */}
+      <div className="editor-content">
         <Slate editor={editor} initialValue={slateValue} onValueChange={handleChange}>
           <Editable
             renderElement={renderElement}
             renderLeaf={renderLeaf}
             placeholder={placeholder}
-            className="min-h-96 focus:outline-none"
+            className="focus:outline-none prose prose-sm max-w-none"
             spellCheck
             onKeyDown={(event) => {
               if (!event.ctrlKey) return;
