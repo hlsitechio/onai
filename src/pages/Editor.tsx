@@ -47,7 +47,7 @@ const Editor: React.FC = () => {
             Create and edit your notes with AI assistance
           </Text>
         </Box>
-        <H Stack spacing={3}>
+        <HStack spacing={3}>
           <Button
             leftIcon={<Icon as={Search} w={4} h={4} />}
             variant="ghost"
