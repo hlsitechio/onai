@@ -3,7 +3,7 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Toaster } from '@/components/ui/toaster';
-import AuthContextProvider from '@/contexts/AuthContext';
+import { AuthProvider } from '@/contexts/AuthContext';
 
 // Import the old dashboard for now (will be replaced)
 import NotesDashboard from '@/components/dashboard-old/NotesDashboard';
@@ -15,7 +15,7 @@ const queryClient = new QueryClient();
 const App: React.FC = () => {
   return (
     <QueryClientProvider client={queryClient}>
-      <AuthContextProvider>
+      <AuthProvider>
         <Router>
           <div className="min-h-screen bg-gradient-to-br from-[#050510] to-[#0a0518]">
             <Routes>
@@ -27,7 +27,7 @@ const App: React.FC = () => {
             <Toaster />
           </div>
         </Router>
-      </AuthContextProvider>
+      </AuthProvider>
     </QueryClientProvider>
   );
 };
