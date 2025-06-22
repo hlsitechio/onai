@@ -1,15 +1,19 @@
+<<<<<<< HEAD
 
 # robots.txt for Online Note AI - 100% Free Forever Note Taking App
 User-agent: *
 Allow: /
 
 # Allow all search engines full access
+=======
+>>>>>>> noteai-suite/main
 User-agent: Googlebot
 Allow: /
 
 User-agent: Bingbot
 Allow: /
 
+<<<<<<< HEAD
 User-agent: Slurp
 Allow: /
 
@@ -23,12 +27,15 @@ User-agent: Yandex
 Allow: /
 
 # Social Media Crawlers
+=======
+>>>>>>> noteai-suite/main
 User-agent: Twitterbot
 Allow: /
 
 User-agent: facebookexternalhit
 Allow: /
 
+<<<<<<< HEAD
 # Disallow certain technical files but ensure maximum content visibility
 User-agent: *
 Disallow: /*.js$
@@ -53,3 +60,7 @@ Sitemap: https://onlinenote.ai/sitemap.xml
 # Crawl delay directive for general crawlers (optional)
 User-agent: *
 Crawl-delay: 1
+=======
+User-agent: *
+Allow: /
+>>>>>>> noteai-suite/main

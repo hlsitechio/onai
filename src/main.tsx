@@ -1,4 +1,5 @@
 
+<<<<<<< HEAD
 import React from 'react'
 import ReactDOM from 'react-dom/client'
 import App from './App.tsx'
@@ -62,3 +63,10 @@ if (document.readyState === 'loading') {
 if (import.meta.env.DEV && typeof window !== 'undefined') {
   (window as any).cleanConsoleControls = cleanConsoleControls;
 }
+=======
+import { createRoot } from 'react-dom/client'
+import App from './App.tsx'
+import './index.css'
+
+createRoot(document.getElementById("root")!).render(<App />);
+>>>>>>> noteai-suite/main
