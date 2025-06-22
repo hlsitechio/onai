@@ -1,0 +1,197 @@
+
+import React from 'react';
+import { 
+  ChevronRight, 
+  ChevronDown, 
+  Folder, 
+  FolderOpen, 
+  MoreHorizontal,
+  Edit3,
+  Trash2
+} from 'lucide-react';
+import { Droppable } from 'react-beautiful-dnd';
+import { Button } from '@/components/ui/button';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import { Note } from '../../types/note';
+import { Folder as FolderType } from '../../types/folder';
+import NoteItem from './NoteItem';
+
+const colors = [
+  '#ef4444', '#f97316', '#f59e0b', '#eab308', 
+  '#84cc16', '#22c55e', '#10b981', '#14b8a6',
+  '#06b6d4', '#0ea5e9', '#3b82f6', '#6366f1',
+  '#8b5cf6', '#a855f7', '#d946ef', '#ec4899',
+  '#f43f5e', '#64748b'
+];
+
+interface TreeNodeProps {
+  folder: FolderType;
+  notes: Note[];
+  folders: FolderType[];
+  level: number;
+  expandedFolders: Set<string>;
+  onToggleFolder: (folderId: string) => void;
+  onEditFolder: (folder: FolderType) => void;
+  onDeleteFolder: (folderId: string) => void;
+  onEditNote: (note: Note) => void;
+  onDeleteNote: (noteId: string) => void;
+  onChangeColor: (id: string, color: string, type: 'folder' | 'note') => void;
+}
+
+const TreeNode: React.FC<TreeNodeProps> = ({
+  folder,
+  notes,
+  folders,
+  level,
+  expandedFolders,
+  onToggleFolder,
+  onEditFolder,
+  onDeleteFolder,
+  onEditNote,
+  onDeleteNote,
+  onChangeColor,
+}) => {
+  const isExpanded = expandedFolders.has(folder.id);
+  const childFolders = folders.filter(f => f.parentId === folder.id);
+  const folderNotes = notes.filter(n => n.folderId === folder.id);
+  
+  const paddingLeft = level * 20;
+
+  return (
+    <div>
+      {/* Folder Node - Droppable */}
+      <Droppable droppableId={`folder-${folder.id}`} type="NOTE">
+        {(provided, snapshot) => (
+          <div
+            ref={provided.innerRef}
+            {...provided.droppableProps}
+            className={`${
+              snapshot.isDraggingOver ? 'bg-blue-50 dark:bg-blue-900/20' : ''
+            } transition-colors rounded-sm`}
+          >
+            <div
+              className="flex items-center gap-1 py-1 hover:bg-accent/50 rounded-sm group"
+              style={{ paddingLeft: `${paddingLeft}px` }}
+            >
+              {/* Tree Lines */}
+              {level > 0 && (
+                <div className="absolute left-2 h-full border-l border-border/30" 
+                     style={{ left: `${(level - 1) * 20 + 8}px` }} />
+              )}
+              
+              <Button
+                variant="ghost"
+                size="sm"
+                className="p-0 h-4 w-4"
+                onClick={() => onToggleFolder(folder.id)}
+              >
+                {childFolders.length > 0 || folderNotes.length > 0 ? (
+                  isExpanded ? <ChevronDown className="h-3 w-3" /> : <ChevronRight className="h-3 w-3" />
+                ) : (
+                  <div className="h-3 w-3" />
+                )}
+              </Button>
+              
+              <div 
+                className="w-2 h-2 rounded-full mr-1" 
+                style={{ backgroundColor: folder.color }}
+              />
+              
+              {isExpanded ? (
+                <FolderOpen className="h-4 w-4 text-muted-foreground" />
+              ) : (
+                <Folder className="h-4 w-4 text-muted-foreground" />
+              )}
+              
+              <span className="text-sm truncate flex-1">{folder.name}</span>
+              
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="p-0 h-4 w-4 opacity-0 group-hover:opacity-100"
+                  >
+                    <MoreHorizontal className="h-3 w-3" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem onClick={() => onEditFolder(folder)}>
+                    <Edit3 className="h-4 w-4 mr-2" />
+                    Rename
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <div className="p-2">
+                    <div className="grid grid-cols-6 gap-1">
+                      {colors.map((color) => (
+                        <button
+                          key={color}
+                          className="w-4 h-4 rounded-full border border-border hover:scale-110 transition-transform"
+                          style={{ backgroundColor: color }}
+                          onClick={() => onChangeColor(folder.id, color, 'folder')}
+                        />
+                      ))}
+                    </div>
+                  </div>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem 
+                    onClick={() => onDeleteFolder(folder.id)}
+                    className="text-destructive"
+                  >
+                    <Trash2 className="h-4 w-4 mr-2" />
+                    Delete
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
+            {provided.placeholder}
+          </div>
+        )}
+      </Droppable>
+
+      {/* Child Items */}
+      {isExpanded && (
+        <div>
+          {/* Child Folders */}
+          {childFolders.map((childFolder) => (
+            <TreeNode
+              key={childFolder.id}
+              folder={childFolder}
+              notes={notes}
+              folders={folders}
+              level={level + 1}
+              expandedFolders={expandedFolders}
+              onToggleFolder={onToggleFolder}
+              onEditFolder={onEditFolder}
+              onDeleteFolder={onDeleteFolder}
+              onEditNote={onEditNote}
+              onDeleteNote={onDeleteNote}
+              onChangeColor={onChangeColor}
+            />
+          ))}
+          
+          {/* Notes in this folder */}
+          {folderNotes.map((note, index) => (
+            <NoteItem
+              key={note.id}
+              note={note}
+              index={index}
+              level={level + 1}
+              onEditNote={onEditNote}
+              onDeleteNote={onDeleteNote}
+              onChangeColor={onChangeColor}
+            />
+          ))}
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default TreeNode;
