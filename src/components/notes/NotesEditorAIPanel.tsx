@@ -16,12 +16,12 @@ const NotesEditorAIPanel: React.FC<NotesEditorAIPanelProps> = ({
     <>
       <ResizableHandle 
         withHandle={true} 
-        className="bg-slate-700/30 hover:bg-slate-600/50 transition-colors duration-200"
+        className="bg-slate-700/20 hover:bg-slate-600/40 transition-colors duration-200"
       />
       <ResizablePanel 
         defaultSize={25} 
-        minSize={10} 
-        maxSize={80}
+        minSize={5} 
+        maxSize={95}
         className="min-w-0"
       >
         <div className="h-full bg-slate-900/90 backdrop-blur-xl border-l border-slate-700/50">
