@@ -32,7 +32,7 @@ const Register: React.FC = () => {
   return (
     <div className="min-h-screen flex bg-white dark:bg-gray-950">
       {/* Left Panel - Welcome Section */}
-      <div className="hidden lg:flex flex-1 bg-gradient-to-br from-blue-600 via-purple-600 to-indigo-700 relative overflow-hidden">
+      <div className="hidden lg:flex w-1/2 bg-gradient-to-br from-blue-600 via-purple-600 to-indigo-700 relative overflow-hidden">
         {/* Background Pattern */}
         <div className="absolute inset-0 bg-black/10">
           <div className="absolute inset-0 opacity-20" style={{
@@ -89,7 +89,7 @@ const Register: React.FC = () => {
       </div>
 
       {/* Right Panel - Auth Form */}
-      <div className="flex-1 flex items-center justify-center p-8 lg:max-w-md xl:max-w-lg">
+      <div className="w-full lg:w-1/2 flex items-center justify-center p-8">
         <div className="w-full max-w-sm">
           <div className="space-y-8">
             {/* Mobile Logo */}
