@@ -11,6 +11,7 @@ import { NoteCategory } from '../types/note';
 import RichTextEditor from '../components/Editor/RichTextEditor';
 import CollapsibleAssistant from '../components/Editor/CollapsibleAssistant';
 import FocusMode from '../components/Editor/FocusMode';
+import Layout from '../components/Layout/Layout';
 
 const categories: NoteCategory[] = [
   { value: 'general', label: 'General', color: 'gray' },
@@ -95,7 +96,7 @@ const Editor: React.FC = () => {
   };
 
   return (
-    <>
+    <Layout>
       <div className="space-y-6 h-[calc(100vh-120px)] bg-gradient-to-br from-gray-50 via-blue-50/30 to-purple-50/30 dark:from-slate-900 dark:via-slate-800/50 dark:to-slate-700/50">
         {/* Premium Header with Sidebar Trigger */}
         <div className="flex justify-between items-start glass p-6 rounded-2xl shadow-large">
@@ -243,7 +244,7 @@ const Editor: React.FC = () => {
         onSave={handleSave}
         isSaving={isSaving}
       />
-    </>
+    </Layout>
   );
 };
 

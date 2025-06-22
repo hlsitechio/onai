@@ -13,7 +13,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
     <SidebarProvider>
       <div className="flex min-h-screen w-full bg-background">
         <AppSidebar />
-        <SidebarInset>
+        <SidebarInset className="flex-1">
           <Header />
           <div className="p-6 pt-24">
             {children}

@@ -4,11 +4,6 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Toaster } from '@/components/ui/sonner';
 
-// Layout components
-import Layout from './components/Layout/Layout';
-import { AppSidebar } from './components/Layout/AppSidebar';
-import { SidebarProvider, SidebarInset } from '@/components/ui/sidebar';
-
 // Context providers
 import { AuthProvider } from './contexts/AuthContext';
 import { NotesProvider } from './contexts/NotesContext';
@@ -51,27 +46,18 @@ function App() {
         <AuthProvider>
           <NotesProvider>
             <FoldersProvider>
-              <SidebarProvider>
-                <div className="min-h-screen flex w-full">
-                  <AppSidebar />
-                  <SidebarInset>
-                    <Layout>
-                      <Routes>
-                        <Route path="/" element={<Index />} />
-                        <Route path="/login" element={<Login />} />
-                        <Route path="/register" element={<Register />} />
-                        <Route path="/dashboard" element={<Dashboard />} />
-                        <Route path="/chat" element={<Chat />} />
-                        <Route path="/editor" element={<Editor />} />
-                        <Route path="/calendar" element={<Calendar />} />
-                        <Route path="/notes" element={<Notes />} />
-                        <Route path="/settings" element={<Settings />} />
-                        <Route path="*" element={<NotFound />} />
-                      </Routes>
-                    </Layout>
-                  </SidebarInset>
-                </div>
-              </SidebarProvider>
+              <Routes>
+                <Route path="/" element={<Index />} />
+                <Route path="/login" element={<Login />} />
+                <Route path="/register" element={<Register />} />
+                <Route path="/dashboard" element={<Dashboard />} />
+                <Route path="/chat" element={<Chat />} />
+                <Route path="/editor" element={<Editor />} />
+                <Route path="/calendar" element={<Calendar />} />
+                <Route path="/notes" element={<Notes />} />
+                <Route path="/settings" element={<Settings />} />
+                <Route path="*" element={<NotFound />} />
+              </Routes>
             </FoldersProvider>
           </NotesProvider>
         </AuthProvider>
