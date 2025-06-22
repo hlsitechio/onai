@@ -1,0 +1,73 @@
+
+import React from 'react';
+import EditorLayout from './EditorLayout';
+import { EditorFormState, EditorFormHandlers } from './EditorFormProps';
+import { EditorUIState, EditorRefs } from './EditorUIProps';
+import { NoteCategory } from '../../types/note';
+
+const categories: NoteCategory[] = [
+  { value: 'general', label: 'General', color: 'gray' },
+  { value: 'meeting', label: 'Meeting', color: 'blue' },
+  { value: 'learning', label: 'Learning', color: 'green' },
+  { value: 'brainstorm', label: 'Brainstorm', color: 'purple' },
+  { value: 'project', label: 'Project', color: 'orange' },
+];
+
+interface EditorContentLayoutProps extends EditorFormState, EditorFormHandlers, EditorRefs {
+  isHeaderHidden: boolean;
+  isHeaderCollapsed: boolean;
+  onCollapseAllBars: () => void;
+}
+
+const EditorContentLayout: React.FC<EditorContentLayoutProps> = ({
+  title,
+  content,
+  category,
+  tags,
+  newTag,
+  onTitleChange,
+  onContentChange,
+  onCategoryChange,
+  onNewTagChange,
+  onAddTag,
+  onRemoveTag,
+  onSuggestionApply,
+  collapseAssistantRef,
+  expandAssistantRef,
+  isHeaderHidden,
+  isHeaderCollapsed,
+  onCollapseAllBars,
+}) => {
+  const getLayoutHeight = () => {
+    if (isHeaderHidden) {
+      return "h-[calc(100vh-32px)]";
+    }
+    return isHeaderCollapsed ? "h-[calc(100vh-80px)]" : "h-[calc(100vh-120px)]";
+  };
+
+  return (
+    <div className={getLayoutHeight()}>
+      <EditorLayout
+        title={title}
+        content={content}
+        category={category}
+        tags={tags}
+        newTag={newTag}
+        categories={categories}
+        onTitleChange={onTitleChange}
+        onContentChange={onContentChange}
+        onCategoryChange={onCategoryChange}
+        onNewTagChange={onNewTagChange}
+        onAddTag={onAddTag}
+        onRemoveTag={onRemoveTag}
+        onSuggestionApply={onSuggestionApply}
+        collapseAssistantRef={collapseAssistantRef}
+        expandAssistantRef={expandAssistantRef}
+        showCollapseAllButton={isHeaderHidden}
+        onCollapseAllBars={onCollapseAllBars}
+      />
+    </div>
+  );
+};
+
+export default EditorContentLayout;

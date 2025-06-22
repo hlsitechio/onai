@@ -1,57 +1,17 @@
 
 import React from 'react';
 import EditorHeader from './EditorHeader';
-import EditorLayout from './EditorLayout';
+import EditorContentLayout from './EditorContentLayout';
 import FocusMode from './FocusMode';
-import { NoteCategory } from '../../types/note';
+import { EditorFormState, EditorFormHandlers } from './EditorFormProps';
+import { EditorUIState, EditorUIHandlers, EditorRefs } from './EditorUIProps';
 
-const categories: NoteCategory[] = [
-  { value: 'general', label: 'General', color: 'gray' },
-  { value: 'meeting', label: 'Meeting', color: 'blue' },
-  { value: 'learning', label: 'Learning', color: 'green' },
-  { value: 'brainstorm', label: 'Brainstorm', color: 'purple' },
-  { value: 'project', label: 'Project', color: 'orange' },
-];
-
-interface EditorContentProps {
-  // Form state
-  title: string;
-  content: string;
-  category: string;
-  tags: string[];
-  newTag: string;
-  isFavorite: boolean;
-  isSaving: boolean;
-  
-  // UI state
-  isFocusMode: boolean;
-  isHeaderCollapsed: boolean;
-  isHeaderHidden: boolean;
-  
-  // Form handlers
-  onTitleChange: (title: string) => void;
-  onContentChange: (content: string) => void;
-  onCategoryChange: (category: string) => void;
-  onNewTagChange: (tag: string) => void;
-  onAddTag: () => void;
-  onRemoveTag: (tag: string) => void;
-  onFavoriteToggle: () => void;
-  onSave: () => void;
-  onSuggestionApply: (original: string, suggestion: string) => void;
-  
-  // UI handlers
-  onFocusModeToggle: () => void;
-  onHeaderCollapseToggle: () => void;
-  onCollapseAllBars: () => void;
-  onFocusModeClose: () => void;
-  
-  // Refs and computed
-  collapseAssistantRef: React.MutableRefObject<(() => void) | undefined>;
-  expandAssistantRef: React.MutableRefObject<(() => void) | undefined>;
+interface EditorContentProps extends EditorFormState, EditorFormHandlers, EditorUIState, EditorUIHandlers, EditorRefs {
   currentNote: any;
 }
 
 const EditorContent: React.FC<EditorContentProps> = ({
+  // Form state and handlers
   title,
   content,
   category,
@@ -59,9 +19,6 @@ const EditorContent: React.FC<EditorContentProps> = ({
   newTag,
   isFavorite,
   isSaving,
-  isFocusMode,
-  isHeaderCollapsed,
-  isHeaderHidden,
   onTitleChange,
   onContentChange,
   onCategoryChange,
@@ -71,23 +28,33 @@ const EditorContent: React.FC<EditorContentProps> = ({
   onFavoriteToggle,
   onSave,
   onSuggestionApply,
+  
+  // UI state and handlers
+  isFocusMode,
+  isHeaderCollapsed,
+  isHeaderHidden,
   onFocusModeToggle,
   onHeaderCollapseToggle,
   onCollapseAllBars,
   onFocusModeClose,
+  
+  // Refs and computed
   collapseAssistantRef,
   expandAssistantRef,
   currentNote,
 }) => {
+  const shouldShowLayout = !isFocusMode;
+  const canSave = title.trim().length > 0;
+
   return (
     <div className="p-4 space-y-4 h-screen overflow-hidden">
-      {/* Conditionally render header based on isHeaderHidden */}
+      {/* Header */}
       {!isHeaderHidden && (
         <EditorHeader
           isNewNote={!currentNote}
           isFavorite={isFavorite}
           isSaving={isSaving}
-          canSave={title.trim().length > 0}
+          canSave={canSave}
           isCollapsed={isFocusMode}
           isHeaderCollapsed={isHeaderCollapsed}
           onFavoriteToggle={onFavoriteToggle}
@@ -98,52 +65,31 @@ const EditorContent: React.FC<EditorContentProps> = ({
         />
       )}
 
-      {!isFocusMode && !isHeaderCollapsed && (
-        <div className={isHeaderHidden ? "h-[calc(100vh-32px)]" : "h-[calc(100vh-120px)]"}>
-          <EditorLayout
-            title={title}
-            content={content}
-            category={category}
-            tags={tags}
-            newTag={newTag}
-            categories={categories}
-            onTitleChange={onTitleChange}
-            onContentChange={onContentChange}
-            onCategoryChange={onCategoryChange}
-            onNewTagChange={onNewTagChange}
-            onAddTag={onAddTag}
-            onRemoveTag={onRemoveTag}
-            onSuggestionApply={onSuggestionApply}
-            collapseAssistantRef={collapseAssistantRef}
-            expandAssistantRef={expandAssistantRef}
-            showCollapseAllButton={isHeaderHidden}
-            onCollapseAllBars={onCollapseAllBars}
-          />
-        </div>
-      )}
-
-      {!isFocusMode && isHeaderCollapsed && (
-        <div className={isHeaderHidden ? "h-[calc(100vh-32px)]" : "h-[calc(100vh-80px)]"}>
-          <EditorLayout
-            title={title}
-            content={content}
-            category={category}
-            tags={tags}
-            newTag={newTag}
-            categories={categories}
-            onTitleChange={onTitleChange}
-            onContentChange={onContentChange}
-            onCategoryChange={onCategoryChange}
-            onNewTagChange={onNewTagChange}
-            onAddTag={onAddTag}
-            onRemoveTag={onRemoveTag}
-            onSuggestionApply={onSuggestionApply}
-            collapseAssistantRef={collapseAssistantRef}
-            expandAssistantRef={expandAssistantRef}
-            showCollapseAllButton={isHeaderHidden}
-            onCollapseAllBars={onCollapseAllBars}
-          />
-        </div>
+      {/* Main Editor Layout */}
+      {shouldShowLayout && (
+        <EditorContentLayout
+          title={title}
+          content={content}
+          category={category}
+          tags={tags}
+          newTag={newTag}
+          isFavorite={isFavorite}
+          isSaving={isSaving}
+          onTitleChange={onTitleChange}
+          onContentChange={onContentChange}
+          onCategoryChange={onCategoryChange}
+          onNewTagChange={onNewTagChange}
+          onAddTag={onAddTag}
+          onRemoveTag={onRemoveTag}
+          onFavoriteToggle={onFavoriteToggle}
+          onSave={onSave}
+          onSuggestionApply={onSuggestionApply}
+          collapseAssistantRef={collapseAssistantRef}
+          expandAssistantRef={expandAssistantRef}
+          isHeaderHidden={isHeaderHidden}
+          isHeaderCollapsed={isHeaderCollapsed}
+          onCollapseAllBars={onCollapseAllBars}
+        />
       )}
 
       {/* Focus Mode Modal */}
