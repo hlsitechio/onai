@@ -31,13 +31,13 @@ const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
       staleTime: 1000 * 60 * 5, // 5 minutes
-      cacheTime: 1000 * 60 * 10, // 10 minutes
+      gcTime: 1000 * 60 * 10, // 10 minutes (renamed from cacheTime)
     },
   },
 });
 
 // Query Client Provider wrapper
-const QueryClient: React.FC<{ children: React.ReactNode }> = ({ children }) => (
+const QueryProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => (
   <QueryClientProvider client={queryClient}>
     {children}
     <Toaster />
@@ -47,7 +47,7 @@ const QueryClient: React.FC<{ children: React.ReactNode }> = ({ children }) => (
 function App() {
   return (
     <Router>
-      <QueryClient>
+      <QueryProvider>
         <AuthProvider>
           <NotesProvider>
             <FoldersProvider>
@@ -75,7 +75,7 @@ function App() {
             </FoldersProvider>
           </NotesProvider>
         </AuthProvider>
-      </QueryClient>
+      </QueryProvider>
     </Router>
   );
 }
