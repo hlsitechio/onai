@@ -80,7 +80,7 @@ export function SidebarHeader() {
           variant="ghost"
           size="icon"
           onClick={toggleSidebar}
-          className="h-8 w-8 glass shadow-medium hover:bg-white/20 dark:hover:bg-slate-700/30 group-data-[collapsible=icon]:mx-auto"
+          className="h-8 w-8 glass shadow-medium hover:bg-white/20 dark:hover:bg-slate-700/30 flex-shrink-0"
           title={state === 'expanded' ? 'Collapse sidebar' : 'Expand sidebar'}
         >
           <motion.div
