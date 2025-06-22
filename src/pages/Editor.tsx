@@ -91,7 +91,7 @@ const Editor: React.FC = () => {
 
   return (
     <Layout>
-      <div className="space-y-6 h-[calc(100vh-120px)] bg-gradient-to-br from-gray-50 via-blue-50/30 to-purple-50/30 dark:from-slate-900 dark:via-slate-800/50 dark:to-slate-700/50">
+      <div className="space-y-6 h-[calc(100vh-120px)]">
         <EditorHeader
           isNewNote={!currentNote}
           isFavorite={isFavorite}
