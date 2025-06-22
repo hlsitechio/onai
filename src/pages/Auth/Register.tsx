@@ -9,7 +9,8 @@ import { Card, CardContent } from '@/components/ui/card';
 
 const Register: React.FC = () => {
   const navigate = useNavigate();
-  const { register, isLoading } = useAuth();
+  const { login, register, isLoading } = useAuth();
+  const [isSignUp, setIsSignUp] = useState(true);
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -19,13 +20,19 @@ const Register: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (password !== confirmPassword) {
-      return;
-    }
-
-    const success = await register(name, email, password);
-    if (success) {
-      navigate('/dashboard');
+    if (isSignUp) {
+      if (password !== confirmPassword) {
+        return;
+      }
+      const success = await register(name, email, password);
+      if (success) {
+        navigate('/dashboard');
+      }
+    } else {
+      const success = await login(email, password);
+      if (success) {
+        navigate('/dashboard');
+      }
     }
   };
 
@@ -102,32 +109,63 @@ const Register: React.FC = () => {
               </h1>
             </div>
 
+            {/* Toggle Buttons */}
+            <div className="flex bg-gray-100 dark:bg-gray-800 rounded-xl p-1">
+              <button
+                type="button"
+                onClick={() => setIsSignUp(true)}
+                className={`flex-1 py-2 px-4 rounded-lg text-sm font-medium transition-all ${
+                  isSignUp
+                    ? 'bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 shadow-sm'
+                    : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100'
+                }`}
+              >
+                Sign Up
+              </button>
+              <button
+                type="button"
+                onClick={() => setIsSignUp(false)}
+                className={`flex-1 py-2 px-4 rounded-lg text-sm font-medium transition-all ${
+                  !isSignUp
+                    ? 'bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 shadow-sm'
+                    : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100'
+                }`}
+              >
+                Sign In
+              </button>
+            </div>
+
             {/* Form Header */}
             <div className="text-center">
               <h2 className="text-3xl font-bold text-gray-900 dark:text-gray-100">
-                Create Account
+                {isSignUp ? 'Create Account' : 'Welcome Back'}
               </h2>
               <p className="text-gray-600 dark:text-gray-400 mt-2">
-                Join thousands of users organizing their thoughts
+                {isSignUp 
+                  ? 'Join thousands of users organizing their thoughts'
+                  : 'Sign in to your account to continue'
+                }
               </p>
             </div>
 
             {/* Form */}
             <form onSubmit={handleSubmit} className="space-y-6">
               <div className="space-y-4">
-                <div>
-                  <label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 block">
-                    Full Name
-                  </label>
-                  <Input
-                    type="text"
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    placeholder="Enter your full name"
-                    className="h-12 rounded-xl border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder:text-gray-500 dark:placeholder:text-gray-400 focus:border-blue-500 focus:ring-blue-500"
-                    required
-                  />
-                </div>
+                {isSignUp && (
+                  <div>
+                    <label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 block">
+                      Full Name
+                    </label>
+                    <Input
+                      type="text"
+                      value={name}
+                      onChange={(e) => setName(e.target.value)}
+                      placeholder="Enter your full name"
+                      className="h-12 rounded-xl border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder:text-gray-500 dark:placeholder:text-gray-400 focus:border-blue-500 focus:ring-blue-500"
+                      required
+                    />
+                  </div>
+                )}
 
                 <div>
                   <label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 block">
@@ -152,7 +190,7 @@ const Register: React.FC = () => {
                       type={showPassword ? 'text' : 'password'}
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
-                      placeholder="Create a password"
+                      placeholder={isSignUp ? "Create a password" : "Enter your password"}
                       className="h-12 rounded-xl border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder:text-gray-500 dark:placeholder:text-gray-400 focus:border-blue-500 focus:ring-blue-500 pr-12"
                       required
                     />
@@ -168,19 +206,32 @@ const Register: React.FC = () => {
                   </div>
                 </div>
 
-                <div>
-                  <label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 block">
-                    Confirm Password
-                  </label>
-                  <Input
-                    type="password"
-                    value={confirmPassword}
-                    onChange={(e) => setConfirmPassword(e.target.value)}
-                    placeholder="Confirm your password"
-                    className="h-12 rounded-xl border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder:text-gray-500 dark:placeholder:text-gray-400 focus:border-blue-500 focus:ring-blue-500"
-                    required
-                  />
-                </div>
+                {isSignUp && (
+                  <div>
+                    <label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 block">
+                      Confirm Password
+                    </label>
+                    <Input
+                      type="password"
+                      value={confirmPassword}
+                      onChange={(e) => setConfirmPassword(e.target.value)}
+                      placeholder="Confirm your password"
+                      className="h-12 rounded-xl border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder:text-gray-500 dark:placeholder:text-gray-400 focus:border-blue-500 focus:ring-blue-500"
+                      required
+                    />
+                  </div>
+                )}
+
+                {!isSignUp && (
+                  <div className="text-right">
+                    <button
+                      type="button"
+                      className="text-sm text-blue-600 dark:text-blue-400 hover:underline"
+                    >
+                      Forgot password?
+                    </button>
+                  </div>
+                )}
               </div>
 
               <Button
@@ -189,22 +240,25 @@ const Register: React.FC = () => {
                 className="w-full h-12 rounded-xl bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-medium"
                 disabled={isLoading}
               >
-                {isLoading ? 'Creating account...' : 'Create Account'}
+                {isLoading 
+                  ? (isSignUp ? 'Creating account...' : 'Signing in...') 
+                  : (isSignUp ? 'Create Account' : 'Sign In')
+                }
               </Button>
             </form>
 
-            {/* Footer */}
-            <div className="text-center">
-              <p className="text-sm text-gray-600 dark:text-gray-400">
-                Already have an account?{' '}
-                <button
-                  className="text-blue-600 dark:text-blue-400 font-medium hover:underline"
-                  onClick={() => navigate('/login')}
-                >
-                  Sign in
-                </button>
-              </p>
-            </div>
+            {/* Demo credentials for sign in */}
+            {!isSignUp && (
+              <div className="text-center p-4 bg-blue-50 dark:bg-blue-900/20 rounded-xl">
+                <p className="text-sm text-blue-800 dark:text-blue-200 font-medium mb-2">
+                  Demo Credentials
+                </p>
+                <p className="text-xs text-blue-600 dark:text-blue-300">
+                  Email: demo@example.com<br />
+                  Password: password
+                </p>
+              </div>
+            )}
           </div>
         </div>
       </div>

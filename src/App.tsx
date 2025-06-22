@@ -14,7 +14,6 @@ import { FoldersProvider } from './contexts/FoldersContext';
 import Layout from './components/Layout/Layout';
 
 // Page components
-import Login from './pages/Auth/Login';
 import Register from './pages/Auth/Register';
 import Dashboard from './pages/Dashboard';
 import Chat from './pages/Chat';
@@ -36,7 +35,7 @@ const queryClient = new QueryClient({
 
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const { isAuthenticated } = useAuth();
-  return isAuthenticated ? <>{children}</> : <Navigate to="/login" />;
+  return isAuthenticated ? <>{children}</> : <Navigate to="/auth" />;
 };
 
 const AppRoutes = () => {
@@ -45,9 +44,10 @@ const AppRoutes = () => {
   if (!isAuthenticated) {
     return (
       <Routes>
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
-        <Route path="*" element={<Navigate to="/login" />} />
+        <Route path="/auth" element={<Register />} />
+        <Route path="/login" element={<Navigate to="/auth" />} />
+        <Route path="/register" element={<Navigate to="/auth" />} />
+        <Route path="*" element={<Navigate to="/auth" />} />
       </Routes>
     );
   }
