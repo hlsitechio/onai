@@ -78,7 +78,7 @@ const NotesEditorTopBar: React.FC<NotesEditorTopBarProps> = ({
               key={index}
               variant="ghost"
               size="sm"
-              onClick={() => execCommand(button.command, button.value)}
+              onClick={() => execCommand(button.command)}
               className="h-8 w-8 p-0 text-gray-300 hover:text-white hover:bg-gray-600/50 transition-all duration-150 rounded-md mx-0.5"
               title={button.title}
             >
