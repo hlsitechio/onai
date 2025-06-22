@@ -23,7 +23,7 @@ const badgeVariants = {
     transition: {
       duration: 2,
       repeat: Infinity,
-      repeatType: 'reverse'
+      repeatType: "reverse" as const
     }
   }
 };
@@ -102,7 +102,7 @@ const Header: React.FC = () => {
                 transition={{ 
                   duration: 2,
                   repeat: Infinity,
-                  repeatType: 'reverse'
+                  repeatType: "reverse" as const
                 }}
               >
                 <Bell className="w-5 h-5" />
@@ -114,7 +114,7 @@ const Header: React.FC = () => {
                 transition={{ 
                   duration: 1,
                   repeat: Infinity,
-                  repeatType: 'reverse'
+                  repeatType: "reverse" as const
                 }}
               >
                 <Badge className="absolute -top-1 -right-1 w-2 h-2 p-0 bg-red-500 border-0" />
