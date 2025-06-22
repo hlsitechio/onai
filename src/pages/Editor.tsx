@@ -94,7 +94,7 @@ const Editor: React.FC = () => {
   return (
     <div className="space-y-6 h-[calc(100vh-120px)] bg-gradient-to-br from-gray-50 via-blue-50/30 to-purple-50/30 dark:from-slate-900 dark:via-slate-800/50 dark:to-slate-700/50">
       {/* Premium Header */}
-      <div className="flex justify-between items-start bg-white/80 backdrop-blur-sm p-6 rounded-2xl border-2 border-blue-200/50 shadow-large dark:bg-slate-800/80 dark:border-slate-600/50">
+      <div className="flex justify-between items-start glass p-6 rounded-2xl shadow-large">
         <div>
           <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent flex items-center gap-3 dark:from-blue-400 dark:to-purple-400">
             {currentNote ? 'Edit Note' : 'Create New Note'}
@@ -104,10 +104,10 @@ const Editor: React.FC = () => {
             {currentNote ? 'Edit with world-class AI writing assistance' : 'Create with the most advanced AI writing tools available'}
           </p>
           <div className="flex items-center gap-2 mt-2">
-            <Badge className="bg-gradient-to-r from-blue-500 to-purple-500 text-white">
+            <Badge className="bg-gradient-to-r from-blue-500 to-purple-500 text-white border-0 backdrop-blur-md">
               ⚡ AI-Powered
             </Badge>
-            <Badge variant="outline" className="border-yellow-300 text-yellow-700 dark:border-yellow-400/50 dark:text-yellow-300">
+            <Badge variant="outline" className="border-0 bg-yellow-100/20 backdrop-blur-sm text-yellow-700 dark:bg-yellow-400/10 dark:text-yellow-300">
               🏆 Better than Notion AI
             </Badge>
           </div>
@@ -117,12 +117,12 @@ const Editor: React.FC = () => {
             variant="ghost"
             size="sm"
             onClick={() => setIsFavorite(!isFavorite)}
-            className={`${isFavorite ? 'text-red-500 bg-red-50 dark:bg-red-900/30' : 'text-gray-400 dark:text-slate-400'} hover:scale-105 transition-all`}
+            className={`${isFavorite ? 'text-red-500 bg-red-50/20 dark:bg-red-900/20' : 'text-gray-400 dark:text-slate-400'} hover:scale-105 transition-all backdrop-blur-sm border-0`}
           >
             <Heart className={`w-4 h-4 mr-2 ${isFavorite ? 'fill-current' : ''}`} />
             {isFavorite ? 'Favorited' : 'Add to Favorites'}
           </Button>
-          <Button onClick={handleSave} disabled={!title.trim() || isSaving} className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 shadow-lg hover:shadow-xl transition-all hover:scale-105">
+          <Button onClick={handleSave} disabled={!title.trim() || isSaving} className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 shadow-lg hover:shadow-xl transition-all hover:scale-105 border-0 backdrop-blur-md">
             <Save className="w-4 h-4 mr-2" />
             {isSaving ? 'Saving...' : 'Save Note'}
           </Button>
@@ -133,7 +133,7 @@ const Editor: React.FC = () => {
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 h-full">
         {/* Main Editor Column */}
         <div className="lg:col-span-3">
-          <Card className="flex-1 h-full bg-white/90 backdrop-blur-sm border-2 border-blue-200/50 shadow-large dark:bg-slate-800/60 dark:border-slate-600/50">
+          <Card className="flex-1 h-full glass shadow-large">
             <CardContent className="p-8 h-full">
               <div className="space-y-6 h-full flex flex-col">
                 {/* Enhanced Title and Meta */}
@@ -142,15 +142,15 @@ const Editor: React.FC = () => {
                     placeholder="Enter your brilliant title..."
                     value={title}
                     onChange={(e) => setTitle(e.target.value)}
-                    className="text-2xl font-bold border-none bg-gradient-to-r from-gray-50 to-blue-50 rounded-2xl focus:bg-white focus:ring-2 focus:ring-blue-200 focus:border-blue-300 shadow-soft dark:from-slate-700 dark:to-slate-600 dark:focus:bg-slate-600 dark:text-slate-200 dark:placeholder-slate-400"
+                    className="text-2xl font-bold border-0 bg-white/10 backdrop-blur-sm rounded-2xl focus:bg-white/20 focus:ring-2 focus:ring-blue-200 shadow-soft dark:bg-slate-700/20 dark:focus:bg-slate-600/30 dark:text-slate-200 dark:placeholder-slate-400"
                   />
                   <Select value={category} onValueChange={setCategory}>
-                    <SelectTrigger className="w-48 rounded-2xl bg-gradient-to-r from-gray-50 to-purple-50 border-2 border-purple-200/50 shadow-soft dark:from-slate-700 dark:to-slate-600 dark:border-slate-500/50 dark:text-slate-200">
+                    <SelectTrigger className="w-48 rounded-2xl bg-white/10 backdrop-blur-sm border-0 shadow-soft dark:bg-slate-700/20 dark:text-slate-200">
                       <SelectValue />
                     </SelectTrigger>
-                    <SelectContent className="dark:bg-slate-800 dark:border-slate-600">
+                    <SelectContent className="glass border-0 dark:text-slate-200">
                       {categories.map((cat) => (
-                        <SelectItem key={cat.value} value={cat.value} className="dark:text-slate-200 dark:focus:bg-slate-700">
+                        <SelectItem key={cat.value} value={cat.value} className="dark:text-slate-200 dark:focus:bg-slate-700/50">
                           {cat.label}
                         </SelectItem>
                       ))}
@@ -163,7 +163,7 @@ const Editor: React.FC = () => {
                   {tags.map((tag) => (
                     <Badge 
                       key={tag}
-                      className="bg-gradient-to-r from-blue-100 to-purple-100 text-blue-700 border-blue-200 rounded-full px-4 py-2 cursor-pointer hover:from-blue-200 hover:to-purple-200 transition-all hover:scale-105 dark:from-blue-900/50 dark:to-purple-900/50 dark:text-blue-300 dark:border-blue-700/50"
+                      className="bg-white/20 backdrop-blur-sm text-blue-700 border-0 rounded-full px-4 py-2 cursor-pointer hover:bg-white/30 transition-all hover:scale-105 dark:bg-blue-900/30 dark:text-blue-300"
                       onClick={() => removeTag(tag)}
                     >
                       #{tag} ×
@@ -180,12 +180,12 @@ const Editor: React.FC = () => {
                           addTag();
                         }
                       }}
-                      className="w-36 h-8 text-sm border-2 border-dashed border-gray-300 rounded-full focus:border-blue-300 dark:border-slate-500 dark:focus:border-blue-400 dark:bg-slate-700 dark:text-slate-200 dark:placeholder-slate-400"
+                      className="w-36 h-8 text-sm border-0 bg-white/10 backdrop-blur-sm rounded-full focus:bg-white/20 dark:bg-slate-500/20 dark:focus:bg-slate-400/30 dark:text-slate-200 dark:placeholder-slate-400"
                     />
                     <Button 
                       size="sm" 
                       variant="ghost" 
-                      className="rounded-full h-8 w-8 p-0 hover:bg-gradient-to-r hover:from-blue-100 hover:to-purple-100 dark:hover:from-slate-700 dark:hover:to-slate-600"
+                      className="rounded-full h-8 w-8 p-0 hover:bg-white/20 backdrop-blur-sm border-0 dark:hover:bg-slate-700/30"
                       onClick={addTag}
                     >
                       <Plus className="w-4 h-4" />
@@ -215,7 +215,7 @@ const Editor: React.FC = () => {
           />
 
           {/* Premium AI Features */}
-          <Card className="bg-gradient-to-br from-purple-50 via-blue-50 to-pink-50 border-2 border-purple-200/50 shadow-large dark:from-purple-900/20 dark:via-slate-800/80 dark:to-pink-900/20 dark:border-purple-700/30">
+          <Card className="glass shadow-large">
             <CardContent className="p-5">
               <div className="flex items-center gap-3 mb-4">
                 <div className="p-2 bg-gradient-to-r from-purple-500 to-pink-500 rounded-lg">
@@ -227,20 +227,20 @@ const Editor: React.FC = () => {
                 </div>
               </div>
               <div className="space-y-3">
-                <Button variant="outline" size="sm" className="w-full justify-start border-2 hover:bg-gradient-to-r hover:from-purple-50 hover:to-pink-50 hover:border-purple-300 dark:border-slate-600 dark:hover:from-purple-900/30 dark:hover:to-pink-900/30 dark:hover:border-purple-500/50 dark:text-slate-200">
+                <Button variant="outline" size="sm" className="w-full justify-start border-0 bg-white/10 backdrop-blur-sm hover:bg-white/20 dark:bg-slate-600/20 dark:hover:bg-slate-600/30 dark:text-slate-200">
                   <Bot className="w-4 h-4 mr-2 text-purple-600 dark:text-purple-400" />
                   Generate Ideas
-                  <Badge className="ml-auto bg-purple-100 text-purple-700 dark:bg-purple-900/50 dark:text-purple-300">NEW</Badge>
+                  <Badge className="ml-auto bg-purple-100/20 backdrop-blur-sm text-purple-700 border-0 dark:bg-purple-900/30 dark:text-purple-300">NEW</Badge>
                 </Button>
-                <Button variant="outline" size="sm" className="w-full justify-start border-2 hover:bg-gradient-to-r hover:from-blue-50 hover:to-purple-50 hover:border-blue-300 dark:border-slate-600 dark:hover:from-blue-900/30 dark:hover:to-purple-900/30 dark:hover:border-blue-500/50 dark:text-slate-200">
+                <Button variant="outline" size="sm" className="w-full justify-start border-0 bg-white/10 backdrop-blur-sm hover:bg-white/20 dark:bg-slate-600/20 dark:hover:bg-slate-600/30 dark:text-slate-200">
                   <Search className="w-4 h-4 mr-2 text-blue-600 dark:text-blue-400" />
                   Research Topic
-                  <Badge className="ml-auto bg-blue-100 text-blue-700 dark:bg-blue-900/50 dark:text-blue-300">PRO</Badge>
+                  <Badge className="ml-auto bg-blue-100/20 backdrop-blur-sm text-blue-700 border-0 dark:bg-blue-900/30 dark:text-blue-300">PRO</Badge>
                 </Button>
-                <Button variant="outline" size="sm" className="w-full justify-start border-2 hover:bg-gradient-to-r hover:from-pink-50 hover:to-purple-50 hover:border-pink-300 dark:border-slate-600 dark:hover:from-pink-900/30 dark:hover:to-purple-900/30 dark:hover:border-pink-500/50 dark:text-slate-200">
+                <Button variant="outline" size="sm" className="w-full justify-start border-0 bg-white/10 backdrop-blur-sm hover:bg-white/20 dark:bg-slate-600/20 dark:hover:bg-slate-600/30 dark:text-slate-200">
                   <Settings className="w-4 h-4 mr-2 text-pink-600 dark:text-pink-400" />
                   Tone Adjustment
-                  <Badge className="ml-auto bg-pink-100 text-pink-700 dark:bg-pink-900/50 dark:text-pink-300">AI</Badge>
+                  <Badge className="ml-auto bg-pink-100/20 backdrop-blur-sm text-pink-700 border-0 dark:bg-pink-900/30 dark:text-pink-300">AI</Badge>
                 </Button>
               </div>
             </CardContent>
@@ -248,28 +248,28 @@ const Editor: React.FC = () => {
 
           {/* Enhanced Writing Stats */}
           {content.length > 0 && (
-            <Card className="bg-gradient-to-br from-gray-50 to-blue-50 border-2 border-gray-200/50 shadow-medium dark:from-slate-800/50 dark:to-slate-700/50 dark:border-slate-600/50">
+            <Card className="glass shadow-medium">
               <CardContent className="p-5">
                 <h3 className="font-bold mb-4 text-gray-800 flex items-center gap-2 dark:text-slate-200">
                   <Zap className="w-4 h-4 text-blue-600 dark:text-blue-400" />
                   Writing Analytics
                 </h3>
                 <div className="space-y-3 text-sm">
-                  <div className="flex justify-between items-center p-2 bg-white/50 rounded-lg dark:bg-slate-700/50">
+                  <div className="flex justify-between items-center p-2 bg-white/20 backdrop-blur-sm rounded-lg border-0 dark:bg-slate-700/30">
                     <span className="font-medium dark:text-slate-300">Words:</span>
-                    <Badge variant="secondary" className="bg-blue-100 text-blue-700 dark:bg-blue-900/50 dark:text-blue-300">
+                    <Badge variant="secondary" className="bg-blue-100/20 backdrop-blur-sm text-blue-700 border-0 dark:bg-blue-900/30 dark:text-blue-300">
                       {content.split(' ').filter(w => w.length > 0).length}
                     </Badge>
                   </div>
-                  <div className="flex justify-between items-center p-2 bg-white/50 rounded-lg dark:bg-slate-700/50">
+                  <div className="flex justify-between items-center p-2 bg-white/20 backdrop-blur-sm rounded-lg border-0 dark:bg-slate-700/30">
                     <span className="font-medium dark:text-slate-300">Characters:</span>
-                    <Badge variant="secondary" className="bg-purple-100 text-purple-700 dark:bg-purple-900/50 dark:text-purple-300">
+                    <Badge variant="secondary" className="bg-purple-100/20 backdrop-blur-sm text-purple-700 border-0 dark:bg-purple-900/30 dark:text-purple-300">
                       {content.length}
                     </Badge>
                   </div>
-                  <div className="flex justify-between items-center p-2 bg-white/50 rounded-lg dark:bg-slate-700/50">
+                  <div className="flex justify-between items-center p-2 bg-white/20 backdrop-blur-sm rounded-lg border-0 dark:bg-slate-700/30">
                     <span className="font-medium dark:text-slate-300">Reading time:</span>
-                    <Badge variant="secondary" className="bg-green-100 text-green-700 dark:bg-green-900/50 dark:text-green-300">
+                    <Badge variant="secondary" className="bg-green-100/20 backdrop-blur-sm text-green-700 border-0 dark:bg-green-900/30 dark:text-green-300">
                       ~{Math.ceil(content.split(' ').length / 200)} min
                     </Badge>
                   </div>

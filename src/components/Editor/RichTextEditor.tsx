@@ -163,7 +163,7 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
 
   return (
     <>
-      <div className="border-2 border-blue-200/50 rounded-2xl shadow-large overflow-hidden bg-gradient-to-br from-white via-blue-50/20 to-purple-50/20 backdrop-blur-sm dark:from-slate-800 dark:via-slate-800/80 dark:to-slate-700/80 dark:border-slate-600/50">
+      <div className="glass rounded-2xl shadow-large overflow-hidden bg-white/10 backdrop-blur-lg dark:bg-slate-800/20">
         <SmartToolbar
           onFormatClick={handleFormatClick}
           onAIClick={() => setShowAIAssistant(true)}
@@ -172,7 +172,7 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
           selectedText={selectedText}
         />
 
-        <div className="editor-content p-8 min-h-[500px] max-h-[700px] overflow-y-auto bg-white/50 dark:bg-slate-900/70">
+        <div className="editor-content p-8 min-h-[500px] max-h-[700px] overflow-y-auto bg-white/5 backdrop-blur-sm dark:bg-slate-900/20">
           <Slate editor={editor} initialValue={slateValue} onValueChange={handleChange}>
             <Editable
               renderElement={renderElement}

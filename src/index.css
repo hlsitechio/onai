@@ -1,3 +1,4 @@
+
 /* Import Inter font - must be at the top */
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
 
@@ -85,7 +86,7 @@
   }
 
   * {
-    @apply border-border;
+    @apply border-0;
   }
 
   body {
@@ -109,7 +110,7 @@
   }
 
   ::-webkit-scrollbar-track {
-    @apply bg-muted/30;
+    @apply bg-white/10 backdrop-blur-sm;
     border-radius: 100px;
   }
 
@@ -153,13 +154,13 @@
     background: var(--gradient-success);
   }
 
-  /* Dark mode specific glass morphism */
+  /* Enhanced glassmorphism */
   .glass {
-    @apply backdrop-blur-md bg-white/10 border border-white/20 dark:bg-black/20 dark:border-white/10;
+    @apply backdrop-blur-lg bg-white/10 border-0 shadow-large dark:bg-black/20;
   }
 
   .dark .glass {
-    @apply bg-white/5 border-white/10;
+    @apply bg-white/5 border-0;
   }
 
   /* Enhanced shadow utilities for dark mode */
@@ -193,9 +194,9 @@
     @apply transform transition-all duration-200 hover:-translate-y-1 hover:shadow-lg;
   }
 
-  /* Enhanced button styles for dark mode */
+  /* Enhanced glassmorphic button styles */
   .btn-primary {
-    @apply bg-gradient-primary text-white font-medium px-6 py-3 rounded-lg shadow-medium hover:shadow-large transform transition-all duration-200 hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2;
+    @apply bg-gradient-primary text-white font-medium px-6 py-3 rounded-lg shadow-medium hover:shadow-large transform transition-all duration-200 hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 border-0 backdrop-blur-md;
   }
   
   .dark .btn-primary {
@@ -203,35 +204,35 @@
   }
   
   .btn-secondary {
-    @apply bg-card text-card-foreground font-medium px-6 py-3 rounded-lg border border-border shadow-soft hover:shadow-medium transform transition-all duration-200 hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2;
+    @apply bg-white/10 backdrop-blur-md text-card-foreground font-medium px-6 py-3 rounded-lg border-0 shadow-soft hover:shadow-medium transform transition-all duration-200 hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2;
   }
 
-  /* Enhanced card styles for dark mode */
+  /* Enhanced glassmorphic card styles */
   .card-enhanced {
-    @apply bg-card border border-border rounded-xl shadow-soft hover:shadow-medium transition-all duration-300 p-6;
+    @apply bg-white/10 backdrop-blur-md border-0 rounded-xl shadow-soft hover:shadow-medium transition-all duration-300 p-6;
   }
   
   .dark .card-enhanced {
-    @apply bg-slate-800/50 border-slate-700/50 hover:bg-slate-800/70;
+    @apply bg-slate-800/20 hover:bg-slate-800/30;
   }
   
   .card-hover {
     @apply hover:-translate-y-1 hover:shadow-large;
   }
 
-  /* Enhanced input styles for dark mode */
+  /* Enhanced glassmorphic input styles */
   .input-enhanced {
-    @apply w-full px-4 py-3 bg-background border border-input rounded-lg text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent transition-all duration-200;
+    @apply w-full px-4 py-3 bg-white/10 backdrop-blur-md border-0 rounded-lg text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent transition-all duration-200;
   }
 
   .dark .input-enhanced {
-    @apply bg-slate-800/50 border-slate-700/50 focus:bg-slate-800/70 focus:ring-blue-400/60;
+    @apply bg-slate-800/20 focus:bg-slate-800/30 focus:ring-blue-400/60;
   }
 }
 
-/* Enhanced component styles for dark mode */
+/* Enhanced component styles for glassmorphic design */
 @layer components {
-  /* Enhanced navigation for dark mode */
+  /* Enhanced navigation for glassmorphic design */
   .nav-link {
     @apply relative text-muted-foreground hover:text-foreground transition-colors duration-200 font-medium;
   }
@@ -250,7 +251,7 @@
     @apply w-full;
   }
 
-  /* Enhanced form styles for dark mode */
+  /* Enhanced form styles for glassmorphic design */
   .form-group {
     @apply space-y-2;
   }
@@ -263,51 +264,51 @@
     @apply text-sm text-destructive;
   }
 
-  /* Enhanced loading states for dark mode */
+  /* Enhanced loading states for glassmorphic design */
   .loading-shimmer {
-    @apply animate-pulse bg-gradient-to-r from-muted via-muted-foreground/20 to-muted bg-[length:200%_100%];
+    @apply animate-pulse bg-gradient-to-r from-white/10 via-white/20 to-white/10 bg-[length:200%_100%] backdrop-blur-sm;
     animation: shimmer 2s infinite;
   }
 
   .dark .loading-shimmer {
-    @apply from-slate-800 via-slate-700/20 to-slate-800;
+    @apply from-slate-800/20 via-slate-700/30 to-slate-800/20;
   }
 
-  /* Enhanced rich text editor for dark mode */
+  /* Enhanced glassmorphic rich text editor */
   .editor-toolbar {
-    @apply flex items-center gap-1 p-3 border-b border-border bg-muted/30 rounded-t-lg;
+    @apply flex items-center gap-1 p-3 bg-white/10 backdrop-blur-md border-0 rounded-t-lg;
   }
 
   .dark .editor-toolbar {
-    @apply bg-slate-800/30 border-slate-700/50;
+    @apply bg-slate-800/20;
   }
   
   .editor-button {
-    @apply p-2 rounded-md text-muted-foreground hover:text-foreground hover:bg-accent transition-colors duration-200;
+    @apply p-2 rounded-md text-muted-foreground hover:text-foreground hover:bg-white/20 backdrop-blur-sm transition-colors duration-200 border-0;
   }
 
   .dark .editor-button:hover {
-    @apply bg-slate-700/50;
+    @apply bg-slate-700/30;
   }
   
   .editor-button.active {
-    @apply bg-primary text-primary-foreground;
+    @apply bg-primary/20 text-primary backdrop-blur-md border-0;
   }
 
   .dark .editor-button.active {
-    @apply bg-blue-600 text-white;
+    @apply bg-blue-600/30 text-blue-300;
   }
   
   .editor-content {
-    @apply p-6 min-h-96 focus:outline-none prose prose-sm max-w-none dark:prose-invert;
+    @apply p-6 min-h-96 focus:outline-none prose prose-sm max-w-none dark:prose-invert bg-white/5 backdrop-blur-sm border-0;
   }
 
   .dark .editor-content {
-    @apply prose-headings:text-slate-200 prose-p:text-slate-300 prose-strong:text-slate-200 prose-code:text-blue-300 prose-code:bg-slate-800;
+    @apply prose-headings:text-slate-200 prose-p:text-slate-300 prose-strong:text-slate-200 prose-code:text-blue-300 prose-code:bg-slate-800/40 bg-slate-900/20;
   }
 }
 
-/* Enhanced animations */
+/* ... keep existing code (Enhanced animations and media queries) */
 @keyframes shimmer {
   0% {
     background-position: -200% 0;
