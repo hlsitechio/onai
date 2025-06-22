@@ -1,6 +1,7 @@
 
 import React from 'react';
-import Sidebar from './Sidebar';
+import { SidebarProvider, SidebarInset } from '@/components/ui/sidebar';
+import { AppSidebar } from './AppSidebar';
 import Header from './Header';
 
 interface LayoutProps {
@@ -9,15 +10,17 @@ interface LayoutProps {
 
 const Layout: React.FC<LayoutProps> = ({ children }) => {
   return (
-    <div className="flex min-h-screen bg-background">
-      <Sidebar />
-      <div className="flex-1 ml-0 md:ml-[280px]">
-        <Header />
-        <div className="p-6 pt-24">
-          {children}
-        </div>
+    <SidebarProvider>
+      <div className="flex min-h-screen w-full bg-background">
+        <AppSidebar />
+        <SidebarInset>
+          <Header />
+          <div className="p-6 pt-24">
+            {children}
+          </div>
+        </SidebarInset>
       </div>
-    </div>
+    </SidebarProvider>
   );
 };
 

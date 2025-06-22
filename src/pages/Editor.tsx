@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Book, Settings, Plus, Search, Heart, Save, Zap, Bot, Crown, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -6,10 +5,11 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
+import { SidebarTrigger } from '@/components/ui/sidebar';
 import { useNotes } from '../contexts/NotesContext';
 import { NoteCategory } from '../types/note';
 import RichTextEditor from '../components/Editor/RichTextEditor';
-import WritingSuggestions from '../components/Editor/WritingSuggestions';
+import CollapsibleAssistant from '../components/Editor/CollapsibleAssistant';
 
 const categories: NoteCategory[] = [
   { value: 'general', label: 'General', color: 'gray' },
@@ -93,23 +93,26 @@ const Editor: React.FC = () => {
 
   return (
     <div className="space-y-6 h-[calc(100vh-120px)] bg-gradient-to-br from-gray-50 via-blue-50/30 to-purple-50/30 dark:from-slate-900 dark:via-slate-800/50 dark:to-slate-700/50">
-      {/* Premium Header */}
+      {/* Premium Header with Sidebar Trigger */}
       <div className="flex justify-between items-start glass p-6 rounded-2xl shadow-large">
-        <div>
-          <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent flex items-center gap-3 dark:from-blue-400 dark:to-purple-400">
-            {currentNote ? 'Edit Note' : 'Create New Note'}
-            <Crown className="w-8 h-8 text-yellow-500" />
-          </h1>
-          <p className="text-gray-600 text-lg font-medium mt-1 dark:text-slate-300">
-            {currentNote ? 'Edit with world-class AI writing assistance' : 'Create with the most advanced AI writing tools available'}
-          </p>
-          <div className="flex items-center gap-2 mt-2">
-            <Badge className="bg-gradient-to-r from-blue-500 to-purple-500 text-white border-0 backdrop-blur-md">
-              ⚡ AI-Powered
-            </Badge>
-            <Badge variant="outline" className="border-0 bg-yellow-100/20 backdrop-blur-sm text-yellow-700 dark:bg-yellow-400/10 dark:text-yellow-300">
-              🏆 Better than Notion AI
-            </Badge>
+        <div className="flex items-center gap-4">
+          <SidebarTrigger className="glass shadow-medium hover:bg-white/20 dark:hover:bg-slate-700/30" />
+          <div>
+            <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent flex items-center gap-3 dark:from-blue-400 dark:to-purple-400">
+              {currentNote ? 'Edit Note' : 'Create New Note'}
+              <Crown className="w-8 h-8 text-yellow-500" />
+            </h1>
+            <p className="text-gray-600 text-lg font-medium mt-1 dark:text-slate-300">
+              {currentNote ? 'Edit with world-class AI writing assistance' : 'Create with the most advanced AI writing tools available'}
+            </p>
+            <div className="flex items-center gap-2 mt-2">
+              <Badge className="bg-gradient-to-r from-blue-500 to-purple-500 text-white border-0 backdrop-blur-md">
+                ⚡ AI-Powered
+              </Badge>
+              <Badge variant="outline" className="border-0 bg-yellow-100/20 backdrop-blur-sm text-yellow-700 dark:bg-yellow-400/10 dark:text-yellow-300">
+                🏆 Better than Notion AI
+              </Badge>
+            </div>
           </div>
         </div>
         <div className="flex gap-3">
@@ -206,77 +209,12 @@ const Editor: React.FC = () => {
           </Card>
         </div>
 
-        {/* Premium AI Sidebar */}
-        <div className="lg:col-span-1 space-y-4">
-          {/* Enhanced Writing Suggestions */}
-          <WritingSuggestions
+        {/* Collapsible AI Sidebar */}
+        <div className="lg:col-span-1">
+          <CollapsibleAssistant
             content={content}
             onSuggestionApply={handleSuggestionApply}
           />
-
-          {/* Premium AI Features */}
-          <Card className="glass shadow-large">
-            <CardContent className="p-5">
-              <div className="flex items-center gap-3 mb-4">
-                <div className="p-2 bg-gradient-to-r from-purple-500 to-pink-500 rounded-lg">
-                  <Sparkles className="w-5 h-5 text-white" />
-                </div>
-                <div>
-                  <h3 className="font-bold text-purple-800 dark:text-purple-300">AI Power Tools</h3>
-                  <p className="text-xs text-purple-600 dark:text-purple-400">Next-generation features</p>
-                </div>
-              </div>
-              <div className="space-y-3">
-                <Button variant="outline" size="sm" className="w-full justify-start border-0 bg-white/10 backdrop-blur-sm hover:bg-white/20 dark:bg-slate-600/20 dark:hover:bg-slate-600/30 dark:text-slate-200">
-                  <Bot className="w-4 h-4 mr-2 text-purple-600 dark:text-purple-400" />
-                  Generate Ideas
-                  <Badge className="ml-auto bg-purple-100/20 backdrop-blur-sm text-purple-700 border-0 dark:bg-purple-900/30 dark:text-purple-300">NEW</Badge>
-                </Button>
-                <Button variant="outline" size="sm" className="w-full justify-start border-0 bg-white/10 backdrop-blur-sm hover:bg-white/20 dark:bg-slate-600/20 dark:hover:bg-slate-600/30 dark:text-slate-200">
-                  <Search className="w-4 h-4 mr-2 text-blue-600 dark:text-blue-400" />
-                  Research Topic
-                  <Badge className="ml-auto bg-blue-100/20 backdrop-blur-sm text-blue-700 border-0 dark:bg-blue-900/30 dark:text-blue-300">PRO</Badge>
-                </Button>
-                <Button variant="outline" size="sm" className="w-full justify-start border-0 bg-white/10 backdrop-blur-sm hover:bg-white/20 dark:bg-slate-600/20 dark:hover:bg-slate-600/30 dark:text-slate-200">
-                  <Settings className="w-4 h-4 mr-2 text-pink-600 dark:text-pink-400" />
-                  Tone Adjustment
-                  <Badge className="ml-auto bg-pink-100/20 backdrop-blur-sm text-pink-700 border-0 dark:bg-pink-900/30 dark:text-pink-300">AI</Badge>
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Enhanced Writing Stats */}
-          {content.length > 0 && (
-            <Card className="glass shadow-medium">
-              <CardContent className="p-5">
-                <h3 className="font-bold mb-4 text-gray-800 flex items-center gap-2 dark:text-slate-200">
-                  <Zap className="w-4 h-4 text-blue-600 dark:text-blue-400" />
-                  Writing Analytics
-                </h3>
-                <div className="space-y-3 text-sm">
-                  <div className="flex justify-between items-center p-2 bg-white/20 backdrop-blur-sm rounded-lg border-0 dark:bg-slate-700/30">
-                    <span className="font-medium dark:text-slate-300">Words:</span>
-                    <Badge variant="secondary" className="bg-blue-100/20 backdrop-blur-sm text-blue-700 border-0 dark:bg-blue-900/30 dark:text-blue-300">
-                      {content.split(' ').filter(w => w.length > 0).length}
-                    </Badge>
-                  </div>
-                  <div className="flex justify-between items-center p-2 bg-white/20 backdrop-blur-sm rounded-lg border-0 dark:bg-slate-700/30">
-                    <span className="font-medium dark:text-slate-300">Characters:</span>
-                    <Badge variant="secondary" className="bg-purple-100/20 backdrop-blur-sm text-purple-700 border-0 dark:bg-purple-900/30 dark:text-purple-300">
-                      {content.length}
-                    </Badge>
-                  </div>
-                  <div className="flex justify-between items-center p-2 bg-white/20 backdrop-blur-sm rounded-lg border-0 dark:bg-slate-700/30">
-                    <span className="font-medium dark:text-slate-300">Reading time:</span>
-                    <Badge variant="secondary" className="bg-green-100/20 backdrop-blur-sm text-green-700 border-0 dark:bg-green-900/30 dark:text-green-300">
-                      ~{Math.ceil(content.split(' ').length / 200)} min
-                    </Badge>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          )}
         </div>
       </div>
     </div>
