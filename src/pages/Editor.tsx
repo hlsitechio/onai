@@ -3,12 +3,12 @@ import React, { useState, useEffect } from 'react';
 import { Book, Settings, Plus, Search, Heart, Save } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
 import { useNotes } from '../contexts/NotesContext';
 import { NoteCategory } from '../types/note';
+import RichTextEditor from '../components/Editor/RichTextEditor';
 
 const categories: NoteCategory[] = [
   { value: 'general', label: 'General', color: 'gray' },
@@ -93,7 +93,7 @@ const Editor: React.FC = () => {
             {currentNote ? 'Edit Note' : 'Create New Note'}
           </h1>
           <p className="text-gray-600">
-            {currentNote ? 'Edit your existing note' : 'Create and organize your thoughts'}
+            {currentNote ? 'Edit your existing note with rich text formatting' : 'Create and organize your thoughts with rich text'}
           </p>
         </div>
         <div className="flex gap-3">
@@ -175,13 +175,14 @@ const Editor: React.FC = () => {
               </div>
             </div>
 
-            {/* Content */}
-            <Textarea
-              placeholder="Start writing your note..."
-              value={content}
-              onChange={(e) => setContent(e.target.value)}
-              className="flex-1 min-h-96 resize-none border-none bg-white text-base leading-relaxed focus:ring-0 focus:border-none"
-            />
+            {/* Rich Text Content */}
+            <div className="flex-1">
+              <RichTextEditor
+                value={content}
+                onChange={setContent}
+                placeholder="Start writing your note with rich text formatting..."
+              />
+            </div>
 
             {/* AI Suggestions */}
             {content.length > 50 && (
@@ -194,7 +195,7 @@ const Editor: React.FC = () => {
                         AI Suggestion
                       </p>
                       <p className="text-sm text-blue-600">
-                        Consider organizing your thoughts with bullet points or adding relevant tags.
+                        Try using headings and bullet points to organize your rich text content better.
                       </p>
                     </div>
                     <Button size="sm" variant="ghost" className="text-blue-600 hover:bg-blue-100">
