@@ -1,7 +1,6 @@
 
 import React, { createContext, useContext, useEffect, useState } from 'react';
-
-type Theme = 'dark' | 'light' | 'system';
+import { Theme, applyThemeToDocument } from '../utils/themeUtils';
 
 type ThemeProviderProps = {
   children: React.ReactNode;
@@ -30,37 +29,18 @@ export function ThemeProvider({
   const [theme, setTheme] = useState<Theme>(() => {
     if (typeof window !== 'undefined') {
       const stored = localStorage.getItem(storageKey) as Theme;
-      console.log('ThemeProvider init - stored theme:', stored);
       return stored || defaultTheme;
     }
     return defaultTheme;
   });
 
   useEffect(() => {
-    console.log('ThemeProvider effect - theme changed to:', theme);
-    const root = window.document.documentElement;
-
-    root.classList.remove('light', 'dark');
-
-    if (theme === 'system') {
-      const systemTheme = window.matchMedia('(prefers-color-scheme: dark)')
-        .matches
-        ? 'dark'
-        : 'light';
-
-      console.log('System theme detected as:', systemTheme);
-      root.classList.add(systemTheme);
-      return;
-    }
-
-    console.log('Adding theme class:', theme);
-    root.classList.add(theme);
+    applyThemeToDocument(theme);
   }, [theme]);
 
   const value = {
     theme,
     setTheme: (newTheme: Theme) => {
-      console.log('setTheme called with:', newTheme);
       localStorage.setItem(storageKey, newTheme);
       setTheme(newTheme);
     },

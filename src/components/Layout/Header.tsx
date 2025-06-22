@@ -14,36 +14,26 @@ import { Badge } from '@/components/ui/badge';
 import { useTheme } from '@/providers/ThemeProvider';
 import { useAuth } from '../../contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
+import { toggleTheme, isDarkMode } from '@/utils/themeUtils';
 
 const Header: React.FC = () => {
   const { theme, setTheme } = useTheme();
   const { user } = useAuth();
   const { toast } = useToast();
 
-  const toggleTheme = () => {
-    console.log('Current theme:', theme);
-    // Simple toggle between light and dark
-    if (theme === 'dark') {
-      setTheme('light');
-      console.log('Switching to light mode');
-    } else {
-      setTheme('dark');
-      console.log('Switching to dark mode');
-    }
+  const handleThemeToggle = () => {
+    const newTheme = toggleTheme(theme);
+    setTheme(newTheme);
   };
 
   const handleNotificationClick = () => {
-    console.log('Notification button clicked');
     toast({
       title: "Notifications",
       description: "You have 3 new notifications",
     });
   };
 
-  // Determine if dark mode is currently active
-  const isDarkMode = theme === 'dark' || (theme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
-
-  console.log('Header render - theme:', theme, 'isDarkMode:', isDarkMode);
+  const isCurrentlyDark = isDarkMode(theme);
 
   return (
     <header className="fixed top-0 right-0 left-0 z-50 bg-background/80 backdrop-blur-lg border-b border-border/50 md:left-[var(--sidebar-width)]">
@@ -73,10 +63,10 @@ const Header: React.FC = () => {
           <Button
             variant="ghost"
             size="icon"
-            onClick={toggleTheme}
+            onClick={handleThemeToggle}
             className="glass shadow-medium hover:bg-white/20 dark:hover:bg-slate-700/30"
           >
-            {isDarkMode ? (
+            {isCurrentlyDark ? (
               <Sun className="h-5 w-5" />
             ) : (
               <Moon className="h-5 w-5" />

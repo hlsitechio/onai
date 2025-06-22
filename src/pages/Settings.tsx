@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Settings as SettingsIcon, Book, Github } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
@@ -11,17 +10,18 @@ import { Switch } from '@/components/ui/switch';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
+import { isDarkMode, toggleTheme } from '@/utils/themeUtils';
 
 const Settings: React.FC = () => {
   const { user } = useAuth();
   const { theme, setTheme } = useTheme();
 
   const handleThemeToggle = (checked: boolean) => {
-    setTheme(checked ? 'dark' : 'light');
+    const newTheme = checked ? 'dark' : 'light';
+    setTheme(newTheme);
   };
 
-  // Determine if dark mode is currently active
-  const isDarkMode = theme === 'dark' || (theme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
+  const isCurrentlyDark = isDarkMode(theme);
 
   return (
     <div className="space-y-6">
@@ -78,7 +78,7 @@ const Settings: React.FC = () => {
                   <p className="text-sm text-gray-600 dark:text-gray-400">Toggle dark theme</p>
                 </div>
                 <Switch 
-                  checked={isDarkMode}
+                  checked={isCurrentlyDark}
                   onCheckedChange={handleThemeToggle}
                 />
               </div>
