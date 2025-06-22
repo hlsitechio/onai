@@ -10,7 +10,9 @@ import {
   Github,
   PanelLeftClose,
   PanelLeftOpen,
-  Calendar
+  Calendar,
+  FolderIcon,
+  FileText
 } from 'lucide-react';
 import {
   Sidebar,
@@ -25,9 +27,18 @@ import {
   SidebarSeparator,
   useSidebar,
 } from '@/components/ui/sidebar';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/components/ui/tooltip';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 import { useAuth } from '../../contexts/AuthContext';
+import { useNotes } from '../../contexts/NotesContext';
+import { useFolders } from '../../contexts/FoldersContext';
 import NotesTree from '../Sidebar/NotesTree';
 
 const menuItems = [
@@ -43,6 +54,128 @@ export function AppSidebar() {
   const navigate = useNavigate();
   const { user, logout } = useAuth();
   const { state, toggleSidebar } = useSidebar();
+  const { notes } = useNotes();
+  const { folders } = useFolders();
+
+  const isCollapsed = state === 'collapsed';
+
+  if (isCollapsed) {
+    return (
+      <TooltipProvider>
+        <Sidebar collapsible="icon" className="glass border-r border-border/50 backdrop-blur-md">
+          <SidebarHeader className="p-3">
+            <div className="flex flex-col items-center gap-3">
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-500 rounded-xl flex items-center justify-center">
+                    <Github className="text-white w-5 h-5" />
+                  </div>
+                </TooltipTrigger>
+                <TooltipContent side="right">
+                  <p>Online Note AI</p>
+                </TooltipContent>
+              </Tooltip>
+              
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={toggleSidebar}
+                    className="h-8 w-8 glass shadow-medium hover:bg-white/20 dark:hover:bg-slate-700/30"
+                  >
+                    <PanelLeftOpen className="w-4 h-4" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent side="right">
+                  <p>Expand sidebar</p>
+                </TooltipContent>
+              </Tooltip>
+            </div>
+          </SidebarHeader>
+
+          <SidebarContent className="p-3">
+            {/* Menu Items */}
+            <div className="space-y-2 mb-4">
+              {menuItems.map((item) => (
+                <Tooltip key={item.path}>
+                  <TooltipTrigger asChild>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => navigate(item.path)}
+                      className={`w-10 h-10 glass shadow-medium hover:bg-white/20 dark:hover:bg-slate-700/30 ${
+                        location.pathname === item.path 
+                          ? 'bg-primary/20 text-primary' 
+                          : ''
+                      }`}
+                    >
+                      <item.icon className="w-5 h-5" />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent side="right">
+                    <p>{item.label}</p>
+                  </TooltipContent>
+                </Tooltip>
+              ))}
+            </div>
+
+            {/* Folders Summary */}
+            {folders.length > 0 && (
+              <div className="mb-2">
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <div className="w-10 h-10 glass shadow-medium rounded-lg flex flex-col items-center justify-center">
+                      <FolderIcon className="w-4 h-4 text-blue-600 dark:text-blue-400 mb-1" />
+                      <Badge className="text-xs bg-blue-100/20 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300 px-1 py-0 min-w-0 h-3">
+                        {folders.length}
+                      </Badge>
+                    </div>
+                  </TooltipTrigger>
+                  <TooltipContent side="right">
+                    <p>{folders.length} Folders</p>
+                  </TooltipContent>
+                </Tooltip>
+              </div>
+            )}
+
+            {/* Notes Summary */}
+            {notes.length > 0 && (
+              <div className="mb-4">
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <div className="w-10 h-10 glass shadow-medium rounded-lg flex flex-col items-center justify-center">
+                      <FileText className="w-4 h-4 text-green-600 dark:text-green-400 mb-1" />
+                      <Badge className="text-xs bg-green-100/20 text-green-700 dark:bg-green-900/30 dark:text-green-300 px-1 py-0 min-w-0 h-3">
+                        {notes.length}
+                      </Badge>
+                    </div>
+                  </TooltipTrigger>
+                  <TooltipContent side="right">
+                    <p>{notes.length} Notes</p>
+                  </TooltipContent>
+                </Tooltip>
+              </div>
+            )}
+          </SidebarContent>
+
+          <SidebarFooter className="p-3">
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Avatar className="w-10 h-10 mx-auto">
+                  <AvatarImage src={user?.avatar} />
+                  <AvatarFallback>{user?.name?.[0]}</AvatarFallback>
+                </Avatar>
+              </TooltipTrigger>
+              <TooltipContent side="right">
+                <p>{user?.name}</p>
+              </TooltipContent>
+            </Tooltip>
+          </SidebarFooter>
+        </Sidebar>
+      </TooltipProvider>
+    );
+  }
 
   return (
     <Sidebar collapsible="icon" className="glass border-r border-border/50 backdrop-blur-md">
