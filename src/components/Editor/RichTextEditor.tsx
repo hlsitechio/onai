@@ -21,7 +21,6 @@ type CustomText = {
 
 declare module 'slate' {
   interface CustomTypes {
-    Editor: Editor;
     Element: CustomElement;
     Text: CustomText;
   }
