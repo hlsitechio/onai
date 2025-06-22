@@ -42,11 +42,11 @@ import { useFolders } from '../../contexts/FoldersContext';
 import NotesTree from '../Sidebar/NotesTree';
 
 const menuItems = [
-  { icon: Book, label: 'Dashboard', path: '/dashboard' },
-  { icon: Plus, label: 'AI Chat', path: '/chat' },
-  { icon: Edit, label: 'Editor', path: '/editor' },
-  { icon: Calendar, label: 'Calendar', path: '/calendar' },
-  { icon: Settings, label: 'Settings', path: '/settings' },
+  { icon: Book, label: 'Dashboard', path: '/dashboard', color: 'text-blue-500' },
+  { icon: Plus, label: 'AI Chat', path: '/chat', color: 'text-green-500' },
+  { icon: Edit, label: 'Editor', path: '/editor', color: 'text-purple-500' },
+  { icon: Calendar, label: 'Calendar', path: '/calendar', color: 'text-orange-500' },
+  { icon: Settings, label: 'Settings', path: '/settings', color: 'text-gray-500' },
 ];
 
 export function AppSidebar() {
@@ -110,7 +110,7 @@ export function AppSidebar() {
                           : ''
                       }`}
                     >
-                      <item.icon className="w-5 h-5" />
+                      <item.icon className={`w-5 h-5 ${location.pathname === item.path ? '' : item.color}`} />
                     </Button>
                   </TooltipTrigger>
                   <TooltipContent side="right">
@@ -221,7 +221,7 @@ export function AppSidebar() {
                         : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground hover:translate-x-1'
                     }`}
                   >
-                    <item.icon className="w-5 h-5 flex-shrink-0" />
+                    <item.icon className={`w-5 h-5 flex-shrink-0 ${location.pathname === item.path ? '' : item.color}`} />
                     <span className="truncate">{item.label}</span>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
