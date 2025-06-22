@@ -1,16 +1,19 @@
 
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Toaster } from '@/components/ui/sonner';
 
 // Context providers
-import { AuthProvider } from './contexts/AuthContext';
+import { ThemeProvider } from './providers/ThemeProvider';
+import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { NotesProvider } from './contexts/NotesContext';
 import { FoldersProvider } from './contexts/FoldersContext';
 
+// Layout
+import Layout from './components/Layout/Layout';
+
 // Page components
-import Index from './pages/Index';
 import Login from './pages/Auth/Login';
 import Register from './pages/Auth/Register';
 import Dashboard from './pages/Dashboard';
@@ -31,37 +34,57 @@ const queryClient = new QueryClient({
   },
 });
 
-// Query Client Provider wrapper
-const QueryProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => (
-  <QueryClientProvider client={queryClient}>
-    {children}
-    <Toaster />
-  </QueryClientProvider>
-);
+const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
+  const { isAuthenticated } = useAuth();
+  return isAuthenticated ? <>{children}</> : <Navigate to="/login" />;
+};
+
+const AppRoutes = () => {
+  const { isAuthenticated } = useAuth();
+
+  if (!isAuthenticated) {
+    return (
+      <Routes>
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
+        <Route path="*" element={<Navigate to="/login" />} />
+      </Routes>
+    );
+  }
+
+  return (
+    <NotesProvider>
+      <Layout>
+        <Routes>
+          <Route path="/" element={<Dashboard />} />
+          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/chat" element={<Chat />} />
+          <Route path="/editor" element={<Editor />} />
+          <Route path="/calendar" element={<Calendar />} />
+          <Route path="/notes" element={<Notes />} />
+          <Route path="/settings" element={<Settings />} />
+          <Route path="*" element={<Navigate to="/dashboard" />} />
+        </Routes>
+      </Layout>
+    </NotesProvider>
+  );
+};
 
 function App() {
   return (
     <Router>
-      <QueryProvider>
-        <AuthProvider>
-          <NotesProvider>
-            <FoldersProvider>
-              <Routes>
-                <Route path="/" element={<Index />} />
-                <Route path="/login" element={<Login />} />
-                <Route path="/register" element={<Register />} />
-                <Route path="/dashboard" element={<Dashboard />} />
-                <Route path="/chat" element={<Chat />} />
-                <Route path="/editor" element={<Editor />} />
-                <Route path="/calendar" element={<Calendar />} />
-                <Route path="/notes" element={<Notes />} />
-                <Route path="/settings" element={<Settings />} />
-                <Route path="*" element={<NotFound />} />
-              </Routes>
-            </FoldersProvider>
-          </NotesProvider>
-        </AuthProvider>
-      </QueryProvider>
+      <QueryClientProvider client={queryClient}>
+        <ThemeProvider defaultTheme="system" storageKey="online-note-ai-theme">
+          <div className="min-h-screen bg-gradient-to-br from-background via-muted/20 to-accent/20">
+            <AuthProvider>
+              <FoldersProvider>
+                <AppRoutes />
+              </FoldersProvider>
+            </AuthProvider>
+          </div>
+          <Toaster />
+        </ThemeProvider>
+      </QueryClientProvider>
     </Router>
   );
 }

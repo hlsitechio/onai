@@ -10,7 +10,7 @@ import { Switch } from '@/components/ui/switch';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
-import { isDarkMode, toggleTheme } from '@/utils/themeUtils';
+import { isDarkMode } from '@/utils/themeUtils';
 
 const Settings: React.FC = () => {
   const { user } = useAuth();
