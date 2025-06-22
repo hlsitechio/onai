@@ -20,6 +20,11 @@ interface NotesEditorFlexibleLayoutProps {
   onApplyAIContent: (aiContent: string) => void;
 }
 
+// Memoized components for better performance
+const MemoizedNotesSidebar = React.memo(NotesSidebar);
+const MemoizedNoteEditor = React.memo(NoteEditor);
+const MemoizedEnhancedAISidebar = React.memo(EnhancedAISidebar);
+
 const NotesEditorFlexibleLayout: React.FC<NotesEditorFlexibleLayoutProps> = ({
   notesRecord,
   currentNote,
@@ -36,19 +41,29 @@ const NotesEditorFlexibleLayout: React.FC<NotesEditorFlexibleLayoutProps> = ({
   const [sidebarWidth, setSidebarWidth] = useState(320);
   const [aiPanelWidth, setAiPanelWidth] = useState(320);
   
-  // Client-only window width for SSR safety
-  const [windowWidth, setWindowWidth] = useState(0);
-  
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      setWindowWidth(window.innerWidth);
-      const handleResize = () => setWindowWidth(window.innerWidth);
-      window.addEventListener("resize", handleResize);
-      return () => window.removeEventListener("resize", handleResize);
-    }
-  }, []);
-
+  // Cleanup window width since it's not being used
   const currentContent = currentNote?.content || '';
+
+  // Keyboard shortcuts for power users
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      const isMac = navigator.platform.toUpperCase().indexOf('MAC') >= 0;
+      const ctrlKey = isMac ? event.metaKey : event.ctrlKey;
+
+      if (ctrlKey && event.key === 'b' && !event.shiftKey) {
+        event.preventDefault();
+        setSidebarOpen(prev => !prev);
+      }
+      
+      if (ctrlKey && event.shiftKey && event.key === 'A') {
+        event.preventDefault();
+        setAiPanelOpen(prev => !prev);
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
 
   return (
     <div className="h-screen flex bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 overflow-hidden relative">
@@ -63,7 +78,7 @@ const NotesEditorFlexibleLayout: React.FC<NotesEditorFlexibleLayoutProps> = ({
         <Rnd
           size={{ width: sidebarWidth, height: '100%' }}
           position={{ x: 0, y: 0 }}
-          onResizeStop={(e, direction, ref, delta, position) => {
+          onResizeStop={(e, direction, ref) => {
             setSidebarWidth(ref.offsetWidth);
           }}
           minWidth={200}
@@ -81,32 +96,38 @@ const NotesEditorFlexibleLayout: React.FC<NotesEditorFlexibleLayoutProps> = ({
           }}
           resizeHandleStyles={{
             right: {
-              width: '4px',
-              right: '-2px',
+              width: '6px',
+              right: '-3px',
               background: 'transparent',
               cursor: 'col-resize',
-              transition: 'background 0.3s ease',
+              zIndex: 50,
             }
           }}
-          className="z-20 transition-all duration-300"
+          className="z-20"
         >
-          <div className="h-full bg-slate-900/90 backdrop-blur-xl border-r border-slate-700/50">
-            <NotesSidebar
-              notes={notesRecord}
-              selectedNoteId={currentNote?.id || null}
-              onLoadNote={onLoadNote}
-              onCreateNote={onCreateNote}
-              onDeleteNote={onDeleteNote}
-              onRenameNote={onRenameNote}
-              saving={saving}
-            />
+          <div className="h-full transition-all duration-300 ease-in-out">
+            <div className="h-full bg-slate-900/90 backdrop-blur-xl border-r border-slate-700/50">
+              <MemoizedNotesSidebar
+                notes={notesRecord}
+                selectedNoteId={currentNote?.id || null}
+                onLoadNote={onLoadNote}
+                onCreateNote={onCreateNote}
+                onDeleteNote={onDeleteNote}
+                onRenameNote={onRenameNote}
+                saving={saving}
+              />
+            </div>
+            {/* Custom resize handle with better UX */}
+            <div className="absolute top-0 right-[-3px] w-6 h-full z-50 cursor-col-resize group">
+              <div className="absolute top-1/2 right-0 w-1 h-16 bg-slate-600/30 rounded-full transform -translate-y-1/2 group-hover:bg-blue-500/50 transition-all duration-200 group-hover:w-1.5 group-hover:h-20"></div>
+            </div>
           </div>
         </Rnd>
       )}
 
-      {/* Main Editor Area */}
+      {/* Main Editor Area with smooth margin transitions */}
       <div 
-        className="flex flex-col bg-slate-900/50 backdrop-blur-xl z-10 flex-1 transition-all duration-300"
+        className="flex flex-col bg-slate-900/50 backdrop-blur-xl z-10 flex-1 transition-[margin] duration-300 ease-in-out"
         style={{
           marginLeft: sidebarOpen ? `${sidebarWidth}px` : '0px',
           marginRight: aiPanelOpen ? `${aiPanelWidth}px` : '0px',
@@ -126,7 +147,7 @@ const NotesEditorFlexibleLayout: React.FC<NotesEditorFlexibleLayoutProps> = ({
           {/* Enhanced editor background */}
           <div className="absolute inset-0 bg-gradient-to-br from-slate-950/80 to-slate-900/80" />
           <div className="relative z-10 h-full">
-            <NoteEditor
+            <MemoizedNoteEditor
               noteId={currentNote?.id || null}
               content={currentContent}
               onContentChange={onContentChange}
@@ -135,7 +156,7 @@ const NotesEditorFlexibleLayout: React.FC<NotesEditorFlexibleLayoutProps> = ({
         </div>
       </div>
 
-      {/* AI Panel - Resizable */}
+      {/* AI Panel - Resizable with better positioning */}
       {aiPanelOpen && (
         <Rnd
           size={{ width: aiPanelWidth, height: '100%' }}
@@ -158,26 +179,32 @@ const NotesEditorFlexibleLayout: React.FC<NotesEditorFlexibleLayoutProps> = ({
           }}
           resizeHandleStyles={{
             left: {
-              width: '4px',
-              left: '-2px',
+              width: '6px',
+              left: '-3px',
               background: 'transparent',
               cursor: 'col-resize',
-              transition: 'background 0.3s ease',
+              zIndex: 50,
             }
           }}
-          className="z-30 transition-all duration-300"
+          className="z-30"
           style={{
             position: 'fixed',
             top: 0,
             right: 0,
           }}
         >
-          <div className="h-full bg-slate-900/90 backdrop-blur-xl border-l border-slate-700/50">
-            <EnhancedAISidebar
-              onClose={() => setAiPanelOpen(false)}
-              content={currentContent}
-              onApplyChanges={onApplyAIContent}
-            />
+          <div className="h-full transition-all duration-300 ease-in-out">
+            <div className="h-full bg-slate-900/90 backdrop-blur-xl border-l border-slate-700/50">
+              <MemoizedEnhancedAISidebar
+                onClose={() => setAiPanelOpen(false)}
+                content={currentContent}
+                onApplyChanges={onApplyAIContent}
+              />
+            </div>
+            {/* Custom resize handle with better UX */}
+            <div className="absolute top-0 left-[-3px] w-6 h-full z-50 cursor-col-resize group">
+              <div className="absolute top-1/2 left-0 w-1 h-16 bg-slate-600/30 rounded-full transform -translate-y-1/2 group-hover:bg-blue-500/50 transition-all duration-200 group-hover:w-1.5 group-hover:h-20"></div>
+            </div>
           </div>
         </Rnd>
       )}
