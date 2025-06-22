@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Rnd } from 'react-rnd';
 import { Note } from "@/hooks/useNotesManager";
@@ -13,7 +14,7 @@ interface NotesEditorFlexibleLayoutProps {
   saving: boolean;
   onLoadNote: (noteId: string) => void;
   onCreateNote: () => void;
-  onDeleteNote: () => void;
+  onDeleteNote: (noteId: string) => void;
   onRenameNote: (noteId: string, newTitle: string) => void;
   onContentChange: (content: string) => void;
   onApplyAIContent: (aiContent: string) => void;
