@@ -1,223 +1,226 @@
 
 import React from 'react';
-import {
-  Box,
-  VStack,
-  HStack,
-  Text,
-  Card,
-  CardBody,
-  Switch,
-  Button,
-  Icon,
-  Avatar,
-  Input,
-  Select,
-  Divider,
-  Badge,
-} from '@chakra-ui/react';
 import { Settings as SettingsIcon, Book, Github } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Switch } from '@/components/ui/switch';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Badge } from '@/components/ui/badge';
+import { Separator } from '@/components/ui/separator';
 
 const Settings: React.FC = () => {
   const { user } = useAuth();
 
   return (
-    <VStack spacing={6} align="stretch">
+    <div className="space-y-6">
       {/* Header */}
-      <Box>
-        <Text fontSize="2xl" fontWeight="bold" color="gray.800">
+      <div>
+        <h1 className="text-2xl font-bold text-gray-800">
           Settings
-        </Text>
-        <Text color="gray.600">
+        </h1>
+        <p className="text-gray-600">
           Manage your account and preferences
-        </Text>
-      </Box>
+        </p>
+      </div>
 
       {/* Profile Section */}
       <Card>
-        <CardBody>
-          <VStack spacing={6} align="stretch">
-            <Text fontSize="lg" fontWeight="semibold">Profile</Text>
+        <CardContent>
+          <div className="space-y-6">
+            <h3 className="text-lg font-semibold">Profile</h3>
             
-            <HStack spacing={6}>
-              <Avatar size="xl" src={user?.avatar} name={user?.name} />
-              <VStack align="start" spacing={3} flex={1}>
-                <Box w="100%">
-                  <Text fontSize="sm" color="gray.600" mb={1}>Full Name</Text>
-                  <Input defaultValue={user?.name} borderRadius="8px" />
-                </Box>
-                <Box w="100%">
-                  <Text fontSize="sm" color="gray.600" mb={1}>Email</Text>
-                  <Input defaultValue={user?.email} borderRadius="8px" />
-                </Box>
-              </VStack>
-            </HStack>
+            <div className="flex gap-6">
+              <Avatar className="w-16 h-16">
+                <AvatarImage src={user?.avatar} />
+                <AvatarFallback>{user?.name?.[0]}</AvatarFallback>
+              </Avatar>
+              <div className="space-y-3 flex-1">
+                <div>
+                  <label className="text-sm text-gray-600 mb-1 block">Full Name</label>
+                  <Input defaultValue={user?.name} className="rounded-lg" />
+                </div>
+                <div>
+                  <label className="text-sm text-gray-600 mb-1 block">Email</label>
+                  <Input defaultValue={user?.email} className="rounded-lg" />
+                </div>
+              </div>
+            </div>
 
-            <Button colorScheme="brand" size="sm" alignSelf="start">
+            <Button size="sm" className="self-start">
               Update Profile
             </Button>
-          </VStack>
-        </CardBody>
+          </div>
+        </CardContent>
       </Card>
 
       {/* Preferences */}
       <Card>
-        <CardBody>
-          <VStack spacing={6} align="stretch">
-            <Text fontSize="lg" fontWeight="semibold">Preferences</Text>
+        <CardContent>
+          <div className="space-y-6">
+            <h3 className="text-lg font-semibold">Preferences</h3>
             
-            <VStack spacing={4} align="stretch">
-              <HStack justify="space-between">
-                <Box>
-                  <Text fontWeight="medium">Dark Mode</Text>
-                  <Text fontSize="sm" color="gray.600">Toggle dark theme</Text>
-                </Box>
-                <Switch colorScheme="brand" />
-              </HStack>
+            <div className="space-y-4">
+              <div className="flex justify-between items-center">
+                <div>
+                  <p className="font-medium">Dark Mode</p>
+                  <p className="text-sm text-gray-600">Toggle dark theme</p>
+                </div>
+                <Switch />
+              </div>
 
-              <Divider />
+              <Separator />
 
-              <HStack justify="space-between">
-                <Box>
-                  <Text fontWeight="medium">AI Suggestions</Text>
-                  <Text fontSize="sm" color="gray.600">Get AI-powered writing suggestions</Text>
-                </Box>
-                <Switch colorScheme="brand" defaultChecked />
-              </HStack>
+              <div className="flex justify-between items-center">
+                <div>
+                  <p className="font-medium">AI Suggestions</p>
+                  <p className="text-sm text-gray-600">Get AI-powered writing suggestions</p>
+                </div>
+                <Switch defaultChecked />
+              </div>
 
-              <Divider />
+              <Separator />
 
-              <HStack justify="space-between">
-                <Box>
-                  <Text fontWeight="medium">Auto-save</Text>
-                  <Text fontSize="sm" color="gray.600">Automatically save notes while typing</Text>
-                </Box>
-                <Switch colorScheme="brand" defaultChecked />
-              </HStack>
+              <div className="flex justify-between items-center">
+                <div>
+                  <p className="font-medium">Auto-save</p>
+                  <p className="text-sm text-gray-600">Automatically save notes while typing</p>
+                </div>
+                <Switch defaultChecked />
+              </div>
 
-              <Divider />
+              <Separator />
 
-              <HStack justify="space-between">
-                <Box flex={1}>
-                  <Text fontWeight="medium">Default Category</Text>
-                  <Text fontSize="sm" color="gray.600">Default category for new notes</Text>
-                </Box>
-                <Select w="200px" borderRadius="8px" defaultValue="general">
-                  <option value="general">General</option>
-                  <option value="meeting">Meeting</option>
-                  <option value="learning">Learning</option>
-                  <option value="brainstorm">Brainstorm</option>
-                  <option value="project">Project</option>
+              <div className="flex justify-between items-center">
+                <div className="flex-1">
+                  <p className="font-medium">Default Category</p>
+                  <p className="text-sm text-gray-600">Default category for new notes</p>
+                </div>
+                <Select defaultValue="general">
+                  <SelectTrigger className="w-48 rounded-lg">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="general">General</SelectItem>
+                    <SelectItem value="meeting">Meeting</SelectItem>
+                    <SelectItem value="learning">Learning</SelectItem>
+                    <SelectItem value="brainstorm">Brainstorm</SelectItem>
+                    <SelectItem value="project">Project</SelectItem>
+                  </SelectContent>
                 </Select>
-              </HStack>
-            </VStack>
-          </VStack>
-        </CardBody>
+              </div>
+            </div>
+          </div>
+        </CardContent>
       </Card>
 
       {/* AI Settings */}
       <Card>
-        <CardBody>
-          <VStack spacing={6} align="stretch">
-            <HStack justify="space-between">
-              <Text fontSize="lg" fontWeight="semibold">AI Assistant</Text>
-              <Badge colorScheme="green" borderRadius="full">Active</Badge>
-            </HStack>
+        <CardContent>
+          <div className="space-y-6">
+            <div className="flex justify-between items-center">
+              <h3 className="text-lg font-semibold">AI Assistant</h3>
+              <Badge className="rounded-full bg-green-100 text-green-700">Active</Badge>
+            </div>
             
-            <VStack spacing={4} align="stretch">
-              <HStack justify="space-between">
-                <Box flex={1}>
-                  <Text fontWeight="medium">AI Model</Text>
-                  <Text fontSize="sm" color="gray.600">Choose your preferred AI model</Text>
-                </Box>
-                <Select w="200px" borderRadius="8px" defaultValue="gpt-3.5">
-                  <option value="gpt-3.5">GPT-3.5 Turbo</option>
-                  <option value="gpt-4">GPT-4</option>
-                  <option value="claude">Claude</option>
+            <div className="space-y-4">
+              <div className="flex justify-between items-center">
+                <div className="flex-1">
+                  <p className="font-medium">AI Model</p>
+                  <p className="text-sm text-gray-600">Choose your preferred AI model</p>
+                </div>
+                <Select defaultValue="gpt-3.5">
+                  <SelectTrigger className="w-48 rounded-lg">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="gpt-3.5">GPT-3.5 Turbo</SelectItem>
+                    <SelectItem value="gpt-4">GPT-4</SelectItem>
+                    <SelectItem value="claude">Claude</SelectItem>
+                  </SelectContent>
                 </Select>
-              </HStack>
+              </div>
 
-              <Divider />
+              <Separator />
 
-              <HStack justify="space-between">
-                <Box>
-                  <Text fontWeight="medium">Smart Formatting</Text>
-                  <Text fontSize="sm" color="gray.600">AI-powered text formatting and structure</Text>
-                </Box>
-                <Switch colorScheme="brand" defaultChecked />
-              </HStack>
+              <div className="flex justify-between items-center">
+                <div>
+                  <p className="font-medium">Smart Formatting</p>
+                  <p className="text-sm text-gray-600">AI-powered text formatting and structure</p>
+                </div>
+                <Switch defaultChecked />
+              </div>
 
-              <Divider />
+              <Separator />
 
-              <HStack justify="space-between">
-                <Box>
-                  <Text fontWeight="medium">Context Awareness</Text>
-                  <Text fontSize="sm" color="gray.600">AI considers your previous notes for better suggestions</Text>
-                </Box>
-                <Switch colorScheme="brand" defaultChecked />
-              </HStack>
-            </VStack>
-          </VStack>
-        </CardBody>
+              <div className="flex justify-between items-center">
+                <div>
+                  <p className="font-medium">Context Awareness</p>
+                  <p className="text-sm text-gray-600">AI considers your previous notes for better suggestions</p>
+                </div>
+                <Switch defaultChecked />
+              </div>
+            </div>
+          </div>
+        </CardContent>
       </Card>
 
       {/* Export & Backup */}
       <Card>
-        <CardBody>
-          <VStack spacing={6} align="stretch">
-            <Text fontSize="lg" fontWeight="semibold">Data & Export</Text>
+        <CardContent>
+          <div className="space-y-6">
+            <h3 className="text-lg font-semibold">Data & Export</h3>
             
-            <VStack spacing={4} align="stretch">
-              <HStack justify="space-between">
-                <Box>
-                  <Text fontWeight="medium">Export Notes</Text>
-                  <Text fontSize="sm" color="gray.600">Download all your notes as JSON or Markdown</Text>
-                </Box>
-                <Button leftIcon={<Icon as={Book} w={4} h={4} />} size="sm" variant="outline">
+            <div className="space-y-4">
+              <div className="flex justify-between items-center">
+                <div>
+                  <p className="font-medium">Export Notes</p>
+                  <p className="text-sm text-gray-600">Download all your notes as JSON or Markdown</p>
+                </div>
+                <Button size="sm" variant="outline">
+                  <Book className="w-4 h-4 mr-2" />
                   Export
                 </Button>
-              </HStack>
+              </div>
 
-              <Divider />
+              <Separator />
 
-              <HStack justify="space-between">
-                <Box>
-                  <Text fontWeight="medium">Backup to Cloud</Text>
-                  <Text fontSize="sm" color="gray.600">Automatically backup your data</Text>
-                </Box>
-                <Switch colorScheme="brand" defaultChecked />
-              </HStack>
-            </VStack>
-          </VStack>
-        </CardBody>
+              <div className="flex justify-between items-center">
+                <div>
+                  <p className="font-medium">Backup to Cloud</p>
+                  <p className="text-sm text-gray-600">Automatically backup your data</p>
+                </div>
+                <Switch defaultChecked />
+              </div>
+            </div>
+          </div>
+        </CardContent>
       </Card>
 
       {/* About */}
       <Card>
-        <CardBody>
-          <VStack spacing={4} align="stretch">
-            <Text fontSize="lg" fontWeight="semibold">About</Text>
+        <CardContent>
+          <div className="space-y-4">
+            <h3 className="text-lg font-semibold">About</h3>
             
-            <HStack justify="space-between">
-              <Text color="gray.600">Version</Text>
-              <Text fontWeight="medium">1.0.0</Text>
-            </HStack>
+            <div className="flex justify-between items-center">
+              <span className="text-gray-600">Version</span>
+              <span className="font-medium">1.0.0</span>
+            </div>
             
-            <HStack justify="space-between">
-              <Text color="gray.600">GitHub</Text>
-              <Button
-                leftIcon={<Icon as={Github} w={4} h={4} />}
-                size="sm"
-                variant="ghost"
-              >
+            <div className="flex justify-between items-center">
+              <span className="text-gray-600">GitHub</span>
+              <Button size="sm" variant="ghost">
+                <Github className="w-4 h-4 mr-2" />
                 View Source
               </Button>
-            </HStack>
-          </VStack>
-        </CardBody>
+            </div>
+          </div>
+        </CardContent>
       </Card>
-    </VStack>
+    </div>
   );
 };
 

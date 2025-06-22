@@ -1,16 +1,5 @@
 
 import React from 'react';
-import {
-  Box,
-  VStack,
-  Text,
-  Icon,
-  Flex,
-  Avatar,
-  Button,
-  Divider,
-  useColorModeValue,
-} from '@chakra-ui/react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { 
   Settings, 
@@ -20,6 +9,9 @@ import {
   Search,
   Github
 } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Separator } from '@/components/ui/separator';
 import { useAuth } from '../../contexts/AuthContext';
 
 const menuItems = [
@@ -34,97 +26,70 @@ const Sidebar: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { user, logout } = useAuth();
-  const bg = useColorModeValue('white', 'gray.800');
-  const borderColor = useColorModeValue('gray.200', 'gray.700');
 
   return (
-    <Box
-      position="fixed"
-      left={0}
-      top={0}
-      h="100vh"
-      w="280px"
-      bg={bg}
-      borderRight="1px"
-      borderColor={borderColor}
-      boxShadow="lg"
-      zIndex={1000}
-      display={{ base: 'none', md: 'block' }}
-    >
-      <VStack spacing={0} align="stretch" h="100%">
+    <div className="fixed left-0 top-0 h-screen w-[280px] bg-white border-r border-gray-200 shadow-lg z-[1000] hidden md:block">
+      <div className="flex flex-col h-full">
         {/* Logo */}
-        <Box p={6} borderBottom="1px" borderColor={borderColor}>
-          <Flex align="center" gap={3}>
-            <Box
-              w={10}
-              h={10}
-              bg="gradient-to-r from-brand.500 to-secondary.500"
-              borderRadius="12px"
-              display="flex"
-              alignItems="center"
-              justifyContent="center"
-            >
-              <Icon as={Github} color="white" w={5} h={5} />
-            </Box>
-            <Text fontSize="xl" fontWeight="bold" color="gray.800">
+        <div className="p-6 border-b border-gray-200">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-500 rounded-xl flex items-center justify-center">
+              <Github className="text-white w-5 h-5" />
+            </div>
+            <span className="text-xl font-bold text-gray-800">
               Online Note AI
-            </Text>
-          </Flex>
-        </Box>
+            </span>
+          </div>
+        </div>
 
         {/* Menu Items */}
-        <VStack spacing={2} p={4} flex={1}>
+        <div className="flex-1 p-4 space-y-2">
           {menuItems.map((item) => (
             <Button
               key={item.path}
-              variant="ghost"
-              leftIcon={<Icon as={item.icon} w={5} h={5} />}
-              justifyContent="flex-start"
-              w="100%"
-              h={12}
-              bg={location.pathname === item.path ? 'brand.50' : 'transparent'}
-              color={location.pathname === item.path ? 'brand.600' : 'gray.600'}
-              borderRadius="12px"
-              _hover={{
-                bg: 'brand.50',
-                color: 'brand.600',
-                transform: 'translateX(4px)',
-              }}
-              transition="all 0.2s"
+              variant={location.pathname === item.path ? "secondary" : "ghost"}
+              className={`w-full justify-start h-12 rounded-xl transition-all duration-200 ${
+                location.pathname === item.path 
+                  ? 'bg-blue-50 text-blue-600' 
+                  : 'text-gray-600 hover:bg-blue-50 hover:text-blue-600 hover:translate-x-1'
+              }`}
               onClick={() => navigate(item.path)}
             >
+              <item.icon className="w-5 h-5 mr-3" />
               {item.label}
             </Button>
           ))}
-        </VStack>
+        </div>
 
-        <Divider />
+        <Separator />
 
         {/* User Profile */}
-        <Box p={4}>
-          <Flex align="center" gap={3} mb={4}>
-            <Avatar size="md" src={user?.avatar} name={user?.name} />
-            <Box flex={1}>
-              <Text fontWeight="semibold" fontSize="sm" color="gray.800">
+        <div className="p-4">
+          <div className="flex items-center gap-3 mb-4">
+            <Avatar className="w-12 h-12">
+              <AvatarImage src={user?.avatar} />
+              <AvatarFallback>{user?.name?.[0]}</AvatarFallback>
+            </Avatar>
+            <div className="flex-1">
+              <p className="font-semibold text-sm text-gray-800">
                 {user?.name}
-              </Text>
-              <Text fontSize="xs" color="gray.500">
+              </p>
+              <p className="text-xs text-gray-500">
                 {user?.email}
-              </Text>
-            </Box>
-          </Flex>
+              </p>
+            </div>
+          </div>
           <Button
             variant="ghost"
             size="sm"
-            w="100%"
+            className="w-full hover:bg-red-50 hover:text-red-600"
             onClick={logout}
-            _hover={{ bg: 'red.50', color: 'red.600' }}
           >
             Sign Out
           </Button>
-        </Box>
-      </VStack>
-    </Box>
+        </div>
+      </div>
+    </div>
   );
 };
 

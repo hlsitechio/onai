@@ -1,21 +1,12 @@
 
 import React, { useState } from 'react';
-import {
-  Box,
-  VStack,
-  HStack,
-  Input,
-  Button,
-  Text,
-  Card,
-  CardBody,
-  Icon,
-  Textarea,
-  Select,
-  Badge,
-  Flex,
-} from '@chakra-ui/react';
 import { Book, Settings, Plus, Search } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Badge } from '@/components/ui/badge';
+import { Card, CardContent } from '@/components/ui/card';
 
 const Editor: React.FC = () => {
   const [title, setTitle] = useState('');
@@ -31,133 +22,105 @@ const Editor: React.FC = () => {
   ];
 
   const handleSave = () => {
-    // Implement save functionality
     console.log('Saving note:', { title, content, category });
   };
 
   return (
-    <VStack spacing={6} h="calc(100vh - 120px)">
+    <div className="space-y-6 h-[calc(100vh-120px)]">
       {/* Header */}
-      <HStack justify="space-between" w="100%">
-        <Box>
-          <Text fontSize="2xl" fontWeight="bold" color="gray.800">
+      <div className="flex justify-between items-start">
+        <div>
+          <h1 className="text-2xl font-bold text-gray-800">
             Note Editor
-          </Text>
-          <Text color="gray.600">
+          </h1>
+          <p className="text-gray-600">
             Create and edit your notes with AI assistance
-          </Text>
-        </Box>
-        <HStack spacing={3}>
-          <Button
-            leftIcon={<Icon as={Search} w={4} h={4} />}
-            variant="ghost"
-            size="sm"
-          >
+          </p>
+        </div>
+        <div className="flex gap-3">
+          <Button variant="ghost" size="sm">
+            <Search className="w-4 h-4 mr-2" />
             AI Assist
           </Button>
-          <Button
-            leftIcon={<Icon as={Book} w={4} h={4} />}
-            colorScheme="brand"
-            onClick={handleSave}
-          >
+          <Button onClick={handleSave}>
+            <Book className="w-4 h-4 mr-2" />
             Save Note
           </Button>
-        </HStack>
-      </HStack>
+        </div>
+      </div>
 
       {/* Editor */}
-      <Card w="100%" flex={1}>
-        <CardBody p={8}>
-          <VStack spacing={6} align="stretch" h="100%">
+      <Card className="flex-1">
+        <CardContent className="p-8">
+          <div className="space-y-6 h-full flex flex-col">
             {/* Title and Meta */}
-            <HStack spacing={4}>
+            <div className="flex gap-4">
               <Input
                 placeholder="Enter note title..."
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
-                fontSize="xl"
-                fontWeight="semibold"
-                border="none"
-                bg="gray.50"
-                borderRadius="12px"
-                _focus={{
-                  bg: 'white',
-                  boxShadow: '0 0 0 3px rgba(99, 102, 241, 0.1)',
-                  border: '1px solid',
-                  borderColor: 'brand.200',
-                }}
+                className="text-xl font-semibold border-none bg-gray-50 rounded-xl focus:bg-white focus:ring-2 focus:ring-blue-100 focus:border-blue-200"
               />
-              <Select
-                value={category}
-                onChange={(e) => setCategory(e.target.value)}
-                w="200px"
-                borderRadius="12px"
-                bg="gray.50"
-                border="none"
-              >
-                {categories.map((cat) => (
-                  <option key={cat.value} value={cat.value}>
-                    {cat.label}
-                  </option>
-                ))}
+              <Select value={category} onValueChange={setCategory}>
+                <SelectTrigger className="w-48 rounded-xl bg-gray-50 border-none">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {categories.map((cat) => (
+                    <SelectItem key={cat.value} value={cat.value}>
+                      {cat.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
               </Select>
-            </HStack>
+            </div>
 
             {/* Tags */}
-            <Flex gap={2} flexWrap="wrap">
-              <Badge colorScheme="brand" borderRadius="full" px={3} py={1}>
+            <div className="flex gap-2 flex-wrap">
+              <Badge variant="secondary" className="rounded-full px-3 py-1">
                 #productivity
               </Badge>
-              <Badge colorScheme="green" borderRadius="full" px={3} py={1}>
+              <Badge variant="secondary" className="rounded-full px-3 py-1 bg-green-100 text-green-700">
                 #ideas
               </Badge>
-              <Button size="xs" variant="ghost" borderRadius="full">
-                <Icon as={Plus} w={3} h={3} />
+              <Button size="sm" variant="ghost" className="rounded-full h-6 w-6 p-0">
+                <Plus className="w-3 h-3" />
               </Button>
-            </Flex>
+            </div>
 
             {/* Content */}
             <Textarea
               placeholder="Start writing your note... Use '@ai' to get AI assistance"
               value={content}
               onChange={(e) => setContent(e.target.value)}
-              flex={1}
-              minH="400px"
-              resize="none"
-              border="none"
-              bg="white"
-              fontSize="md"
-              lineHeight="1.6"
-              _focus={{
-                boxShadow: 'none',
-              }}
+              className="flex-1 min-h-96 resize-none border-none bg-white text-base leading-relaxed focus:ring-0 focus:border-none"
             />
 
             {/* AI Suggestions */}
             {content.length > 50 && (
-              <Card bg="brand.50" borderColor="brand.200">
-                <CardBody p={4}>
-                  <HStack spacing={3}>
-                    <Icon as={Search} w={4} h={4} color="brand.500" />
-                    <Box flex={1}>
-                      <Text fontSize="sm" fontWeight="medium" color="brand.700">
+              <Card className="bg-blue-50 border-blue-200">
+                <CardContent className="p-4">
+                  <div className="flex gap-3">
+                    <Search className="w-4 h-4 text-blue-500 mt-0.5" />
+                    <div className="flex-1">
+                      <p className="text-sm font-medium text-blue-700">
                         AI Suggestion
-                      </Text>
-                      <Text fontSize="sm" color="brand.600">
+                      </p>
+                      <p className="text-sm text-blue-600">
                         Consider adding more details about the implementation steps.
-                      </Text>
-                    </Box>
-                    <Button size="xs" colorScheme="brand" variant="ghost">
+                      </p>
+                    </div>
+                    <Button size="sm" variant="ghost" className="text-blue-600 hover:bg-blue-100">
                       Apply
                     </Button>
-                  </HStack>
-                </CardBody>
+                  </div>
+                </CardContent>
               </Card>
             )}
-          </VStack>
-        </CardBody>
+          </div>
+        </CardContent>
       </Card>
-    </VStack>
+    </div>
   );
 };
 

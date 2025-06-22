@@ -1,26 +1,12 @@
 
 import React from 'react';
-import {
-  Box,
-  Grid,
-  Card,
-  CardBody,
-  Text,
-  Stat,
-  StatLabel,
-  StatNumber,
-  StatHelpText,
-  StatArrow,
-  VStack,
-  HStack,
-  Button,
-  Icon,
-  Avatar,
-  Progress,
-  Divider,
-} from '@chakra-ui/react';
-import { Plus, Book, Edit, Search, Settings } from 'lucide-react';
+import { Plus, Book, Edit, Search, Settings, TrendingUp, TrendingDown } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Progress } from '@/components/ui/progress';
+import { Separator } from '@/components/ui/separator';
 
 const Dashboard: React.FC = () => {
   const navigate = useNavigate();
@@ -40,127 +26,125 @@ const Dashboard: React.FC = () => {
   ];
 
   const quickActions = [
-    { icon: Plus, label: 'New Note', action: () => navigate('/editor'), color: 'brand' },
-    { icon: Search, label: 'AI Chat', action: () => navigate('/chat'), color: 'secondary' },
+    { icon: Plus, label: 'New Note', action: () => navigate('/editor'), color: 'blue' },
+    { icon: Search, label: 'AI Chat', action: () => navigate('/chat'), color: 'purple' },
     { icon: Book, label: 'Browse Notes', action: () => navigate('/notes'), color: 'green' },
     { icon: Settings, label: 'Settings', action: () => navigate('/settings'), color: 'gray' },
   ];
 
   return (
-    <Box>
-      <VStack align="stretch" spacing={8}>
-        {/* Welcome Section */}
-        <Box>
-          <Text fontSize="3xl" fontWeight="bold" color="gray.800" mb={2}>
-            Good morning! 👋
-          </Text>
-          <Text fontSize="lg" color="gray.600">
-            Ready to capture your thoughts and ideas with AI assistance?
-          </Text>
-        </Box>
+    <div className="space-y-8">
+      {/* Welcome Section */}
+      <div>
+        <h1 className="text-3xl font-bold text-gray-800 mb-2">
+          Good morning! 👋
+        </h1>
+        <p className="text-lg text-gray-600">
+          Ready to capture your thoughts and ideas with AI assistance?
+        </p>
+      </div>
 
-        {/* Stats Grid */}
-        <Grid templateColumns={{ base: '1fr', md: 'repeat(4, 1fr)' }} gap={6}>
-          {stats.map((stat, index) => (
-            <Card key={index}>
-              <CardBody>
-                <Stat>
-                  <StatLabel color="gray.600">{stat.label}</StatLabel>
-                  <StatNumber fontSize="2xl">{stat.value}</StatNumber>
-                  <StatHelpText>
-                    <StatArrow type={stat.isPositive ? 'increase' : 'decrease'} />
+      {/* Stats Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+        {stats.map((stat, index) => (
+          <Card key={index}>
+            <CardContent className="p-6">
+              <div>
+                <p className="text-gray-600">{stat.label}</p>
+                <p className="text-2xl font-bold">{stat.value}</p>
+                <div className="flex items-center mt-2 text-sm">
+                  {stat.isPositive ? (
+                    <TrendingUp className="w-4 h-4 text-green-500 mr-1" />
+                  ) : (
+                    <TrendingDown className="w-4 h-4 text-red-500 mr-1" />
+                  )}
+                  <span className={stat.isPositive ? 'text-green-500' : 'text-red-500'}>
                     {stat.change}% from last week
-                  </StatHelpText>
-                </Stat>
-              </CardBody>
-            </Card>
-          ))}
-        </Grid>
+                  </span>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
 
-        <Grid templateColumns={{ base: '1fr', lg: '2fr 1fr' }} gap={8}>
-          {/* Recent Activity */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        {/* Recent Activity */}
+        <Card className="lg:col-span-2">
+          <CardHeader>
+            <CardTitle className="text-xl">Recent Notes</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              {recentNotes.map((note, index) => (
+                <div key={index}>
+                  <div className="flex justify-between items-center p-4 rounded-xl bg-gray-50">
+                    <div className="flex items-center gap-4">
+                      <Avatar className="w-8 h-8 bg-blue-500">
+                        <AvatarFallback>N</AvatarFallback>
+                      </Avatar>
+                      <div>
+                        <p className="font-medium">{note.title}</p>
+                        <p className="text-sm text-gray-500">{note.time}</p>
+                      </div>
+                    </div>
+                    <Button size="sm" variant="ghost">
+                      <Edit className="w-4 h-4" />
+                    </Button>
+                  </div>
+                  {index < recentNotes.length - 1 && <Separator className="my-4" />}
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Quick Actions & Progress */}
+        <div className="space-y-6">
           <Card>
-            <CardBody>
-              <Text fontSize="xl" fontWeight="semibold" mb={6}>
-                Recent Notes
-              </Text>
-              <VStack spacing={4} align="stretch">
-                {recentNotes.map((note, index) => (
-                  <Box key={index}>
-                    <HStack justify="space-between" p={4} borderRadius="12px" bg="gray.50">
-                      <HStack>
-                        <Avatar size="sm" bg="brand.500" />
-                        <VStack align="start" spacing={0}>
-                          <Text fontWeight="medium">{note.title}</Text>
-                          <Text fontSize="sm" color="gray.500">{note.time}</Text>
-                        </VStack>
-                      </HStack>
-                      <Button size="sm" variant="ghost">
-                        <Icon as={Edit} w={4} h={4} />
-                      </Button>
-                    </HStack>
-                    {index < recentNotes.length - 1 && <Divider />}
-                  </Box>
+            <CardHeader>
+              <CardTitle>Quick Actions</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-2 gap-3">
+                {quickActions.map((action, index) => (
+                  <Button
+                    key={index}
+                    variant="ghost"
+                    size="sm"
+                    className="h-12 flex-col gap-1 hover:scale-105 transition-transform"
+                    onClick={action.action}
+                  >
+                    <action.icon className="w-4 h-4" />
+                    <span className="text-xs">{action.label}</span>
+                  </Button>
                 ))}
-              </VStack>
-            </CardBody>
+              </div>
+            </CardContent>
           </Card>
 
-          {/* Quick Actions & Progress */}
-          <VStack spacing={6}>
-            <Card w="100%">
-              <CardBody>
-                <Text fontSize="lg" fontWeight="semibold" mb={4}>
-                  Quick Actions
-                </Text>
-                <Grid templateColumns="repeat(2, 1fr)" gap={3}>
-                  {quickActions.map((action, index) => (
-                    <Button
-                      key={index}
-                      leftIcon={<Icon as={action.icon} w={4} h={4} />}
-                      variant="ghost"
-                      size="sm"
-                      h={12}
-                      flexDirection="column"
-                      gap={1}
-                      onClick={action.action}
-                      _hover={{
-                        bg: `${action.color}.50`,
-                        color: `${action.color}.600`,
-                        transform: 'translateY(-2px)',
-                      }}
-                      transition="all 0.2s"
-                    >
-                      <Text fontSize="xs">{action.label}</Text>
-                    </Button>
-                  ))}
-                </Grid>
-              </CardBody>
-            </Card>
-
-            <Card w="100%">
-              <CardBody>
-                <Text fontSize="lg" fontWeight="semibold" mb={4}>
-                  Weekly Goal
-                </Text>
-                <VStack spacing={3}>
-                  <Box w="100%">
-                    <HStack justify="space-between" mb={2}>
-                      <Text fontSize="sm" color="gray.600">Notes Created</Text>
-                      <Text fontSize="sm" fontWeight="medium">18/25</Text>
-                    </HStack>
-                    <Progress value={72} colorScheme="brand" borderRadius="full" />
-                  </Box>
-                  <Text fontSize="xs" color="gray.500" textAlign="center">
-                    7 more notes to reach your weekly goal!
-                  </Text>
-                </VStack>
-              </CardBody>
-            </Card>
-          </VStack>
-        </Grid>
-      </VStack>
-    </Box>
+          <Card>
+            <CardHeader>
+              <CardTitle>Weekly Goal</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-3">
+                <div>
+                  <div className="flex justify-between mb-2">
+                    <span className="text-sm text-gray-600">Notes Created</span>
+                    <span className="text-sm font-medium">18/25</span>
+                  </div>
+                  <Progress value={72} className="rounded-full" />
+                </div>
+                <p className="text-xs text-gray-500 text-center">
+                  7 more notes to reach your weekly goal!
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    </div>
   );
 };
 

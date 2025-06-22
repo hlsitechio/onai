@@ -1,9 +1,7 @@
 
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import { ChakraProvider } from '@chakra-ui/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import theme from '../theme/theme';
 import Layout from '../components/Layout/Layout';
 import Dashboard from './Dashboard';
 import Chat from './Chat';
@@ -51,17 +49,15 @@ const AppRoutes = () => {
 
 const Index = () => {
   return (
-    <ChakraProvider theme={theme}>
-      <QueryClientProvider client={queryClient}>
-        <AuthProvider>
-          <Router>
-            <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-purple-50">
-              <AppRoutes />
-            </div>
-          </Router>
-        </AuthProvider>
-      </QueryClientProvider>
-    </ChakraProvider>
+    <QueryClientProvider client={queryClient}>
+      <AuthProvider>
+        <Router>
+          <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-purple-50">
+            <AppRoutes />
+          </div>
+        </Router>
+      </AuthProvider>
+    </QueryClientProvider>
   );
 };
 

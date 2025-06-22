@@ -1,22 +1,11 @@
 
 import React, { useState } from 'react';
-import {
-  Box,
-  VStack,
-  HStack,
-  Text,
-  Input,
-  Button,
-  Card,
-  CardBody,
-  Link,
-  Icon,
-  InputGroup,
-  InputRightElement,
-} from '@chakra-ui/react';
-import { Github } from 'lucide-react';
+import { Github, Eye, EyeOff } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Card, CardContent } from '@/components/ui/card';
 
 const Register: React.FC = () => {
   const navigate = useNavigate();
@@ -31,7 +20,6 @@ const Register: React.FC = () => {
     e.preventDefault();
     
     if (password !== confirmPassword) {
-      // toast.error('Passwords do not match');
       return;
     }
 
@@ -42,175 +30,122 @@ const Register: React.FC = () => {
   };
 
   return (
-    <Box
-      minH="100vh"
-      bg="gradient-to-br from-slate-50 via-blue-50 to-purple-50"
-      display="flex"
-      alignItems="center"
-      justifyContent="center"
-      p={4}
-    >
-      <Card maxW="md" w="100%" boxShadow="2xl">
-        <CardBody p={8}>
-          <VStack spacing={8}>
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-purple-50 flex items-center justify-center p-4">
+      <Card className="max-w-md w-full shadow-2xl">
+        <CardContent className="p-8">
+          <div className="space-y-8">
             {/* Logo */}
-            <VStack spacing={4}>
-              <Box
-                w={16}
-                h={16}
-                bg="gradient-to-r from-brand.500 to-secondary.500"
-                borderRadius="20px"
-                display="flex"
-                alignItems="center"
-                justifyContent="center"
-              >
-                <Icon as={Github} color="white" w={8} h={8} />
-              </Box>
-              <VStack spacing={2}>
-                <Text fontSize="2xl" fontWeight="bold" color="gray.800">
+            <div className="space-y-4 text-center">
+              <div className="w-16 h-16 bg-gradient-to-r from-blue-500 to-purple-500 rounded-2xl flex items-center justify-center mx-auto">
+                <Github className="text-white w-8 h-8" />
+              </div>
+              <div className="space-y-2">
+                <h1 className="text-2xl font-bold text-gray-800">
                   Create Account
-                </Text>
-                <Text color="gray.600" textAlign="center">
+                </h1>
+                <p className="text-gray-600">
                   Join Online Note AI and start organizing your thoughts
-                </Text>
-              </VStack>
-            </VStack>
+                </p>
+              </div>
+            </div>
 
             {/* Form */}
-            <VStack as="form" onSubmit={handleSubmit} spacing={6} w="100%">
-              <VStack spacing={4} w="100%">
-                <Box w="100%">
-                  <Text fontSize="sm" color="gray.600" mb={2}>
+            <form onSubmit={handleSubmit} className="space-y-6">
+              <div className="space-y-4">
+                <div>
+                  <label className="text-sm text-gray-600 mb-2 block">
                     Full Name
-                  </Text>
+                  </label>
                   <Input
                     type="text"
                     value={name}
                     onChange={(e) => setName(e.target.value)}
                     placeholder="Enter your full name"
-                    borderRadius="12px"
-                    bg="gray.50"
-                    border="1px solid"
-                    borderColor="gray.200"
-                    _focus={{
-                      bg: 'white',
-                      borderColor: 'brand.300',
-                      boxShadow: '0 0 0 3px rgba(99, 102, 241, 0.1)',
-                    }}
+                    className="rounded-xl bg-gray-50 border-gray-200 focus:bg-white focus:border-blue-300 focus:ring-2 focus:ring-blue-100"
                     required
                   />
-                </Box>
+                </div>
 
-                <Box w="100%">
-                  <Text fontSize="sm" color="gray.600" mb={2}>
+                <div>
+                  <label className="text-sm text-gray-600 mb-2 block">
                     Email
-                  </Text>
+                  </label>
                   <Input
                     type="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder="Enter your email"
-                    borderRadius="12px"
-                    bg="gray.50"
-                    border="1px solid"
-                    borderColor="gray.200"
-                    _focus={{
-                      bg: 'white',
-                      borderColor: 'brand.300',
-                      boxShadow: '0 0 0 3px rgba(99, 102, 241, 0.1)',
-                    }}
+                    className="rounded-xl bg-gray-50 border-gray-200 focus:bg-white focus:border-blue-300 focus:ring-2 focus:ring-blue-100"
                     required
                   />
-                </Box>
+                </div>
 
-                <Box w="100%">
-                  <Text fontSize="sm" color="gray.600" mb={2}>
+                <div>
+                  <label className="text-sm text-gray-600 mb-2 block">
                     Password
-                  </Text>
-                  <InputGroup>
+                  </label>
+                  <div className="relative">
                     <Input
                       type={showPassword ? 'text' : 'password'}
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                       placeholder="Create a password"
-                      borderRadius="12px"
-                      bg="gray.50"
-                      border="1px solid"
-                      borderColor="gray.200"
-                      _focus={{
-                        bg: 'white',
-                        borderColor: 'brand.300',
-                        boxShadow: '0 0 0 3px rgba(99, 102, 241, 0.1)',
-                      }}
+                      className="rounded-xl bg-gray-50 border-gray-200 focus:bg-white focus:border-blue-300 focus:ring-2 focus:ring-blue-100 pr-10"
                       required
                     />
-                    <InputRightElement>
-                      <Button
-                        size="sm"
-                        variant="ghost"
-                        onClick={() => setShowPassword(!showPassword)}
-                      >
-                        {showPassword ? 'Hide' : 'Show'}
-                      </Button>
-                    </InputRightElement>
-                  </InputGroup>
-                </Box>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      className="absolute right-2 top-1/2 transform -translate-y-1/2"
+                      onClick={() => setShowPassword(!showPassword)}
+                    >
+                      {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                    </Button>
+                  </div>
+                </div>
 
-                <Box w="100%">
-                  <Text fontSize="sm" color="gray.600" mb={2}>
+                <div>
+                  <label className="text-sm text-gray-600 mb-2 block">
                     Confirm Password
-                  </Text>
+                  </label>
                   <Input
                     type="password"
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
                     placeholder="Confirm your password"
-                    borderRadius="12px"
-                    bg="gray.50"
-                    border="1px solid"
-                    borderColor="gray.200"
-                    _focus={{
-                      bg: 'white',
-                      borderColor: 'brand.300',
-                      boxShadow: '0 0 0 3px rgba(99, 102, 241, 0.1)',
-                    }}
+                    className="rounded-xl bg-gray-50 border-gray-200 focus:bg-white focus:border-blue-300 focus:ring-2 focus:ring-blue-100"
                     required
                   />
-                </Box>
-              </VStack>
+                </div>
+              </div>
 
               <Button
                 type="submit"
-                colorScheme="brand"
                 size="lg"
-                w="100%"
-                borderRadius="12px"
-                isLoading={isLoading}
-                loadingText="Creating account..."
+                className="w-full rounded-xl"
+                disabled={isLoading}
               >
-                Create Account
+                {isLoading ? 'Creating account...' : 'Create Account'}
               </Button>
-            </VStack>
+            </form>
 
             {/* Footer */}
-            <VStack spacing={4}>
-              <HStack spacing={2}>
-                <Text fontSize="sm" color="gray.600">
-                  Already have an account?
-                </Text>
-                <Link
-                  color="brand.500"
-                  fontWeight="medium"
+            <div className="text-center">
+              <p className="text-sm text-gray-600">
+                Already have an account?{' '}
+                <button
+                  className="text-blue-500 font-medium hover:underline"
                   onClick={() => navigate('/login')}
                 >
                   Sign in
-                </Link>
-              </HStack>
-            </VStack>
-          </VStack>
-        </CardBody>
+                </button>
+              </p>
+            </div>
+          </div>
+        </CardContent>
       </Card>
-    </Box>
+    </div>
   );
 };
 

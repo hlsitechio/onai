@@ -1,19 +1,10 @@
 
 import React, { useState } from 'react';
-import {
-  Box,
-  VStack,
-  HStack,
-  Input,
-  Button,
-  Text,
-  Card,
-  CardBody,
-  Avatar,
-  Icon,
-  Textarea,
-} from '@chakra-ui/react';
-import { Plus, Search } from 'lucide-react';
+import { Plus, Send } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { Textarea } from '@/components/ui/textarea';
 
 interface Message {
   id: string;
@@ -60,73 +51,71 @@ const Chat: React.FC = () => {
   };
 
   return (
-    <VStack spacing={6} h="calc(100vh - 120px)">
+    <div className="space-y-6 h-[calc(100vh-120px)]">
       {/* Header */}
-      <HStack justify="space-between" w="100%">
-        <Box>
-          <Text fontSize="2xl" fontWeight="bold" color="gray.800">
+      <div className="flex justify-between items-start">
+        <div>
+          <h1 className="text-2xl font-bold text-gray-800">
             AI Assistant
-          </Text>
-          <Text color="gray.600">
+          </h1>
+          <p className="text-gray-600">
             Get help with your notes and ideas
-          </Text>
-        </Box>
-        <Button leftIcon={<Icon as={Plus} w={4} h={4} />} colorScheme="brand" size="sm">
+          </p>
+        </div>
+        <Button size="sm">
+          <Plus className="w-4 h-4 mr-2" />
           New Chat
         </Button>
-      </HStack>
+      </div>
 
       {/* Messages */}
-      <Card flex={1} w="100%">
-        <CardBody>
-          <VStack spacing={6} align="stretch" h="100%" justify="flex-end">
-            <Box flex={1} overflowY="auto" maxH="600px">
-              <VStack spacing={4} align="stretch">
+      <Card className="flex-1">
+        <CardContent>
+          <div className="flex flex-col h-full justify-end space-y-6">
+            <div className="flex-1 overflow-y-auto max-h-96">
+              <div className="space-y-4">
                 {messages.map((message) => (
-                  <HStack
+                  <div
                     key={message.id}
-                    align="start"
-                    justify={message.isUser ? 'flex-end' : 'flex-start'}
-                    spacing={3}
+                    className={`flex items-start gap-3 ${
+                      message.isUser ? 'justify-end' : 'justify-start'
+                    }`}
                   >
                     {!message.isUser && (
-                      <Avatar size="sm" bg="brand.500" color="white" name="AI" />
+                      <Avatar className="w-8 h-8 bg-blue-500">
+                        <AvatarFallback className="text-white">AI</AvatarFallback>
+                      </Avatar>
                     )}
-                    <Box
-                      maxW="70%"
-                      bg={message.isUser ? 'brand.500' : 'gray.100'}
-                      color={message.isUser ? 'white' : 'gray.800'}
-                      p={4}
-                      borderRadius="16px"
-                      borderBottomRightRadius={message.isUser ? '4px' : '16px'}
-                      borderBottomLeftRadius={message.isUser ? '16px' : '4px'}
+                    <div
+                      className={`max-w-[70%] p-4 rounded-2xl ${
+                        message.isUser
+                          ? 'bg-blue-500 text-white rounded-br-sm'
+                          : 'bg-gray-100 text-gray-800 rounded-bl-sm'
+                      }`}
                     >
-                      <Text>{message.content}</Text>
-                      <Text
-                        fontSize="xs"
-                        opacity={0.7}
-                        mt={2}
-                      >
+                      <p>{message.content}</p>
+                      <p className="text-xs opacity-70 mt-2">
                         {message.timestamp.toLocaleTimeString()}
-                      </Text>
-                    </Box>
+                      </p>
+                    </div>
                     {message.isUser && (
-                      <Avatar size="sm" bg="secondary.500" color="white" name="You" />
+                      <Avatar className="w-8 h-8 bg-purple-500">
+                        <AvatarFallback className="text-white">You</AvatarFallback>
+                      </Avatar>
                     )}
-                  </HStack>
+                  </div>
                 ))}
-              </VStack>
-            </Box>
+              </div>
+            </div>
 
             {/* Input */}
-            <HStack spacing={3}>
+            <div className="flex gap-3">
               <Textarea
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 placeholder="Ask me anything about your notes or ideas..."
-                resize="none"
+                className="resize-none rounded-xl"
                 rows={2}
-                borderRadius="12px"
                 onKeyPress={(e) => {
                   if (e.key === 'Enter' && !e.shiftKey) {
                     e.preventDefault();
@@ -135,19 +124,18 @@ const Chat: React.FC = () => {
                 }}
               />
               <Button
-                colorScheme="brand"
                 size="lg"
                 onClick={handleSend}
-                isDisabled={!input.trim()}
-                borderRadius="12px"
+                disabled={!input.trim()}
+                className="rounded-xl"
               >
-                Send
+                <Send className="w-4 h-4" />
               </Button>
-            </HStack>
-          </VStack>
-        </CardBody>
+            </div>
+          </div>
+        </CardContent>
       </Card>
-    </VStack>
+    </div>
   );
 };
 

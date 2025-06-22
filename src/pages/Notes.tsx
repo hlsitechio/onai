@@ -1,24 +1,12 @@
-
 import React, { useState } from 'react';
-import {
-  Box,
-  Grid,
-  Card,
-  CardBody,
-  Text,
-  VStack,
-  HStack,
-  Input,
-  InputGroup,
-  InputLeftElement,
-  Icon,
-  Badge,
-  Button,
-  Select,
-  Avatar,
-} from '@chakra-ui/react';
 import { Search, Book, Edit, Plus } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Card, CardContent } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 
 const Notes: React.FC = () => {
   const navigate = useNavigate();
@@ -98,164 +86,136 @@ const Notes: React.FC = () => {
     return matchesSearch && matchesCategory;
   });
 
-  const getCategoryColor = (category: string) => {
-    const cat = categories.find(c => c.value === category);
-    return cat?.color || 'gray';
-  };
-
   return (
-    <VStack spacing={6} align="stretch">
+    <div className="space-y-6">
       {/* Header */}
-      <HStack justify="space-between">
-        <Box>
-          <Text fontSize="2xl" fontWeight="bold" color="gray.800">
+      <div className="flex justify-between">
+        <div>
+          <h1 className="text-2xl font-bold text-gray-800">
             My Notes
-          </Text>
-          <Text color="gray.600">
+          </h1>
+          <p className="text-gray-600">
             {filteredNotes.length} notes found
-          </Text>
-        </Box>
-        <Button
-          leftIcon={<Icon as={Plus} w={4} h={4} />}
-          colorScheme="brand"
-          onClick={() => navigate('/editor')}
-        >
+          </p>
+        </div>
+        <Button onClick={() => navigate('/editor')}>
+          <Plus className="w-4 h-4 mr-2" />
           New Note
         </Button>
-      </HStack>
+      </div>
 
       {/* Search and Filters */}
-      <HStack spacing={4}>
-        <InputGroup flex={1}>
-          <InputLeftElement>
-            <Icon as={Search} color="gray.400" w={4} h={4} />
-          </InputLeftElement>
+      <div className="flex gap-4">
+        <div className="flex-1 relative">
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
           <Input
             placeholder="Search notes, tags, or content..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            borderRadius="12px"
-            bg="white"
-            border="1px solid"
-            borderColor="gray.200"
+            className="pl-10 rounded-xl bg-white border-gray-200"
           />
-        </InputGroup>
-        <Select
-          value={filterCategory}
-          onChange={(e) => setFilterCategory(e.target.value)}
-          w="200px"
-          borderRadius="12px"
-          bg="white"
-          border="1px solid"
-          borderColor="gray.200"
-        >
-          {categories.map((category) => (
-            <option key={category.value} value={category.value}>
-              {category.label}
-            </option>
-          ))}
+        </div>
+        <Select value={filterCategory} onValueChange={setFilterCategory}>
+          <SelectTrigger className="w-48 rounded-xl bg-white border-gray-200">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            {categories.map((category) => (
+              <SelectItem key={category.value} value={category.value}>
+                {category.label}
+              </SelectItem>
+            ))}
+          </SelectContent>
         </Select>
-      </HStack>
+      </div>
 
       {/* Notes Grid */}
-      <Grid templateColumns={{ base: '1fr', md: 'repeat(2, 1fr)', lg: 'repeat(3, 1fr)' }} gap={6}>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {filteredNotes.map((note) => (
           <Card
             key={note.id}
-            cursor="pointer"
-            _hover={{
-              transform: 'translateY(-4px)',
-              boxShadow: 'xl',
-            }}
-            transition="all 0.2s"
+            className="cursor-pointer hover:scale-105 hover:shadow-xl transition-all duration-200"
             onClick={() => navigate('/editor')}
           >
-            <CardBody>
-              <VStack align="stretch" spacing={4}>
+            <CardContent className="p-6">
+              <div className="space-y-4">
                 {/* Header */}
-                <HStack justify="space-between" align="start">
-                  <VStack align="start" spacing={1} flex={1}>
-                    <Text fontWeight="semibold" fontSize="lg" noOfLines={2}>
+                <div className="flex justify-between items-start">
+                  <div className="flex-1 space-y-1">
+                    <h3 className="font-semibold text-lg line-clamp-2">
                       {note.title}
-                    </Text>
-                    <HStack spacing={2}>
-                      <Badge
-                        colorScheme={getCategoryColor(note.category)}
-                        borderRadius="full"
-                        fontSize="xs"
-                      >
+                    </h3>
+                    <div className="flex gap-2">
+                      <Badge variant="secondary" className="rounded-full text-xs">
                         {note.category}
                       </Badge>
-                      <Text fontSize="xs" color="gray.500">
+                      <span className="text-xs text-gray-500">
                         {note.wordCount} words
-                      </Text>
-                    </HStack>
-                  </VStack>
-                  <Button size="sm" variant="ghost" p={1}>
-                    <Icon as={Edit} w={4} h={4} />
+                      </span>
+                    </div>
+                  </div>
+                  <Button size="sm" variant="ghost" className="p-1">
+                    <Edit className="w-4 h-4" />
                   </Button>
-                </HStack>
+                </div>
 
                 {/* Content Preview */}
-                <Text color="gray.600" fontSize="sm" noOfLines={3} lineHeight="1.5">
+                <p className="text-gray-600 text-sm line-clamp-3 leading-relaxed">
                   {note.content}
-                </Text>
+                </p>
 
                 {/* Tags */}
-                <HStack spacing={2} flexWrap="wrap">
+                <div className="flex gap-2 flex-wrap">
                   {note.tags.slice(0, 3).map((tag) => (
                     <Badge
                       key={tag}
-                      variant="subtle"
-                      colorScheme="gray"
-                      borderRadius="full"
-                      fontSize="xs"
+                      variant="outline"
+                      className="rounded-full text-xs"
                     >
                       #{tag}
                     </Badge>
                   ))}
                   {note.tags.length > 3 && (
-                    <Text fontSize="xs" color="gray.400">
+                    <span className="text-xs text-gray-400">
                       +{note.tags.length - 3} more
-                    </Text>
+                    </span>
                   )}
-                </HStack>
+                </div>
 
                 {/* Footer */}
-                <HStack justify="space-between" pt={2} borderTop="1px" borderColor="gray.100">
-                  <HStack spacing={2}>
-                    <Avatar size="xs" bg="brand.500" />
-                    <Text fontSize="xs" color="gray.500">
+                <div className="flex justify-between items-center pt-2 border-t border-gray-100">
+                  <div className="flex items-center gap-2">
+                    <Avatar className="w-4 h-4 bg-blue-500">
+                      <AvatarFallback></AvatarFallback>
+                    </Avatar>
+                    <span className="text-xs text-gray-500">
                       Updated {note.updatedAt}
-                    </Text>
-                  </HStack>
-                  <Icon as={Book} w={3} h={3} color="gray.400" />
-                </HStack>
-              </VStack>
-            </CardBody>
+                    </span>
+                  </div>
+                  <Book className="w-3 h-3 text-gray-400" />
+                </div>
+              </div>
+            </CardContent>
           </Card>
         ))}
-      </Grid>
+      </div>
 
       {filteredNotes.length === 0 && (
-        <Box textAlign="center" py={12}>
-          <Icon as={Search} w={12} h={12} color="gray.300" mb={4} />
-          <Text fontSize="lg" color="gray.500" mb={2}>
+        <div className="text-center py-12">
+          <Search className="w-12 h-12 text-gray-300 mb-4 mx-auto" />
+          <h3 className="text-lg text-gray-500 mb-2">
             No notes found
-          </Text>
-          <Text color="gray.400" mb={6}>
+          </h3>
+          <p className="text-gray-400 mb-6">
             Try adjusting your search terms or create a new note
-          </Text>
-          <Button
-            leftIcon={<Icon as={Plus} w={4} h={4} />}
-            colorScheme="brand"
-            onClick={() => navigate('/editor')}
-          >
+          </p>
+          <Button onClick={() => navigate('/editor')}>
+            <Plus className="w-4 h-4 mr-2" />
             Create Your First Note
           </Button>
-        </Box>
+        </div>
       )}
-    </VStack>
+    </div>
   );
 };
 

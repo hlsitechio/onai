@@ -1,92 +1,64 @@
 
 import React from 'react';
-import {
-  Flex,
-  Box,
-  Input,
-  InputGroup,
-  InputLeftElement,
-  Icon,
-  Avatar,
-  Button,
-  Menu,
-  MenuButton,
-  MenuList,
-  MenuItem,
-  Text,
-  useColorModeValue,
-} from '@chakra-ui/react';
 import { Search, Settings, Book } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import { useAuth } from '../../contexts/AuthContext';
 
 const Header: React.FC = () => {
   const { user } = useAuth();
-  const bg = useColorModeValue('white', 'gray.800');
-  const borderColor = useColorModeValue('gray.200', 'gray.700');
 
   return (
-    <Box
-      position="fixed"
-      top={0}
-      right={0}
-      left={{ base: 0, md: '280px' }}
-      h={16}
-      bg={bg}
-      borderBottom="1px"
-      borderColor={borderColor}
-      zIndex={999}
-      px={6}
-    >
-      <Flex align="center" justify="space-between" h="100%">
+    <div className="fixed top-0 right-0 left-0 md:left-[280px] h-16 bg-white border-b border-gray-200 z-[999] px-6">
+      <div className="flex items-center justify-between h-full">
         {/* Search */}
-        <Box w="400px">
-          <InputGroup>
-            <InputLeftElement>
-              <Icon as={Search} color="gray.400" w={4} h={4} />
-            </InputLeftElement>
+        <div className="w-96">
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
             <Input
               placeholder="Search notes, chats, or create new..."
-              borderRadius="12px"
-              bg="gray.50"
-              border="none"
-              _focus={{
-                bg: 'white',
-                boxShadow: '0 0 0 3px rgba(99, 102, 241, 0.1)',
-                border: '1px solid',
-                borderColor: 'brand.200',
-              }}
+              className="pl-10 rounded-xl bg-gray-50 border-none focus:bg-white focus:ring-2 focus:ring-blue-100 focus:border-blue-200"
             />
-          </InputGroup>
-        </Box>
+          </div>
+        </div>
 
         {/* User Menu */}
-        <Flex align="center" gap={4}>
-          <Button
-            leftIcon={<Icon as={Book} w={4} h={4} />}
-            colorScheme="brand"
-            variant="solid"
-            size="sm"
-            borderRadius="12px"
-          >
+        <div className="flex items-center gap-4">
+          <Button className="rounded-xl">
+            <Book className="w-4 h-4 mr-2" />
             New Note
           </Button>
 
-          <Menu>
-            <MenuButton as={Button} variant="ghost" p={2} borderRadius="full">
-              <Avatar size="sm" src={user?.avatar} name={user?.name} />
-            </MenuButton>
-            <MenuList borderRadius="12px" boxShadow="xl">
-              <MenuItem icon={<Icon as={Settings} w={4} h={4} />}>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" className="p-2 rounded-full">
+                <Avatar className="w-8 h-8">
+                  <AvatarImage src={user?.avatar} />
+                  <AvatarFallback>{user?.name?.[0]}</AvatarFallback>
+                </Avatar>
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent className="rounded-xl shadow-xl">
+              <DropdownMenuItem>
+                <Settings className="w-4 h-4 mr-2" />
                 Settings
-              </MenuItem>
-              <MenuItem icon={<Icon as={Book} w={4} h={4} />}>
+              </DropdownMenuItem>
+              <DropdownMenuItem>
+                <Book className="w-4 h-4 mr-2" />
                 Documentation
-              </MenuItem>
-            </MenuList>
-          </Menu>
-        </Flex>
-      </Flex>
-    </Box>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
+      </div>
+    </div>
   );
 };
 
