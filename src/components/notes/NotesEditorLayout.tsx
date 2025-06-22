@@ -34,10 +34,16 @@ const NotesEditorLayout: React.FC<NotesEditorLayoutProps> = ({
   const [aiPanelOpen, setAiPanelOpen] = useState(false);
 
   return (
-    <div className="h-screen flex bg-gradient-to-br from-[#050510] to-[#0a0518] overflow-hidden">
+    <div className="h-screen flex bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 overflow-hidden">
+      {/* Enhanced background with subtle patterns */}
+      <div className="fixed inset-0 z-0 pointer-events-none">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_1px_1px,rgba(255,255,255,0.15)_1px,transparent_0)] [background-size:20px_20px] opacity-20" />
+        <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 via-purple-500/5 to-pink-500/5" />
+      </div>
+
       <ResizablePanelGroup 
         direction="horizontal" 
-        className="h-full w-full"
+        className="h-full w-full relative z-10"
         autoSaveId="notes-editor-layout"
       >
         {/* Notes Sidebar */}

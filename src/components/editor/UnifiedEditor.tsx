@@ -101,15 +101,15 @@ const UnifiedEditor: React.FC<UnifiedEditorProps> = ({
   return (
     <div className={cn(
       "flex-1 flex flex-col relative h-full",
-      "bg-gradient-to-br from-[#0a0a0f] via-[#0d0d14] to-[#0f0f18]",
+      "bg-gradient-to-br from-slate-950/90 via-slate-900/90 to-slate-950/90",
       isFocusMode && "bg-black"
     )}>
       {/* Main editor container */}
       <div className={cn(
         "flex-1 relative",
-        "scrollbar-thin scrollbar-track-transparent scrollbar-thumb-white/10",
+        "scrollbar-thin scrollbar-track-transparent scrollbar-thumb-slate-600/50 hover:scrollbar-thumb-slate-500/70",
         "overflow-auto",
-        isFocused && "ring-1 ring-purple-500/20"
+        isFocused && "ring-1 ring-blue-500/30"
       )}>
         {/* Content editable area */}
         <div
@@ -122,15 +122,16 @@ const UnifiedEditor: React.FC<UnifiedEditorProps> = ({
           onPaste={handlePaste}
           className={cn(
             "w-full h-full min-h-full outline-none border-none",
-            "text-white/90 leading-relaxed font-normal",
+            "text-slate-100 leading-relaxed font-normal",
             "prose prose-lg prose-invert max-w-none",
-            "prose-headings:text-white prose-p:text-white/90",
-            "prose-strong:text-white prose-em:text-white/80",
-            "prose-code:text-purple-300 prose-code:bg-purple-900/20",
-            "prose-pre:bg-gray-900/50 prose-pre:border prose-pre:border-white/10",
-            "prose-blockquote:border-l-purple-500 prose-blockquote:text-white/80",
-            "prose-ul:text-white/90 prose-ol:text-white/90",
-            "prose-li:text-white/90",
+            "prose-headings:text-slate-100 prose-p:text-slate-200",
+            "prose-strong:text-white prose-em:text-slate-300",
+            "prose-code:text-blue-300 prose-code:bg-slate-800/50 prose-code:px-1 prose-code:rounded",
+            "prose-pre:bg-slate-800/50 prose-pre:border prose-pre:border-slate-700/50",
+            "prose-blockquote:border-l-blue-400 prose-blockquote:text-slate-300",
+            "prose-ul:text-slate-200 prose-ol:text-slate-200",
+            "prose-li:text-slate-200",
+            "selection:bg-blue-500/20",
             isMobile ? "p-4 text-base" : "p-8 text-lg",
             "focus:outline-none focus:ring-0"
           )}
@@ -149,15 +150,15 @@ const UnifiedEditor: React.FC<UnifiedEditorProps> = ({
           <div className={cn(
             "absolute pointer-events-none select-none",
             isMobile ? "top-4 left-4" : "top-8 left-8",
-            "text-white/30 text-lg font-light z-10"
+            "text-slate-500 text-lg font-light z-10"
           )}>
-            <div className="flex flex-col gap-2">
-              <div className="flex items-center gap-2">
-                <div className="w-2 h-2 bg-purple-500 rounded-full animate-pulse" />
+            <div className="flex flex-col gap-3">
+              <div className="flex items-center gap-3">
+                <div className="w-2 h-2 bg-blue-400 rounded-full animate-pulse" />
                 <span>{placeholder}</span>
               </div>
-              <div className="text-sm text-white/20 ml-4">
-                {isMobile ? "Tap to start writing" : "Click here or use Ctrl+shortcuts for formatting"}
+              <div className="text-sm text-slate-600 ml-5">
+                {isMobile ? "Tap to start writing" : "Click here or use keyboard shortcuts for formatting"}
               </div>
             </div>
           </div>
@@ -165,14 +166,14 @@ const UnifiedEditor: React.FC<UnifiedEditorProps> = ({
 
         {/* Focus mode indicator */}
         {isFocusMode && (
-          <div className="absolute top-4 right-4 text-purple-400 text-sm font-medium opacity-50 z-10">
+          <div className="absolute top-6 right-6 text-blue-400 text-sm font-medium opacity-70 z-10">
             Focus Mode
           </div>
         )}
 
         {/* Writing stats */}
         {!isEmpty && (
-          <div className="absolute bottom-4 right-4 text-white/30 text-xs font-mono z-10">
+          <div className="absolute bottom-6 right-6 text-slate-500 text-xs font-mono z-10 bg-slate-800/50 px-2 py-1 rounded">
             {(() => {
               const tempDiv = document.createElement('div');
               tempDiv.innerHTML = content;

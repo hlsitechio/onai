@@ -33,17 +33,22 @@ const NotesEditorSidebarPanel: React.FC<NotesEditorSidebarPanelProps> = ({
         collapsible={true}
         className="min-w-0"
       >
-        <NotesSidebar
-          notes={notesRecord}
-          selectedNoteId={selectedNoteId}
-          onLoadNote={onLoadNote}
-          onCreateNote={onCreateNote}
-          onDeleteNote={onDeleteNote}
-          onRenameNote={onRenameNote}
-          saving={saving}
-        />
+        <div className="h-full bg-slate-900/90 backdrop-blur-xl border-r border-slate-700/50">
+          <NotesSidebar
+            notes={notesRecord}
+            selectedNoteId={selectedNoteId}
+            onLoadNote={onLoadNote}
+            onCreateNote={onCreateNote}
+            onDeleteNote={onDeleteNote}
+            onRenameNote={onRenameNote}
+            saving={saving}
+          />
+        </div>
       </ResizablePanel>
-      <ResizableHandle withHandle={true} />
+      <ResizableHandle 
+        withHandle={true} 
+        className="bg-slate-700/30 hover:bg-slate-600/50 transition-colors duration-200"
+      />
     </>
   );
 };

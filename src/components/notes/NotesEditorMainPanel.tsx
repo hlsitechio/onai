@@ -28,7 +28,7 @@ const NotesEditorMainPanel: React.FC<NotesEditorMainPanelProps> = ({
     <ResizablePanel 
       id="main-editor"
       minSize={20}
-      className="flex flex-col"
+      className="flex flex-col bg-slate-900/50 backdrop-blur-xl"
     >
       {/* Top Bar */}
       <NotesEditorTopBar
@@ -40,12 +40,16 @@ const NotesEditorMainPanel: React.FC<NotesEditorMainPanelProps> = ({
       />
 
       {/* Editor */}
-      <div className="flex-1">
-        <NoteEditor
-          noteId={currentNote?.id || null}
-          content={currentContent}
-          onContentChange={onContentChange}
-        />
+      <div className="flex-1 relative">
+        {/* Enhanced editor background */}
+        <div className="absolute inset-0 bg-gradient-to-br from-slate-950/80 to-slate-900/80" />
+        <div className="relative z-10 h-full">
+          <NoteEditor
+            noteId={currentNote?.id || null}
+            content={currentContent}
+            onContentChange={onContentChange}
+          />
+        </div>
       </div>
     </ResizablePanel>
   );

@@ -1,8 +1,9 @@
 
 import React from 'react';
 import { Button } from "@/components/ui/button";
-import { Sparkles, PanelRight } from "lucide-react";
+import { Sparkles, PanelRight, FileText, Save } from "lucide-react";
 import { Note } from "@/hooks/useNotesManager";
+import { cn } from "@/lib/utils";
 
 interface NotesEditorTopBarProps {
   currentNote: Note | null;
@@ -20,32 +21,44 @@ const NotesEditorTopBar: React.FC<NotesEditorTopBarProps> = ({
   onToggleAIPanel,
 }) => {
   return (
-    <div className="h-14 bg-black/20 border-b border-white/10 flex items-center justify-between px-4">
-      <div className="flex items-center gap-2">
+    <div className="h-16 bg-slate-900/95 backdrop-blur-xl border-b border-slate-700/50 flex items-center justify-between px-6">
+      {/* Left section */}
+      <div className="flex items-center gap-4">
         <Button
           variant="ghost"
           size="sm"
           onClick={onToggleSidebar}
-          className="text-white hover:bg-white/10"
+          className={cn(
+            "h-9 px-3 text-slate-300 hover:text-white hover:bg-slate-700/50 transition-all duration-200",
+            sidebarOpen && "bg-slate-700/50 text-white"
+          )}
         >
-          <PanelRight className={`h-4 w-4 transition-transform ${sidebarOpen ? 'rotate-180' : ''}`} />
+          <PanelRight className={`h-4 w-4 transition-transform duration-200 ${sidebarOpen ? 'rotate-180' : ''}`} />
         </Button>
-        <span className="text-white text-sm">
-          {currentNote ? `Note: ${currentNote.title}` : 'No note selected'}
-        </span>
+        
+        <div className="flex items-center gap-2 text-slate-300">
+          <FileText className="h-4 w-4" />
+          <span className="text-sm font-medium">
+            {currentNote ? currentNote.title : 'No note selected'}
+          </span>
+        </div>
       </div>
 
-      <Button
-        variant="outline"
-        size="sm"
-        onClick={onToggleAIPanel}
-        className={`border-noteflow-500/30 text-noteflow-300 hover:bg-noteflow-500/20 hover:text-white transition-colors ${
-          aiPanelOpen ? 'bg-noteflow-500/20 text-white' : ''
-        }`}
-      >
-        <Sparkles className="h-4 w-4 mr-2" />
-        AI Assistant
-      </Button>
+      {/* Right section */}
+      <div className="flex items-center gap-3">
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={onToggleAIPanel}
+          className={cn(
+            "border-slate-600 text-slate-300 hover:bg-slate-700/50 hover:text-white hover:border-slate-500 transition-all duration-200",
+            aiPanelOpen && "bg-gradient-to-r from-blue-500/20 to-purple-500/20 border-blue-400/50 text-white shadow-lg shadow-blue-500/10"
+          )}
+        >
+          <Sparkles className="h-4 w-4 mr-2" />
+          AI Assistant
+        </Button>
+      </div>
     </div>
   );
 };
