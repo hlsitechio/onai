@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Crown, Focus, Heart, Save } from 'lucide-react';
+import { Crown, Focus, Heart, Save, ChevronUp, ChevronDown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 
@@ -10,8 +10,10 @@ interface EditorHeaderProps {
   isSaving: boolean;
   canSave: boolean;
   isCollapsed?: boolean;
+  isHeaderCollapsed?: boolean;
   onFavoriteToggle: () => void;
   onFocusModeToggle: () => void;
+  onHeaderCollapseToggle?: () => void;
   onSave: () => void;
 }
 
@@ -21,8 +23,10 @@ const EditorHeader: React.FC<EditorHeaderProps> = ({
   isSaving,
   canSave,
   isCollapsed = false,
+  isHeaderCollapsed = false,
   onFavoriteToggle,
   onFocusModeToggle,
+  onHeaderCollapseToggle,
   onSave,
 }) => {
   if (isCollapsed) {
@@ -64,9 +68,61 @@ const EditorHeader: React.FC<EditorHeaderProps> = ({
     );
   }
 
+  if (isHeaderCollapsed) {
+    return (
+      <div className="flex justify-between items-center glass p-4 rounded-xl shadow-large">
+        <div className="flex items-center gap-3">
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={onHeaderCollapseToggle}
+            className="w-8 h-8 text-gray-500 hover:text-foreground transition-colors"
+          >
+            <ChevronDown className="w-4 h-4" />
+          </Button>
+          <span className="text-lg font-semibold text-foreground">
+            {isNewNote ? 'Create New Note' : 'Edit Note'}
+          </span>
+        </div>
+        <div className="flex gap-3">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={onFocusModeToggle}
+            className="text-purple-600 bg-purple-50/20 dark:bg-purple-900/20 dark:text-purple-400 hover:scale-105 transition-all backdrop-blur-sm border-0"
+          >
+            <Focus className="w-4 h-4 mr-2" />
+            Focus Mode
+          </Button>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={onFavoriteToggle}
+            className={`${isFavorite ? 'text-red-500 bg-red-50/20 dark:bg-red-900/20' : 'text-gray-400 dark:text-slate-400'} hover:scale-105 transition-all backdrop-blur-sm border-0`}
+          >
+            <Heart className={`w-4 h-4 mr-2 ${isFavorite ? 'fill-current' : ''}`} />
+            {isFavorite ? 'Add to Favorites' : 'Add to Favorites'}
+          </Button>
+          <Button onClick={onSave} disabled={!canSave || isSaving} className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 shadow-lg hover:shadow-xl transition-all hover:scale-105 border-0 backdrop-blur-md">
+            <Save className="w-4 h-4 mr-2" />
+            Save Note
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="flex justify-between items-start glass p-6 rounded-2xl shadow-large">
       <div className="flex items-center gap-4">
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={onHeaderCollapseToggle}
+          className="w-8 h-8 text-gray-500 hover:text-foreground transition-colors self-start mt-1"
+        >
+          <ChevronUp className="w-4 h-4" />
+        </Button>
         <div>
           <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent flex items-center gap-3 dark:from-blue-400 dark:to-purple-400">
             {isNewNote ? 'Create New Note' : 'Edit Note'}

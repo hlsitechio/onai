@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNotes } from '../contexts/NotesContext';
 import { NoteCategory } from '../types/note';
@@ -26,6 +25,7 @@ const Editor: React.FC = () => {
   const [isFavorite, setIsFavorite] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [isFocusMode, setIsFocusMode] = useState(false);
+  const [isHeaderCollapsed, setIsHeaderCollapsed] = useState(false);
 
   // Load current note when it changes
   useEffect(() => {
@@ -102,13 +102,35 @@ const Editor: React.FC = () => {
               isSaving={isSaving}
               canSave={title.trim().length > 0}
               isCollapsed={isFocusMode}
+              isHeaderCollapsed={isHeaderCollapsed}
               onFavoriteToggle={() => setIsFavorite(!isFavorite)}
               onFocusModeToggle={() => setIsFocusMode(true)}
+              onHeaderCollapseToggle={() => setIsHeaderCollapsed(!isHeaderCollapsed)}
               onSave={handleSave}
             />
 
-            {!isFocusMode && (
+            {!isFocusMode && !isHeaderCollapsed && (
               <div className="h-[calc(100vh-120px)]">
+                <EditorLayout
+                  title={title}
+                  content={content}
+                  category={category}
+                  tags={tags}
+                  newTag={newTag}
+                  categories={categories}
+                  onTitleChange={setTitle}
+                  onContentChange={setContent}
+                  onCategoryChange={setCategory}
+                  onNewTagChange={setNewTag}
+                  onAddTag={addTag}
+                  onRemoveTag={removeTag}
+                  onSuggestionApply={handleSuggestionApply}
+                />
+              </div>
+            )}
+
+            {!isFocusMode && isHeaderCollapsed && (
+              <div className="h-[calc(100vh-80px)]">
                 <EditorLayout
                   title={title}
                   content={content}
