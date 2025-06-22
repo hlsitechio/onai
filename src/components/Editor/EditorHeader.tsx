@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence, Variants } from 'framer-motion';
 import { Crown, Focus, Heart, Save, ChevronUp, ChevronDown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -18,12 +18,12 @@ interface EditorHeaderProps {
   onSave: () => void;
 }
 
-const headerVariants = {
+const headerVariants: Variants = {
   expanded: {
     height: "auto",
     padding: "1.5rem",
     transition: {
-      type: "spring",
+      type: "spring" as const,
       stiffness: 400,
       damping: 30,
       duration: 0.3
@@ -33,7 +33,7 @@ const headerVariants = {
     height: "auto",
     padding: "1rem",
     transition: {
-      type: "spring",
+      type: "spring" as const,
       stiffness: 400,
       damping: 30,
       duration: 0.3
@@ -43,7 +43,7 @@ const headerVariants = {
     height: "auto",
     padding: "0.75rem",
     transition: {
-      type: "spring",
+      type: "spring" as const,
       stiffness: 400,
       damping: 30,
       duration: 0.3
@@ -51,7 +51,7 @@ const headerVariants = {
   }
 };
 
-const contentVariants = {
+const contentVariants: Variants = {
   expanded: {
     opacity: 1,
     y: 0,
@@ -69,11 +69,11 @@ const contentVariants = {
   }
 };
 
-const buttonVariants = {
+const buttonVariants: Variants = {
   hover: {
     scale: 1.05,
     transition: {
-      type: "spring",
+      type: "spring" as const,
       stiffness: 400,
       damping: 25
     }

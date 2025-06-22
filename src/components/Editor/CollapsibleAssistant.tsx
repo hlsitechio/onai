@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence, Variants } from 'framer-motion';
 import { 
   ChevronLeft, 
   ChevronRight, 
@@ -29,11 +29,11 @@ interface CollapsibleAssistantProps {
   onCollapseChange?: (isCollapsed: boolean) => void;
 }
 
-const sidebarVariants = {
+const sidebarVariants: Variants = {
   expanded: {
     width: "20rem",
     transition: {
-      type: "spring",
+      type: "spring" as const,
       stiffness: 400,
       damping: 30,
       duration: 0.3
@@ -42,7 +42,7 @@ const sidebarVariants = {
   collapsed: {
     width: "4rem",
     transition: {
-      type: "spring",
+      type: "spring" as const,
       stiffness: 400,
       damping: 30,
       duration: 0.3
@@ -50,7 +50,7 @@ const sidebarVariants = {
   }
 };
 
-const contentVariants = {
+const contentVariants: Variants = {
   expanded: {
     opacity: 1,
     x: 0,
@@ -68,12 +68,12 @@ const contentVariants = {
   }
 };
 
-const iconVariants = {
+const iconVariants: Variants = {
   expanded: {
     scale: 1,
     rotate: 0,
     transition: {
-      type: "spring",
+      type: "spring" as const,
       stiffness: 400,
       damping: 25
     }
@@ -82,7 +82,7 @@ const iconVariants = {
     scale: 1.1,
     rotate: 0,
     transition: {
-      type: "spring",
+      type: "spring" as const,
       stiffness: 400,
       damping: 25
     }
