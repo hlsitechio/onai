@@ -1,4 +1,5 @@
 
+<<<<<<< HEAD
 import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Header from '@/components/Header';
@@ -55,6 +56,15 @@ const Index = () => {
       <ScrollToTop />
     </div>
   );
+=======
+import React from 'react';
+import { Navigate } from 'react-router-dom';
+
+// This component now just redirects to the main app
+// All routing logic has been moved to App.tsx
+const Index = () => {
+  return <Navigate to="/dashboard" replace />;
+>>>>>>> noteai-suite/main
 };
 
 export default Index;
