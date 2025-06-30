@@ -1,3 +1,6 @@
+![image](https://github.com/user-attachments/assets/e82ea1b3-361c-4c14-9101-3b20decb429f)
+
+
 # 🚀 Online Note AI - Horizon Suite
 
 [![Website](https://img.shields.io/badge/Visit-onlinenote.ai-2ea44f?style=for-the-badge&logo=google-chrome)](https://onlinenote.ai)
@@ -5,12 +8,9 @@
 [![Sponsor](https://img.shields.io/badge/Sponsor%20us-❤-red?style=for-the-badge)](https://github.com/sponsors/hlsitechio)
 [![Star](https://img.shields.io/github/stars/hlsitechio/onai?style=social)](https://github.com/hlsitechio/onai/)
 
-![Online Note AI](https://github.com/user-attachments/assets/ae3c0b1c-a3c5-437d-b20b-502c8551edfe)
-
 **Online Note AI - Horizon Suite** is a modern, AI-powered note-taking web application designed for productivity, collaboration, and security. Take notes, organize your thoughts, and leverage AI—all in one place.
 
 🌐 **Website**: [onlinenote.ai](https://onlinenote.ai)  
-🔗 **Lovable Project**: [Project Dashboard](https://lovable.dev/projects/537bfa69-8d92-4d14-93ac-53fede0eeabf)
 
 ## ✨ Features
 
